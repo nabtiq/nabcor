@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+.npm/
+
+# builds
+.next/
+out/
+dist/
+*.tsbuildinfo
+
+# env — never commit real credentials
+.env
+.env.local
+.env*.local
+
+# test artifacts
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# OS
+.DS_Store
+
+# logs
+*.log
+npm-debug.log*
+
+# contact file-log fallback (dev only)
+contact-leads.jsonl

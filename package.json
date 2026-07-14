@@ -1,0 +1,23 @@
+{
+  "name": "nabcor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Nabtiq site core + reference theme. Static-first, build-time, content/theme/layout separation for client websites.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace apps/demo",
+    "build": "npm run build --workspace apps/demo",
+    "start": "npm run start --workspace apps/demo",
+    "typecheck": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/theme-novalt/tsconfig.json && tsc --noEmit -p apps/demo/tsconfig.json",
+    "validate-content": "npm run validate-content --workspace apps/demo",
+    "test:a11y": "npm run test:a11y --workspace apps/demo",
+    "lint": "npm run lint --workspace apps/demo"
+  }
+}

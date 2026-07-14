@@ -1,0 +1,32 @@
+# Per-site compose for the shared Hostinger VPS (Traefik reverse proxy).
+# Direct port of the /docker/<name>/docker-compose.yml convention documented in
+# DEPLOY-PATTERN.md. Replace {{SITE}} and {{DOMAIN}}; no published host ports —
+# Traefik reaches the container's internal port 3000 directly, so adding a site
+# never touches Traefik or any sibling.
+services:
+  web:
+    build:
+      context: ./repo
+      dockerfile: apps/demo/Dockerfile
+      args:
+        GIT_SHA: ${GIT_SHA:-dev}
+    container_name: {{SITE}}
+    restart: unless-stopped
+    networks:
+      - {{SITE}}_default
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.{{SITE}}.rule=Host(`{{DOMAIN}}`) || Host(`www.{{DOMAIN}}`)
+      - traefik.http.routers.{{SITE}}.entrypoints=websecure
+      - traefik.http.routers.{{SITE}}.tls.certresolver=letsencrypt
+      - traefik.http.services.{{SITE}}.loadbalancer.server.port=3000
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/{{DEFAULT_LOCALE}}']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  {{SITE}}_default:
+    name: {{SITE}}_default

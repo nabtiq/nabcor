@@ -1,0 +1,49 @@
+# GitHub Actions → shared VPS over SSH. Parameterized port of the josouralazl/
+# nabtiq deploy.yml (the audit found this re-authored four times). Copy to
+# .github/workflows/deploy.yml in a site repo and set the secrets below.
+#
+# Required repo secrets:
+#   DEPLOY_HOST     VPS IP or host
+#   DEPLOY_USER     SSH user
+#   DEPLOY_SSH_KEY  private key authorized for that user
+#
+# Server layout (per DEPLOY-PATTERN.md): /docker/{{SITE}}/{repo, docker-compose.yml}
+name: Deploy {{SITE}}
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-{{SITE}}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Copy repo to server
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: '.'
+          target: '/docker/{{SITE}}/repo.incoming'
+
+      - name: Swap in & rebuild
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd /docker/{{SITE}}
+            rm -rf repo.old && mv repo repo.old 2>/dev/null || true
+            mv repo.incoming repo
+            GIT_SHA=${{ github.sha }} docker compose up -d --build 2>&1 | tail -8

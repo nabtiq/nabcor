@@ -1,0 +1,34 @@
+{
+  "name": "@nabcor/core",
+  "version": "0.1.0",
+  "description": "nabcor core: content schema, theme contract, shared components, SEO, security, contact pipeline, deploy scaffolding.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./components": "./src/components/index.ts",
+    "./server": "./src/server/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": ["src", "deploy"],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "peerDependencies": {
+    "next": "^15.5.0",
+    "next-intl": "^3.26.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "next-intl": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "next": "^15.5.19",
+    "react": "^19.0.0"
+  }
+}
