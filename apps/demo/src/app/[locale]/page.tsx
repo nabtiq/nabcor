@@ -1,8 +1,8 @@
 import { setRequestLocale } from 'next-intl/server';
 import { SectionRenderer, Header, Footer, WhatsAppFloat, JsonLd } from '@nabcor/core/components';
 import { organizationJsonLd, websiteJsonLd } from '@nabcor/core';
-import { novalt } from '@nabcor/theme-novalt';
 import { content } from '@/content/novalt';
+import { activeTheme } from '@/theme/active';
 import { nav, footerColumns, localeNames, footerNote } from '@/content/chrome';
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
@@ -21,7 +21,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <main>
         <JsonLd data={organizationJsonLd(content, locale)} />
         <JsonLd data={websiteJsonLd(content, locale)} />
-        <SectionRenderer theme={novalt} sections={content.sections} locale={locale} />
+        <SectionRenderer theme={activeTheme} sections={content.sections} locale={locale} />
       </main>
       <Footer business={content.business} columns={footerColumns} locale={locale} copyright={footerNote} />
       {content.business.whatsapp && (

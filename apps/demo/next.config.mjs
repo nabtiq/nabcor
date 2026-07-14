@@ -1,34 +1,10 @@
 import createNextIntlPlugin from 'next-intl/plugin';
+// Consumes the BUILT @nabcor/core/security (dist JS) — no duplicated headers.
+// Works in the config bootstrap because the module is compiled and
+// self-contained. Requires @nabcor/core to be built first (demo `prebuild`).
+import { securityHeaders } from '@nabcor/core/security';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
-
-// Security headers. Mirrors @nabcor/core's `securityHeaders()` preset. Inlined
-// here (not imported) because next.config is loaded before the TS transpile
-// step, so it cannot import the package's TS source. Site code still uses the
-// core export; only the config bootstrap duplicates it.
-const csp = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
-  "frame-src 'none'",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "object-src 'none'",
-  'upgrade-insecure-requests',
-].join('; ');
-
-const securityHeaders = [
-  { key: 'Content-Security-Policy', value: csp },
-  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-  { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'X-Frame-Options', value: 'DENY' },
-  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()' },
-];
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -36,9 +12,9 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   outputFileTracingRoot: new URL('../../', import.meta.url).pathname,
-  transpilePackages: ['@nabcor/core', '@nabcor/theme-novalt'],
+  transpilePackages: ['@nabcor/core', '@nabcor/theme-novalt', '@nabcor/theme-plain'],
   async headers() {
-    return [{ source: '/(.*)', headers: securityHeaders }];
+    return [{ source: '/(.*)', headers: securityHeaders() }];
   },
 };
 

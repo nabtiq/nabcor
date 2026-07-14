@@ -26,12 +26,14 @@
   --color-cream: #faf8ff;
 
   /* ---- Type ---- */
-  --font-display: var(--font-fraunces, 'Fraunces'), Georgia, 'Times New Roman', serif;
-  --font-sans: var(--font-inter, 'Inter'), system-ui, -apple-system, sans-serif;
-  --font-arabic: var(--font-noto-kufi, 'Noto Kufi Arabic'), var(--font-sans);
+  /* Arabic glyphs fall through to the self-hosted --font-arabic-local per-glyph. */
+  --font-display: var(--font-fraunces, 'Fraunces'), var(--font-arabic-local), Georgia, 'Times New Roman', serif;
+  --font-sans: var(--font-inter, 'Inter'), var(--font-arabic-local), system-ui, -apple-system, sans-serif;
+  --font-arabic: var(--font-arabic-local), var(--font-inter, 'Inter'), system-ui, sans-serif;
 }
 
-:root {
+:root,
+:root[data-theme='novalt'] {
   /* ---- Semantic brand aliases (components use these) ---- */
   --color-brand-50: var(--color-violet-50);
   --color-brand-100: var(--color-violet-100);

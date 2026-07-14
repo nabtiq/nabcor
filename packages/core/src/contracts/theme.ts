@@ -10,7 +10,6 @@
 import type { ComponentType } from 'react';
 import type {
   Locale,
-  Section,
   SectionType,
   SectionOf,
   HeroRecipe,
@@ -58,7 +57,13 @@ export interface NabcorTheme {
    */
   tokensPath: string;
   supportedRecipes: SupportedRecipes;
-  components: SectionComponents;
+  /**
+   * Section overrides. PARTIAL by design: any type a theme omits falls back to
+   * the neutral core default (see `resolveSection` in ../defaults). A token-only
+   * theme can ship `components: {}` and still render every section — this is the
+   * change that makes new themes cheap to author.
+   */
+  components: Partial<SectionComponents>;
 }
 
 /**
@@ -81,10 +86,5 @@ export function resolveServicesRecipe(
     : (theme.supportedRecipes.services[0] ?? requested);
 }
 
-/**
- * Look up the component for a section instance, fully typed. Used by the
- * generic `<SectionRenderer>` so apps never hand-wire a switch statement.
- */
-export function componentForSection(theme: NabcorTheme, section: Section): SectionComponent<SectionType> {
-  return theme.components[section.type] as SectionComponent<SectionType>;
-}
+// Section resolution (override ?? core default) lives in ../defaults so it can
+// reference the default component set. Import { resolveSection } from there.

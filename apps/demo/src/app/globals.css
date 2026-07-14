@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 @import '@nabcor/theme-novalt/tokens.css';
+/* Token-only fixture; wins when <html data-theme="plain"> (Change #1 proof). */
+@import '@nabcor/theme-plain/tokens.css';
 
 *,
 *::before,

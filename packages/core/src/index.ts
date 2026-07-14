@@ -7,6 +7,7 @@ export * from './schema/content';
 export * from './schema/validate';
 export * from './contracts/theme';
 export * from './contracts/extension';
+export { coreDefaults, resolveSection, resolveSectionComponent } from './defaults';
 export * from './seo';
 export * from './security/headers';
 export { localized, dirFor } from './util/localized';
