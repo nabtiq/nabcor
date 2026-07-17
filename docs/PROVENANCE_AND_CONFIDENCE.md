@@ -60,7 +60,7 @@ Detection is a standing UNDERSTAND-skill duty (`detect-contradictions`): same su
 incompatible values, cross-source or cross-fragment. Each becomes a Contradiction
 record surfaced to a human; resolution is a decision record; the losing claim moves to
 `contradicted` and stays queryable (so the same conflict is never re-litigated — the
-BC-001 جسور/نسور lesson, FAIL-04). Publication-critical facts (names, contact,
+BC-001 Josour/Nosour (transliterated) lesson, FAIL-04). Publication-critical facts (names, contact,
 domains) with open contradictions **block** publication surfaces (G4/G5).
 
 ## 6. Expiration and staleness
@@ -155,7 +155,7 @@ Contradicted claim (kept):
 ```json
 {
   "claimId": "claim_017",
-  "statement": "The company name is نسور العزل",
+  "statement": "The company name is Nosour Al-Azl (transliterated; Arabic script prohibited in repository files)",
   "classification": "factual",
   "sourceType": "uploaded_document",
   "sourceRef": "company-profile.pdf#page=1",

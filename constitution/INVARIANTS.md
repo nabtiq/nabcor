@@ -54,8 +54,8 @@ title: Generated visuals are labeled and never impersonate evidence
 rule: Every visual asset carries a classification (documentary | illustrative |
   generated | conceptual); generated/conceptual assets never render as the client's real
   work, people, or partners, and carry an illustrative marker where user-facing.
-rationale: BC-001 practice (ASSETS.md provenance labels, "(صورة توضيحية للخدمة)" markers)
-  held; VALIDATED_BC001 as discipline.
+rationale: BC-001 practice (ASSETS.md provenance labels, Arabic-language
+  "illustrative service image" markers) held; VALIDATED_BC001 as discipline.
 enforcement: [source.schema asset classification + provenance_label_required,
   G6 contact-sheet gate, G4 scan for unlabeled generated assets in factual slots]
 failure_example: a generated "project photo" placed in a portfolio card as if it were a

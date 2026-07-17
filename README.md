@@ -3,7 +3,9 @@
 > Evidence-aware AI Creative Operating System for building distinctive, coherent brand worlds across channels.
 
 **Foundation version:** `0.1.0`
-**Status:** clean architecture baseline; no production implementation has started.
+**Status:** clean architecture baseline plus the deterministic Phase 1A truth kernel
+(DEC-0004/DEC-0005). No provider-backed extraction, no model calls, and no full
+vertical slice exist yet.
 
 ## What NABCor is
 
@@ -27,13 +29,32 @@ Websites, social assets, campaigns, presentations, ads, and video concepts are c
 expressions of that spine. They are not independent products and must not become
 unrelated generators.
 
-## لماذا أُعيد بناء المستودع؟
+## Why the repository was rebuilt
 
-بدأ NABCor كقاعدة تقنية لبناء مواقع Next.js للعملاء. تلك النسخة أثبتت دروساً مفيدة
-عن العقود، التحقق، العربية، وحماية الحقائق، لكنها لم تعد تمثل المنتج الذي نريد بناءه.
-هذه الحزمة تبدأ من تعريف المنتج الجديد مباشرة: نظام تشغيل إبداعي يفهم العلامة، يصنع
-اتجاهاً مميزاً، يقيّم نتائجه، ويتعلم من القرارات والرفض والأداء. كود المواقع والقوالب
-القديمة غير موجود هنا؛ ما بقي منها هو الدليل والتعلّم القابلان للتعميم فقط.
+NABCor began as a technical base for building Next.js client websites. That version
+proved useful lessons about contracts, validation, Arabic-quality gates, and fact
+protection, but it no longer represented the product being built. This baseline starts
+directly from the new product definition: a creative operating system that understands
+a brand, develops a distinctive direction, evaluates its own output, and learns from
+decisions, rejections, and performance. The legacy website and template code is not
+here; only the generalizable evidence and learnings were retained.
+
+## Repository language policy (canonical)
+
+English is the canonical language for all repository-authored material: source code
+and comments, documentation, Second Brain records, JSON Schemas and their examples,
+test fixtures and descriptions, configuration, workflows, commit messages, and PR
+text. A deterministic gate (`npm run validate:language`, part of `npm run validate`
+and CI) fails the build if any tracked text file contains characters in the Arabic
+Unicode blocks (U+0600–U+06FF, U+0750–U+077F, U+08A0–U+08FF, U+FB50–U+FDFF,
+U+FE70–U+FEFF).
+
+This is a repository-language policy, not removal of Arabic product support. The `ar`
+locale, RTL and logical-property requirements, Arabic quality and visual-review gates
+(INV-AR-001), and the ability to receive and generate Arabic at runtime are all
+preserved. Repository fixtures use English placeholders in `ar` fields (for example
+`"[Arabic copy pending]"`) because literal Arabic text is prohibited in tracked
+repository-authored files.
 
 ## Two input modes
 
@@ -106,8 +127,10 @@ brain/          current state, decisions, experiments, learnings, research, arch
 contracts/      strict versioned artifact schemas + positive/negative fixtures
 docs/           domain, provenance, evaluation, model, workflow, and slice design
 evals/          rubrics plus benchmark and regression plans
-skills/         skill specifications; implementation starts only after ratification
-scripts/        deterministic repository and Second Brain validation
+skills/         skill specifications for implemented capabilities
+scripts/        deterministic repository, Second Brain, and language validation
+src/            deterministic Phase 1A truth kernel (TypeScript, ESM, no framework)
+test/           runtime tests (Node built-in test runner, compiled to dist/)
 .github/        validation workflow
 ```
 
@@ -124,8 +147,35 @@ npm run validate
 ```
 
 `npm run validate` checks all artifact contracts, positive and negative fixtures,
-cross-field invariants, Second Brain record structure, required foundation files, and
-the absence of legacy product artifacts.
+cross-field invariants, Second Brain record structure, required foundation files, the
+absence of legacy product artifacts, the English-only language gate, TypeScript
+type checking, and the runtime kernel tests.
+
+## Phase 1A deterministic truth kernel
+
+`src/` contains the smallest provider-independent runtime that turns the existing
+contracts into executable product boundaries (DEC-0005: Node.js 20, strict
+TypeScript, ESM, no application or agent framework):
+
+- **Contract registry** — compiles the existing JSON Schemas once, maps artifact
+  types to schema IDs, and validates every artifact at runtime boundaries with the
+  same strictness as `contracts/validate.mjs`.
+- **File artifact store** — workspace/brand-namespaced, validate-before-write,
+  no-overwrite, lineage-aware storage per DEC-0002 and INV-VER-001/INV-DATA-001.
+- **`classify-input` (Tier 0)** — deterministic classification of input descriptors
+  into schema-valid `source` artifacts with conservative rights defaults and a
+  bounded injection-warning scanner (INV-SEC-002). No OCR, parsing, or fetching.
+- **`build-brand-context` (Tier 0)** — deterministic compilation of already
+  structured claims, assumptions, contradictions, and gaps into a schema-valid
+  Brand Context Package. It is a compiler over structured truth, not a
+  natural-language extractor.
+- **Synthetic CLI example** — `node dist/src/cli/run-example.js --out <dir>` runs the
+  full deterministic path on English-only synthetic fixtures. No network, no model
+  calls, no client data.
+
+What does **not** exist yet: provider-backed extraction, model calls of any kind, the
+model gateway, creative territories, channel specs, or the full vertical slice. Those
+remain blocked on Q-001/Q-002 and later phases.
 
 ## Source-of-truth hierarchy
 

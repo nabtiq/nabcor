@@ -6,45 +6,52 @@
 
 ## Current phase
 
-Clean Foundation Baseline (`0.1.0`). The legacy website-builder runtime has been
-removed from the new repository shape. Product truth, contracts, evaluation, and the
-Second Brain are present before implementation begins.
+Phase 1A — deterministic truth kernel. The clean foundation baseline (`0.1.0`) is
+closed as the historical boundary (`FOUNDATION_BASELINE.md`); DEC-0004 is ratified and
+DEC-0005 selected the runtime.
 
 ## Current objective
 
-Review and ratify the proposed first vertical slice (DEC-0004), resolve the blocking
-Phase 1 operating decisions, and only then implement the Brand Context Package truth
-layer.
+Extend the deterministic kernel toward the full Phase 1 UNDERSTAND path once the
+provider-blocking decisions (Q-001, Q-002) are resolved.
 
-## Ratified foundation decisions
+## Ratified decisions
 
 - DEC-0001 — NABCor is an AI Creative Operating System.
 - DEC-0002 — the Second Brain is file-based from day one; no vector database yet.
 - DEC-0003 — legacy website code is archived evidence, not the new product core.
+- DEC-0004 — first vertical slice, ratified with its proposed boundary unchanged.
+- DEC-0005 — Node.js 20 + strict TypeScript ESM, no application or agent framework.
 
-## Active work
+## Implemented (Phase 1A)
 
-- No product implementation is in flight.
-- Contract, brain, and repository validators define the current completion gate.
-- DEC-0004 remains proposed; the slice documents are design inputs, not authorization
-  to start Phase 1.
+- English-only repository policy with a deterministic language gate
+  (`scripts/validate-language.mjs`, in `npm run validate` and CI).
+- Contract registry over the existing Ajv schemas (`src/kernel/contract-registry.ts`).
+- File artifact store with workspace/brand namespaces, validate-before-write,
+  no-overwrite, lineage checks (`src/kernel/artifact-store.ts`).
+- Tier-0 `classify-input` with conservative rights defaults and a bounded
+  injection-warning scanner (`src/understand/classify-input.ts`).
+- Tier-0 `build-brand-context` deterministic compiler
+  (`src/compile/build-brand-context.ts`).
+- Synthetic CLI example (`src/cli/run-example.ts`) and runtime tests (`test/`).
+- Skill specs for exactly the two implemented capabilities (`skills/`).
 
-## Blockers
+## Blocked / not implemented
 
-1. Product-owner verdict on DEC-0004.
-2. Named human gate roles (Q-001).
-3. Approved model providers, data policy, and spend ceilings (Q-002).
-4. Initial implementation runtime/language (Q-003).
+- Provider-backed extraction, the model gateway, and every model call: blocked on
+  Q-002 (providers, data policy, spend) — not on the runtime, which is decided.
+- Named human gate roles: Q-001 remains open.
+- Territories, direction, channel specs, evaluation skills: later phases.
+- EXP-0001 has not run; its Result section is empty.
 
 ## Immediate next actions
 
-1. Run `npm ci && npm run validate` after creating the repository.
-2. Review `docs/FIRST_VERTICAL_SLICE.md` and DEC-0004.
-3. Record answers to Q-001..Q-003 as decisions, not chat-only state.
-4. Create the Phase 1 branch only after those decisions are ratified.
+1. Product owner answers Q-001 (gate roles) and Q-002 (providers/spend).
+2. Design the model gateway contract against DEC-0005 once Q-002 closes.
+3. Keep `npm run validate` green on every change.
 
 ## Definition of done for the current objective
 
-DEC-0004 and the Phase 1 operating decisions are ratified; budgets are explicit;
-synthetic benchmark fixtures are selected; the Phase 1 task names its contracts,
-invariants, tests, and stop conditions.
+Q-001/Q-002 recorded as decisions; gateway design proposed as a decision record;
+kernel remains green under `npm run validate`.

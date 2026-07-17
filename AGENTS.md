@@ -52,6 +52,18 @@ conflict (§Hierarchy rule).
 20. Do not turn `NOW.md` into a narrative log; history lives in git and
     `brain/archive/`.
 
+## Repository language policy (English only)
+
+English is the canonical language for everything repository-authored: source code and
+comments, docs, Second Brain records, schemas and examples, fixtures and test
+descriptions, configuration, workflows, commit messages, and PR text. No Arabic-script
+characters may appear in tracked files; the deterministic gate
+`scripts/validate-language.mjs` (part of `npm run validate` and CI) enforces this and
+must stay in the validation chain. This is a repository-language rule, not product
+scope: the `ar` locale, RTL/logical-property requirements, Arabic quality gates
+(INV-AR-001), and runtime Arabic input/output are unaffected. Fixtures use English
+placeholders (e.g. "[Arabic copy pending]") in `ar` fields.
+
 ## Repository map
 
 ```text
@@ -126,6 +138,10 @@ changes · scope not expanded.
 - Foundation: `npm run validate` green.
 - Contracts: `npm run validate:contracts` green (schemas, fixtures, semantics).
 - Second Brain: `npm run validate:brain` green.
+- Language: `npm run validate:language` green (English-only gate; zero Arabic-script
+  characters in tracked files).
+- Runtime kernel: `npm run typecheck` and `npm test` green (strict TypeScript +
+  Node built-in test runner).
 - Any future channel adapter defines its own deterministic gates before implementation.
 - New behavior: a test that fails without your change.
 - Evaluation-adjacent changes: run the affected evaluator on a fixture and report.

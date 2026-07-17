@@ -10,5 +10,13 @@ The initial catalog (what gets specced first) is §3 of that document. Rules tha
 every spec: INV-AGENT-001 (skills are capabilities, not agents), INV-TOK-001 (budget
 mandatory), INV-TOK-002 (artifact I/O only), INV-PROV-001 (tier, never provider).
 
-Empty at foundation by design — specs are Phase 1 work, written against the ratified
-contracts.
+Specifications exist only for implemented capabilities (AGENTS.md rule 11 — no
+speculative specs):
+
+- `classify-input.skill.yaml` — Tier-0 deterministic classification
+  (Phase 1A, DEC-0005).
+- `build-brand-context.skill.yaml` — Tier-0 deterministic compilation
+  (Phase 1A, DEC-0005).
+
+Their model-assisted extensions (catalog Tiers 1–2) remain unimplemented and
+blocked on Q-002.

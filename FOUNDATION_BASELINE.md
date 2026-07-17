@@ -2,8 +2,10 @@
 
 **Version:** 0.1.0
 **Date:** 2026-07-17
-**Status:** ready for repository replacement and product-owner review of the proposed
-first vertical slice.
+**Status:** historical record — this document describes the completed foundation
+boundary as it stood before Phase 1A. It is preserved as-is; current state lives in
+`brain/current/NOW.md`. (Phase 1A later ratified DEC-0004, added DEC-0005, and
+implemented the deterministic truth kernel — see those records, not this file.)
 
 ## Baseline outcome
 

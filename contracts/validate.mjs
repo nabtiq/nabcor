@@ -185,7 +185,7 @@ function runPositive(schemaFile, data, label) {
   if (!validate(data)) {
     fail(`${label}: SCHEMA rejected a positive case`);
     for (const err of validate.errors ?? [])
-      console.error(`    ${err.dataPath || "/"} ${err.message}`);
+      console.error(`    ${err.instancePath || "/"} ${err.message}`);
     return;
   }
   const violations = runSemantic(schemaFile, data);
@@ -218,7 +218,7 @@ for (const fx of negativeFixtures) {
   } else if (fx.expect_fail_at === "semantic") {
     if (!schemaOk) {
       fail(`negative ${fx.id}: expected schema-valid input for a semantic case, but schema rejected it (fixture bug)`);
-      for (const err of validate.errors ?? []) console.error(`    ${err.dataPath || "/"} ${err.message}`);
+      for (const err of validate.errors ?? []) console.error(`    ${err.instancePath || "/"} ${err.message}`);
     } else if (runSemantic(fx.schema, fx.data).length === 0) {
       fail(`negative ${fx.id}: SEMANTIC accepted an invalid artifact (${fx.description})`);
     } else negSemantic++;
