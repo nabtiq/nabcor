@@ -1,5 +1,6 @@
 {
   "brand_ref": "brand_synthetic_prompt",
+  "id_prefix": "src_po",
   "mode": "prompt-only",
   "descriptors": [
     {
@@ -11,7 +12,7 @@
   ],
   "claims": [
     {
-      "schema_version": "1.1.0",
+      "schema_version": "1.2.0",
       "artifact_id": "claim_po_0001",
       "brand_ref": "brand_synthetic_prompt",
       "created_at": "2026-07-17T12:00:00Z",
@@ -20,13 +21,13 @@
       "statement": "The brand is a forensic consultancy operating in Dubai",
       "classification": "factual",
       "source_type": "client_statement",
-      "source_ref": "prompt-0001#chars=55-96",
+      "source_ref": "source:src_po_0001#chars=57-88",
       "confidence": 0.95,
       "confidence_basis": "explicit client statement in the intake prompt",
       "verification_status": "verified"
     },
     {
-      "schema_version": "1.1.0",
+      "schema_version": "1.2.0",
       "artifact_id": "claim_po_0002",
       "brand_ref": "brand_synthetic_prompt",
       "created_at": "2026-07-17T12:00:00Z",
@@ -35,13 +36,13 @@
       "statement": "The working brand name is Veritas Forensics",
       "classification": "factual",
       "source_type": "client_statement",
-      "source_ref": "prompt-0001#chars=97-113",
+      "source_ref": "source:src_po_0001#chars=95-112",
       "confidence": 0.95,
       "confidence_basis": "name stated verbatim in the intake prompt",
       "verification_status": "verified"
     },
     {
-      "schema_version": "1.1.0",
+      "schema_version": "1.2.0",
       "artifact_id": "claim_po_0003",
       "brand_ref": "brand_synthetic_prompt",
       "created_at": "2026-07-17T12:00:00Z",
@@ -58,7 +59,7 @@
   ],
   "assumptions": [
     {
-      "schema_version": "1.1.0",
+      "schema_version": "1.2.0",
       "artifact_id": "asm_po_0001",
       "brand_ref": "brand_synthetic_prompt",
       "created_at": "2026-07-17T12:00:00Z",
@@ -86,9 +87,22 @@
   ],
   "identity": {
     "names": [
-      { "value": "Veritas Forensics", "lang": "en", "claim_ref": "claim_po_0002" }
+      {
+        "value": "Veritas Forensics",
+        "lang": "en",
+        "claim_ref": "claim_po_0002"
+      }
     ]
   },
-  "audience": [{ "claim_ref": "claim_po_0003" }],
-  "market": { "locales": ["en", "ar"] }
+  "audience": [
+    {
+      "claim_ref": "claim_po_0003"
+    }
+  ],
+  "market": {
+    "locales": [
+      "en",
+      "ar"
+    ]
+  }
 }

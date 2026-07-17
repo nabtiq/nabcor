@@ -81,6 +81,27 @@ const SEMANTIC = {
           ? ["inference claim marked verified without verified_by (human confirmation)"]
           : [],
     },
+    {
+      invariant: "INV-FACT-001 chars-fragment-ordered",
+      check: (d) => {
+        if (typeof d.source_ref !== "string") return [];
+        const m = /#chars=([0-9]+)-([0-9]+)$/.exec(d.source_ref);
+        if (m && Number(m[1]) >= Number(m[2]))
+          return [`source_ref character fragment ${m[1]}-${m[2]} is invalid: start must be less than end`];
+        return [];
+      },
+    },
+  ],
+  "source.schema.json": [
+    {
+      invariant: "INV-SEC-002 flagged-captured-content-must-be-quarantined",
+      check: (d) =>
+        d.injection_flag === true &&
+        d.capture?.status === "captured" &&
+        d.capture?.safety !== "quarantined"
+          ? ["captured content is injection-flagged but not in the quarantine namespace (a flag is not a quarantine)"]
+          : [],
+    },
   ],
   "model-run.schema.json": [
     {

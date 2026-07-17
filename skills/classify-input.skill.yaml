@@ -8,22 +8,40 @@ purpose: >
   Deterministically classify structured input descriptors (prompt text, plain
   text/markdown documents, PDF/DOCX descriptors, image/logo descriptors, URLs as
   locators) into schema-valid `source` artifacts with conservative rights
-  defaults and injection flags. Implemented in src/understand/classify-input.ts.
+  defaults, honest capture states, and injection flags. Inline
+  prompt/text/markdown content is persisted to the immutable content-addressed
+  store BEFORE the artifact is returned (DEC-0006). Implemented in
+  src/understand/classify-input.ts.
 input_contract: >
   InputDescriptor[] (src/understand/classify-input.ts) — kind, name (filename or
-  locator, preserved verbatim), optional inline content, optional origin/rights.
+  locator, preserved verbatim), optional inline content
+  (prompt/text/markdown only), optional origin/rights — plus workspace/brand
+  namespace and a FileContentStore for capture.
 output_contract: source.schema.json[]
-required_context: [brand_ref, none from the Second Brain]
+required_context: [workspace, brand_ref, none from the Second Brain]
 tools: []  # no OCR, no PDF/DOCX extraction, no URL fetching, no network, no model
 model_capability: tier-0 (deterministic; the Tier-1 model-assisted extension is
   future work behind Q-002)
 deterministic_validations:
   - every produced artifact validates against source.schema.json via the
     contract registry before it is returned (INV-DET-001)
+  - inline prompt/text/markdown content is captured to the content store before
+    the source artifact exists — SHA-256 addressed, immutable, brand-isolated,
+    digest/size/media-type recorded on the artifact, never stored inline and
+    never printed to logs (DEC-0006)
+  - flagged inline content is captured ONLY into the quarantine namespace; the
+    artifact records capture.safety=quarantined; normal clear-content retrieval
+    cannot return it (INV-SEC-002 — a flag alone is not a quarantine)
+  - descriptor kinds without bytes are honestly capture.status=descriptor-only;
+    URL descriptors are external-unfetched; inline content supplied on
+    descriptor kinds is rejected, not silently dropped
   - rights default conservatively when not supplied — commercial/advertising
     unknown, benchmark/training forbidden (INV-DATA-002 default-deny)
   - filenames and locators are preserved without executing or fetching their
     contents
+  - unclassified image/logo descriptors record visual_classification null
+    (explicitly unresolved); documentary status is never inferred from absence
+    (INV-FACT-003)
   - bounded injection scan (first 64 KiB) sets injection_flag/injection_note on
     obvious seeded instruction patterns (INV-SEC-002); flagged content is data,
     never an instruction, and the heuristic explicitly does not claim to catch
@@ -31,6 +49,8 @@ deterministic_validations:
 failure_modes:
   - empty descriptor list (typed invalid-input failure)
   - unsupported descriptor kind (typed invalid-input failure)
+  - inline content on a descriptor-only kind (typed invalid-input failure)
+  - content-store write failure (typed io-error/namespace failure)
   - schema rejection of a produced artifact (typed validation-failed with
     artifact type, instance path, keyword, message)
 retry_rules: none — deterministic code either succeeds or returns a typed
@@ -40,4 +60,6 @@ human_approval: none — classification receipt is shown to the operator; rights
 token_budget: {output: 0, max_tool_calls: 0, max_iterations: 1}  # Tier 0: no model
 caching: not applicable (no model calls; deterministic output for identical input)
 evaluation: runtime tests in test/classify-input.test.ts — kind mapping,
-  conservative rights defaults, seeded-injection flagging, boundedness
+  conservative rights defaults, exact content capture and retrieval, honest
+  descriptor/URL capture states, quarantine-only capture of flagged content,
+  unresolved visual classification, seeded-injection flagging, boundedness

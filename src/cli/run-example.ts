@@ -11,6 +11,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FileArtifactStore } from "../kernel/artifact-store.js";
+import { FileContentStore } from "../kernel/content-store.js";
 import { ContractRegistry } from "../kernel/contract-registry.js";
 import { describeFailure } from "../kernel/result.js";
 import { buildBrandContext } from "../compile/build-brand-context.js";
@@ -21,6 +22,7 @@ const WORKSPACE = "nabtiq_internal";
 
 interface SyntheticCase {
   brand_ref: string;
+  id_prefix: string;
   mode: "prompt-only" | "evidence-rich" | "mixed";
   descriptors: InputDescriptor[];
   claims: unknown[];
@@ -47,9 +49,10 @@ const outDir = resolve(args[outIndex + 1]!);
 
 const registry = ContractRegistry.load(join(repoRoot, "contracts"));
 const store = new FileArtifactStore(outDir, registry);
+const contentStore = new FileContentStore(outDir);
 const createdAt = new Date().toISOString();
 
-function runCase(fixtureFile: string, idPrefix: string, contextId: string): void {
+function runCase(fixtureFile: string, contextId: string): void {
   const fixture = JSON.parse(
     readFileSync(join(repoRoot, "fixtures", "synthetic", fixtureFile), "utf8")
   ) as SyntheticCase;
@@ -57,10 +60,11 @@ function runCase(fixtureFile: string, idPrefix: string, contextId: string): void
   console.log(`\ncase ${fixtureFile} (${fixture.mode}, brand ${brand})`);
 
   const classified = classifyInput(fixture.descriptors, {
+    workspace: WORKSPACE,
     brandRef: brand,
     createdAt,
-    artifactIdPrefix: idPrefix,
-  }, registry);
+    artifactIdPrefix: fixture.id_prefix,
+  }, registry, contentStore);
   if (!classified.ok) {
     console.error(`FAIL classify-input: ${describeFailure(classified.error)}`);
     process.exit(1);
@@ -71,7 +75,13 @@ function runCase(fixtureFile: string, idPrefix: string, contextId: string): void
       console.error(`FAIL store source: ${describeFailure(put.error)}`);
       process.exit(1);
     }
-    const flag = source["injection_flag"] === true ? "  [INJECTION FLAGGED — treated as data]" : "";
+    const capture = source["capture"] as Record<string, unknown>;
+    const flag =
+      source["injection_flag"] === true
+        ? capture["safety"] === "quarantined"
+          ? "  [INJECTION FLAGGED — captured into quarantine, treated as data]"
+          : "  [INJECTION FLAGGED — treated as data]"
+        : "";
     console.log(`  source ${String(source["artifact_id"])} <- ${String(source["filename_or_locator"])}${flag}`);
   }
   for (const [type, artifacts] of [
@@ -93,6 +103,7 @@ function runCase(fixtureFile: string, idPrefix: string, contextId: string): void
     .map((s) => String(s["artifact_id"]));
   const compiled = buildBrandContext({
     artifactId: contextId,
+    workspace: WORKSPACE,
     brandRef: brand,
     mode: fixture.mode,
     createdAt,
@@ -104,7 +115,7 @@ function runCase(fixtureFile: string, idPrefix: string, contextId: string): void
     identity: { ...fixture.identity, ...(marks.length > 0 ? { marks } : {}) },
     ...(fixture.audience ? { audience: fixture.audience } : {}),
     ...(fixture.market ? { market: fixture.market } : {}),
-  }, registry);
+  }, registry, contentStore);
   if (!compiled.ok) {
     console.error(`FAIL build-brand-context: ${describeFailure(compiled.error)}`);
     process.exit(1);
@@ -123,8 +134,8 @@ function runCase(fixtureFile: string, idPrefix: string, contextId: string): void
 }
 
 console.log(`Phase 1A deterministic example -> ${outDir} (no network, no model calls, synthetic data only)`);
-runCase("prompt-only.json", "src_po", "bctx_po_0001");
-runCase("evidence-rich.json", "src_ev", "bctx_ev_0001");
+runCase("prompt-only.json", "bctx_po_0001");
+runCase("evidence-rich.json", "bctx_ev_0001");
 const listed = store.list(WORKSPACE, "brand_synthetic_prompt");
 if (listed.ok) console.log(`\nbrand_synthetic_prompt namespace now holds ${listed.value.length} artifact(s).`);
 console.log("done: all artifacts validated before write; nothing overwritten.");

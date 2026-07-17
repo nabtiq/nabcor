@@ -52,14 +52,40 @@ instead of invented claim refs — see fixture `P02`).
 
 ## Versioning
 
-Artifact `schema_version` for all contracts: **1.1.0** (was 1.0.0).
+Artifact `schema_version` for all contracts: **1.2.0** (was 1.1.0). The version is
+globally synchronized across all contracts; examples and fixtures carry it
+consistently.
 
-**Migration implications (1.0.0 → 1.1.0):** validation is strictly narrower — any
-artifact carrying undeclared fields, or violating a semantic check below, is now
-rejected. No data migration exists to perform: no real artifacts had been authored
-against 1.0.0 (foundation phase; examples and fixtures are the only instances, all
-updated). Rules going forward: change a schema → bump `schema_version` expectations,
-update fixtures, never silently (AGENTS.md rule 15).
+**Migration implications (1.1.0 → 1.2.0):** the `source` and `claim` contracts
+changed meaning (DEC-0006):
+
+- `source` gains a **required `capture` block** stating how much of the input the
+  runtime actually holds: `captured` (content-addressed bytes with `content_ref`
+  `sha256:<hex>`, `sha256`, `bytes`, optional `media_type`, and a `safety` state of
+  `clear` or `quarantined`), `descriptor-only` (PDF/DOCX/image/logo descriptors —
+  no bytes exist until real capture happens), or `external-unfetched` (URLs are
+  locators, never fetched in this phase). Captured content is stored in the
+  content store, never inline in the artifact.
+- `source` visual kinds (`image`, `logo`) must carry `visual_classification`
+  **explicitly**; `null` is the honest unresolved state. A silent documentary
+  default is prohibited (INV-FACT-003).
+- `claim.source_ref` must use the **canonical source-reference form**
+  `source:<source artifact_id>[#chars=<a>-<b>|#page=<n>]` — deterministic,
+  parseable, tied to the source artifact ID, independent of filenames and renames,
+  fragment-preserving. Filename-based references (e.g.
+  `company-profile.pdf#page=3`) are **rejected at the schema layer, not silently
+  migrated**: re-issue the claim against the source artifact ID. There is no
+  ambiguous fallback.
+- New semantic checks: `flagged-captured-content-must-be-quarantined`
+  (INV-SEC-002 — a flag is not a quarantine) and `chars-fragment-ordered`
+  (INV-FACT-001 — `#chars=a-b` requires `a < b`; full bounds and content-exactness
+  are verified at compile time against the content store).
+
+No real production artifact migration was performed because no real artifacts
+exist yet — examples, fixtures, and synthetic runtime fixtures are the only
+instances, and all were updated in the same change. Rules going forward: change a
+schema → bump `schema_version` expectations, update fixtures, never silently
+(AGENTS.md rule 15).
 
 ## Validation
 

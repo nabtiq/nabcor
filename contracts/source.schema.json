@@ -13,7 +13,31 @@
         "kind",
         "origin",
         "rights",
-        "filename_or_locator"
+        "filename_or_locator",
+        "capture"
+      ],
+      "allOf": [
+        {
+          "$comment": "INV-FACT-003 / DEC-0006: documentary status is never inferred from absence — visual kinds must state their classification explicitly, where null means explicitly unresolved.",
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "image",
+                  "logo"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "visual_classification"
+            ]
+          }
+        }
       ],
       "properties": {
         "kind": {
@@ -43,6 +67,69 @@
         },
         "rights": {
           "$ref": "artifact-envelope.schema.json#/definitions/rights"
+        },
+        "capture": {
+          "type": "object",
+          "description": "Auditable capture state (DEC-0006): captured content is content-addressed and immutable; descriptors without bytes and unfetched URLs say so honestly. Captured content is never stored inline in the artifact.",
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "captured",
+                "descriptor-only",
+                "external-unfetched"
+              ]
+            },
+            "content_ref": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "description": "content-store reference for the captured bytes"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "media_type": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "safety": {
+              "enum": [
+                "clear",
+                "quarantined"
+              ],
+              "description": "quarantined content lives in an isolated namespace; normal retrieval cannot return it (INV-SEC-002)"
+            }
+          },
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "captured"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "status",
+                  "content_ref",
+                  "sha256",
+                  "bytes",
+                  "safety"
+                ]
+              }
+            }
+          ]
         },
         "asset_facts": {
           "type": "object",
@@ -128,7 +215,7 @@
   ],
   "examples": [
     {
-      "schema_version": "1.1.0",
+      "schema_version": "1.2.0",
       "artifact_id": "src_0001",
       "brand_ref": "brand_josour",
       "created_at": "2026-07-17T12:00:00Z",
@@ -143,6 +230,35 @@
         "benchmark_use": "forbidden",
         "training_use": "forbidden"
       },
+      "capture": {
+        "status": "descriptor-only"
+      },
+      "injection_flag": false
+    },
+    {
+      "schema_version": "1.2.0",
+      "artifact_id": "src_0002",
+      "brand_ref": "brand_josour",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "kind": "prompt",
+      "origin": "client",
+      "filename_or_locator": "prompt-0001",
+      "rights": {
+        "commercial_use": "unknown",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden",
+        "training_use": "forbidden"
+      },
+      "capture": {
+        "status": "captured",
+        "content_ref": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        "bytes": 4,
+        "media_type": "text/plain",
+        "safety": "clear"
+      },
       "injection_flag": false
     }
   ],
@@ -152,6 +268,7 @@
       "artifact_id",
       "asset_facts",
       "brand_ref",
+      "capture",
       "carries_own_brand_content",
       "created_at",
       "creator_type",

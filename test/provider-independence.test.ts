@@ -37,14 +37,22 @@ test("no provider SDK imports or direct network capability exist in the runtime"
   }
 });
 
-test("package.json declares no runtime dependencies and no provider SDKs", () => {
+test("package.json declares exactly the approved dependency boundary (DEC-0006)", () => {
   const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
   };
-  assert.equal(pkg.dependencies, undefined, "the kernel must have zero runtime dependencies");
-  const allowedDev = new Set(["@types/node", "ajv", "ajv-formats", "typescript"]);
-  for (const dep of Object.keys(pkg.devDependencies ?? {})) {
-    assert.ok(allowedDev.has(dep), `unexpected dev dependency '${dep}' requires a decision record`);
-  }
+  // The kernel validates contracts with Ajv at runtime, so ajv and ajv-formats
+  // are runtime dependencies — exactly these two, nothing else, and neither is a
+  // provider SDK or an application/agent framework.
+  assert.deepEqual(
+    Object.keys(pkg.dependencies ?? {}).sort(),
+    ["ajv", "ajv-formats"],
+    "runtime dependencies must be exactly ajv and ajv-formats (DEC-0006); anything else requires a decision record"
+  );
+  assert.deepEqual(
+    Object.keys(pkg.devDependencies ?? {}).sort(),
+    ["@types/node", "typescript"],
+    "dev dependencies must be exactly @types/node and typescript; anything else requires a decision record"
+  );
 });

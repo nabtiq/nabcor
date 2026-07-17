@@ -1,8 +1,8 @@
 # Provenance and Confidence Model
 
-**Version:** 1.0 · 2026-07-17 · how NABCor separates truth from inference.
+**Version:** 1.1 · 2026-07-17 · how NABCor separates truth from inference.
 Enforced by `contracts/claim.schema.json`, `contracts/source.schema.json`, gate G4,
-and invariants INV-FACT-001/002/003.
+and invariants INV-FACT-001/002/003; capture and canonical references per DEC-0006.
 
 ## 1. Source types
 
@@ -17,7 +17,38 @@ and invariants INV-FACT-001/002/003.
 | `model_inference` | model-derived statement | never factual on its own |
 | `model_generation` | created content/assets | never evidence of anything |
 
-## 2. Claim classifications
+## 2. Source capture, canonical references, and quarantine (DEC-0006)
+
+The audit chain is: **source artifact → captured content → fragment → claim**.
+
+- **Capture.** Every source artifact carries a required `capture` block. Inline
+  prompt/text/Markdown content is persisted to the immutable, SHA-256-addressed,
+  workspace/brand-isolated content store *before* the source artifact is
+  returned; the artifact records `content_ref` (`sha256:<hex>`), `sha256`,
+  `bytes`, `media_type`, and `safety` — never the content inline.
+  PDF/DOCX/image/logo descriptors have no bytes yet and are `descriptor-only`;
+  URLs are `external-unfetched`. Nothing is called "captured" unless its exact
+  bytes are retrievable and digest-verifiable.
+- **Canonical references.** A claim's `source_ref` is
+  `source:<source artifact_id>[#chars=<a>-<b>|#page=<n>]` — deterministic,
+  parseable, tied to the source artifact ID, unaffected by renames or filename
+  collisions, fragment-preserving. Character fragments apply to captured text
+  only and are bounds-checked and read back through the recorded content
+  reference at compile time. Page references on descriptors are structurally
+  valid but **not-yet-content-verified** — no page contents were checked,
+  because no bytes exist. Filename-based references are rejected, never
+  silently migrated.
+- **Detection vs flagging vs quarantine vs release.** These are four distinct
+  things. *Detection* is the bounded deterministic scanner (obvious seeded
+  attacks only — it does not claim completeness). *Flagging* is
+  `injection_flag`/`injection_note` on the source artifact. *Quarantine* is
+  enforcement: flagged inline content is captured only into an isolated
+  quarantine namespace, normal retrieval cannot return it, and brand-context
+  compilation rejects claims citing it. *Release* is a human act: a
+  `quarantine-release` approval recorded on the source artifact
+  (INV-HUM-001) — the runtime never fabricates one.
+
+## 3. Claim classifications
 
 - `factual` — asserts a checkable fact about the brand/world. **Must** carry provenance
   (source fragment) or it cannot exist as factual (INV-FACT-001).
@@ -27,7 +58,7 @@ and invariants INV-FACT-001/002/003.
   Lives in territories/directions; evaluated, not verified.
 - `preference` — a taste statement with a source event.
 
-## 3. Verification states and transitions
+## 4. Verification states and transitions
 
 ```text
 extracted/proposed
@@ -41,7 +72,7 @@ extracted/proposed
 Transitions that require a human: `unconfirmed → verified` for inference-class claims
 (INV-HUM-001(3)); any contradiction resolution. Deterministic transitions: expiry.
 
-## 4. Confidence rules
+## 5. Confidence rules
 
 - Confidence is a 0–1 float **with a stated basis** — source quality, corroboration
   count, extraction certainty — recorded in `confidence_basis`. A bare number is
@@ -54,7 +85,7 @@ Transitions that require a human: `unconfirmed → verified` for inference-class
 - Corroboration across independent sources may raise confidence; repetition within one
   source may not.
 
-## 5. Contradiction handling
+## 6. Contradiction handling
 
 Detection is a standing UNDERSTAND-skill duty (`detect-contradictions`): same subject,
 incompatible values, cross-source or cross-fragment. Each becomes a Contradiction
@@ -63,7 +94,7 @@ record surfaced to a human; resolution is a decision record; the losing claim mo
 BC-001 Josour/Nosour (transliterated) lesson, FAIL-04). Publication-critical facts (names, contact,
 domains) with open contradictions **block** publication surfaces (G4/G5).
 
-## 6. Expiration and staleness
+## 7. Expiration and staleness
 
 - Claims may carry `valid_from`/`valid_until`; expiry is deterministic.
 - Class-based staleness defaults (reviewable): contact facts and pricing re-confirm at
@@ -72,14 +103,14 @@ domains) with open contradictions **block** publication surfaces (G4/G5).
 - Stale claims behave like `unconfirmed`: usable only in provisional roles until
   re-confirmed.
 
-## 7. Human confirmation
+## 8. Human confirmation
 
 A confirmation records: user, timestamp, claim version, and what they saw (the
 statement + its evidence). Confirmations are approvals in the domain-model sense and
 appear on the claim's envelope. Bulk "confirm all" is prohibited in UX — confirmation
 is per-claim for publication-critical classes.
 
-## 8. How generated content references claims
+## 9. How generated content references claims
 
 Every copy slot in a spec (`website-spec`, `social-asset-spec`) carries `claim_refs`:
 the claims its statements rely on. Rules:
@@ -92,7 +123,7 @@ the claims its statements rely on. Rules:
 - A needed-but-missing fact renders as an explicit slot: `[X years in operation —
   confirm]` — never an invented value.
 
-## 9. How unsupported claims are blocked
+## 10. How unsupported claims are blocked
 
 Layered: (1) schema — factual claims without provenance fail validation at creation;
 (2) G4 deterministic scan — built output strings (names, numbers, contacts, certs)
@@ -100,14 +131,14 @@ must match ledger-backed claims (BLOCKING); (3) G4 model paraphrase check — ca
 reworded fabrications (ADVISORY until calibrated); (4) publication gate — human
 reviews the claim report before anything ships (INV-HUM-001).
 
-## 10. Provisional creative content labeling
+## 11. Provisional creative content labeling
 
 Anything derived from assumptions or inferences carries `provisional: true` on its
 artifact/section and renders with a visible provisional treatment in review surfaces.
 Provisional content may ship to *preview*, never to *publication*, while its
 load-bearing assumptions are open and high-risk.
 
-## 11. Visual asset classification
+## 12. Visual asset classification
 
 Every asset: `documentary` (real, unstaged evidence — client photos of real work) ·
 `illustrative` (real or generated, conveys atmosphere, claims nothing specific) ·
@@ -117,7 +148,7 @@ Rules: documentary assets are corrected, never regenerated (BC-001 practice);
 generated assets never occupy documentary slots (INV-FACT-003); classification is
 intake/creation-mandatory and travels with every variant.
 
-## 12. Structured examples
+## 13. Structured examples
 
 Verified factual claim:
 
@@ -127,7 +158,7 @@ Verified factual claim:
   "statement": "The company operates in Dubai",
   "classification": "factual",
   "sourceType": "uploaded_document",
-  "sourceRef": "company-profile.pdf#page=3",
+  "sourceRef": "source:src_0001#page=3",
   "confidence": 0.98,
   "confidenceBasis": "explicit statement in client's own profile document",
   "verificationStatus": "verified",
@@ -158,7 +189,7 @@ Contradicted claim (kept):
   "statement": "The company name is Nosour Al-Azl (transliterated; Arabic script prohibited in repository files)",
   "classification": "factual",
   "sourceType": "uploaded_document",
-  "sourceRef": "company-profile.pdf#page=1",
+  "sourceRef": "source:src_0001#page=1",
   "confidence": 0.3,
   "confidenceBasis": "conflicts with logo and brochure spelling; resolved against by DEC-brand decision",
   "verificationStatus": "contradicted",

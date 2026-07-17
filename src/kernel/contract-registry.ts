@@ -16,6 +16,7 @@ import addFormatsModule from "ajv-formats";
 const Ajv = AjvModule.default;
 const addFormats = addFormatsModule.default;
 import { type Result, type ValidationIssue, err, ok } from "./result.js";
+import { parseSourceRef } from "./source-ref.js";
 
 // Artifact types the Phase 1A kernel stores and exchanges. Other contracts
 // (decision, evaluation-report, ...) compile too, but only these cross the
@@ -45,6 +46,38 @@ const SEMANTIC_CHECKS: Record<string, SemanticCheck[]> = {
         !d["verified_by"]
           ? ["inference claim marked verified without verified_by (human confirmation)"]
           : [],
+    },
+    {
+      invariant: "INV-FACT-001 chars-fragment-ordered",
+      check: (d) => {
+        const ref = d["source_ref"];
+        if (typeof ref !== "string") return [];
+        const parsed = parseSourceRef(ref);
+        if (parsed?.fragment?.kind === "chars" && parsed.fragment.start >= parsed.fragment.end) {
+          return [
+            `source_ref character fragment ${parsed.fragment.start}-${parsed.fragment.end} is invalid: start must be less than end`,
+          ];
+        }
+        return [];
+      },
+    },
+  ],
+  source: [
+    {
+      invariant: "INV-SEC-002 flagged-captured-content-must-be-quarantined",
+      check: (d) => {
+        const capture = d["capture"] as Record<string, unknown> | undefined;
+        if (
+          d["injection_flag"] === true &&
+          capture?.["status"] === "captured" &&
+          capture["safety"] !== "quarantined"
+        ) {
+          return [
+            "captured content is injection-flagged but not in the quarantine namespace (a flag is not a quarantine)",
+          ];
+        }
+        return [];
+      },
     },
   ],
 };
