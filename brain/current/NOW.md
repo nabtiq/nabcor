@@ -21,19 +21,32 @@ provider-blocking decisions (Q-001, Q-002) are resolved.
 - DEC-0002 — the Second Brain is file-based from day one; no vector database yet.
 - DEC-0003 — legacy website code is archived evidence, not the new product core.
 - DEC-0004 — first vertical slice, ratified with its proposed boundary unchanged.
-- DEC-0005 — Node.js 20 + strict TypeScript ESM, no application or agent framework.
+- DEC-0005 — Node.js 20 + strict TypeScript ESM, no application or agent framework
+  (dependency statement corrected by an append-only note; see DEC-0006).
+- DEC-0006 — Ajv/ajv-formats as declared runtime dependencies; immutable
+  content-addressed capture; canonical `source:` claim references; enforceable
+  quarantine with human-only release; contracts at 1.2.0.
 
-## Implemented (Phase 1A)
+## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006)
 
 - English-only repository policy with a deterministic language gate
   (`scripts/validate-language.mjs`, in `npm run validate` and CI).
-- Contract registry over the existing Ajv schemas (`src/kernel/contract-registry.ts`).
+- Contract registry over the existing Ajv schemas (`src/kernel/contract-registry.ts`);
+  `ajv`/`ajv-formats` are the kernel's two declared runtime dependencies, proven
+  by an isolated production-only install smoke test.
 - File artifact store with workspace/brand namespaces, validate-before-write,
-  no-overwrite, lineage checks (`src/kernel/artifact-store.ts`).
-- Tier-0 `classify-input` with conservative rights defaults and a bounded
-  injection-warning scanner (`src/understand/classify-input.ts`).
-- Tier-0 `build-brand-context` deterministic compiler
-  (`src/compile/build-brand-context.ts`).
+  no-overwrite, lineage checks, symlink rejection, and sorted supported-type
+  listing (`src/kernel/artifact-store.ts`).
+- Immutable SHA-256-addressed content store with clear/quarantine namespaces
+  (`src/kernel/content-store.ts`).
+- Tier-0 `classify-input` with conservative rights defaults, honest capture
+  states, quarantine-only capture of flagged inline content, explicit-null
+  visual classification, and a bounded injection-warning scanner
+  (`src/understand/classify-input.ts`).
+- Tier-0 `build-brand-context` deterministic compiler with canonical
+  `source:<artifact_id>` claim references, bounds-checked captured fragments,
+  and human-gated quarantine release (`src/compile/build-brand-context.ts`).
+- Contracts at `schema_version` 1.2.0 (see `contracts/README.md` migration note).
 - Synthetic CLI example (`src/cli/run-example.ts`) and runtime tests (`test/`).
 - Skill specs for exactly the two implemented capabilities (`skills/`).
 

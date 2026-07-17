@@ -4,125 +4,690 @@
     "schema": "claim.schema.json",
     "expect_fail_at": "schema",
     "description": "missing required envelope field created_at",
-    "data": { "schema_version": "1.1.0", "artifact_id": "claim_n01", "creator_type": "agent", "lifecycle_status": "generated", "statement": "x", "classification": "inference", "source_type": "model_inference", "confidence": 0.5, "verification_status": "unconfirmed" }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "claim_n01",
+      "creator_type": "agent",
+      "lifecycle_status": "generated",
+      "statement": "x",
+      "classification": "inference",
+      "source_type": "model_inference",
+      "confidence": 0.5,
+      "verification_status": "unconfirmed"
+    }
   },
   {
     "id": "N02-unknown-top-level",
     "schema": "brand-context.schema.json",
     "expect_fail_at": "schema",
     "description": "misspelled top-level field 'modee' rejected by propertyNames",
-    "data": { "schema_version": "1.1.0", "artifact_id": "bctx_n02", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "mode": "prompt-only", "modee": "prompt-only", "identity": { "names": [ { "value": "X", "claim_ref": "c1" } ] }, "claim_refs": [], "assumption_refs": [], "gaps": [] }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "bctx_n02",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "generated",
+      "mode": "prompt-only",
+      "modee": "prompt-only",
+      "identity": {
+        "names": [
+          {
+            "value": "X",
+            "claim_ref": "c1"
+          }
+        ]
+      },
+      "claim_refs": [],
+      "assumption_refs": [],
+      "gaps": []
+    }
   },
   {
     "id": "N03-unknown-nested-closed",
     "schema": "source.schema.json",
     "expect_fail_at": "schema",
     "description": "unknown nested field 'resale_use' inside closed rights object",
-    "data": { "schema_version": "1.1.0", "artifact_id": "src_n03", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "deterministic", "lifecycle_status": "accepted", "kind": "document", "origin": "client", "filename_or_locator": "a.pdf", "rights": { "commercial_use": "allowed", "advertising_use": "unknown", "benchmark_use": "forbidden", "training_use": "forbidden", "resale_use": "allowed" } }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "src_n03",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "accepted",
+      "kind": "document",
+      "origin": "client",
+      "filename_or_locator": "a.pdf",
+      "rights": {
+        "commercial_use": "allowed",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden",
+        "training_use": "forbidden",
+        "resale_use": "allowed"
+      },
+      "capture": {
+        "status": "descriptor-only"
+      }
+    }
   },
   {
     "id": "N04-invalid-schema-version",
     "schema": "assumption.schema.json",
     "expect_fail_at": "schema",
     "description": "schema_version not semver",
-    "data": { "schema_version": "1.x", "artifact_id": "asm_n04", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "accepted", "statement": "x", "risk": "low", "status": "open", "revisit_trigger": "t" }
+    "data": {
+      "schema_version": "1.x",
+      "artifact_id": "asm_n04",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "x",
+      "risk": "low",
+      "status": "open",
+      "revisit_trigger": "t"
+    }
   },
   {
     "id": "N05-invalid-lifecycle",
     "schema": "creative-brief.schema.json",
     "expect_fail_at": "schema",
     "description": "lifecycle_status 'draft' is not a lifecycle state",
-    "data": { "schema_version": "1.1.0", "artifact_id": "brief_n05", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "draft", "brand_context_ref": "bctx", "objectives": ["o"], "deliverables": ["d"] }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "brief_n05",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "draft",
+      "brand_context_ref": "bctx",
+      "objectives": [
+        "o"
+      ],
+      "deliverables": [
+        "d"
+      ]
+    }
   },
   {
     "id": "N06-invalid-approval-verdict",
     "schema": "visual-world.schema.json",
     "expect_fail_at": "schema",
     "description": "approval verdict 'maybe' not in enum",
-    "data": { "schema_version": "1.1.0", "artifact_id": "vw_n06", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "reviewed", "approvals": [ { "approved_by": "u1", "gate": "world-signoff", "verdict": "maybe", "at": "2026-07-17T12:30:00Z" } ], "direction_ref": "dir_1", "palette": [ { "token": "canvas", "hex": "#101418", "role": "background" } ], "typography": { "display": "grotesk", "body": "sans" }, "imagery_rules": { "subjects": ["s"], "grading": "g", "negatives": ["n"] }, "motion": { "stance": "minimal", "safety": { "content_visible_without_js": true, "reduced_motion_fallback": "static" } } }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "vw_n06",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "reviewed",
+      "approvals": [
+        {
+          "approved_by": "u1",
+          "gate": "world-signoff",
+          "verdict": "maybe",
+          "at": "2026-07-17T12:30:00Z"
+        }
+      ],
+      "direction_ref": "dir_1",
+      "palette": [
+        {
+          "token": "canvas",
+          "hex": "#101418",
+          "role": "background"
+        }
+      ],
+      "typography": {
+        "display": "grotesk",
+        "body": "sans"
+      },
+      "imagery_rules": {
+        "subjects": [
+          "s"
+        ],
+        "grading": "g",
+        "negatives": [
+          "n"
+        ]
+      },
+      "motion": {
+        "stance": "minimal",
+        "safety": {
+          "content_visible_without_js": true,
+          "reduced_motion_fallback": "static"
+        }
+      }
+    }
   },
   {
     "id": "N07-ratified-without-ratification-approval",
     "schema": "decision.schema.json",
     "expect_fail_at": "semantic",
     "description": "status ratified but no approvals entry with gate=ratification (INV-HUM-001 / INV-DEC-001)",
-    "data": { "schema_version": "1.1.0", "artifact_id": "DEC-9998-neg", "brand_ref": null, "created_at": "2026-07-17T12:00:00Z", "creator_type": "human", "lifecycle_status": "accepted", "decision_id": "DEC-9998-neg", "title": "t", "status": "ratified", "context": "c", "problem": "p", "options": [ { "option_id": "a", "summary": "s" } ], "selected_option": "a", "reason": "r", "revisit_trigger": "t", "decided_by": "user_owner" }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "DEC-9998-neg",
+      "brand_ref": null,
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "decision_id": "DEC-9998-neg",
+      "title": "t",
+      "status": "ratified",
+      "context": "c",
+      "problem": "p",
+      "options": [
+        {
+          "option_id": "a",
+          "summary": "s"
+        }
+      ],
+      "selected_option": "a",
+      "reason": "r",
+      "revisit_trigger": "t",
+      "decided_by": "user_owner"
+    }
   },
   {
     "id": "N08-invalid-rights-value",
     "schema": "source.schema.json",
     "expect_fail_at": "schema",
     "description": "rights.commercial_use 'sure' not in enum",
-    "data": { "schema_version": "1.1.0", "artifact_id": "src_n08", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "deterministic", "lifecycle_status": "accepted", "kind": "image", "origin": "client", "filename_or_locator": "x.jpg", "rights": { "commercial_use": "sure", "advertising_use": "unknown", "benchmark_use": "forbidden", "training_use": "forbidden" } }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "src_n08",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "accepted",
+      "kind": "image",
+      "origin": "client",
+      "filename_or_locator": "x.jpg",
+      "rights": {
+        "commercial_use": "sure",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden",
+        "training_use": "forbidden"
+      },
+      "capture": {
+        "status": "descriptor-only"
+      },
+      "visual_classification": null
+    }
   },
   {
     "id": "N09-missing-training-permission",
     "schema": "source.schema.json",
     "expect_fail_at": "schema",
     "description": "rights omits default-deny training_use (INV-DATA-002 required field)",
-    "data": { "schema_version": "1.1.0", "artifact_id": "src_n09", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "deterministic", "lifecycle_status": "accepted", "kind": "image", "origin": "client", "filename_or_locator": "y.jpg", "rights": { "commercial_use": "allowed", "advertising_use": "unknown", "benchmark_use": "forbidden" } }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "src_n09",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "accepted",
+      "kind": "image",
+      "origin": "client",
+      "filename_or_locator": "y.jpg",
+      "rights": {
+        "commercial_use": "allowed",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden"
+      },
+      "capture": {
+        "status": "descriptor-only"
+      },
+      "visual_classification": null
+    }
   },
   {
     "id": "N10-invalid-claim-classification",
     "schema": "claim.schema.json",
     "expect_fail_at": "schema",
     "description": "classification 'opinion' not in enum",
-    "data": { "schema_version": "1.1.0", "artifact_id": "claim_n10", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "statement": "x", "classification": "opinion", "source_type": "model_inference", "confidence": 0.5, "verification_status": "unconfirmed" }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "claim_n10",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "generated",
+      "statement": "x",
+      "classification": "opinion",
+      "source_type": "model_inference",
+      "confidence": 0.5,
+      "verification_status": "unconfirmed"
+    }
   },
   {
     "id": "N11-score-without-rubric",
     "schema": "evaluation-report.schema.json",
     "expect_fail_at": "semantic",
     "description": "numeric score supplied with rubric_ref null (INV-EVAL-001)",
-    "data": { "schema_version": "1.1.0", "artifact_id": "eval_n11", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "evaluated_artifacts": ["wspec_1"], "evaluations": [ { "dimension": "brand-fidelity", "gate_id": null, "method": "model", "authority": "advisory", "verdict": "pass", "score": 8.7, "rubric_ref": null, "reason": "looks on-brand", "evidence": ["judged"], "evaluator": "evaluate-brand-fidelity", "run_ref": null } ], "overall_verdict": "pass", "blocking_failures": [] }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "eval_n11",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "generated",
+      "evaluated_artifacts": [
+        "wspec_1"
+      ],
+      "evaluations": [
+        {
+          "dimension": "brand-fidelity",
+          "gate_id": null,
+          "method": "model",
+          "authority": "advisory",
+          "verdict": "pass",
+          "score": 8.7,
+          "rubric_ref": null,
+          "reason": "looks on-brand",
+          "evidence": [
+            "judged"
+          ],
+          "evaluator": "evaluate-brand-fidelity",
+          "run_ref": null
+        }
+      ],
+      "overall_verdict": "pass",
+      "blocking_failures": []
+    }
   },
   {
     "id": "N12-pass-with-blocking-failure",
     "schema": "evaluation-report.schema.json",
     "expect_fail_at": "semantic",
     "description": "overall_verdict pass while a blocking evaluation failed (INV-EVAL-001)",
-    "data": { "schema_version": "1.1.0", "artifact_id": "eval_n12", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "evaluated_artifacts": ["wspec_1"], "evaluations": [ { "dimension": "factual-integrity", "gate_id": "G4", "method": "deterministic", "authority": "blocking", "verdict": "fail", "score": null, "rubric_ref": null, "reason": "unledgered contact string found", "evidence": ["scan log line 3"], "evaluator": "validate-claims", "run_ref": null } ], "overall_verdict": "pass", "blocking_failures": [] }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "eval_n12",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "generated",
+      "evaluated_artifacts": [
+        "wspec_1"
+      ],
+      "evaluations": [
+        {
+          "dimension": "factual-integrity",
+          "gate_id": "G4",
+          "method": "deterministic",
+          "authority": "blocking",
+          "verdict": "fail",
+          "score": null,
+          "rubric_ref": null,
+          "reason": "unledgered contact string found",
+          "evidence": [
+            "scan log line 3"
+          ],
+          "evaluator": "validate-claims",
+          "run_ref": null
+        }
+      ],
+      "overall_verdict": "pass",
+      "blocking_failures": []
+    }
   },
   {
     "id": "N13-negative-tokens",
     "schema": "model-run.schema.json",
     "expect_fail_at": "schema",
     "description": "negative output_tokens",
-    "data": { "schema_version": "1.1.0", "run_id": "run_n13", "session_id": "s", "project_id": "p", "workspace_id": "w", "brand_id": "b", "workflow_id": "wf", "skill_id": "sk", "attribution_confidence": "confirmed", "provider": "anthropic", "model": "m", "started_at": "2026-07-17T12:00:00Z", "input_tokens": 10, "output_tokens": -5, "cached_tokens": 0, "cache_creation_tokens": 0, "cost": { "mode": "api", "usd": 0.01, "allocation": "measured" } }
+    "data": {
+      "schema_version": "1.2.0",
+      "run_id": "run_n13",
+      "session_id": "s",
+      "project_id": "p",
+      "workspace_id": "w",
+      "brand_id": "b",
+      "workflow_id": "wf",
+      "skill_id": "sk",
+      "attribution_confidence": "confirmed",
+      "provider": "anthropic",
+      "model": "m",
+      "started_at": "2026-07-17T12:00:00Z",
+      "input_tokens": 10,
+      "output_tokens": -5,
+      "cached_tokens": 0,
+      "cache_creation_tokens": 0,
+      "cost": {
+        "mode": "api",
+        "usd": 0.01,
+        "allocation": "measured"
+      }
+    }
   },
   {
     "id": "N14-incomplete-attribution",
     "schema": "model-run.schema.json",
     "expect_fail_at": "schema",
     "description": "missing brand_id attribution field (INV-OBS-001)",
-    "data": { "schema_version": "1.1.0", "run_id": "run_n14", "session_id": "s", "project_id": "p", "workspace_id": "w", "workflow_id": "wf", "skill_id": "sk", "attribution_confidence": "confirmed", "provider": "anthropic", "model": "m", "started_at": "2026-07-17T12:00:00Z", "input_tokens": 10, "output_tokens": 5, "cached_tokens": 0, "cache_creation_tokens": 0, "cost": { "mode": "api", "usd": 0.01, "allocation": "measured" } }
+    "data": {
+      "schema_version": "1.2.0",
+      "run_id": "run_n14",
+      "session_id": "s",
+      "project_id": "p",
+      "workspace_id": "w",
+      "workflow_id": "wf",
+      "skill_id": "sk",
+      "attribution_confidence": "confirmed",
+      "provider": "anthropic",
+      "model": "m",
+      "started_at": "2026-07-17T12:00:00Z",
+      "input_tokens": 10,
+      "output_tokens": 5,
+      "cached_tokens": 0,
+      "cache_creation_tokens": 0,
+      "cost": {
+        "mode": "api",
+        "usd": 0.01,
+        "allocation": "measured"
+      }
+    }
   },
   {
     "id": "N15-matrix-invalid-combination",
     "schema": "validation-matrix.schema.json",
     "expect_fail_at": "semantic",
     "description": "required combination references theme 'dark' not declared in dimensions (INV-AR-001/INV-PE-001)",
-    "data": { "schema_version": "1.1.0", "matrix_id": "vm_n15", "brand_ref": "b", "dimensions": { "theme": ["light"], "locale": ["ar", "en"], "viewport": ["360"], "motion_state": ["default"], "js_state": ["enabled", "disabled"] }, "required_combinations": [ { "theme": "dark", "locale": "ar", "viewport": "360", "motion_state": "default", "js_state": "disabled" } ], "arabic_animation_captures_required": true }
+    "data": {
+      "schema_version": "1.2.0",
+      "matrix_id": "vm_n15",
+      "brand_ref": "b",
+      "dimensions": {
+        "theme": [
+          "light"
+        ],
+        "locale": [
+          "ar",
+          "en"
+        ],
+        "viewport": [
+          "360"
+        ],
+        "motion_state": [
+          "default"
+        ],
+        "js_state": [
+          "enabled",
+          "disabled"
+        ]
+      },
+      "required_combinations": [
+        {
+          "theme": "dark",
+          "locale": "ar",
+          "viewport": "360",
+          "motion_state": "default",
+          "js_state": "disabled"
+        }
+      ],
+      "arabic_animation_captures_required": true
+    }
   },
   {
     "id": "N16-overall-verdit-typo",
     "schema": "evaluation-report.schema.json",
     "expect_fail_at": "schema",
     "description": "deliberate typo overall_verdit rejected (propertyNames) and overall_verdict missing (required)",
-    "data": { "schema_version": "1.1.0", "artifact_id": "eval_n16", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "evaluated_artifacts": ["wspec_1"], "evaluations": [ { "dimension": "factual-integrity", "gate_id": "G4", "method": "deterministic", "authority": "blocking", "verdict": "pass", "score": null, "rubric_ref": null, "reason": "clean scan", "evidence": ["log"], "evaluator": "validate-claims", "run_ref": null } ], "overall_verdit": "pass", "blocking_failures": [] }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "eval_n16",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "generated",
+      "evaluated_artifacts": [
+        "wspec_1"
+      ],
+      "evaluations": [
+        {
+          "dimension": "factual-integrity",
+          "gate_id": "G4",
+          "method": "deterministic",
+          "authority": "blocking",
+          "verdict": "pass",
+          "score": null,
+          "rubric_ref": null,
+          "reason": "clean scan",
+          "evidence": [
+            "log"
+          ],
+          "evaluator": "validate-claims",
+          "run_ref": null
+        }
+      ],
+      "overall_verdit": "pass",
+      "blocking_failures": []
+    }
   },
   {
     "id": "N17-factual-slot-unbacked",
     "schema": "website-spec.schema.json",
     "expect_fail_at": "semantic",
     "description": "factual copy slot with no claim_refs and no unresolved_fact_note (INV-FACT-001)",
-    "data": { "schema_version": "1.1.0", "artifact_id": "wspec_n17", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "visual_world_ref": "vw_1", "direction_ref": "dir_1", "campaign_ref": null, "page": "home", "locales": ["ar", "en"], "sections": [ { "section_id": "hero", "type": "hero", "intent": "authority", "copy_slots": [ { "slot_id": "proof", "role": "factual", "text": { "ar": "[Arabic copy pending — 500+ projects claim]", "en": "500+ projects delivered" }, "claim_refs": [] } ] } ], "validation_matrix_ref": "vm_1", "conversion_intent": "contact" }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "wspec_n17",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "generated",
+      "visual_world_ref": "vw_1",
+      "direction_ref": "dir_1",
+      "campaign_ref": null,
+      "page": "home",
+      "locales": [
+        "ar",
+        "en"
+      ],
+      "sections": [
+        {
+          "section_id": "hero",
+          "type": "hero",
+          "intent": "authority",
+          "copy_slots": [
+            {
+              "slot_id": "proof",
+              "role": "factual",
+              "text": {
+                "ar": "[Arabic copy pending — 500+ projects claim]",
+                "en": "500+ projects delivered"
+              },
+              "claim_refs": []
+            }
+          ]
+        }
+      ],
+      "validation_matrix_ref": "vm_1",
+      "conversion_intent": "contact"
+    }
   },
   {
     "id": "N18-inference-verified-no-human",
     "schema": "claim.schema.json",
     "expect_fail_at": "semantic",
     "description": "inference claim marked verified without verified_by human (INV-FACT-002)",
-    "data": { "schema_version": "1.1.0", "artifact_id": "claim_n18", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "accepted", "statement": "audience includes legal firms", "classification": "inference", "source_type": "model_inference", "source_ref": null, "confidence": 0.7, "confidence_basis": "category norm", "verification_status": "verified", "verified_by": null }
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "claim_n18",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "audience includes legal firms",
+      "classification": "inference",
+      "source_type": "model_inference",
+      "source_ref": null,
+      "confidence": 0.7,
+      "confidence_basis": "category norm",
+      "verification_status": "verified",
+      "verified_by": null
+    }
+  },
+  {
+    "id": "N19-captured-without-digest-or-reference",
+    "schema": "source.schema.json",
+    "expect_fail_at": "schema",
+    "description": "capture.status=captured without content_ref/sha256/bytes/safety (DEC-0006: captured content must be auditable)",
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "src_n19",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "kind": "prompt",
+      "origin": "client",
+      "filename_or_locator": "prompt-0001",
+      "rights": {
+        "commercial_use": "unknown",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden",
+        "training_use": "forbidden"
+      },
+      "capture": {
+        "status": "captured"
+      },
+      "injection_flag": false
+    }
+  },
+  {
+    "id": "N20-invalid-capture-digest",
+    "schema": "source.schema.json",
+    "expect_fail_at": "schema",
+    "description": "capture.sha256 is not a 64-char lowercase hex digest",
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "src_n20",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "kind": "prompt",
+      "origin": "client",
+      "filename_or_locator": "prompt-0001",
+      "rights": {
+        "commercial_use": "unknown",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden",
+        "training_use": "forbidden"
+      },
+      "capture": {
+        "status": "captured",
+        "content_ref": "sha256:not-a-digest",
+        "sha256": "not-a-digest",
+        "bytes": 99,
+        "media_type": "text/plain",
+        "safety": "clear"
+      },
+      "injection_flag": false
+    }
+  },
+  {
+    "id": "N21-flagged-captured-not-quarantined",
+    "schema": "source.schema.json",
+    "expect_fail_at": "semantic",
+    "description": "injection-flagged captured content stored in the clear namespace — a flag is not a quarantine (INV-SEC-002)",
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "src_n21",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "kind": "document",
+      "origin": "operator",
+      "filename_or_locator": "notes.txt",
+      "rights": {
+        "commercial_use": "unknown",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden",
+        "training_use": "forbidden"
+      },
+      "capture": {
+        "status": "captured",
+        "content_ref": "sha256:3e95592df44df741d713f4065d45bd7d7b6b46cbf08119e6bf19a8d8553d8334",
+        "sha256": "3e95592df44df741d713f4065d45bd7d7b6b46cbf08119e6bf19a8d8553d8334",
+        "bytes": 99,
+        "media_type": "text/plain",
+        "safety": "clear"
+      },
+      "injection_flag": true,
+      "injection_note": "deterministic heuristic matched instruction-like patterns"
+    }
+  },
+  {
+    "id": "N22-filename-based-claim-reference",
+    "schema": "claim.schema.json",
+    "expect_fail_at": "schema",
+    "description": "factual claim citing a mutable filename locator instead of a canonical source artifact reference (DEC-0006)",
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "claim_n22",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "statement": "The company operates in Dubai",
+      "classification": "factual",
+      "source_type": "uploaded_document",
+      "source_ref": "company-profile.pdf#page=3",
+      "confidence": 0.9,
+      "confidence_basis": "profile document",
+      "verification_status": "verified"
+    }
+  },
+  {
+    "id": "N23-chars-fragment-inverted",
+    "schema": "claim.schema.json",
+    "expect_fail_at": "semantic",
+    "description": "character fragment with start >= end (INV-FACT-001 fragment bounds)",
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "claim_n23",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "statement": "The working brand name is Veritas Forensics",
+      "classification": "factual",
+      "source_type": "client_statement",
+      "source_ref": "source:src_0002#chars=96-55",
+      "confidence": 0.9,
+      "confidence_basis": "stated in the intake prompt",
+      "verification_status": "verified"
+    }
+  },
+  {
+    "id": "N24-visual-without-classification",
+    "schema": "source.schema.json",
+    "expect_fail_at": "schema",
+    "description": "image source omitting visual_classification entirely — documentary status must never come from a silent default (INV-FACT-003); explicit null is the honest unresolved state",
+    "data": {
+      "schema_version": "1.2.0",
+      "artifact_id": "src_n24",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "kind": "image",
+      "origin": "client",
+      "filename_or_locator": "shopfront.jpg",
+      "rights": {
+        "commercial_use": "unknown",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden",
+        "training_use": "forbidden"
+      },
+      "capture": {
+        "status": "descriptor-only"
+      },
+      "injection_flag": false
+    }
   }
 ]

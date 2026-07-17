@@ -16,7 +16,7 @@ conflict (§Hierarchy rule).
 6. State a **minimal implementation plan**: objective, files in scope, invariants
    involved, tests, done condition.
 
-## Execution rules (the 20)
+## Execution rules (the 22)
 
 1. Make the smallest coherent change that achieves the stated objective.
 2. Do not create agents, roles, or orchestration layers unless a ratified decision
@@ -51,6 +51,16 @@ conflict (§Hierarchy rule).
     through the model gateway (INV-PROV-001).
 20. Do not turn `NOW.md` into a narrative log; history lives in git and
     `brain/archive/`.
+21. Source material a claim cites must stay auditable: inline content is captured
+    into the immutable content store before its source artifact exists, the
+    artifact records the content reference and digest (never the content inline),
+    and claims cite canonical `source:<artifact_id>` references — never mutable
+    filenames or user-supplied locators (DEC-0006, INV-FACT-001).
+22. Never assign `documentary` (or any evidence-grade classification) by default:
+    an unclassified visual is recorded as explicitly unresolved (`null`), and
+    documentary use requires an explicit classification or human evidence
+    (INV-FACT-003). A flag is not a quarantine — call content quarantined only
+    when an enforceable quarantine boundary actually holds it.
 
 ## Repository language policy (English only)
 

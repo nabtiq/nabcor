@@ -70,3 +70,15 @@ lacks. Any framework adoption requires a superseding decision with measured need
 
 supersedes: null
 superseded_by: null
+
+## Correction note (2026-07-17, append-only — see DEC-0006)
+
+The sentence "New dev dependencies: `typescript` and `@types/node` only. No
+runtime dependencies." was inaccurate as ratified: the kernel's contract
+registry imports Ajv and ajv-formats at runtime, so a production-only install
+without them cannot run the compiled kernel. DEC-0006 records the corrected,
+authoritative dependency boundary — `ajv` and `ajv-formats` as runtime
+`dependencies`; `typescript` and `@types/node` as devDependencies. The runtime
+selection in this record (Node.js 20, strict TypeScript, ESM, no application or
+agent framework, no provider SDK) stands unchanged. This note is appended per
+AGENTS.md rule 17; the original text above is preserved, not rewritten.

@@ -1,6 +1,6 @@
 # NABCor Domain Model
 
-**Version:** 1.1 · 2026-07-17 · canonical domain language for all code, contracts,
+**Version:** 1.2 · 2026-07-17 · canonical domain language for all code, contracts,
 prompts, and documentation. Semantic clarity, not database design — storage decisions
 come in Phase 1+ with their own decision records.
 
@@ -64,14 +64,35 @@ immutable per version; a revision creates a new version linked by supersession
   block (`commercial_use / advertising_use / benchmark_use / training_use` — last two
   default-deny, INV-DATA-002), technical facts for assets (`has_alpha`,
   `vector_available`, resolution, aspect ratio — F04), `injection_flag` for suspected
-  embedded instructions (INV-SEC-002).
-- **Relationships:** yields Source Fragments; referenced by Claims and Assets.
+  embedded instructions (INV-SEC-002), and a `capture` block (DEC-0006) stating
+  honestly how much of the input the runtime holds: `captured` (content-addressed
+  bytes with digest, size, media type, safety state), `descriptor-only`, or
+  `external-unfetched`. Visual kinds state `visual_classification` explicitly;
+  `null` is the unresolved state — documentary is never a default (INV-FACT-003).
+- **Relationships:** owns at most one Captured Content blob per version; yields
+  Source Fragments; referenced by Claims and Assets.
 - **Lifecycle:** ingested → classified → (mined) → retained | quarantined.
 - **Class:** canonical. Contract: `contracts/source.schema.json`.
 
+### Captured Content
+- **Purpose:** the immutable bytes behind a captured source — the thing a claim
+  fragment is audited against (DEC-0006).
+- **Required:** SHA-256 digest (also the address), byte size, safety namespace
+  (`clear | quarantine`), workspace/brand namespace.
+- **Relationships:** referenced by exactly one field, `capture.content_ref`, on
+  Source artifacts; read by the brand-context compiler for fragment verification.
+- **Lifecycle:** written once before its source artifact exists; never mutated;
+  deduplicated by digest within one brand namespace; quarantined blobs are
+  released only by a recorded human `quarantine-release` approval (INV-HUM-001).
+- **Class:** canonical (immutable raw material; content-addressed file store).
+
 ### Source Fragment
-- **Purpose:** an addressable region of a source ("company-profile.pdf#page=3",
-  "brochure.docx¶12") so provenance is precise, not file-level.
+- **Purpose:** an addressable region of a source (`source:src_0001#page=3`,
+  `source:src_0002#chars=57-88`) so provenance is precise, not file-level.
+  Fragment locators ride on canonical source-artifact references (DEC-0006) —
+  never on filenames. Character fragments on captured text are verified against
+  the Captured Content blob; page fragments on descriptors are structurally
+  valid but not-yet-content-verified.
 - **Required:** `fragment_id`, `source_ref`, locator, extracted text/description.
 - **Relationships:** cited by Claims and Evidence.
 - **Class:** derived (recomputable by re-mining the source; IDs stable once cited).

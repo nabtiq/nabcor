@@ -1,9 +1,12 @@
 // Bounded deterministic injection-warning scanner (INV-SEC-002).
 //
 // This is a heuristic for OBVIOUS seeded instruction attacks only. It does not —
-// and cannot — detect every prompt-injection technique; its job is to flag the
-// blatant cases deterministically so they are quarantined and surfaced, never
-// obeyed. Content is always treated as data regardless of the scan result.
+// and cannot — detect every prompt-injection technique; its job is DETECTION and
+// FLAGGING: it marks the blatant cases deterministically so they are surfaced,
+// never obeyed. It does not itself quarantine anything — the capture layer
+// (classify-input + content store) places flagged inline content in the
+// quarantine namespace, and the compiler enforces the release boundary.
+// Content is always treated as data regardless of the scan result.
 
 const SCAN_LIMIT_CHARS = 65_536;
 
@@ -38,7 +41,8 @@ export function scanForInjection(text: string): InjectionScanResult {
     matches,
     note:
       `deterministic heuristic matched instruction-like patterns (${ids}); ` +
-      `content quarantined as data, never obeyed (INV-SEC-002). ` +
+      `content flagged and treated as data, never obeyed (INV-SEC-002); ` +
+      `captured inline content is stored only in the quarantine namespace. ` +
       `This scanner catches obvious seeded attacks only, not every injection technique.`,
   };
 }

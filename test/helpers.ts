@@ -4,9 +4,12 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ContractRegistry } from "../src/kernel/contract-registry.js";
+import { FileContentStore } from "../src/kernel/content-store.js";
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const contractsDir = join(repoRoot, "contracts");
+export const WS = "ws_test";
+export const BRAND = "brand_test";
 
 let cached: ContractRegistry | null = null;
 export function registry(): ContractRegistry {
@@ -16,6 +19,10 @@ export function registry(): ContractRegistry {
 
 export function tempDir(prefix: string): string {
   return mkdtempSync(join(tmpdir(), `nabcor-${prefix}-`));
+}
+
+export function contentStore(prefix = "content"): FileContentStore {
+  return new FileContentStore(tempDir(prefix));
 }
 
 export function loadSyntheticCase(name: "prompt-only" | "evidence-rich"): Record<string, unknown> {
@@ -28,7 +35,7 @@ export const NOW = "2026-07-17T12:00:00Z";
 
 export function validClaim(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.1.0",
+    schema_version: "1.2.0",
     artifact_id: "claim_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -37,7 +44,7 @@ export function validClaim(overrides: Record<string, unknown> = {}): Record<stri
     statement: "The company operates in Dubai",
     classification: "factual",
     source_type: "uploaded_document",
-    source_ref: "company-profile.pdf#page=3",
+    source_ref: "source:src_t_0001#page=3",
     confidence: 0.95,
     confidence_basis: "explicit statement in the client's own profile document",
     verification_status: "verified",
@@ -47,7 +54,7 @@ export function validClaim(overrides: Record<string, unknown> = {}): Record<stri
 
 export function validSource(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.1.0",
+    schema_version: "1.2.0",
     artifact_id: "src_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -62,6 +69,7 @@ export function validSource(overrides: Record<string, unknown> = {}): Record<str
       benchmark_use: "forbidden",
       training_use: "forbidden",
     },
+    capture: { status: "descriptor-only" },
     injection_flag: false,
     ...overrides,
   };
@@ -69,7 +77,7 @@ export function validSource(overrides: Record<string, unknown> = {}): Record<str
 
 export function validAssumption(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.1.0",
+    schema_version: "1.2.0",
     artifact_id: "asm_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,

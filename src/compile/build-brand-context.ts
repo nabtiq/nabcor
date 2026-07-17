@@ -4,8 +4,17 @@
 // no model call exists or is hidden here, missing information becomes a gap
 // rather than invented content, and inference never silently becomes fact
 // (INV-FACT-001/002, INV-DET-001).
+//
+// Claim provenance is canonical (DEC-0006): a source_ref names a supplied source
+// ARTIFACT (`source:<artifact_id>[#chars=a-b|#page=n]`), never a filename, so two
+// sources sharing a filename can never satisfy each other's references. Character
+// fragments on captured text are verified against the immutable content store;
+// claims citing quarantined content are rejected unless the source artifact
+// carries a human quarantine-release approval (INV-SEC-002, INV-HUM-001).
 import type { ContractRegistry } from "../kernel/contract-registry.js";
+import type { FileContentStore } from "../kernel/content-store.js";
 import { type Result, err, ok } from "../kernel/result.js";
+import { parseSourceRef } from "../kernel/source-ref.js";
 
 export interface IdentityInput {
   names: { value: string; lang?: string; claim_ref: string }[];
@@ -33,6 +42,7 @@ export interface GapInput {
 
 export interface BrandContextInput {
   artifactId: string;
+  workspace: string;
   brandRef: string;
   mode: "prompt-only" | "evidence-rich" | "mixed";
   createdAt: string;
@@ -48,13 +58,36 @@ export interface BrandContextInput {
 
 const PROMPT_ONLY_SOURCE_KINDS = new Set(["prompt", "brief"]);
 
-function locatorFilePart(sourceRef: string): string {
-  return sourceRef.split("#")[0] ?? sourceRef;
+interface ApprovalRecord {
+  approved_by?: unknown;
+  gate?: unknown;
+  verdict?: unknown;
+  reason?: unknown;
+  at?: unknown;
+}
+
+/** The human quarantine-release approval on a source artifact, if one exists. */
+function quarantineRelease(source: Record<string, unknown>): ApprovalRecord | null {
+  const approvals = source["approvals"];
+  if (!Array.isArray(approvals)) return null;
+  for (const a of approvals as ApprovalRecord[]) {
+    if (
+      a &&
+      a.gate === "quarantine-release" &&
+      a.verdict === "approved" &&
+      typeof a.approved_by === "string" &&
+      a.approved_by.length > 0
+    ) {
+      return a;
+    }
+  }
+  return null;
 }
 
 export function buildBrandContext(
   input: BrandContextInput,
-  registry: ContractRegistry
+  registry: ContractRegistry,
+  contentStore: FileContentStore
 ): Result<Record<string, unknown>> {
   // 1. Every supplied artifact must itself be contract-valid (schema + semantic —
   //    an inference presented as a verified fact dies here, INV-FACT-002).
@@ -88,7 +121,7 @@ export function buildBrandContext(
   }
 
   const sourceIds = new Set(sources.map((s) => String(s["artifact_id"])));
-  const sourceLocators = new Set(sources.map((s) => String(s["filename_or_locator"])));
+  const sourceById = new Map(sources.map((s) => [String(s["artifact_id"]), s]));
   const claimIds = new Set(claims.map((c) => String(c["artifact_id"])));
 
   // 3. Prompt-only mode has no uploaded evidence: prompt/brief sources only, so
@@ -104,30 +137,86 @@ export function buildBrandContext(
     }
   }
 
-  // 4. Factual claims retain provenance: never inference-sourced, and their
-  //    source_ref must resolve to a supplied source's locator (INV-FACT-001).
+  // 4. Claim provenance resolves canonically (INV-FACT-001, DEC-0006): factual
+  //    claims are never inference-sourced and must carry a source_ref; every
+  //    non-null source_ref must be a canonical `source:<artifact_id>` reference
+  //    resolving to a supplied source artifact ID. Filename-based references are
+  //    rejected, never silently mapped (contracts/README.md migration rule).
   for (const c of claims) {
-    if (c["classification"] !== "factual") continue;
-    const sourceType = String(c["source_type"]);
-    if (sourceType === "model_inference" || sourceType === "model_generation") {
-      return err({
-        kind: "reference-violation",
-        message: `factual claim '${String(c["artifact_id"])}' cannot have source_type '${sourceType}' (model output is never factual evidence)`,
-      });
+    const claimId = String(c["artifact_id"]);
+    if (c["classification"] === "factual") {
+      const sourceType = String(c["source_type"]);
+      if (sourceType === "model_inference" || sourceType === "model_generation") {
+        return err({
+          kind: "reference-violation",
+          message: `factual claim '${claimId}' cannot have source_type '${sourceType}' (model output is never factual evidence)`,
+        });
+      }
+      if (typeof c["source_ref"] !== "string" || c["source_ref"].length === 0) {
+        return err({
+          kind: "reference-violation",
+          message: `factual claim '${claimId}' has no source_ref (INV-FACT-001)`,
+        });
+      }
     }
     const sourceRef = c["source_ref"];
-    if (typeof sourceRef !== "string" || sourceRef.length === 0) {
+    if (typeof sourceRef !== "string") continue;
+    const parsed = parseSourceRef(sourceRef);
+    if (!parsed) {
       return err({
         kind: "reference-violation",
-        message: `factual claim '${String(c["artifact_id"])}' has no source_ref (INV-FACT-001)`,
+        message: `claim '${claimId}' source_ref '${sourceRef}' is not a canonical source reference (source:<artifact_id>[#chars=a-b|#page=n]); filename-based references are rejected — re-issue the claim against the source artifact ID`,
       });
     }
-    if (!sourceLocators.has(locatorFilePart(sourceRef))) {
+    const source = sourceById.get(parsed.sourceId);
+    if (!source) {
       return err({
         kind: "reference-violation",
-        message: `factual claim '${String(c["artifact_id"])}' cites '${sourceRef}', which matches no supplied source locator`,
+        message: `claim '${claimId}' cites source artifact '${parsed.sourceId}', which was not supplied`,
       });
     }
+    const capture = (source["capture"] ?? {}) as Record<string, unknown>;
+
+    // Quarantine boundary (INV-SEC-002/INV-HUM-001): claims citing quarantined
+    // content compile only with a recorded human quarantine-release approval on
+    // the source artifact. The runtime never fabricates one.
+    const release = capture["safety"] === "quarantined" ? quarantineRelease(source) : null;
+    if (capture["safety"] === "quarantined" && !release) {
+      return err({
+        kind: "reference-violation",
+        message: `claim '${claimId}' cites quarantined source '${parsed.sourceId}' without a human quarantine-release approval on the source artifact`,
+      });
+    }
+
+    if (parsed.fragment?.kind === "chars") {
+      // Character fragments are auditable only on captured text: verify exact
+      // access through the recorded content reference (digest-checked read).
+      if (capture["status"] !== "captured" || typeof capture["content_ref"] !== "string") {
+        return err({
+          kind: "reference-violation",
+          message: `claim '${claimId}' uses a character fragment on source '${parsed.sourceId}', whose content is not captured (${String(capture["status"] ?? "no capture record")})`,
+        });
+      }
+      const contentRef = capture["content_ref"];
+      const body =
+        capture["safety"] === "quarantined" && release
+          ? contentStore.getQuarantined(input.workspace, input.brandRef, contentRef, {
+              releasedBy: String(release.approved_by),
+              at: String(release.at ?? ""),
+              reason: String(release.reason ?? "quarantine-release approval"),
+            })
+          : contentStore.get(input.workspace, input.brandRef, contentRef);
+      if (!body.ok) return body;
+      const { start, end } = parsed.fragment;
+      if (start >= end || end > body.value.length) {
+        return err({
+          kind: "reference-violation",
+          message: `claim '${claimId}' fragment chars=${start}-${end} is out of bounds for source '${parsed.sourceId}' (captured length ${body.value.length})`,
+        });
+      }
+    }
+    // Page fragments on descriptors remain structurally valid but are
+    // not-yet-content-verified: no bytes exist to check in this phase.
   }
 
   // 5. Every reference in identity, audience, and contradictions must resolve.
@@ -184,7 +273,7 @@ export function buildBrandContext(
     claims.some((c) => c["verification_status"] !== "verified");
 
   const artifact: Record<string, unknown> = {
-    schema_version: "1.1.0",
+    schema_version: "1.2.0",
     artifact_id: input.artifactId,
     brand_ref: input.brandRef,
     created_at: input.createdAt,

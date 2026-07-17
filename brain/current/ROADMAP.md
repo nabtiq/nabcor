@@ -19,7 +19,12 @@ Package: sources, rights, claims with provenance, contradictions, assumptions, a
 **Phase 1A evidence (deterministic kernel only):** contract registry, namespaced
 artifact store, Tier-0 classify-input with injection flagging, deterministic
 brand-context compiler, English-only language gate — all under `npm run validate`
-with runtime tests on synthetic fixtures. This is not Phase 1 completion: no
+with runtime tests on synthetic fixtures. The Phase 1A.1 correction pass
+(DEC-0006) added declared runtime dependencies with a production-only install
+proof, immutable content-addressed capture of inline source material, canonical
+`source:` claim references verified against captured content, an enforceable
+quarantine namespace with human-only release, explicit-null visual
+classification, and contracts at 1.2.0. This is not Phase 1 completion: no
 provider-backed extraction exists, EXP-0001 has not run, and no run/context records
 or measured costs exist yet (blocked on Q-001/Q-002).
 

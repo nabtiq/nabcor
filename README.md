@@ -149,26 +149,47 @@ npm run validate
 `npm run validate` checks all artifact contracts, positive and negative fixtures,
 cross-field invariants, Second Brain record structure, required foundation files, the
 absence of legacy product artifacts, the English-only language gate, TypeScript
-type checking, and the runtime kernel tests.
+type checking, and the runtime kernel tests — including the isolated
+production-only install smoke test (`npm ci --omit=dev` in a staging directory;
+the primary worktree's installation is never mutated).
 
 ## Phase 1A deterministic truth kernel
 
 `src/` contains the smallest provider-independent runtime that turns the existing
 contracts into executable product boundaries (DEC-0005: Node.js 20, strict
-TypeScript, ESM, no application or agent framework):
+TypeScript, ESM, no application or agent framework). The kernel has exactly two
+runtime dependencies — `ajv` and `ajv-formats`, the contract validator (DEC-0006);
+`typescript` and `@types/node` are development-only, and an isolated
+`npm ci --omit=dev` smoke test proves the compiled runtime works without them.
+No provider SDK and no framework exist.
 
 - **Contract registry** — compiles the existing JSON Schemas once, maps artifact
   types to schema IDs, and validates every artifact at runtime boundaries with the
   same strictness as `contracts/validate.mjs`.
 - **File artifact store** — workspace/brand-namespaced, validate-before-write,
-  no-overwrite, lineage-aware storage per DEC-0002 and INV-VER-001/INV-DATA-001.
+  no-overwrite, lineage-aware storage per DEC-0002 and INV-VER-001/INV-DATA-001,
+  with symlink rejection and path-relative containment.
+- **Content store** — immutable, SHA-256-addressed capture of inline
+  prompt/text/Markdown source material under workspace/brand isolation, with
+  separate clear and quarantine namespaces (DEC-0006). Captured content is
+  persisted before its source artifact is returned, deduplicates by digest within
+  a namespace, fails digest verification on tampering, and never appears inline in
+  artifacts, logs, or CLI output. PDF/DOCX/image/logo descriptors carry no bytes
+  and are recorded `descriptor-only`; URLs stay `external-unfetched`.
 - **`classify-input` (Tier 0)** — deterministic classification of input descriptors
-  into schema-valid `source` artifacts with conservative rights defaults and a
-  bounded injection-warning scanner (INV-SEC-002). No OCR, parsing, or fetching.
+  into schema-valid `source` artifacts with conservative rights defaults, honest
+  capture states, and a bounded injection-warning scanner (INV-SEC-002). Flagged
+  inline content is captured only into the quarantine namespace. Unclassified
+  visuals record `visual_classification: null` — documentary status is never
+  inferred from absence (INV-FACT-003). No OCR, parsing, or fetching.
 - **`build-brand-context` (Tier 0)** — deterministic compilation of already
   structured claims, assumptions, contradictions, and gaps into a schema-valid
-  Brand Context Package. It is a compiler over structured truth, not a
-  natural-language extractor.
+  Brand Context Package. Claim provenance resolves through canonical
+  `source:<artifact_id>[#chars=a-b|#page=n]` references; character fragments are
+  bounds-checked against the captured content; claims citing quarantined sources
+  are rejected unless a human quarantine-release approval exists on the source
+  artifact. It is a compiler over structured truth, not a natural-language
+  extractor.
 - **Synthetic CLI example** — `node dist/src/cli/run-example.js --out <dir>` runs the
   full deterministic path on English-only synthetic fixtures. No network, no model
   calls, no client data.

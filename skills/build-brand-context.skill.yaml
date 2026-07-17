@@ -12,9 +12,10 @@ purpose: >
 input_contract: >
   BrandContextInput (src/compile/build-brand-context.ts): source.schema.json[],
   claim.schema.json[], assumption.schema.json[], contradiction/gap/identity
-  structures matching brand-context.schema.json shapes.
+  structures matching brand-context.schema.json shapes, plus workspace namespace
+  and a FileContentStore for captured-fragment verification.
 output_contract: brand-context.schema.json
-required_context: [brand_ref, supplied artifacts only — no Second Brain reads]
+required_context: [workspace, brand_ref, supplied artifacts only — no Second Brain reads]
 tools: []  # no model call exists or is hidden inside the compiler
 model_capability: tier-0 (deterministic; the Tier-2 gap-narration extension is
   future work behind Q-002)
@@ -22,8 +23,16 @@ deterministic_validations:
   - every supplied source/claim/assumption is contract-valid (schema + semantic)
   - all referenced sources, claims, and assumptions exist among the inputs;
     dangling identity/audience/contradiction/mark references are rejected
-  - factual claims retain provenance — never model-inference sourced, and their
-    source_ref must resolve to a supplied source locator (INV-FACT-001)
+  - factual claims retain provenance — never model-inference sourced, and every
+    claim source_ref is a canonical source:<artifact_id> reference resolving to
+    a supplied source artifact ID (INV-FACT-001, DEC-0006); filename-based
+    references are rejected, and filename collisions cannot satisfy references
+  - character fragments on captured text are bounds-checked and read back
+    through the recorded content reference (digest-verified); page fragments on
+    descriptors stay structurally valid but not-yet-content-verified
+  - claims citing quarantined sources are rejected unless the source artifact
+    carries a human quarantine-release approval; the compiler never fabricates
+    one (INV-SEC-002, INV-HUM-001)
   - inference cannot become verified fact without human verification evidence
     (INV-FACT-002)
   - prompt-only mode admits prompt/brief sources only, so proof points cannot
@@ -45,4 +54,6 @@ token_budget: {output: 0, max_tool_calls: 0, max_iterations: 1}  # Tier 0: no mo
 caching: not applicable (no model calls; deterministic output for identical input)
 evaluation: runtime tests in test/build-brand-context.test.ts — both synthetic
   modes compile, unsupported/inference-as-fact/dangling-reference/cross-brand
-  inputs are rejected, contradictions stay visible
+  inputs are rejected, contradictions stay visible, filename collisions cannot
+  satisfy references, fragments are bounds-checked against captured content,
+  and quarantined-source claims require a human release
