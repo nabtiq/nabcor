@@ -1,0 +1,248 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/truth-analysis.schema.json",
+  "title": "Truth Analysis",
+  "description": "Derived result of deterministic structured-truth analysis (DEC-0011): open contradictions and gaps computed by Tier-0 code over explicitly structured fact slots, relative to one versioned truth profile. No model, provider, or network field exists; contradictions are open until a human decision resolves them — the analyzer never selects a winner; claims without structured fact metadata are listed explicitly, never parsed by keyword or silently ignored.",
+  "allOf": [
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
+    {
+      "type": "object",
+      "required": [
+        "brand_ref",
+        "truth_profile_ref",
+        "analyzer_version",
+        "analyzed_claim_refs",
+        "open_contradictions",
+        "gaps",
+        "unstructured_claim_refs",
+        "unprofiled_fact_claim_refs"
+      ],
+      "properties": {
+        "brand_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "truth_profile_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "artifact_id of the truth profile this analysis is relative to; gaps exist only relative to it"
+        },
+        "analyzer_version": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*-[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "description": "version label of the deterministic analyzer that produced this artifact"
+        },
+        "analyzed_claim_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "description": "exact claim artifact_ids analyzed, deterministically sorted (semantic layer); duplicates are rejected",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "open_contradictions": {
+          "type": "array",
+          "description": "one entry per single-cardinality fact slot holding two or more distinct normalized values; sorted by fact_key (semantic layer)",
+          "items": {
+            "type": "object",
+            "required": [
+              "fact_key",
+              "claim_refs",
+              "distinct_values",
+              "description",
+              "blocking_publication",
+              "status"
+            ],
+            "properties": {
+              "fact_key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+              },
+              "claim_refs": {
+                "type": "array",
+                "minItems": 2,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "distinct_values": {
+                "type": "array",
+                "minItems": 2,
+                "uniqueItems": true,
+                "description": "the distinct normalized values involved; JSON equality is type-sensitive, so string \"1\" and number 1 are distinct entries",
+                "items": {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                }
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "deterministic human-readable description derived only from the fact key and counts — never invented evidence"
+              },
+              "blocking_publication": {
+                "type": "boolean",
+                "description": "copied from the truth profile's blocking_if_conflicting; the analyzer assigns no blocking status of its own"
+              },
+              "status": {
+                "const": "open",
+                "description": "fixed to open in this phase: resolution is a downstream human decision (INV-HUM-001(3))"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "description": "missing or unverified required slots relative to the truth profile; sorted by fact_key (semantic layer)",
+          "items": {
+            "type": "object",
+            "required": [
+              "fact_key",
+              "kind",
+              "what",
+              "why_needed",
+              "blocking",
+              "claim_refs"
+            ],
+            "properties": {
+              "fact_key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+              },
+              "kind": {
+                "enum": [
+                  "missing",
+                  "unverified"
+                ]
+              },
+              "what": {
+                "type": "string",
+                "minLength": 1
+              },
+              "why_needed": {
+                "type": "string",
+                "minLength": 1,
+                "description": "copied from the truth profile slot's why_needed"
+              },
+              "blocking": {
+                "type": "boolean",
+                "description": "copied from the truth profile's blocking_if_missing; the analyzer assigns no blocking status of its own"
+              },
+              "claim_refs": {
+                "type": "array",
+                "uniqueItems": true,
+                "description": "relevant unconfirmed claim references for unverified gaps; empty for missing gaps",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "unstructured_claim_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "description": "claims that could not participate because they lack structured fact metadata; listed explicitly, never keyword-parsed, text-compared, or silently ignored",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "unprofiled_fact_claim_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "description": "structured claims whose fact_key has no slot in the referenced truth profile; they were not contradiction- or gap-analyzed (the profile is workflow-scoped, not a universal ontology)",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.4.0",
+      "artifact_id": "ta_0001",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "truth_profile_ref": "tp_0001",
+      "analyzer_version": "analyze-structured-truth-1.0.0",
+      "analyzed_claim_refs": [
+        "claim_001",
+        "claim_002",
+        "claim_003",
+        "claim_004"
+      ],
+      "open_contradictions": [
+        {
+          "fact_key": "identity.primary_name",
+          "claim_refs": [
+            "claim_003",
+            "claim_004"
+          ],
+          "distinct_values": [
+            "Veritas Forensic Group",
+            "Veritas Forensics"
+          ],
+          "description": "single-cardinality fact slot 'identity.primary_name' carries 2 distinct normalized values across 2 eligible claims; resolution requires a human decision",
+          "blocking_publication": true,
+          "status": "open"
+        }
+      ],
+      "gaps": [
+        {
+          "fact_key": "market.default_locale",
+          "kind": "missing",
+          "what": "no eligible structured claim supplies required fact slot 'market.default_locale'",
+          "why_needed": "locale decides rendering direction and copy language defaults",
+          "blocking": true,
+          "claim_refs": []
+        }
+      ],
+      "unstructured_claim_refs": [
+        "claim_001"
+      ],
+      "unprofiled_fact_claim_refs": [
+        "claim_002"
+      ]
+    }
+  ],
+  "propertyNames": {
+    "enum": [
+      "analyzed_claim_refs",
+      "analyzer_version",
+      "approvals",
+      "artifact_id",
+      "brand_ref",
+      "created_at",
+      "creator_type",
+      "derived_from_runs",
+      "gaps",
+      "lifecycle_status",
+      "open_contradictions",
+      "project_ref",
+      "provisional",
+      "schema_version",
+      "superseded_by",
+      "supersedes",
+      "truth_profile_ref",
+      "unprofiled_fact_claim_refs",
+      "unstructured_claim_refs",
+      "validation_status"
+    ]
+  }
+}

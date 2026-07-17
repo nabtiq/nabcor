@@ -5,6 +5,14 @@
 // rather than invented content, and inference never silently becomes fact
 // (INV-FACT-001/002, INV-DET-001).
 //
+// Open contradictions and gaps enter through exactly one authoritative input —
+// a validated truth-analysis artifact produced by the deterministic Tier-0
+// analyzer (DEC-0011, src/understand/analyze-structured-truth.ts). The
+// compiler verifies brand and exact claim coverage, records the
+// truth_analysis_ref on the package, and rejects caller-supplied
+// contradiction/gap arrays, so analysis results can be neither injected,
+// omitted, nor independently rewritten.
+//
 // Claim provenance is canonical (DEC-0006, DEC-0007): a source_ref names a
 // supplied source ARTIFACT (`source:<artifact_id>[#codepoints=a-b|#page=n]`),
 // never a filename, so two sources sharing a filename can never satisfy each
@@ -35,18 +43,6 @@ export interface IdentityInput {
   marks?: string[];
 }
 
-export interface ContradictionInput {
-  claim_refs: string[];
-  description: string;
-  blocking_publication?: boolean;
-}
-
-export interface GapInput {
-  what: string;
-  why_needed: string;
-  blocking?: boolean;
-}
-
 export interface BrandContextInput {
   artifactId: string;
   workspace: string;
@@ -56,8 +52,13 @@ export interface BrandContextInput {
   sources: unknown[];
   claims: unknown[];
   assumptions: unknown[];
-  contradictions: ContradictionInput[];
-  gaps: GapInput[];
+  /**
+   * Contract-valid truth-analysis artifact (DEC-0011) — the single
+   * authoritative input for open contradictions and gaps. It must belong to
+   * the same brand and its analyzed claim set must exactly match `claims`;
+   * caller-supplied contradiction/gap arrays are rejected.
+   */
+  truthAnalysis: unknown;
   identity: IdentityInput;
   audience?: { claim_ref: string }[];
   market?: { locales?: string[]; default_locale_claim_ref?: string };
@@ -70,6 +71,19 @@ export function buildBrandContext(
   registry: ContractRegistry,
   contentStore: FileContentStore
 ): Result<Record<string, unknown>> {
+  // 0. Contradiction and gap results have exactly one authoritative input: the
+  //    truth-analysis artifact (DEC-0011). A caller attempting to supply its
+  //    own arrays — the pre-1.4.0 interface — is rejected, not silently
+  //    ignored, so analysis results cannot be injected, omitted, or rewritten.
+  for (const bypassField of ["contradictions", "gaps"]) {
+    if (bypassField in (input as unknown as Record<string, unknown>)) {
+      return err({
+        kind: "invalid-input",
+        message: `caller-supplied '${bypassField}' are rejected: open contradictions and gaps compile only from the validated truth-analysis artifact (DEC-0011)`,
+      });
+    }
+  }
+
   // 1. Every supplied artifact must itself be contract-valid (schema + semantic —
   //    an inference presented as a verified fact dies here, INV-FACT-002).
   const sources: Record<string, unknown>[] = [];
@@ -89,6 +103,37 @@ export function buildBrandContext(
     const v = registry.validate("assumption", a);
     if (!v.ok) return v;
     assumptions.push(v.value);
+  }
+  const analysisResult = registry.validate("truth-analysis", input.truthAnalysis);
+  if (!analysisResult.ok) return analysisResult;
+  const analysis = analysisResult.value;
+
+  // 1b. The analysis must belong to this brand, reference a truth profile, and
+  //     cover EXACTLY the supplied claim set — a package can neither drop
+  //     analyzed claims nor smuggle in unanalyzed ones (fail closed, DEC-0011).
+  if (analysis["brand_ref"] !== input.brandRef) {
+    return err({
+      kind: "reference-violation",
+      message: `truth analysis '${String(analysis["artifact_id"])}' carries brand_ref '${String(analysis["brand_ref"])}', expected '${input.brandRef}'`,
+    });
+  }
+  const analyzedRefs = new Set((analysis["analyzed_claim_refs"] as string[]) ?? []);
+  const suppliedIds = new Set(claims.map((c) => String(c["artifact_id"])));
+  for (const ref of analyzedRefs) {
+    if (!suppliedIds.has(ref)) {
+      return err({
+        kind: "reference-violation",
+        message: `truth analysis '${String(analysis["artifact_id"])}' analyzed claim '${ref}', which was not supplied to the compiler; the analyzed and supplied claim sets must match exactly`,
+      });
+    }
+  }
+  for (const id of suppliedIds) {
+    if (!analyzedRefs.has(id)) {
+      return err({
+        kind: "reference-violation",
+        message: `claim '${id}' was supplied to the compiler but is not covered by truth analysis '${String(analysis["artifact_id"])}'; re-run the analyzer over the full claim set`,
+      });
+    }
   }
 
   // 2. One brand per package (INV-DATA-001).
@@ -235,9 +280,25 @@ export function buildBrandContext(
     const r = requireClaim(a.claim_ref, "audience entry");
     if (!r.ok) return r;
   }
-  for (const [i, contradiction] of input.contradictions.entries()) {
+  // Contradiction and gap claim references come from the analysis; the
+  // truth-analysis semantic layer already pins them inside analyzed_claim_refs,
+  // and coverage equality pins those to the supplied claims — this re-check
+  // keeps the compiler fail-closed on its own terms (no dangling references).
+  const analysisContradictions = analysis["open_contradictions"] as {
+    fact_key: string;
+    claim_refs: string[];
+    description: string;
+    blocking_publication: boolean;
+  }[];
+  const analysisGaps = analysis["gaps"] as {
+    fact_key: string;
+    what: string;
+    why_needed: string;
+    blocking: boolean;
+  }[];
+  for (const contradiction of analysisContradictions) {
     for (const ref of contradiction.claim_refs) {
-      const r = requireClaim(ref, `open contradiction ${i}`);
+      const r = requireClaim(ref, `analysis contradiction '${contradiction.fact_key}'`);
       if (!r.ok) return r;
     }
   }
@@ -253,7 +314,7 @@ export function buildBrandContext(
     claims.some((c) => c["verification_status"] !== "verified");
 
   const artifact: Record<string, unknown> = {
-    schema_version: "1.3.0",
+    schema_version: "1.4.0",
     artifact_id: input.artifactId,
     brand_ref: input.brandRef,
     created_at: input.createdAt,
@@ -273,18 +334,21 @@ export function buildBrandContext(
     },
     claim_refs: claims.map((c) => String(c["artifact_id"])),
     assumption_refs: assumptions.map((a) => String(a["artifact_id"])),
+    // The compiled package records which analysis produced its contradiction
+    // and gap results (DEC-0011 single-authoritative-input rule).
+    truth_analysis_ref: String(analysis["artifact_id"]),
     // Open contradictions stay visible in the compiled package — they are never
     // resolved or dropped by the compiler (human gate, INV-HUM-001(3)).
-    open_contradictions: input.contradictions.map((c) => ({
+    open_contradictions: analysisContradictions.map((c) => ({
       claim_refs: [...c.claim_refs],
       description: c.description,
-      ...(c.blocking_publication !== undefined ? { blocking_publication: c.blocking_publication } : {}),
+      blocking_publication: c.blocking_publication,
     })),
     // Missing information is a gap, not invented content.
-    gaps: input.gaps.map((g) => ({
+    gaps: analysisGaps.map((g) => ({
       what: g.what,
       why_needed: g.why_needed,
-      ...(g.blocking !== undefined ? { blocking: g.blocking } : {}),
+      blocking: g.blocking,
     })),
     ...(input.audience ? { audience: input.audience } : {}),
     ...(input.market ? { market: input.market } : {}),

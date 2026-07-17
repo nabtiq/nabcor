@@ -5,7 +5,7 @@
     "expect_fail_at": "schema",
     "description": "missing required envelope field created_at",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_n01",
       "creator_type": "agent",
       "lifecycle_status": "generated",
@@ -22,7 +22,7 @@
     "expect_fail_at": "schema",
     "description": "misspelled top-level field 'modee' rejected by propertyNames",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "bctx_n02",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -49,7 +49,7 @@
     "expect_fail_at": "schema",
     "description": "unknown nested field 'resale_use' inside closed rights object",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "src_n03",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -94,7 +94,7 @@
     "expect_fail_at": "schema",
     "description": "lifecycle_status 'draft' is not a lifecycle state",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "brief_n05",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -115,7 +115,7 @@
     "expect_fail_at": "schema",
     "description": "approval verdict 'maybe' not in enum",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "vw_n06",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -165,7 +165,7 @@
     "expect_fail_at": "semantic",
     "description": "status ratified but no approvals entry with gate=ratification (INV-HUM-001 / INV-DEC-001)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "DEC-9998-neg",
       "brand_ref": null,
       "created_at": "2026-07-17T12:00:00Z",
@@ -194,7 +194,7 @@
     "expect_fail_at": "schema",
     "description": "rights.commercial_use 'sure' not in enum",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "src_n08",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -221,7 +221,7 @@
     "expect_fail_at": "schema",
     "description": "rights omits default-deny training_use (INV-DATA-002 required field)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "src_n09",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -247,7 +247,7 @@
     "expect_fail_at": "schema",
     "description": "classification 'opinion' not in enum",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_n10",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -266,7 +266,7 @@
     "expect_fail_at": "semantic",
     "description": "numeric score supplied with rubric_ref null (INV-EVAL-001)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "eval_n11",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -302,7 +302,7 @@
     "expect_fail_at": "semantic",
     "description": "overall_verdict pass while a blocking evaluation failed (INV-EVAL-001)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "eval_n12",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -338,7 +338,7 @@
     "expect_fail_at": "schema",
     "description": "negative output_tokens",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "run_id": "run_n13",
       "session_id": "s",
       "project_id": "p",
@@ -367,7 +367,7 @@
     "expect_fail_at": "schema",
     "description": "missing brand_id attribution field (INV-OBS-001)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "run_id": "run_n14",
       "session_id": "s",
       "project_id": "p",
@@ -395,7 +395,7 @@
     "expect_fail_at": "semantic",
     "description": "required combination references theme 'dark' not declared in dimensions (INV-AR-001/INV-PE-001)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "matrix_id": "vm_n15",
       "brand_ref": "b",
       "dimensions": {
@@ -435,7 +435,7 @@
     "expect_fail_at": "schema",
     "description": "deliberate typo overall_verdit rejected (propertyNames) and overall_verdict missing (required)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "eval_n16",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -471,7 +471,7 @@
     "expect_fail_at": "semantic",
     "description": "factual copy slot with no claim_refs and no unresolved_fact_note (INV-FACT-001)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "wspec_n17",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -513,7 +513,7 @@
     "expect_fail_at": "semantic",
     "description": "inference claim marked verified without verified_by human (INV-FACT-002)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_n18",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -535,7 +535,7 @@
     "expect_fail_at": "schema",
     "description": "capture.status=captured without content_ref/sha256/bytes/safety (DEC-0006: captured content must be auditable)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "src_n19",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -562,7 +562,7 @@
     "expect_fail_at": "schema",
     "description": "capture.sha256 is not a 64-char lowercase hex digest",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "src_n20",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -594,7 +594,7 @@
     "expect_fail_at": "semantic",
     "description": "injection-flagged captured content stored in the clear namespace \u2014 a flag is not a quarantine (INV-SEC-002)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "src_n21",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -627,7 +627,7 @@
     "expect_fail_at": "schema",
     "description": "factual claim citing a mutable filename locator instead of a canonical source artifact reference (DEC-0006)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_n22",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -648,7 +648,7 @@
     "expect_fail_at": "semantic",
     "description": "code-point fragment with start >= end (INV-FACT-001 fragment bounds)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_n23",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -669,7 +669,7 @@
     "expect_fail_at": "schema",
     "description": "image source omitting visual_classification entirely \u2014 documentary status must never come from a silent default (INV-FACT-003); explicit null is the honest unresolved state",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "src_n24",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -696,7 +696,7 @@
     "expect_fail_at": "schema",
     "description": "the retired UTF-16-ambiguous #chars= locator form is rejected at the schema layer, never silently migrated (DEC-0007): re-issue against the original captured content with #codepoints= offsets",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_n25",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -717,11 +717,15 @@
     "expect_fail_at": "schema",
     "description": "a policy allowlisting a real-provider adapter is schema-invalid: DEC-0009 pins allowed_adapters to exactly ['fake']; enabling a provider requires a superseding decision and a new contract version",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "policy_id": "gateway-policy-n26",
       "decision_ref": "DEC-0009",
-      "allowed_adapters": ["anthropic"],
-      "allowed_data_classes": ["synthetic"],
+      "allowed_adapters": [
+        "anthropic"
+      ],
+      "allowed_data_classes": [
+        "synthetic"
+      ],
       "external_network_allowed": false,
       "real_client_data_allowed": false,
       "api_credentials_permitted": false,
@@ -736,11 +740,15 @@
     "expect_fail_at": "schema",
     "description": "a policy with a nonzero per-run spend ceiling is schema-invalid (DEC-0009: zero external/model spend)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "policy_id": "gateway-policy-n27",
       "decision_ref": "DEC-0009",
-      "allowed_adapters": ["fake"],
-      "allowed_data_classes": ["synthetic"],
+      "allowed_adapters": [
+        "fake"
+      ],
+      "allowed_data_classes": [
+        "synthetic"
+      ],
       "external_network_allowed": false,
       "real_client_data_allowed": false,
       "api_credentials_permitted": false,
@@ -755,11 +763,15 @@
     "expect_fail_at": "schema",
     "description": "a policy enabling external network access is schema-invalid (DEC-0009: the gateway has no network path)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "policy_id": "gateway-policy-n28",
       "decision_ref": "DEC-0009",
-      "allowed_adapters": ["fake"],
-      "allowed_data_classes": ["synthetic"],
+      "allowed_adapters": [
+        "fake"
+      ],
+      "allowed_data_classes": [
+        "synthetic"
+      ],
       "external_network_allowed": true,
       "real_client_data_allowed": false,
       "api_credentials_permitted": false,
@@ -774,11 +786,15 @@
     "expect_fail_at": "schema",
     "description": "unknown policy property rejected (strict closure)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "policy_id": "gateway-policy-n29",
       "decision_ref": "DEC-0009",
-      "allowed_adapters": ["fake"],
-      "allowed_data_classes": ["synthetic"],
+      "allowed_adapters": [
+        "fake"
+      ],
+      "allowed_data_classes": [
+        "synthetic"
+      ],
       "external_network_allowed": false,
       "real_client_data_allowed": false,
       "api_credentials_permitted": false,
@@ -794,7 +810,7 @@
     "expect_fail_at": "schema",
     "description": "unknown top-level request property rejected (strict closure)",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "request_id": "req_n30",
       "run_id": "run_n30",
       "session_id": "s",
@@ -809,7 +825,14 @@
       "output_contract": "assumption",
       "scenario_id": "assumption-basic",
       "context_items": [],
-      "token_budget": { "schema_version": "1.3.0", "budget_id": "budget_n30", "scope": "skill", "output_budget": 1000, "max_tool_calls": 1, "max_iterations": 1 },
+      "token_budget": {
+        "schema_version": "1.4.0",
+        "budget_id": "budget_n30",
+        "scope": "skill",
+        "output_budget": 1000,
+        "max_tool_calls": 1,
+        "max_iterations": 1
+      },
       "max_output_tokens": 0,
       "api_key": "sk-synthetic-placeholder-never-real"
     }
@@ -818,9 +841,9 @@
     "id": "N31-gateway-request-invalid-inline-budget",
     "schema": "gateway-request.schema.json",
     "expect_fail_at": "schema",
-    "description": "inline token budget missing required output_budget is rejected through the cross-schema reference — the budget is validated, not trusted",
+    "description": "inline token budget missing required output_budget is rejected through the cross-schema reference \u2014 the budget is validated, not trusted",
     "data": {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "request_id": "req_n31",
       "run_id": "run_n31",
       "session_id": "s",
@@ -835,8 +858,499 @@
       "output_contract": "assumption",
       "scenario_id": "assumption-basic",
       "context_items": [],
-      "token_budget": { "schema_version": "1.3.0", "budget_id": "budget_n31", "scope": "skill", "max_tool_calls": 1, "max_iterations": 1 },
+      "token_budget": {
+        "schema_version": "1.4.0",
+        "budget_id": "budget_n31",
+        "scope": "skill",
+        "max_tool_calls": 1,
+        "max_iterations": 1
+      },
       "max_output_tokens": 0
+    }
+  },
+  {
+    "id": "N32-claim-fact-key-without-value",
+    "schema": "claim.schema.json",
+    "expect_fail_at": "schema",
+    "description": "fact_key without normalized_value violates the both-or-neither rule (DEC-0011)",
+    "data": {
+      "schema_version": "1.4.0",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "The company was founded in 2015",
+      "classification": "factual",
+      "source_type": "uploaded_document",
+      "source_ref": "source:src_0001#page=2",
+      "confidence": 0.9,
+      "confidence_basis": "stated in the client profile document",
+      "verification_status": "verified",
+      "artifact_id": "claim_n32",
+      "fact_key": "organization.founded_year"
+    }
+  },
+  {
+    "id": "N33-claim-value-without-fact-key",
+    "schema": "claim.schema.json",
+    "expect_fail_at": "schema",
+    "description": "normalized_value without fact_key violates the both-or-neither rule (DEC-0011)",
+    "data": {
+      "schema_version": "1.4.0",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "The company was founded in 2015",
+      "classification": "factual",
+      "source_type": "uploaded_document",
+      "source_ref": "source:src_0001#page=2",
+      "confidence": 0.9,
+      "confidence_basis": "stated in the client profile document",
+      "verification_status": "verified",
+      "artifact_id": "claim_n33",
+      "normalized_value": 2015,
+      "normalization_basis": "year digits from the statement"
+    }
+  },
+  {
+    "id": "N34-claim-fact-missing-normalization-basis",
+    "schema": "claim.schema.json",
+    "expect_fail_at": "schema",
+    "description": "structured fact metadata without normalization_basis: normalization must be disclosed (DEC-0011)",
+    "data": {
+      "schema_version": "1.4.0",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "The company was founded in 2015",
+      "classification": "factual",
+      "source_type": "uploaded_document",
+      "source_ref": "source:src_0001#page=2",
+      "confidence": 0.9,
+      "confidence_basis": "stated in the client profile document",
+      "verification_status": "verified",
+      "artifact_id": "claim_n34",
+      "fact_key": "organization.founded_year",
+      "normalized_value": 2015
+    }
+  },
+  {
+    "id": "N35-claim-object-normalized-value",
+    "schema": "claim.schema.json",
+    "expect_fail_at": "schema",
+    "description": "object normalized values are rejected in this phase (scalar only, DEC-0011)",
+    "data": {
+      "schema_version": "1.4.0",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "The company was founded in 2015",
+      "classification": "factual",
+      "source_type": "uploaded_document",
+      "source_ref": "source:src_0001#page=2",
+      "confidence": 0.9,
+      "confidence_basis": "stated in the client profile document",
+      "verification_status": "verified",
+      "artifact_id": "claim_n35",
+      "fact_key": "organization.founded_year",
+      "normalized_value": {
+        "year": 2015
+      },
+      "normalization_basis": "structured object"
+    }
+  },
+  {
+    "id": "N36-claim-array-normalized-value",
+    "schema": "claim.schema.json",
+    "expect_fail_at": "schema",
+    "description": "array normalized values are rejected in this phase (scalar only, DEC-0011)",
+    "data": {
+      "schema_version": "1.4.0",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "The company was founded in 2015",
+      "classification": "factual",
+      "source_type": "uploaded_document",
+      "source_ref": "source:src_0001#page=2",
+      "confidence": 0.9,
+      "confidence_basis": "stated in the client profile document",
+      "verification_status": "verified",
+      "artifact_id": "claim_n36",
+      "fact_key": "services.categories",
+      "normalized_value": [
+        "forensics"
+      ],
+      "normalization_basis": "list of categories"
+    }
+  },
+  {
+    "id": "N37-claim-invalid-fact-key-format",
+    "schema": "claim.schema.json",
+    "expect_fail_at": "schema",
+    "description": "fact_key must be a dotted lowercase machine-readable path with at least two segments",
+    "data": {
+      "schema_version": "1.4.0",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "The company was founded in 2015",
+      "classification": "factual",
+      "source_type": "uploaded_document",
+      "source_ref": "source:src_0001#page=2",
+      "confidence": 0.9,
+      "confidence_basis": "stated in the client profile document",
+      "verification_status": "verified",
+      "artifact_id": "claim_n37",
+      "fact_key": "FoundedYear",
+      "normalized_value": 2015,
+      "normalization_basis": "year digits from the statement"
+    }
+  },
+  {
+    "id": "N38-claim-preference-with-fact-metadata",
+    "schema": "claim.schema.json",
+    "expect_fail_at": "schema",
+    "description": "preferences must not silently participate as facts: fact metadata is rejected on preference claims (DEC-0011)",
+    "data": {
+      "schema_version": "1.4.0",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "The client prefers dark, minimal visuals",
+      "classification": "preference",
+      "source_type": "client_statement",
+      "source_ref": "source:src_0001#page=2",
+      "confidence": 0.9,
+      "confidence_basis": "stated in the client profile document",
+      "verification_status": "unconfirmed",
+      "artifact_id": "claim_n38",
+      "fact_key": "brand.visual_tone",
+      "normalized_value": "dark minimal",
+      "normalization_basis": "taste phrase from the client note"
+    }
+  },
+  {
+    "id": "N39-truth-profile-unknown-field",
+    "schema": "truth-profile.schema.json",
+    "expect_fail_at": "schema",
+    "description": "unknown top-level field on a truth profile is rejected (strict closure)",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "tp_n39",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "description": "negative fixture profile",
+      "provider_policy": "none",
+      "slots": [
+        {
+          "fact_key": "identity.primary_name",
+          "description": "d",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "w",
+          "blocking_if_missing": false,
+          "blocking_if_conflicting": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "N40-truth-profile-unknown-slot-field",
+    "schema": "truth-profile.schema.json",
+    "expect_fail_at": "schema",
+    "description": "unknown slot field is rejected (strict closure)",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "tp_n40",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "description": "negative fixture profile",
+      "slots": [
+        {
+          "fact_key": "identity.primary_name",
+          "description": "d",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "w",
+          "blocking_if_missing": false,
+          "blocking_if_conflicting": false,
+          "model_tier": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "N41-truth-profile-duplicate-fact-keys",
+    "schema": "truth-profile.schema.json",
+    "expect_fail_at": "semantic",
+    "description": "duplicate fact keys are rejected (DEC-0011 unique-sorted-fact-keys)",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "tp_n41",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "description": "negative fixture profile",
+      "slots": [
+        {
+          "fact_key": "identity.primary_name",
+          "description": "d",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "w",
+          "blocking_if_missing": false,
+          "blocking_if_conflicting": false
+        },
+        {
+          "fact_key": "identity.primary_name",
+          "description": "d",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "w",
+          "blocking_if_missing": false,
+          "blocking_if_conflicting": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "N42-truth-profile-unsorted-slots",
+    "schema": "truth-profile.schema.json",
+    "expect_fail_at": "semantic",
+    "description": "slots not sorted by fact_key are rejected (deterministic ordering, DEC-0011)",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "tp_n42",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "description": "negative fixture profile",
+      "slots": [
+        {
+          "fact_key": "market.default_locale",
+          "description": "d",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "w",
+          "blocking_if_missing": false,
+          "blocking_if_conflicting": false
+        },
+        {
+          "fact_key": "identity.primary_name",
+          "description": "d",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "w",
+          "blocking_if_missing": false,
+          "blocking_if_conflicting": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "N43-truth-analysis-unknown-field",
+    "schema": "truth-analysis.schema.json",
+    "expect_fail_at": "schema",
+    "description": "unknown top-level field on a truth analysis is rejected (strict closure; no model/provider fields exist)",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "ta_n43",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "truth_profile_ref": "tp_p11",
+      "analyzer_version": "analyze-structured-truth-1.0.0",
+      "analyzed_claim_refs": [
+        "claim_010",
+        "claim_011"
+      ],
+      "open_contradictions": [],
+      "gaps": [],
+      "unstructured_claim_refs": [],
+      "unprofiled_fact_claim_refs": [],
+      "model": "gpt-x"
+    }
+  },
+  {
+    "id": "N44-truth-analysis-dangling-contradiction-ref",
+    "schema": "truth-analysis.schema.json",
+    "expect_fail_at": "semantic",
+    "description": "a contradiction referencing a claim outside analyzed_claim_refs is rejected (DEC-0011 refs-within-analyzed)",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "ta_n44",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "truth_profile_ref": "tp_p11",
+      "analyzer_version": "analyze-structured-truth-1.0.0",
+      "analyzed_claim_refs": [
+        "claim_010",
+        "claim_011"
+      ],
+      "open_contradictions": [
+        {
+          "fact_key": "identity.primary_name",
+          "claim_refs": [
+            "claim_010",
+            "claim_ghost"
+          ],
+          "distinct_values": [
+            "A",
+            "B"
+          ],
+          "description": "single-cardinality fact slot 'identity.primary_name' carries 2 distinct normalized values across 2 eligible claims; resolution requires a human decision",
+          "blocking_publication": true,
+          "status": "open"
+        }
+      ],
+      "gaps": [],
+      "unstructured_claim_refs": [],
+      "unprofiled_fact_claim_refs": []
+    }
+  },
+  {
+    "id": "N45-truth-analysis-unsorted-refs",
+    "schema": "truth-analysis.schema.json",
+    "expect_fail_at": "semantic",
+    "description": "analyzed_claim_refs out of deterministic sort order are rejected (DEC-0011 deterministic-ordering)",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "ta_n45",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "truth_profile_ref": "tp_p11",
+      "analyzer_version": "analyze-structured-truth-1.0.0",
+      "analyzed_claim_refs": [
+        "claim_011",
+        "claim_010"
+      ],
+      "open_contradictions": [],
+      "gaps": [],
+      "unstructured_claim_refs": [],
+      "unprofiled_fact_claim_refs": []
+    }
+  },
+  {
+    "id": "N46-truth-analysis-single-value-contradiction",
+    "schema": "truth-analysis.schema.json",
+    "expect_fail_at": "schema",
+    "description": "a contradiction must involve at least two distinct normalized values",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "ta_n46",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "truth_profile_ref": "tp_p11",
+      "analyzer_version": "analyze-structured-truth-1.0.0",
+      "analyzed_claim_refs": [
+        "claim_010",
+        "claim_011"
+      ],
+      "open_contradictions": [
+        {
+          "fact_key": "identity.primary_name",
+          "claim_refs": [
+            "claim_010",
+            "claim_011"
+          ],
+          "distinct_values": [
+            "A"
+          ],
+          "description": "single-cardinality fact slot 'identity.primary_name' carries 2 distinct normalized values across 2 eligible claims; resolution requires a human decision",
+          "blocking_publication": true,
+          "status": "open"
+        }
+      ],
+      "gaps": [],
+      "unstructured_claim_refs": [],
+      "unprofiled_fact_claim_refs": []
+    }
+  },
+  {
+    "id": "N47-brand-context-missing-truth-analysis-ref",
+    "schema": "brand-context.schema.json",
+    "expect_fail_at": "schema",
+    "description": "a Brand Context Package without truth_analysis_ref is rejected: contradictions and gaps have exactly one authoritative input (DEC-0011)",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "bctx_n47",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "mode": "prompt-only",
+      "identity": {
+        "names": [
+          {
+            "value": "X",
+            "claim_ref": "claim_010"
+          }
+        ]
+      },
+      "claim_refs": [
+        "claim_010"
+      ],
+      "assumption_refs": [],
+      "gaps": []
+    }
+  },
+  {
+    "id": "N48-truth-analysis-resolved-status",
+    "schema": "truth-analysis.schema.json",
+    "expect_fail_at": "schema",
+    "description": "contradiction status is fixed to open in this phase: the analyzer never resolves conflicts",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "ta_n48",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "truth_profile_ref": "tp_p11",
+      "analyzer_version": "analyze-structured-truth-1.0.0",
+      "analyzed_claim_refs": [
+        "claim_010",
+        "claim_011"
+      ],
+      "open_contradictions": [
+        {
+          "fact_key": "identity.primary_name",
+          "claim_refs": [
+            "claim_010",
+            "claim_011"
+          ],
+          "distinct_values": [
+            "A",
+            "B"
+          ],
+          "description": "single-cardinality fact slot 'identity.primary_name' carries 2 distinct normalized values across 2 eligible claims; resolution requires a human decision",
+          "blocking_publication": true,
+          "status": "resolved"
+        }
+      ],
+      "gaps": [],
+      "unstructured_claim_refs": [],
+      "unprofiled_fact_claim_refs": []
     }
   }
 ]

@@ -2,6 +2,7 @@
   "brand_ref": "brand_synthetic_prompt",
   "id_prefix": "src_po",
   "mode": "prompt-only",
+  "analysis_id": "ta_po_0001",
   "descriptors": [
     {
       "kind": "prompt",
@@ -10,9 +11,65 @@
       "origin": "client"
     }
   ],
+  "truth_profile": {
+    "schema_version": "1.4.0",
+    "artifact_id": "tp_po_0001",
+    "brand_ref": "brand_synthetic_prompt",
+    "created_at": "2026-07-17T12:00:00Z",
+    "creator_type": "human",
+    "lifecycle_status": "accepted",
+    "description": "Synthetic prompt-only workflow truth profile: identity, audience, contact, regulatory, and market expectations for the example brand-context compilation",
+    "slots": [
+      {
+        "fact_key": "audience.primary",
+        "description": "primary audience segment",
+        "cardinality": "single",
+        "requirement": "required",
+        "why_needed": "audience determines tone, channels, and proof-point selection",
+        "blocking_if_missing": false,
+        "blocking_if_conflicting": false
+      },
+      {
+        "fact_key": "contact.primary_email",
+        "description": "primary contact email address",
+        "cardinality": "single",
+        "requirement": "required",
+        "why_needed": "no contact facts exist in prompt-only mode; required before any publication surface",
+        "blocking_if_missing": true,
+        "blocking_if_conflicting": true
+      },
+      {
+        "fact_key": "identity.primary_name",
+        "description": "the brand's primary trading name",
+        "cardinality": "single",
+        "requirement": "required",
+        "why_needed": "every output renders the name; a wrong or conflicting name is publication-critical",
+        "blocking_if_missing": true,
+        "blocking_if_conflicting": true
+      },
+      {
+        "fact_key": "legal.marketing_constraints",
+        "description": "regulatory constraints for forensic services marketing in the UAE",
+        "cardinality": "single",
+        "requirement": "required",
+        "why_needed": "affects permissible claims and CTA language",
+        "blocking_if_missing": false,
+        "blocking_if_conflicting": true
+      },
+      {
+        "fact_key": "market.primary_region",
+        "description": "primary market or region served",
+        "cardinality": "single",
+        "requirement": "required",
+        "why_needed": "market scoping constrains claims, regulation checks, and channel choices",
+        "blocking_if_missing": false,
+        "blocking_if_conflicting": true
+      }
+    ]
+  },
   "claims": [
     {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_po_0001",
       "brand_ref": "brand_synthetic_prompt",
       "created_at": "2026-07-17T12:00:00Z",
@@ -24,10 +81,13 @@
       "source_ref": "source:src_po_0001#codepoints=57-88",
       "confidence": 0.95,
       "confidence_basis": "explicit client statement in the intake prompt",
-      "verification_status": "verified"
+      "verification_status": "verified",
+      "fact_key": "market.primary_region",
+      "normalized_value": "Dubai",
+      "normalization_basis": "region name taken verbatim from the cited prompt fragment; no case folding"
     },
     {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_po_0002",
       "brand_ref": "brand_synthetic_prompt",
       "created_at": "2026-07-17T12:00:00Z",
@@ -39,10 +99,13 @@
       "source_ref": "source:src_po_0001#codepoints=95-112",
       "confidence": 0.95,
       "confidence_basis": "name stated verbatim in the intake prompt",
-      "verification_status": "verified"
+      "verification_status": "verified",
+      "fact_key": "identity.primary_name",
+      "normalized_value": "Veritas Forensics",
+      "normalization_basis": "name taken verbatim from the cited prompt fragment; no case folding, no Unicode normalization"
     },
     {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_po_0003",
       "brand_ref": "brand_synthetic_prompt",
       "created_at": "2026-07-17T12:00:00Z",
@@ -54,12 +117,15 @@
       "source_ref": null,
       "confidence": 0.55,
       "confidence_basis": "category norm for forensic consultancies; no client evidence",
-      "verification_status": "unconfirmed"
+      "verification_status": "unconfirmed",
+      "fact_key": "audience.primary",
+      "normalized_value": "law firms and insurers",
+      "normalization_basis": "audience phrase copied from the inference statement; remains an unconfirmed inference"
     }
   ],
   "assumptions": [
     {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "asm_po_0001",
       "brand_ref": "brand_synthetic_prompt",
       "created_at": "2026-07-17T12:00:00Z",
@@ -70,19 +136,6 @@
       "status": "open",
       "owner": "operator",
       "revisit_trigger": "client confirms language priorities at the facts gate"
-    }
-  ],
-  "contradictions": [],
-  "gaps": [
-    {
-      "what": "regulatory constraints for forensic services marketing in the UAE",
-      "why_needed": "affects permissible claims and CTA language",
-      "blocking": false
-    },
-    {
-      "what": "contact details (email, phone, domain)",
-      "why_needed": "no contact facts exist in prompt-only mode; required before any publication surface",
-      "blocking": true
     }
   ],
   "identity": {

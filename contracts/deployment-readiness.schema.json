@@ -240,7 +240,7 @@
   },
   "examples": [
     {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "readiness_id": "dr_0001",
       "brand_ref": "brand_example",
       "build_validation": {

@@ -8,7 +8,7 @@ Authority rank 4 (below decisions, above current state) — see `AGENTS.md`.
 
 - `artifact-envelope.schema.json` — shared envelope + definitions (`envelope`,
   `approval`, `localized_text`, `rights`) referenced by artifact schemas via `allOf`.
-- Truth layer: `source`, `claim`, `assumption`.
+- Truth layer: `source`, `claim`, `assumption`, `truth-profile`, `truth-analysis`.
 - Decision layer: `decision`.
 - Creative layer: `brand-context`, `creative-brief`, `creative-territory`,
   `creative-direction`, `brand-dna`, `visual-world`, `design-system`.
@@ -57,11 +57,51 @@ instead of invented claim refs — see fixture `P02`).
 
 ## Versioning
 
-Artifact `schema_version` for all contracts: **1.3.0** (was 1.2.0). The version is
+Artifact `schema_version` for all contracts: **1.4.0** (was 1.3.0). The version is
 globally synchronized across all contracts; examples, fixtures, and
 runtime-generated artifacts carry it consistently.
 
-**Additive contracts at 1.3.0 (Phase 1B.1, DEC-0009/DEC-0010):**
+**Migration implications (1.3.0 → 1.4.0):** the `claim` and `brand-context`
+contracts changed meaning, and two truth-layer contracts were added (DEC-0011,
+Phase 1B.2):
+
+- `claim` gains optional structured fact metadata: `fact_key` (dotted lowercase
+  machine-readable slot key, e.g. `identity.primary_name`), `normalized_value`
+  (scalar only — string, number, or boolean; arrays, objects, and null are
+  rejected in this phase), and `normalization_basis` (how the value was
+  derived — normalization happens upstream and is disclosed, never hidden in
+  comparison). `fact_key` and `normalized_value` must both exist or both be
+  absent; a normalized value requires a basis. Fact metadata is permitted only
+  on `factual` and `inference` claims — preferences and hypotheses must not
+  silently participate as facts. Deterministic comparison is exact and
+  type-sensitive: string `"1"` differs from number `1`; no case folding,
+  Unicode normalization, unit conversion, or fuzzy matching exists. A
+  normalized value never upgrades verification status.
+- `truth-profile` (new, canonical): the versioned declaration of the fact
+  slots one workflow expects — per slot: fact key, description, cardinality
+  (`single`/`multi`), requirement (`required`/`optional`), `why_needed`, and
+  profile-owned blocking flags for missing and conflicting states. Strict
+  unknown-field rejection; unique, deterministically sorted fact keys
+  (semantic layer). A profile is workflow-scoped expectation, not a universal
+  ontology, and carries no provider or model policy.
+- `truth-analysis` (new, derived): the deterministic analyzer's result —
+  analyzed claim references, open contradictions (fixed `status: "open"`;
+  at least two claim refs and two distinct type-sensitive values each), gaps
+  (`missing`/`unverified`, produced only relative to the referenced profile),
+  and the explicit `unstructured_claim_refs` / `unprofiled_fact_claim_refs`
+  listings. Semantic layer: every reference stays inside
+  `analyzed_claim_refs`; all listings and groupings are deterministically
+  sorted. No model or provider field exists.
+- `brand-context` gains a **required** `truth_analysis_ref`: open
+  contradictions and gaps compile only from a validated truth-analysis
+  artifact whose analyzed claim set exactly matches the package's claims;
+  the pre-1.4.0 caller-supplied contradiction/gap arrays are rejected by the
+  compiler.
+- No real production artifacts existed at 1.3.0, so no real-artifact migration
+  was performed — examples, fixtures, and synthetic runtime fixtures were
+  re-issued at 1.4.0 in the same change.
+
+**Historical — additive contracts at 1.3.0 (Phase 1B.1, DEC-0009/DEC-0010):**
 `gateway-policy` and `gateway-request` were added at the synchronized 1.3.0
 version. No existing contract changed meaning, so no version bump occurred.
 The `gateway-policy` contract pins the ratified zero-provider values (fake
@@ -73,8 +113,8 @@ truthfully as `provider: "offline"`, tier 0, zero tokens, and
 `cost {mode: "free-tier", usd: 0, allocation: "none"}` — non-billed, zero,
 never conflated with measured API cost (see fixture `P08`).
 
-**Migration implications (1.2.0 → 1.3.0):** the `claim` fragment locator
-changed meaning (DEC-0007):
+**Historical — migration implications (1.2.0 → 1.3.0):** the `claim` fragment
+locator changed meaning (DEC-0007):
 
 - `claim.source_ref` character fragments now use
   `source:<source artifact_id>#codepoints=<start>-<end>` — **zero-based,
@@ -99,11 +139,14 @@ changed meaning (DEC-0007):
 - Quarantine semantics (DEC-0007): a `quarantine-release` approvals entry on a
   `source` artifact is **audit metadata without authority**. The runtime
   rejects every claim citing quarantined content — fail-closed pending an
-  authenticated human-gate implementation (Q-001); schema validity of an
-  approval never releases anything.
+  authenticated human-gate implementation (Q-001 at the time of this
+  migration; since closed by DEC-0008 — release still requires a formally
+  named independent reviewer and a ratified authenticated gate mechanism,
+  neither of which exists); schema validity of an approval never releases
+  anything.
 
-**Migration implications (1.1.0 → 1.2.0):** the `source` and `claim` contracts
-changed meaning (DEC-0006):
+**Historical — migration implications (1.1.0 → 1.2.0):** the `source` and
+`claim` contracts changed meaning (DEC-0006):
 
 - `source` gains a **required `capture` block** stating how much of the input the
   runtime actually holds: `captured` (content-addressed bytes with `content_ref`
@@ -152,8 +195,9 @@ Two distinguishable layers, both required green (non-zero exit otherwise):
   blocking-consistency (INV-EVAL-001) · inference-verification-needs-human
   (INV-FACT-002) · cost-mode-consistency (INV-OBS-001) · combination-membership and
   js-disabled-presence (INV-AR-001/INV-PE-001) · factual-slots-claim-backed
-  (INV-FACT-001). Negative fixtures with `expect_fail_at: "semantic"` must pass the
-  schema layer and fail here.
+  (INV-FACT-001) · unique-sorted-fact-keys, deterministic-ordering, and
+  refs-within-analyzed (DEC-0011). Negative fixtures with
+  `expect_fail_at: "semantic"` must pass the schema layer and fail here.
 
 The command prints: schemas compiled, positive cases passed, negative cases correctly
 rejected (schema/semantic split), semantic checks passed, `$id` uniqueness.

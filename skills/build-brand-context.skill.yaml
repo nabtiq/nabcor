@@ -1,26 +1,38 @@
 # Skill specification — template per docs/AGENT_AND_SKILL_ARCHITECTURE.md §4.
 # Phase 1A implements the deterministic compile half of this UNDERSTAND skill;
-# the catalog's model-assisted gap narration (Tier 2) stays unimplemented and
-# blocked on Q-002 (provider approval).
+# Phase 1B.2 (DEC-0011) made the truth-analysis artifact the single
+# authoritative input for contradictions and gaps. The catalog's
+# model-assisted gap narration (Tier 2) stays unimplemented and prohibited by
+# the ratified zero-provider policy (DEC-0009; Q-002 closed as "no provider
+# approved") — a future provider requires a superseding provider-enablement
+# decision, not an answer to an open question.
 skill_id: build-brand-context
 domain: UNDERSTAND
 purpose: >
   Deterministically compile already structured, already validated truth —
-  source, claim, and assumption artifacts plus contradictions and gaps — into a
-  schema-valid Brand Context Package. Compilation of structured truth, not
-  natural-language extraction. Implemented in src/compile/build-brand-context.ts.
+  source, claim, and assumption artifacts plus one validated truth-analysis
+  artifact — into a schema-valid Brand Context Package. Compilation of
+  structured truth, not natural-language extraction. Implemented in
+  src/compile/build-brand-context.ts.
 input_contract: >
   BrandContextInput (src/compile/build-brand-context.ts): source.schema.json[],
-  claim.schema.json[], assumption.schema.json[], contradiction/gap/identity
-  structures matching brand-context.schema.json shapes, plus workspace namespace
-  and a FileContentStore for captured-fragment verification.
+  claim.schema.json[], assumption.schema.json[], one truth-analysis.schema.json
+  artifact (DEC-0011 — the only admissible source of contradictions and gaps),
+  identity structures matching brand-context.schema.json shapes, plus workspace
+  namespace and a FileContentStore for captured-fragment verification.
 output_contract: brand-context.schema.json
 required_context: [workspace, brand_ref, supplied artifacts only — no Second Brain reads]
 tools: []  # no model call exists or is hidden inside the compiler
 model_capability: tier-0 (deterministic; the Tier-2 gap-narration extension is
-  future work behind Q-002)
+  prohibited by DEC-0009 until a provider-enablement decision supersedes it)
 deterministic_validations:
   - every supplied source/claim/assumption is contract-valid (schema + semantic)
+  - the truth-analysis artifact is contract-valid, belongs to the same brand,
+    and its analyzed claim set EXACTLY matches the supplied claims — a package
+    can neither drop analyzed claims nor smuggle in unanalyzed ones (DEC-0011)
+  - caller-supplied contradiction/gap arrays are rejected with a typed failure:
+    analysis results cannot be injected, omitted, or independently rewritten,
+    and the package records truth_analysis_ref (DEC-0011)
   - all referenced sources, claims, and assumptions exist among the inputs;
     dangling identity/audience/contradiction/mark references are rejected
   - factual claims retain provenance — never model-inference sourced, and every
@@ -33,23 +45,27 @@ deterministic_validations:
     reference (digest-verified); page fragments on descriptors stay
     structurally valid but not-yet-content-verified (DEC-0007)
   - claims citing quarantined sources are ALWAYS rejected with a typed
-    quarantine-fail-closed failure: no authenticated human release authority
-    exists until Q-001 is resolved, so a quarantine-release approval on the
-    source artifact is audit metadata and grants no authority
-    (DEC-0007, INV-SEC-002, INV-HUM-001)
+    quarantine-fail-closed failure: release requires both a formally named
+    independent reviewer and a ratified authenticated approval mechanism,
+    neither of which exists (DEC-0007, DEC-0008), so a quarantine-release
+    approval on the source artifact is audit metadata and grants no authority
+    (INV-SEC-002, INV-HUM-001)
   - inference cannot become verified fact without human verification evidence
     (INV-FACT-002)
   - prompt-only mode admits prompt/brief sources only, so proof points cannot
     be manufactured from evidence that is not there
-  - open contradictions pass through visibly; the compiler never resolves or
-    drops them (INV-HUM-001(3))
-  - missing information is a gap entry, never invented content
+  - open contradictions pass through visibly from the truth analysis; the
+    compiler never resolves or drops them (INV-HUM-001(3))
+  - missing information is a gap entry from the truth analysis, never invented
+    content
   - provisional is derived (open assumptions or unverified claims), never asserted
   - the output package validates against brand-context.schema.json before it is
     returned or stored (INV-DET-001)
 failure_modes:
-  - invalid supplied artifact (typed validation-failed)
-  - dangling reference or cross-brand input (typed reference-violation)
+  - invalid supplied artifact or truth analysis (typed validation-failed)
+  - caller-supplied contradiction/gap bypass attempt (typed invalid-input)
+  - dangling reference, cross-brand input, or analysis claim-coverage mismatch
+    (typed reference-violation)
   - schema rejection of the compiled package (typed validation-failed)
 retry_rules: none — deterministic; a typed failure requires changed input
 human_approval: none inside the compiler; fact conflicts and inference
@@ -57,10 +73,11 @@ human_approval: none inside the compiler; fact conflicts and inference
 token_budget: {output: 0, max_tool_calls: 0, max_iterations: 1}  # Tier 0: no model
 caching: not applicable (no model calls; deterministic output for identical input)
 evaluation: runtime tests in test/build-brand-context.test.ts and
-  test/codepoint-fragments.test.ts — both synthetic modes compile,
-  unsupported/inference-as-fact/dangling-reference/cross-brand inputs are
-  rejected, contradictions stay visible, filename collisions cannot satisfy
-  references, code-point fragments are bounds-checked against captured content
-  across ASCII/Arabic/supplementary-plane/combining characters, and
-  quarantined-source claims always fail closed (no caller-supplied approval
-  can compile them)
+  test/codepoint-fragments.test.ts — both synthetic modes compile through the
+  analyzer-produced truth analysis, unsupported/inference-as-fact/
+  dangling-reference/cross-brand inputs are rejected, contradictions stay
+  visible, the caller bypass and coverage mismatches are rejected, filename
+  collisions cannot satisfy references, code-point fragments are bounds-checked
+  against captured content across ASCII/Arabic/supplementary-plane/combining
+  characters, and quarantined-source claims always fail closed (no
+  caller-supplied approval can compile them)

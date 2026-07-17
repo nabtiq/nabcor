@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/truth-profile.schema.json",
+  "title": "Truth Profile",
+  "description": "Versioned declaration of the fact slots one workflow or Brand Context Package expects (DEC-0011). A profile is workflow-scoped expectation, not a universal ontology: absence from a profile is not evidence that information is universally required. Profiles carry no provider or model policy.",
+  "allOf": [
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
+    {
+      "type": "object",
+      "required": [
+        "brand_ref",
+        "description",
+        "slots"
+      ],
+      "properties": {
+        "brand_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the brand this profile belongs to; cross-brand use is rejected at runtime (INV-DATA-001)"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "human-readable statement of what this profile expects and for which workflow"
+        },
+        "slots": {
+          "type": "array",
+          "minItems": 1,
+          "description": "declared fact slots, deterministically sorted ascending by fact_key with unique keys (semantic layer)",
+          "items": {
+            "type": "object",
+            "required": [
+              "fact_key",
+              "description",
+              "cardinality",
+              "requirement",
+              "why_needed",
+              "blocking_if_missing",
+              "blocking_if_conflicting"
+            ],
+            "properties": {
+              "fact_key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "cardinality": {
+                "enum": [
+                  "single",
+                  "multi"
+                ]
+              },
+              "requirement": {
+                "enum": [
+                  "required",
+                  "optional"
+                ]
+              },
+              "why_needed": {
+                "type": "string",
+                "minLength": 1
+              },
+              "blocking_if_missing": {
+                "type": "boolean",
+                "description": "whether missing information in this slot blocks downstream publication; blocking status comes only from the profile, never from the analyzer"
+              },
+              "blocking_if_conflicting": {
+                "type": "boolean",
+                "description": "whether an open contradiction in this slot blocks downstream publication"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.4.0",
+      "artifact_id": "tp_0001",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "description": "Synthetic brand-context truth profile: identity, market, audience, and service expectations for the example workflow (not the final universal NABCor profile)",
+      "slots": [
+        {
+          "fact_key": "audience.primary",
+          "description": "primary audience segment",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "audience determines tone, channels, and proof-point selection",
+          "blocking_if_missing": false,
+          "blocking_if_conflicting": false
+        },
+        {
+          "fact_key": "identity.primary_name",
+          "description": "the brand's primary trading name",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "every output renders the name; a wrong or conflicting name is publication-critical",
+          "blocking_if_missing": true,
+          "blocking_if_conflicting": true
+        },
+        {
+          "fact_key": "market.default_locale",
+          "description": "default output locale for the brand",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "locale decides rendering direction and copy language defaults",
+          "blocking_if_missing": true,
+          "blocking_if_conflicting": true
+        },
+        {
+          "fact_key": "market.primary_region",
+          "description": "primary market or region served",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "market scoping constrains claims, regulation checks, and channel choices",
+          "blocking_if_missing": false,
+          "blocking_if_conflicting": true
+        },
+        {
+          "fact_key": "organization.founded_year",
+          "description": "year the organization was founded",
+          "cardinality": "single",
+          "requirement": "optional",
+          "why_needed": "heritage statements may cite it when verified",
+          "blocking_if_missing": false,
+          "blocking_if_conflicting": true
+        },
+        {
+          "fact_key": "services.categories",
+          "description": "service or offering categories",
+          "cardinality": "multi",
+          "requirement": "required",
+          "why_needed": "service pages and social concepts enumerate offerings",
+          "blocking_if_missing": false,
+          "blocking_if_conflicting": false
+        }
+      ]
+    }
+  ],
+  "propertyNames": {
+    "enum": [
+      "approvals",
+      "artifact_id",
+      "brand_ref",
+      "created_at",
+      "creator_type",
+      "derived_from_runs",
+      "description",
+      "lifecycle_status",
+      "project_ref",
+      "provisional",
+      "schema_version",
+      "slots",
+      "superseded_by",
+      "supersedes",
+      "validation_status"
+    ]
+  }
+}

@@ -118,32 +118,88 @@
             "string",
             "null"
           ]
+        },
+        "fact_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
+          "description": "stable machine-readable fact-slot key (DEC-0011), e.g. identity.primary_name, market.default_locale, organization.founded_year; present only together with normalized_value"
+        },
+        "normalized_value": {
+          "type": [
+            "string",
+            "number",
+            "boolean"
+          ],
+          "description": "explicit normalized scalar for deterministic comparison (DEC-0011): scalar only in this phase (arrays, objects, and null are rejected); comparison is exact and type-sensitive — string \"1\" differs from number 1, no case folding, no Unicode normalization, no unit conversion; a normalized value never upgrades verification status"
+        },
+        "normalization_basis": {
+          "type": "string",
+          "minLength": 1,
+          "description": "how normalized_value was derived from the statement — any normalization happens upstream and is disclosed here, never hidden in comparison (DEC-0011)"
         }
       },
-      "if": {
-        "properties": {
-          "classification": {
-            "const": "factual"
-          }
-        }
-      },
-      "then": {
-        "required": [
-          "source_ref",
-          "confidence_basis"
+      "dependencies": {
+        "fact_key": [
+          "normalized_value",
+          "normalization_basis"
         ],
-        "properties": {
-          "source_ref": {
-            "type": "string",
-            "minLength": 1
+        "normalized_value": [
+          "fact_key",
+          "normalization_basis"
+        ],
+        "normalization_basis": [
+          "fact_key",
+          "normalized_value"
+        ]
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "classification": {
+                "const": "factual"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "source_ref",
+              "confidence_basis"
+            ],
+            "properties": {
+              "source_ref": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "$comment": "DEC-0011: structured fact metadata is permitted only for classifications that can state something about the brand or world (factual, inference); preferences and hypotheses must not silently participate as facts.",
+          "if": {
+            "properties": {
+              "classification": {
+                "enum": [
+                  "hypothesis",
+                  "preference"
+                ]
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "required": [
+                "fact_key"
+              ]
+            }
           }
         }
-      }
+      ]
     }
   ],
   "examples": [
     {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_001",
       "brand_ref": "brand_example",
       "created_at": "2026-07-17T12:00:00Z",
@@ -158,7 +214,7 @@
       "verification_status": "verified"
     },
     {
-      "schema_version": "1.3.0",
+      "schema_version": "1.4.0",
       "artifact_id": "claim_002",
       "brand_ref": "brand_example",
       "created_at": "2026-07-17T12:00:00Z",
@@ -171,6 +227,24 @@
       "confidence": 0.62,
       "confidence_basis": "category norm for forensic consultancies; no client evidence",
       "verification_status": "unconfirmed"
+    },
+    {
+      "schema_version": "1.4.0",
+      "artifact_id": "claim_003",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "The company's primary brand name is Veritas Forensics",
+      "classification": "factual",
+      "source_type": "uploaded_document",
+      "source_ref": "source:src_0001#page=1",
+      "confidence": 0.97,
+      "confidence_basis": "name printed on the client's own profile document cover",
+      "verification_status": "verified",
+      "fact_key": "identity.primary_name",
+      "normalized_value": "Veritas Forensics",
+      "normalization_basis": "verbatim name as printed; no case folding, no Unicode normalization"
     }
   ],
   "propertyNames": {
@@ -185,7 +259,10 @@
       "creator_type",
       "derived_from_runs",
       "evidence",
+      "fact_key",
       "lifecycle_status",
+      "normalization_basis",
+      "normalized_value",
       "project_ref",
       "provisional",
       "resolution_decision_ref",

@@ -1,0 +1,82 @@
+# Skill specification — template per docs/AGENT_AND_SKILL_ARCHITECTURE.md §4.
+# Phase 1B.2 (DEC-0011) implements this deterministic Tier-0 UNDERSTAND
+# service. It is NOT the catalog's Tier-2 `detect-contradictions` capability:
+# semantic contradiction detection over unrestricted prose remains
+# unimplemented and prohibited by the ratified zero-provider policy
+# (DEC-0009) until a provider-enablement decision supersedes it.
+skill_id: analyze-structured-truth
+domain: UNDERSTAND
+purpose: >
+  Deterministically detect open contradictions and gaps over EXPLICITLY
+  structured fact slots: group contract-valid claims by fact_key, compare
+  normalized scalar values with exact type-sensitive equality, and evaluate
+  required/optional slots against one versioned truth profile. Produces a
+  schema-valid truth-analysis artifact. Implemented in
+  src/understand/analyze-structured-truth.ts.
+input_contract: >
+  TruthAnalysisInput (src/understand/analyze-structured-truth.ts): one
+  truth-profile.schema.json artifact and claim.schema.json[] — plus workspace
+  and brand identity for isolation checks. Boundary values stay unknown until
+  contract validation.
+output_contract: truth-analysis.schema.json
+required_context: [workspace, brand_ref, supplied artifacts only — no Second Brain reads]
+tools: []          # no OCR, no parsing, no fetching, no network
+model_calls: none  # Tier 0 — deterministic code end to end
+gateway: not used  # the analyzer never crosses the gateway boundary
+fake_adapter: not used  # gateway test infrastructure only, never simulated intelligence (DEC-0011)
+model_capability: tier-0 (deterministic; the Tier-2 semantic
+  detect-contradictions extension is prohibited by DEC-0009 until a
+  provider-enablement decision supersedes it)
+deterministic_validations:
+  - the truth profile and every claim are contract-valid (schema + semantic)
+    before anything is read from them (INV-DET-001)
+  - the profile and every claim belong to the analysis brand; cross-brand
+    inputs are rejected (INV-DATA-001)
+  - duplicate claim artifact IDs are rejected
+  - only claims with explicit fact metadata participate; comparison is exact
+    and type-sensitive — string "1" differs from number 1, no case folding,
+    no Unicode normalization, no unit conversion, no fuzzy matching
+  - single-cardinality slots with two or more distinct normalized values
+    produce exactly one open contradiction; identical duplicate values are
+    never contradictions; multi slots accumulate without conflict
+  - retired claims (verification rejected/expired, lifecycle
+    rejected/superseded) neither create contradictions nor satisfy slots
+  - gaps are produced only relative to the supplied truth profile: required
+    slots with no eligible claim are `missing`, required slots with only
+    unconfirmed/inference support are `unverified`, optional absence is not a
+    gap, and an open contradiction is never converted into a gap
+  - blocking flags are copied from the profile; the analyzer assigns none
+  - contradictions are fixed to status "open"; no winner is ever selected
+    (INV-HUM-001(3))
+  - output ordering is deterministic (code-unit sort); repeated identical
+    input produces byte-equivalent output
+  - the produced artifact validates against truth-analysis.schema.json before
+    it is returned or stored
+failure_modes:
+  - invalid profile or claim artifact (typed validation-failed)
+  - cross-brand profile or claim (typed reference-violation)
+  - duplicate claim artifact IDs (typed invalid-input)
+  - schema rejection of the produced analysis (typed validation-failed)
+retry_rules: none — deterministic code either succeeds or returns a typed
+  failure; retrying without changed input cannot change the outcome
+human_approval: none inside detection; contradiction resolution and
+  inference confirmation are human gates downstream (INV-HUM-001(3)) —
+  resolution produces a decision record, never an analyzer output
+token_budget: {output: 0, max_tool_calls: 0, max_iterations: 1}  # Tier 0: zero model tokens
+caching: not applicable (no model calls; deterministic output for identical input)
+limitations: >
+  Claims without structured fact metadata are listed under
+  unstructured_claim_refs and are NOT analyzed: they are never keyword-parsed,
+  text-compared, silently ignored, or converted into assumptions. Two prose
+  statements a human would read as conflicting produce no contradiction here.
+  Structured claims whose fact_key is not in the profile are listed under
+  unprofiled_fact_claim_refs. Absence from the profile is not evidence that
+  information is universally required.
+evaluation: runtime tests in test/analyze-structured-truth.test.ts —
+  profile/claim contract enforcement, exact type-sensitive comparison
+  (string-vs-number, case, Unicode composition), single/multi cardinality,
+  missing/unverified/optional gap rules, retired-claim exclusion, explicit
+  unstructured/unprofiled listing, brand isolation (analyzer and artifact
+  store), duplicate rejection, byte-equivalent determinism, contract validity
+  of the output, and proof that no gateway import exists and the Fake Adapter
+  is never invoked

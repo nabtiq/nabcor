@@ -14,7 +14,7 @@ function store(root = tempDir("records")): { store: FileRunRecordStore; root: st
 
 export function validRunRecord(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.3.0",
+    schema_version: "1.4.0",
     run_id: "run_t_0001",
     session_id: "sess_t",
     project_id: "proj_t",
@@ -52,7 +52,7 @@ export function validRunRecord(overrides: Record<string, unknown> = {}): Record<
 
 export function validManifest(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.3.0",
+    schema_version: "1.4.0",
     manifest_id: "cm_run_t_0001",
     run_ref: "run_t_0001",
     skill_id: "gateway-selftest",
@@ -94,7 +94,7 @@ test("schema-invalid records are rejected before persistence", () => {
   const invalid = s.put(WS, BRAND, "model-run", validRunRecord({ input_tokens: -1 }));
   assert.equal(invalid.ok, false);
   if (!invalid.ok) assert.equal(invalid.error.kind, "validation-failed");
-  const missing = s.put(WS, BRAND, "context-manifest", { schema_version: "1.3.0" });
+  const missing = s.put(WS, BRAND, "context-manifest", { schema_version: "1.4.0" });
   assert.equal(missing.ok, false);
   // Nothing — canonical or partial — may exist after rejected writes.
   assert.deepEqual(readdirSync(root), []);
