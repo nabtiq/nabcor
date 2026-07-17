@@ -54,8 +54,9 @@ The audit chain is: **source artifact → captured content → fragment → clai
   quarantine namespace, no runtime path reads quarantined bytes, and
   brand-context compilation rejects every claim citing it with a typed
   failure. *Release* **does not exist yet**: the runtime cannot authenticate a
-  human while Q-001 is open, so quarantine is fail-closed pending an
-  authenticated human-gate implementation (DEC-0007). A `quarantine-release`
+  human, and quarantine release requires an independent reviewer and an
+  authenticated gate mechanism that do not yet exist (DEC-0008), so
+  quarantine is fail-closed (DEC-0007). A `quarantine-release`
   approvals entry on a source artifact is audit metadata only and grants no
   authority — schema validation proves shape, not that a human acted.
 

@@ -1,6 +1,6 @@
 # Model Gateway and Token Strategy
 
-**Version:** 1.1 · 2026-07-17 · governed by INV-PROV-001 (provider independence),
+**Version:** 1.2 · 2026-07-18 · governed by INV-PROV-001 (provider independence),
 INV-TOK-001/002 (budgets, artifact passing), INV-OBS-001 (run records).
 Empirical anchors: BC-001 measured usage (`retrospective/data/token-summary.json` in
 the josouralazl repo, branch `retrospective/bc-001`).
@@ -16,9 +16,22 @@ Product code and skills see: `invoke(skill_capability_request) → typed artifac
 They never see provider SDKs, model ids, or raw transcripts (INV-PROV-001; enforcement:
 grep gate — no provider SDK import outside the gateway).
 
-No provider is approved by this baseline. Provider/account approval, client-data
-policy, and spend ceilings are blocking questions in `brain/current/OPEN_QUESTIONS.md`
-Q-002. A provider may be operationally familiar without being approved for this
+**Zero providers are approved (DEC-0009; Q-002 closed as "no provider
+approved").** The offline gateway kernel (DEC-0010, `src/gateway/`) implements
+the boundary today: a strict policy contract
+(`contracts/gateway-policy.schema.json` + committed active policy) pins the
+fake adapter, synthetic data only, tier 0, no network, no credentials, and
+zero per-run/monthly external spend; requests are contract-validated; budgets
+are enforced before invocation; and every invocation that passes request
+validation writes a context manifest and a truthful `model-run` record. The
+deterministic Fake Adapter is test infrastructure, not a model: its Tier-0
+records carry zero tokens in all four classes and
+`cost {mode: "free-tier", usd: 0, allocation: "none"}` — the truthful
+non-billed accounting — and are **excluded from model-quality and
+product-quality evaluation** (they never populate EXP-0001). Enabling a real
+provider requires a new ratified decision meeting DEC-0009's nine
+requirements; the API-billed preference in §6 applies to that future decision.
+A provider may be operationally familiar without being approved for this
 product or for client material.
 
 ## 2. Model tiers

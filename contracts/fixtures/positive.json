@@ -40,5 +40,17 @@
     "schema": "source.schema.json",
     "description": "image source with explicitly unresolved (null) visual_classification passes — the honest state for an unclassified visual (INV-FACT-003)",
     "data": { "schema_version": "1.3.0", "artifact_id": "src_p07", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "deterministic", "lifecycle_status": "generated", "kind": "image", "origin": "client", "filename_or_locator": "shopfront.jpg", "rights": { "commercial_use": "unknown", "advertising_use": "unknown", "benchmark_use": "forbidden", "training_use": "forbidden" }, "capture": { "status": "descriptor-only" }, "visual_classification": null, "injection_flag": false }
+  },
+  {
+    "id": "P08-offline-fake-adapter-model-run",
+    "schema": "model-run.schema.json",
+    "description": "Tier-0 offline Fake Adapter run record: provider 'offline', zero tokens in all four classes, cost {mode: free-tier, usd: 0, allocation: none} — truthful zero-spend accounting, excluded from model-quality evidence (DEC-0009/DEC-0010)",
+    "data": { "schema_version": "1.3.0", "run_id": "run_p08", "session_id": "sess_p08", "project_id": "SLICE-001", "workspace_id": "ws_local", "brand_id": "brand_example", "workflow_id": "wf_offline_check", "skill_id": "gateway-selftest", "attribution_confidence": "confirmed", "artifact_ids_in": ["src_0001"], "artifact_ids_out": ["asm_0001"], "context_manifest_ref": "cm_run_p08", "provider": "offline", "model": "deterministic-fake-adapter-v1", "model_tier": 0, "prompt_version": null, "started_at": "2026-07-18T12:00:00Z", "latency_ms": null, "input_tokens": 0, "output_tokens": 0, "cached_tokens": 0, "cache_creation_tokens": 0, "reasoning_tokens": null, "cost": { "mode": "free-tier", "usd": 0, "allocation": "none" }, "tool_calls": 1, "retry_count": 0, "failure_type": null, "media": null, "human_review": "none", "accepted": null, "rejected_reason": null, "superseded_by": null }
+  },
+  {
+    "id": "P09-gateway-request-synthetic",
+    "schema": "gateway-request.schema.json",
+    "description": "provider-neutral gateway request with inline contract-validated token budget, context items with load reasons, and a deterministic scenario id (DEC-0010)",
+    "data": { "schema_version": "1.3.0", "request_id": "req_p09", "run_id": "run_p09", "session_id": "sess_p09", "project_id": "SLICE-001", "workspace_id": "ws_local", "brand_id": "brand_example", "workflow_id": "wf_offline_check", "skill_id": "gateway-selftest", "adapter_id": "fake", "requested_tier": 0, "data_classification": "synthetic", "output_contract": "assumption", "scenario_id": "assumption-basic", "context_items": [ { "artifact_id": "src_0001", "reason": "synthetic source under test", "required": true } ], "token_budget": { "schema_version": "1.3.0", "budget_id": "budget_p09", "scope": "skill", "scope_ref": "gateway-selftest", "fresh_input_budget": 0, "cached_input_budget": null, "cache_write_budget": null, "output_budget": 1000, "max_tool_calls": 1, "max_iterations": 1, "escalation_budget": null, "hard_stop_output": 1000, "basis": "offline deterministic fixture run — zero model tokens by construction (DEC-0009)" }, "max_output_tokens": 0 }
   }
 ]

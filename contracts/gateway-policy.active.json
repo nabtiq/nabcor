@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.3.0",
+  "policy_id": "gateway-policy-0001",
+  "decision_ref": "DEC-0009",
+  "allowed_adapters": ["fake"],
+  "allowed_data_classes": ["synthetic"],
+  "external_network_allowed": false,
+  "real_client_data_allowed": false,
+  "api_credentials_permitted": false,
+  "max_external_spend_usd_per_run": 0,
+  "max_external_spend_usd_per_month": 0,
+  "required_execution_tier": 0
+}

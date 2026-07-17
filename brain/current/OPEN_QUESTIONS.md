@@ -1,35 +1,14 @@
 # Open Questions and Assumptions
 
-**Updated:** 2026-07-17
+**Updated:** 2026-07-18
 
 Unknowns stay visible until evidence or a ratified decision resolves them.
 
 ## Blocking before Phase 1
 
-### Q-001 — Human gate roles
-
-Who holds product-owner, operator, reviewer, and evaluation-owner authority? One person
-may hold several roles, but self-review must be declared on each approval.
-
-**Required answer:** named people/identities, roles, effective date, and any gate that
-requires an independent reviewer.
-
-**Dependency note (2026-07-17, DEC-0007):** quarantine release is fail-closed
-until this question is answered and an authenticated approval mechanism
-exists — the runtime cannot currently distinguish a human quarantine-release
-approval from a fabricated one, so no runtime path reads quarantined content.
-The Phase 1A.2 correction task explicitly did not resolve this question.
-
-### Q-002 — Providers, data policy, and spend
-
-Which model providers/accounts may receive synthetic data? Which may receive real
-client data? What are the per-run and monthly hard ceilings? API-billed runs are
-preferred where cost must be measured; subscription usage must never be presented as a
-known per-project cost.
-
-**Scope note (2026-07-17):** Q-002 blocks provider-backed and model-backed work — the
-gateway, extraction, territories, evaluators with model calls. It does not block the
-offline deterministic kernel, which is why Phase 1A shipped without it.
+None. Q-001 and Q-002 are closed (see the answer log). Provider-backed work is
+now gated by the DEC-0009 provider-enablement requirements, not by an open
+question.
 
 ## Experiment-owned questions
 
@@ -42,6 +21,9 @@ offline deterministic kernel, which is why Phase 1A shipped without it.
 
 ## Deferred questions
 
+- Which provider enablement (provider, models, data classes, retention/training
+  policy, regulatory constraints, secret management, spend ceilings, approval
+  gates) first supersedes the DEC-0009 zero-provider policy?
 - What is the first production channel adapter?
 - When does file-based retrieval stop being sufficient?
 - What is the productization boundary between internal Nabtiq tooling and an external
@@ -67,3 +49,18 @@ active section in the same commit.
   the decision.
 - **Q-004 — First vertical-slice ratification** · 2026-07-17 · closed by ratified
   DEC-0004: slice boundary unchanged; slice risks remain owned by EXP-0002..0004.
+- **Q-001 — Human gate roles** · 2026-07-18 · closed by DEC-0008: Ibrahim Mohamed
+  (GitHub @ibra2000sd) holds all four roles effective 2026-07-18, with
+  `self_review: true` required on every approval; four gates (quarantine release,
+  client-facing publishing, BLOCKING evaluation-gate changes, real client data to a
+  model provider) require an independent reviewer, who is not yet named — those
+  gates are therefore unapprovable, and quarantine release stays fail-closed
+  (DEC-0007 stands) until an independent reviewer and an authenticated gate
+  mechanism both exist.
+- **Q-002 — Providers, data policy, and spend** · 2026-07-18 · closed by
+  DEC-0009 as **"no provider approved"**: zero external providers, the
+  deterministic Fake Adapter is the only approved gateway adapter, synthetic
+  data only, real client data prohibited from every model path, no network
+  access or credentials, external/model spend capped at USD 0 per run and per
+  month. Closure is not provider approval: enabling any provider requires a
+  new ratified decision meeting DEC-0009's nine requirements.
