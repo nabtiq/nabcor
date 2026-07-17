@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/creative-brief.schema.json",
+  "title": "Creative Brief",
+  "description": "Structured intent: objectives, audience, deliverables, constraints (DOMAIN_MODEL §4).",
+  "allOf": [
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
+    {
+      "type": "object",
+      "required": [
+        "brand_ref",
+        "brand_context_ref",
+        "objectives",
+        "deliverables"
+      ],
+      "properties": {
+        "brand_ref": {
+          "type": "string"
+        },
+        "brand_context_ref": {
+          "type": "string"
+        },
+        "objectives": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "audience_claim_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "deliverables": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tone_signals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "success_criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "budget_ref": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "token-budget artifact id"
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.1.0",
+      "artifact_id": "brief_0001",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "reviewed",
+      "brand_context_ref": "bctx_0001",
+      "objectives": [
+        "launch-ready brand presence",
+        "credible premium positioning"
+      ],
+      "deliverables": [
+        "homepage specification",
+        "3 connected social launch asset specifications"
+      ],
+      "constraints": [
+        "no fabricated proof points",
+        "bilingual-ready"
+      ],
+      "tone_signals": [
+        "precise",
+        "authoritative",
+        "calm"
+      ],
+      "budget_ref": "budget_slice_0001"
+    }
+  ],
+  "propertyNames": {
+    "enum": [
+      "approvals",
+      "artifact_id",
+      "audience_claim_refs",
+      "brand_context_ref",
+      "brand_ref",
+      "budget_ref",
+      "constraints",
+      "created_at",
+      "creator_type",
+      "deliverables",
+      "derived_from_runs",
+      "lifecycle_status",
+      "objectives",
+      "project_ref",
+      "provisional",
+      "schema_version",
+      "success_criteria",
+      "superseded_by",
+      "supersedes",
+      "tone_signals",
+      "validation_status"
+    ]
+  }
+}

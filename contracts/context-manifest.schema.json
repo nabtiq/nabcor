@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/context-manifest.schema.json",
+  "title": "Context Manifest",
+  "description": "What a model run loaded into context and why (INV-TOK-002; AGENTS.md context policy). Makes context selection measurable and retrieval failures reportable.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "run_ref",
+    "skill_id",
+    "artifacts_loaded",
+    "context_selector_version"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "manifest_id": {
+      "type": "string"
+    },
+    "run_ref": {
+      "type": "string"
+    },
+    "skill_id": {
+      "type": "string"
+    },
+    "artifacts_loaded": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "artifact_id",
+          "reason"
+        ],
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "tokens_estimate": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "learnings_classes_consulted": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "patterns",
+          "preferences",
+          "eval-failures",
+          "performance",
+          "quirks"
+        ]
+      }
+    },
+    "decisions_consulted": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "fresh_context_size": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "tokens"
+    },
+    "cached_context_size": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "context_selector_version": {
+      "type": "string"
+    },
+    "retrieval_failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "wanted",
+          "why_missing"
+        ],
+        "properties": {
+          "wanted": {
+            "type": "string"
+          },
+          "why_missing": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "a silent retrieval failure is an eval-failure learning (INV-MEM-001)"
+    }
+  },
+  "examples": [
+    {
+      "schema_version": "1.1.0",
+      "manifest_id": "cm_0042",
+      "run_ref": "run_0042",
+      "skill_id": "validate-claims",
+      "artifacts_loaded": [
+        {
+          "artifact_id": "wspec_0001",
+          "reason": "artifact under evaluation",
+          "tokens_estimate": 2400
+        },
+        {
+          "artifact_id": "claim_001",
+          "reason": "ledger entry cited by factual copy slot",
+          "tokens_estimate": 120
+        }
+      ],
+      "learnings_classes_consulted": [],
+      "decisions_consulted": [],
+      "fresh_context_size": 3100,
+      "cached_context_size": 42000,
+      "context_selector_version": "0.1.0",
+      "retrieval_failures": []
+    }
+  ],
+  "additionalProperties": false
+}

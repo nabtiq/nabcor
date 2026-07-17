@@ -1,0 +1,309 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/deployment-readiness.schema.json",
+  "title": "Deployment Readiness",
+  "description": "Pre-flight record for any deploy/publication (INV-PUB-001; gate G5). All BC-001 deploy incidents (F01/F02/F08) become pre-flight failures. Contract only in Phase 0 — execution is Phase 2+.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "readiness_id",
+    "brand_ref",
+    "build_validation",
+    "environment",
+    "dns",
+    "vcs_sync",
+    "preview",
+    "rollback",
+    "smoke_matrix",
+    "ci_outage_policy"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "readiness_id": {
+      "type": "string"
+    },
+    "brand_ref": {
+      "type": "string"
+    },
+    "build_validation": {
+      "type": "object",
+      "required": [
+        "local_build_green",
+        "gates_green"
+      ],
+      "properties": {
+        "local_build_green": {
+          "type": "boolean"
+        },
+        "gates_green": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "environment": {
+      "type": "object",
+      "required": [
+        "required_vars_present",
+        "secrets_in_ci_only"
+      ],
+      "properties": {
+        "required_vars_present": {
+          "type": "boolean"
+        },
+        "secrets_in_ci_only": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "assets_ready": {
+      "type": "object",
+      "properties": {
+        "ladders_encoded": {
+          "type": "boolean"
+        },
+        "icons_complete": {
+          "type": "boolean"
+        },
+        "manifest_synced": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dns": {
+      "type": "object",
+      "required": [
+        "expected_records",
+        "preflight_resolution_ok"
+      ],
+      "properties": {
+        "expected_records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type",
+              "name",
+              "value"
+            ],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "preflight_resolution_ok": {
+          "type": "boolean"
+        },
+        "postflight_resolution_ok": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "hosting": {
+      "type": "object",
+      "properties": {
+        "compose_placeholders_filled": {
+          "type": "boolean"
+        },
+        "traefik_route_unique": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "vcs_sync": {
+      "type": "object",
+      "required": [
+        "fetched",
+        "divergence_clear"
+      ],
+      "properties": {
+        "fetched": {
+          "type": "boolean"
+        },
+        "divergence_clear": {
+          "type": "boolean"
+        }
+      },
+      "description": "the F08 gate — mandatory for multi-workspace branches",
+      "additionalProperties": false
+    },
+    "preview": {
+      "type": "object",
+      "required": [
+        "url",
+        "approved_by"
+      ],
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "approved_by": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "human user id (INV-HUM-001(4)); null = not yet approved = not ready"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rollback": {
+      "type": "object",
+      "required": [
+        "previous_tag",
+        "procedure_reference"
+      ],
+      "properties": {
+        "previous_tag": {
+          "type": "string"
+        },
+        "procedure_reference": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "smoke_matrix": {
+      "type": "object",
+      "required": [
+        "locales",
+        "routes",
+        "console_clean"
+      ],
+      "properties": {
+        "locales": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "themes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "console_clean": {
+          "type": "boolean"
+        },
+        "single_variant_asset_fetch": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "exactly one theme variant fetched (BC-001 F05 assertion)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "post_deploy_verification": {
+      "type": "object",
+      "properties": {
+        "completed": {
+          "type": "boolean"
+        },
+        "evidence_reference": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ci_outage_policy": {
+      "const": "retry_before_debug",
+      "description": "F01: outage is a retry class, not a debugging class"
+    }
+  },
+  "examples": [
+    {
+      "schema_version": "1.1.0",
+      "readiness_id": "dr_0001",
+      "brand_ref": "brand_example",
+      "build_validation": {
+        "local_build_green": true,
+        "gates_green": true
+      },
+      "environment": {
+        "required_vars_present": true,
+        "secrets_in_ci_only": true
+      },
+      "assets_ready": {
+        "ladders_encoded": true,
+        "icons_complete": true,
+        "manifest_synced": true
+      },
+      "dns": {
+        "expected_records": [
+          {
+            "type": "A",
+            "name": "example.com",
+            "value": "203.0.113.10"
+          }
+        ],
+        "preflight_resolution_ok": true,
+        "postflight_resolution_ok": null
+      },
+      "hosting": {
+        "compose_placeholders_filled": true,
+        "traefik_route_unique": true
+      },
+      "vcs_sync": {
+        "fetched": true,
+        "divergence_clear": true
+      },
+      "preview": {
+        "url": "https://preview.example.com",
+        "approved_by": "user_hanafi"
+      },
+      "rollback": {
+        "previous_tag": "deploy-2026-07-10",
+        "procedure_reference": "docs/DEPLOY-PATTERN.md#rollback"
+      },
+      "smoke_matrix": {
+        "locales": [
+          "ar",
+          "en"
+        ],
+        "themes": [
+          "light"
+        ],
+        "routes": [
+          "/",
+          "/en"
+        ],
+        "console_clean": true,
+        "single_variant_asset_fetch": true
+      },
+      "post_deploy_verification": {
+        "completed": false,
+        "evidence_reference": ""
+      },
+      "ci_outage_policy": "retry_before_debug"
+    }
+  ],
+  "additionalProperties": false
+}

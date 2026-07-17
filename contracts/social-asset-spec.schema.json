@@ -1,0 +1,216 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/social-asset-spec.schema.json",
+  "title": "Social Asset Specification",
+  "description": "Channel-expression contract for one social asset, connected to the same brand world as sibling outputs (INV-CHAN-001).",
+  "allOf": [
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
+    {
+      "type": "object",
+      "required": [
+        "brand_ref",
+        "visual_world_ref",
+        "direction_ref",
+        "channel",
+        "format",
+        "concept"
+      ],
+      "properties": {
+        "brand_ref": {
+          "type": "string"
+        },
+        "visual_world_ref": {
+          "type": "string"
+        },
+        "direction_ref": {
+          "type": "string"
+        },
+        "campaign_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "channel": {
+          "type": "string",
+          "description": "channel registry id, e.g. instagram-feed, instagram-story, linkedin"
+        },
+        "format": {
+          "type": "object",
+          "required": [
+            "width",
+            "height"
+          ],
+          "properties": {
+            "width": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "duration_s": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "concept": {
+          "type": "string",
+          "description": "the asset's creative idea and its tie to the campaign concept"
+        },
+        "copy": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "slot_id",
+              "role"
+            ],
+            "properties": {
+              "slot_id": {
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "factual",
+                  "positioning",
+                  "cta",
+                  "label"
+                ]
+              },
+              "text": {
+                "$ref": "artifact-envelope.schema.json#/definitions/localized_text"
+              },
+              "claim_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "visual": {
+          "type": "object",
+          "required": [
+            "fulfillment",
+            "visual_classification"
+          ],
+          "properties": {
+            "fulfillment": {
+              "enum": [
+                "source_asset",
+                "image_brief",
+                "placeholder"
+              ]
+            },
+            "source_ref": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "image_brief": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "visual_classification": {
+              "enum": [
+                "documentary",
+                "illustrative",
+                "generated",
+                "conceptual"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "coherence_links": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "sibling spec artifact ids this asset must read as connected to"
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.1.0",
+      "artifact_id": "sspec_0001",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "generated",
+      "visual_world_ref": "vw_0001",
+      "direction_ref": "dir_0001",
+      "campaign_ref": "launch_0001",
+      "channel": "linkedin",
+      "format": {
+        "width": 1200,
+        "height": 627,
+        "duration_s": null
+      },
+      "concept": "case-file card announcing the practice opening — same annotation grammar as the homepage hero",
+      "copy": [
+        {
+          "slot_id": "headline",
+          "role": "positioning",
+          "text": {
+            "ar": "الحقيقة، موثّقة.",
+            "en": "Truth, documented."
+          },
+          "claim_refs": []
+        }
+      ],
+      "visual": {
+        "fulfillment": "image_brief",
+        "source_ref": null,
+        "image_brief": "annotated instrument macro, crop variant B",
+        "visual_classification": "illustrative"
+      },
+      "coherence_links": [
+        "wspec_0001",
+        "sspec_0002",
+        "sspec_0003"
+      ]
+    }
+  ],
+  "propertyNames": {
+    "enum": [
+      "approvals",
+      "artifact_id",
+      "brand_ref",
+      "campaign_ref",
+      "channel",
+      "coherence_links",
+      "concept",
+      "copy",
+      "created_at",
+      "creator_type",
+      "derived_from_runs",
+      "direction_ref",
+      "format",
+      "lifecycle_status",
+      "project_ref",
+      "provisional",
+      "schema_version",
+      "superseded_by",
+      "supersedes",
+      "validation_status",
+      "visual",
+      "visual_world_ref"
+    ]
+  }
+}
