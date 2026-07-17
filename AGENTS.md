@@ -61,20 +61,13 @@ brain/           second brain: current/, decisions/, research/,
 contracts/       versioned JSON Schemas + validate.mjs                     [canonical]
 docs/            domain model, provenance, decision system, agent/skill
                  architecture, model/token strategy, evaluation framework,
-                 first vertical slice + website-channel guides (build-a-theme,
-                 install-a-site, client-intake-protocol, image naming,
-                 deferred-decisions, delivery-baseline, ADRs)              [canonical]
+                 and proposed first vertical slice                         [canonical]
 skills/          skill specifications (Phase 1+)                           [canonical]
 evals/           rubrics/, datasets/, regression/                          [canonical]
-packages/core    website channel engine: content schema (Zod), theme
-                 contract, SEO, deploy templates                           [production code]
-packages/theme-novalt  reference theme                                     [production code]
-apps/demo        working demo site (clone-and-swap model)                  [production code]
-prompts/01…08    website channel pipeline stages (intake → deploy)         [production prompts]
+scripts/         deterministic foundation and Second Brain checks          [tooling]
 AGENTS.md        this file
-FOUNDATION_REPORT.md          Phase 0 executive report
-NABCOR_FOUNDATION_MASTER_PROMPT_v1.1_BC001.md  executed BC-001 integration record
-NABCOR_FOUNDATION_v1.0_to_v1.1_CHANGELOG.md    BC-001 change ledger
+FOUNDATION_BASELINE.md        clean-baseline state and decision boundary
+MIGRATION_MANIFEST.md         retained/adapted/excluded legacy material
 ```
 
 ## Source-of-truth hierarchy
@@ -112,7 +105,7 @@ surfacing that gap (docs/DECISION_SYSTEM.md §Status semantics).
   canonical file points to it.
 - **Discovery:** naming conventions + front-matter are the retrieval index (DEC-0002).
   Decisions: `DEC-NNNN-<slug>`; experiments `EXP-NNNN-*`; invariants `INV-<AREA>-NNN`;
-  learnings JSONL by class. Grep those before assuming something is undecided.
+  learnings `LRN-NNNN-*`. Search those before assuming something is undecided.
 - **Staleness:** `NOW.md` carries its update date; anything in `brain/current/` older
   than the current phase boundary is suspect — verify before relying on it.
   A `[needs-verification]` marker on any doc line means exactly that.
@@ -130,9 +123,10 @@ changes · scope not expanded.
 
 ## Testing requirements
 
-- Contracts: `node contracts/validate.mjs` green (schemas valid + fixtures pass).
-- Website channel code: existing gates — `npm run validate-content`, `npm run build`,
-  `npm run typecheck`, `npm run test:a11y`.
+- Foundation: `npm run validate` green.
+- Contracts: `npm run validate:contracts` green (schemas, fixtures, semantics).
+- Second Brain: `npm run validate:brain` green.
+- Any future channel adapter defines its own deterministic gates before implementation.
 - New behavior: a test that fails without your change.
 - Evaluation-adjacent changes: run the affected evaluator on a fixture and report.
 

@@ -1,6 +1,6 @@
 # Model Gateway and Token Strategy
 
-**Version:** 1.0 · 2026-07-17 · governed by INV-PROV-001 (provider independence),
+**Version:** 1.1 · 2026-07-17 · governed by INV-PROV-001 (provider independence),
 INV-TOK-001/002 (budgets, artifact passing), INV-OBS-001 (run records).
 Empirical anchors: BC-001 measured usage (`retrospective/data/token-summary.json` in
 the josouralazl repo, branch `retrospective/bc-001`).
@@ -16,10 +16,10 @@ Product code and skills see: `invoke(skill_capability_request) → typed artifac
 They never see provider SDKs, model ids, or raw transcripts (INV-PROV-001; enforcement:
 grep gate — no provider SDK import outside the gateway).
 
-Approved providers at foundation: Anthropic, OpenAI (both already in operational use —
-BC-001 ran claude-fable-5/claude-opus-4-8 + gpt-image-2). Additional providers/local
-models = config + decision record (AGENTS.md §abstraction rules). Provider data
-policies are a selection criterion for sensitive client content (INV-DATA-001).
+No provider is approved by this baseline. Provider/account approval, client-data
+policy, and spend ceilings are blocking questions in `brain/current/OPEN_QUESTIONS.md`
+Q-002. A provider may be operationally familiar without being approved for this
+product or for client material.
 
 ## 2. Model tiers
 
@@ -84,13 +84,13 @@ confidence), and artifact lineage. Derived views (Token Usage entity): per-skill
 rollups, budget compliance, and the experimental survival/yield metrics
 (EXPERIMENTAL until BC-002 validates calculation — INV-EVAL-001).
 
-Preference for Phase 1: **API-billed keys, not subscription sessions**, so cost is
-measured rather than estimated (BC-001's true cost is unknowable; Q-003).
+Preference proposed for Phase 1: **API-billed keys, not subscription sessions**, so
+cost is measured rather than estimated (BC-001's true allocation is unknowable; Q-002).
 
 ## 7. Initial first-vertical-slice budget (hypothesis, stated assumptions)
 
 **Assumptions:** one slice run, evidence-rich mode (the more expensive mode), spec-level
-outputs only (DEC-0003), no image generation (briefs only), evaluators included,
+outputs only (DEC-0004), no image generation (briefs only), evaluators included,
 BC-001 per-skill estimates as priors (†), 20% contingency. Output-token oriented;
 fresh/cached input scale with source volume (BC-001-class archive assumed: ~25 files,
 one 60 MB-class PDF).

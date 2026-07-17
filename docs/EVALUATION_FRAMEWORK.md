@@ -46,7 +46,7 @@ Every dimension names its evaluator(s), method, and authority:
 | Concept coherence (idea → expression) | direction/spec rubric | human + model | ADVISORY |
 | Cross-channel consistency | evaluate-cross-channel-coherence | model | EXPERIMENTAL |
 | Accessibility | axe + contrast checks (channel layer) | deterministic | BLOCKING (renders) |
-| Technical feasibility (spec compiles to channel layer) | DOMAIN_MODEL §9 mapping check | deterministic | ADVISORY until Phase 4, then BLOCKING |
+| Technical feasibility (spec conforms to an approved adapter contract) | adapter contract check | deterministic | ADVISORY until an adapter exists, then BLOCKING |
 | Conversion clarity (primary action evident) | rubric + human | human | ADVISORY |
 | Cultural appropriateness (incl. Arabic quality) | native-reader review + G2 | human | BLOCKING at gates |
 | AI-generic appearance | G8 + human "looks AI-generated" rating | model + human | EXPERIMENTAL |
@@ -101,5 +101,6 @@ Final aesthetic acceptance is always human (INV-HUM-002).
 
 Every acceptance criterion in `docs/FIRST_VERTICAL_SLICE.md` §10 names the evaluator
 that verifies it; every BLOCKING evaluator above maps to a critical/high invariant.
-The completeness check (criterion ↔ evaluator ↔ invariant) is part of the foundation
-validation in `FOUNDATION_REPORT.md` §12.
+The completeness check (criterion ↔ evaluator ↔ invariant) must be implemented before
+DEC-0004 can exit Phase 3; repository and contract structure are checked by
+`npm run validate`.

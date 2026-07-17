@@ -1,6 +1,6 @@
 # NABCor Domain Model
 
-**Version:** 1.0 · 2026-07-17 · canonical domain language for all code, contracts,
+**Version:** 1.1 · 2026-07-17 · canonical domain language for all code, contracts,
 prompts, and documentation. Semantic clarity, not database design — storage decisions
 come in Phase 1+ with their own decision records.
 
@@ -180,8 +180,8 @@ immutable per version; a revision creates a new version linked by supersession
 
 ### Design System
 - **Purpose:** the deterministic compilation target of the Visual World: per-theme
-  token tables (all themes' values from day 1 — the BC-001 33-file-sweep lesson),
-  mapped to the existing nabcor two-layer token law (`docs/build-a-theme.md`).
+  token tables (all declared themes' values from day one — a retained BC-001 lesson).
+  A future channel adapter maps these semantic tokens to its own implementation.
 - **Class:** derived (from Visual World) but persisted and versioned because code
   consumes it. Contract: `contracts/design-system.schema.json`.
 
@@ -210,8 +210,8 @@ immutable per version; a revision creates a new version linked by supersession
 - **Lifecycle:** envelope lifecycle + G6 contact-sheet approval for generated assets
   entering production.
 - **Class:** canonical. (Foundation: represented by `contracts/source.schema.json` for
-  inputs and spec slot references for outputs; a dedicated asset schema lands with
-  generation infrastructure in Phase 2 — recorded in OPEN_QUESTIONS Q-007.)
+  inputs and spec slot references for outputs; a dedicated asset contract requires a
+  future generation-infrastructure decision.)
 
 ### Asset Variant
 - **Purpose:** a derived rendition of an Asset (size ladder, theme pair, crop,
@@ -354,15 +354,16 @@ between the truth layer and the creative layer.)
 
 ---
 
-## 9. Mapping to the existing website core
+## 9. Channel-adapter boundary
 
-| Domain entity | Existing nabcor concept | Relation |
-|---|---|---|
-| Website Spec | `SiteContent` (packages/core/src/schema/content.ts) | website-spec is upstream: a spec *specifies*; SiteContent is the channel-layer content instance a Phase-2 skill compiles from it |
-| Design System | theme `tokens.css` two-layer law | design-system.json compiles to per-theme token values |
-| Visual World | THEME.md (BC-001 prose ancestor) | typed successor |
-| Source / rights | intake buckets + IMAGE-DECISIONS.md | typed successor with rights fields |
-| Evaluation | validate-content, typecheck, a11y gates | those remain channel-layer deterministic evaluators |
+The domain model ends at canonical specifications, assets, evaluations, approvals, and
+publications. A channel adapter may translate a `website-spec`, `social-asset-spec`, or
+future spec into framework-specific code or files, but it must:
 
-The existing core is the production engine for the website channel; this domain model
-wraps it — it does not replace it (Constitution §2).
+1. preserve artifact identity, provenance, and approved direction references;
+2. declare what contract fields it supports or cannot express;
+3. implement its own deterministic accessibility, format, and release gates;
+4. never become a second source of product truth; and
+5. enter through a ratified decision rather than legacy inheritance.
+
+No channel adapter is selected in the clean foundation baseline.

@@ -84,10 +84,8 @@ hypotheses anchored to BC-001 skill estimates where they exist (marked †):
 | `evaluate-cross-channel-coherence` | judge across spec set | 4 | 10–25k | EXPERIMENTAL |
 | `evaluate-cost` | deterministic rollup vs budgets | 0 | ~0 | BLOCKING (breach ⇒ pause) |
 
-**Website-channel skills** (production-tested in BC-001, live in `prompts/01…08`):
-intake triage, image triage/enhancement, theme matching/build, assemble+validate,
-deploy — these remain the PRODUCE/EVALUATE path for the website channel and get typed
-bindings in Phase 4 (bindings defined in `NABCOR_FOUNDATION_MASTER_PROMPT_v1.1_BC001.md` §5).
+Future channel-adapter skills are deliberately absent. They are specified only after a
+channel decision defines the adapter contract and deterministic gates.
 
 ## 4. Skill specification template (used for every skill in Phase 1)
 

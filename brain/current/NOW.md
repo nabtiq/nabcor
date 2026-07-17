@@ -1,48 +1,50 @@
 # NOW
 
-> Snapshot of the present. Overwritten as state changes — never a diary.
-> History lives in git; narratives live in `brain/archive/`.
+> Current state only. Git contains history; `brain/archive/` contains retired context.
 
 **Updated:** 2026-07-17
 
 ## Current phase
 
-Phase 0 — Foundation. **Authored and validated; pending product-owner ratification**
-(this branch: `foundation/phase-0`, worktree `~/Nabtiq/Nabdev/nabcor-foundation`).
-Independent-review corrections applied: contracts hardened + negative fixtures +
-semantic checks + CI workflow; DEC-0001..0004 set to `proposed`.
+Clean Foundation Baseline (`0.1.0`). The legacy website-builder runtime has been
+removed from the new repository shape. Product truth, contracts, evaluation, and the
+Second Brain are present before implementation begins.
 
 ## Current objective
 
-Get the foundation package (constitution, invariants, domain model, contracts, Second
-Brain, evaluation framework, first-vertical-slice spec) reviewed and ratified by the
-product owner so Phase 1 implementation can start from a fixed base.
+Review and ratify the proposed first vertical slice (DEC-0004), resolve the blocking
+Phase 1 operating decisions, and only then implement the Brand Context Package truth
+layer.
 
-## Current active work
+## Ratified foundation decisions
 
-- None in flight on this branch beyond review. The foundation deliverables are written
-  and validated (see `FOUNDATION_REPORT.md` §12).
-- **Parallel work stream (not this branch):** multi-page core architecture changes sit
-  uncommitted in the main working tree (routing/, schema/site.ts, multipage tests).
-  Owned outside Phase 0; see OPEN_QUESTIONS Q-001.
+- DEC-0001 — NABCor is an AI Creative Operating System.
+- DEC-0002 — the Second Brain is file-based from day one; no vector database yet.
+- DEC-0003 — legacy website code is archived evidence, not the new product core.
 
-## Current blockers
+## Active work
 
-- Product-owner ratification of the four **proposed** decision records
-  (DEC-0001..0004) — exact action in `OPEN_QUESTIONS.md` §Ratification.
-- Product-owner answers to Q-001..Q-003 (decision packet in `OPEN_QUESTIONS.md`).
-- Review of the invariant set and the slice budget assumptions
-  (`docs/MODEL_AND_TOKEN_STRATEGY.md` §7).
+- No product implementation is in flight.
+- Contract, brain, and repository validators define the current completion gate.
+- DEC-0004 remains proposed; the slice documents are design inputs, not authorization
+  to start Phase 1.
+
+## Blockers
+
+1. Product-owner verdict on DEC-0004.
+2. Named human gate roles (Q-001).
+3. Approved model providers, data policy, and spend ceilings (Q-002).
+4. Initial implementation runtime/language (Q-003).
 
 ## Immediate next actions
 
-1. Product owner reviews `FOUNDATION_REPORT.md` and the constitution package.
-2. Resolve OPEN_QUESTIONS items marked BLOCKING (Q-001..Q-003).
-3. On ratification: merge `foundation/phase-0`, then start Phase 1 with the exact task
-   in `FOUNDATION_REPORT.md` §15.
+1. Run `npm ci && npm run validate` after creating the repository.
+2. Review `docs/FIRST_VERTICAL_SLICE.md` and DEC-0004.
+3. Record answers to Q-001..Q-003 as decisions, not chat-only state.
+4. Create the Phase 1 branch only after those decisions are ratified.
 
-## Definition of done (current objective)
+## Definition of done for the current objective
 
-Foundation branch merged; DEC-0001..0004 status confirmed `ratified` by the product
-owner; Phase 1 kickoff task created with its invariant/contract/scope bindings per
-AGENTS.md task rules.
+DEC-0004 and the Phase 1 operating decisions are ratified; budgets are explicit;
+synthetic benchmark fixtures are selected; the Phase 1 task names its contracts,
+invariants, tests, and stop conditions.

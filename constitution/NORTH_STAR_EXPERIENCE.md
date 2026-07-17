@@ -1,6 +1,6 @@
 # NABCor North Star Experience
 
-**Status:** proposed — pending product-owner ratification · **Version:** 1.0 · 2026-07-17
+**Status:** proposed with DEC-0004 · **Version:** 1.1 · 2026-07-17
 The ideal end-to-end experience for the two input modes. This is the experience the
 first vertical slice approximates (`docs/FIRST_VERTICAL_SLICE.md`) and later phases
 complete. Artifact names reference `contracts/`; gates reference
@@ -92,10 +92,9 @@ evaluator transcripts, and the full run-record trail. Visible on demand, never p
 ## Mode B — Evidence-rich
 
 The user provides: logo, brand guide, website, documents, images, services, projects,
-customer information. (BC-001 — a 63 MB profile PDF, a bilingual brochure docx,
-~20 phone photos, 4 logo files, reference mockups — is the measured archetype of this
-mode; the intake pipeline in `prompts/01…04` + `docs/client-intake-protocol.md` is its
-production-tested ancestor.)
+customer information. BC-001 is the measured archetype for a mixed evidence bundle,
+but it is retained only as a bounded learning source—not as the new intake
+implementation (`brain/learnings/BC-001.md`).
 
 ### User journey
 
@@ -174,7 +173,6 @@ ingest → classify-input (per-file source records, rights fields, injection fla
 ## What "north star" means operationally
 
 The slice ships when Mode A and Mode B both run end-to-end to spec-level outputs with
-the gates above. The north star adds, in later phases: preview rendering of specs,
-full website production through the existing nabcor channel layer, publishing with G5,
-performance feedback ingestion, and preference learning across projects. None of that
-changes this experience's shape — it deepens each step.
+the gates above. Later phases may add preview rendering, explicitly selected channel
+adapters, publishing with G5, performance feedback ingestion, and preference learning
+across projects. No adapter is assumed to exist in this clean baseline.

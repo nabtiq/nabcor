@@ -69,8 +69,8 @@ node contracts/validate.mjs
 
 Two distinguishable layers, both required green (non-zero exit otherwise):
 
-- **Schema layer** (ajv, draft-07 — resolved from the existing dependency graph, no
-  new dependencies): every schema compiles · `$id`s unique · every `examples[]` entry
+- **Schema layer** (Ajv, draft-07 — an explicit development dependency): every schema
+  compiles · `$id`s unique · every `examples[]` entry
   and `fixtures/positive.json` case validates · every `fixtures/negative.json` case
   with `expect_fail_at: "schema"` is rejected.
 - **Semantic layer** — deterministic cross-field checks draft-07 cannot express
@@ -84,10 +84,8 @@ Two distinguishable layers, both required green (non-zero exit otherwise):
 
 The command prints: schemas compiled, positive cases passed, negative cases correctly
 rejected (schema/semantic split), semantic checks passed, `$id` uniqueness.
-CI: `.github/workflows/foundation-contracts.yml` runs this on every change to
-`contracts/`.
+CI: `.github/workflows/validate-foundation.yml` runs this (via `npm run validate`)
+on every pull request and push to `main`.
 
-Zod/TypeScript typed equivalents: deliberately deferred to Phase 1, where they land
-next to the code that consumes them (keeping this directory language-neutral). The
-repo's existing Zod validator (`packages/core/src/schema/`) continues to govern the
-website channel's `SiteContent` independently.
+Runtime typed equivalents are deliberately deferred to Phase 1, where they land next
+to the code that consumes them. These JSON Schemas remain language-neutral authority.

@@ -1,8 +1,7 @@
 # First Vertical Slice
 
-**Version:** 1.0 · 2026-07-17 · boundary fixed by DEC-0003 (spec-level, two input
-modes). The slice is the scope test for every feature (NON_GOALS): if it doesn't
-improve this pipeline or its evaluation, it waits.
+**Version:** 1.1 · 2026-07-17 · **Status: proposed by DEC-0004** (spec-level, two input
+modes). It becomes the scope test only if the product owner ratifies that decision.
 
 ```text
 Prompt or Brand Files
@@ -26,7 +25,7 @@ Prompt or Brand Files
   is the reference shape.
 - **Mixed:** prompt + partial files — handled as Mode B with a larger assumption ledger.
 
-**Supported file types (Phase 1):** `.pdf`, `.docx`, `.txt`, `.md` (documents);
+**Proposed input coverage (subject to the Phase 1 runtime decision):** `.pdf`, `.docx`, `.txt`, `.md` (documents);
 `.png`, `.jpg/.jpeg`, `.webp`, `.svg`, `.heic` (images/logos); `.zip` (bundle);
 URLs (client's own site). Video and audio are accepted-but-parked (source record with
 kind `video`, mined later — BC-001's client video was unused). Unknown types →

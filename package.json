@@ -2,23 +2,20 @@
   "name": "nabcor",
   "version": "0.1.0",
   "private": true,
-  "description": "Nabtiq site core + reference theme. Static-first, build-time, content/theme/layout separation for client websites.",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
+  "description": "Evidence-aware AI Creative Operating System — clean foundation baseline.",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "dev": "npm run dev --workspace apps/demo",
-    "build": "npm run build --workspace apps/demo",
-    "start": "npm run start --workspace apps/demo",
-    "typecheck": "npm run build --workspace packages/core && tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/theme-novalt/tsconfig.json && tsc --noEmit -p packages/theme-plain/tsconfig.json && tsc --noEmit -p apps/demo/tsconfig.json",
-    "validate-content": "npm run validate-content --workspace apps/demo",
-    "test": "npm run test --workspace apps/demo",
-    "test:a11y": "npm run test:a11y --workspace apps/demo",
-    "lint": "npm run lint --workspace apps/demo"
+    "validate": "npm run validate:contracts && npm run validate:brain && npm run validate:repository",
+    "validate:contracts": "node contracts/validate.mjs",
+    "validate:brain": "node scripts/validate-brain.mjs",
+    "validate:repository": "node scripts/validate-repository.mjs",
+    "test": "npm run validate"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
   }
 }

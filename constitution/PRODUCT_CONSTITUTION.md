@@ -1,6 +1,6 @@
 # NABCor Product Constitution
 
-**Status:** proposed — pending product-owner ratification · **Version:** 1.0 · **Date:** 2026-07-17
+**Status:** ratified as the clean product baseline · **Version:** 1.1 · **Date:** 2026-07-17
 **Authority:** rank 1 in the source-of-truth hierarchy (see `AGENTS.md` §Source of truth).
 Nothing below is marketing copy. Every rule here binds humans and coding agents alike.
 Changes require a decision record (`docs/DECISION_SYSTEM.md`).
@@ -29,16 +29,14 @@ Truth and Evidence → Intent → Strategy → Creative Direction → Brand Worl
 ```
 
 The category decision is recorded in `brain/decisions/DEC-0001-product-category.md`.
-The existing nabcor monorepo (content schema, theme contract, demo app, 8-prompt
-pipeline) is the **website channel production layer** of this larger system — kept, not
-replaced (see repository audit in `FOUNDATION_REPORT.md`).
+The former website-builder repository is legacy evidence, not the product core
+(`brain/decisions/DEC-0003-legacy-boundary.md`). Future channel adapters must consume
+canonical NABCor artifacts without redefining this category.
 
 ## 3. Target users
 
 1. **Nabtiq itself** (first and proving user): a small team delivering premium bilingual
-   (Arabic/English) client sites and launch assets in Saudi Arabia and the Gulf —
-   measured baseline ~40–61 working hours per site before NABCor
-   (`docs/delivery-baseline.md`).
+   (Arabic/English) creative work for clients in Saudi Arabia and the Gulf.
 2. **Boutique agencies and independent brand studios** with the same shape: high taste,
    low headcount, clients who send messy evidence (a 60 MB PDF, WhatsApp photos, a
    brochure) and expect agency-grade output.
@@ -74,14 +72,11 @@ contradicted information · rejected ideas · expired information
 (`docs/PROVENANCE_AND_CONFIDENCE.md`). NABCor may be creatively bold; it must never
 present assumptions or generated concepts as verified client facts.
 
-**Empirical grounding.** This thesis is not aspiration. Baseline Case BC-001 (the
-Josour Al Azl production build, `retrospective/bc-001` branch of the josouralazl repo)
-measured that one competent orchestrator + written contracts + bounded human gates
-delivered a bilingual, two-theme production site in 6 days with ≈93% output survival —
-and that every failure traced to a **missing typed artifact or missing acceptance
-gate**, not to missing agents or missing generation power. The constitution encodes
-those findings (see `NABCOR_FOUNDATION_v1.0_to_v1.1_CHANGELOG.md` for the full
-evidence-classified change ledger).
+**Empirical grounding.** Baseline Case BC-001 supports the value of one competent
+orchestrator, written contracts, bounded human gates, and measured run records. It was
+one bilingual website project, so it does not prove the full product thesis or universal
+budgets. The retained lessons and their evidence boundary are recorded in
+`brain/learnings/BC-001.md`; the new vertical slice must test the broader claims.
 
 ## 6. Competitive thesis
 
@@ -146,12 +141,11 @@ Scope rules and the feature test live in `constitution/NON_GOALS.md`.
   context from prompt-only or evidence-rich input, three creative territories, human
   selection, creative direction package, one premium homepage specification, three
   connected social launch asset specifications, evaluation report, saved decisions.
-- **In scope, existing:** the website channel production layer (nabcor core packages,
-  theme system, 8-prompt pipeline) continues to serve real client delivery.
+- **In scope as contracts:** channel specifications and adapter boundaries; no channel
+  production runtime is included in the clean baseline.
 - **Deferred with named preconditions:** full publishing, analytics, video, marketplace,
   fine-tuning, multi-agent runtimes, auth/billing, extensions runtime, runtime theming,
-  search — each listed with its reopening condition in `constitution/NON_GOALS.md` and
-  `docs/deferred-decisions.md`.
+  search — each listed with its reopening condition in `constitution/NON_GOALS.md`.
 
 ## 11. Human-control boundaries
 

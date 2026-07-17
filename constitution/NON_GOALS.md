@@ -1,6 +1,6 @@
 # NABCor Non-Goals and Scope
 
-**Status:** proposed — pending product-owner ratification · **Version:** 1.0 · 2026-07-17
+**Status:** ratified as the clean-baseline scope · **Version:** 1.1 · 2026-07-17
 Everything here is excluded **on purpose**. Items move out of this file only via a
 decision record. Re-proposing a listed item without new evidence is a scope defect.
 
@@ -18,8 +18,7 @@ mapping, measurability, smallest structure, cost estimate) before implementation
 The slice (`docs/FIRST_VERTICAL_SLICE.md`) produces **specifications and preview-ready
 outputs**, not published products. Excluded from it:
 
-- Full website production/build (the existing nabcor pipeline continues to serve real
-  clients independently; the slice stops at `website-spec`).
+- Full website production/build; the slice stops at `website-spec`.
 - Actual publishing/deployment of slice outputs (the deployment-readiness *contract*
   exists; executing it is Phase 2+).
 - Image/video *generation* infrastructure (the slice produces image **briefs** and
@@ -43,13 +42,13 @@ outputs**, not published products. Excluded from it:
 | Publishing automation | G5 pre-flight is implemented and INV-HUM-001(4) gate is tooled |
 | Fine-tuning / training infrastructure | a benchmark shows prompt+context engineering has plateaued AND rights-clean training data exists (INV-DATA-002) |
 | Marketplace / templates | never as a template marketplace (anti-goal); revisit only as "brand world starter kits" with a decision record |
-| Multi-page website core architecture | the separate work stream (`outputs/GAP-ANALYSIS.md` in Nabdev; in-flight changes in the main working tree) lands via its own decision — not through this foundation |
+| Any website/channel runtime architecture | a channel-adapter decision identifies the smallest suitable runtime after the intelligence spine is validated |
 
-## 3. Standing exclusions inherited from the website core
+## 3. Standing clean-baseline exclusions
 
-The four deliberately shut doors in `docs/deferred-decisions.md` remain shut, with
-their published question lists as the price of entry: **extensions runtime · runtime
-theming · site search · auth/logins**. BC-001 produced no evidence to reopen any.
+No framework, channel runtime, extension system, runtime theming, site search,
+authentication, or deployment stack is inherited from the legacy website repository.
+Each requires a new decision if it becomes relevant.
 
 ## 4. What must never be built (anti-goals, enforceable form)
 
