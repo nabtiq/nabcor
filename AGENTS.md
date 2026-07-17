@@ -86,6 +86,8 @@ docs/            domain model, provenance, decision system, agent/skill
                  and proposed first vertical slice                         [canonical]
 skills/          skill specifications (Phase 1+)                           [canonical]
 evals/           rubrics/, datasets/, regression/                          [canonical]
+src/             deterministic runtime kernel + offline gateway (1A/1B)    [canonical]
+test/            runtime tests (Node built-in test runner)                 [tooling]
 scripts/         deterministic foundation and Second Brain checks          [tooling]
 AGENTS.md        this file
 FOUNDATION_BASELINE.md        clean-baseline state and decision boundary

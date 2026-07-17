@@ -5,9 +5,10 @@
 //   <root>/<workspace>/<brand>/content/<clear|quarantine>/<sha256-hex>
 // Flagged content lives only in the quarantine namespace, which is FAIL-CLOSED:
 // the store can write into it but exposes no method that reads from it. The
-// runtime cannot authenticate a human (Q-001 is open), so no caller-supplied
-// record may unlock quarantined bytes; a read path returns only when an
-// authenticated human release authority exists (DEC-0007).
+// runtime cannot authenticate a human, so no caller-supplied record may unlock
+// quarantined bytes; a read path returns only when the independent reviewer
+// and the authenticated gate mechanism that quarantine release requires both
+// exist (DEC-0007, DEC-0008) — neither does yet.
 // Error messages and results never echo captured content (no content in logs).
 import {
   existsSync,
@@ -186,9 +187,10 @@ export class FileContentStore {
   /**
    * Normal retrieval: clear namespace only. Quarantined content is structurally
    * unreachable through this method regardless of the digest supplied. No other
-   * read method exists: quarantine is fail-closed until an authenticated human
-   * release authority exists (Q-001, DEC-0007) — caller-supplied strings or
-   * artifact metadata can never unlock it.
+   * read method exists: quarantine is fail-closed until a formally named
+   * independent reviewer and an authenticated gate mechanism both exist
+   * (DEC-0007, DEC-0008) — caller-supplied strings or artifact metadata can
+   * never unlock it.
    */
   get(workspace: string, brand: string, contentRef: string): Result<string> {
     return this.#getFrom(workspace, brand, "clear", contentRef);

@@ -14,8 +14,10 @@
 //
 // Quarantine is FAIL-CLOSED (DEC-0007, INV-SEC-002, INV-HUM-001): every claim
 // citing a quarantined source is rejected with a typed failure. The runtime
-// cannot authenticate a human while Q-001 is open, so a `quarantine-release`
-// approval on the artifact is audit metadata only and grants no authority.
+// cannot authenticate a human, and quarantine release requires an independent
+// reviewer and an authenticated gate mechanism that do not yet exist
+// (DEC-0008), so a `quarantine-release` approval on the artifact is audit
+// metadata only and grants no authority.
 import type { ContractRegistry } from "../kernel/contract-registry.js";
 import type { FileContentStore } from "../kernel/content-store.js";
 import { type Result, err, ok } from "../kernel/result.js";
@@ -158,15 +160,16 @@ export function buildBrandContext(
 
     // Quarantine boundary is fail-closed (DEC-0007, INV-SEC-002, INV-HUM-001):
     // no claim citing a quarantined source compiles, whatever approval metadata
-    // the artifact carries — the runtime cannot authenticate a human release
-    // while Q-001 is open, so a syntactically valid `quarantine-release`
+    // the artifact carries — the runtime cannot authenticate a human release,
+    // and the independent reviewer and authenticated gate mechanism DEC-0008
+    // requires do not yet exist, so a syntactically valid `quarantine-release`
     // approval is audit metadata only and grants no authority. The failure
     // names only artifact IDs; captured content never appears in it.
     if (capture["safety"] === "quarantined") {
       return err({
         kind: "quarantine-fail-closed",
         sourceId: parsed.sourceId,
-        message: `claim '${claimId}' cites quarantined source '${parsed.sourceId}': quarantine is fail-closed because no authenticated human release authority exists until Q-001 is resolved; a quarantine-release approval on the artifact is audit metadata and grants no release authority`,
+        message: `claim '${claimId}' cites quarantined source '${parsed.sourceId}': quarantine is fail-closed because release requires an independent reviewer and an authenticated gate mechanism, neither of which exists yet (DEC-0007, DEC-0008); a quarantine-release approval on the artifact is audit metadata and grants no release authority`,
       });
     }
 

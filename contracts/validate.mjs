@@ -224,6 +224,12 @@ for (const { f, schema } of schemas)
 
 const positiveFixtures = JSON.parse(readFileSync(join(dir, "fixtures/positive.json"), "utf8"));
 for (const fx of positiveFixtures) runPositive(fx.schema, fx.data, `positive ${fx.id}`);
+
+// The committed active gateway policy document is a validated instance, not just
+// an example: an invalid active policy must fail CI, because the runtime refuses
+// to construct a gateway from it (DEC-0009/DEC-0010 fail-closed rule).
+const activePolicy = JSON.parse(readFileSync(join(dir, "gateway-policy.active.json"), "utf8"));
+runPositive("gateway-policy.schema.json", activePolicy, "active gateway policy document");
 console.log(`positive cases passed: ${positivePassed}/${positiveTotal}`);
 
 // ---- negative fixtures ----------------------------------------------------

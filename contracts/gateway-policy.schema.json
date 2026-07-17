@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/gateway-policy.schema.json",
+  "title": "Gateway Policy",
+  "description": "Machine-readable gateway execution policy (DEC-0009, INV-PROV-001). The ratified zero-provider values are pinned as constants: a policy naming any other adapter, data class, tier, network capability, credential permission, or nonzero spend is schema-invalid. Relaxing any pinned value requires a superseding decision and a new contract version — never a document edit.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "policy_id",
+    "decision_ref",
+    "allowed_adapters",
+    "allowed_data_classes",
+    "external_network_allowed",
+    "real_client_data_allowed",
+    "api_credentials_permitted",
+    "max_external_spend_usd_per_run",
+    "max_external_spend_usd_per_month",
+    "required_execution_tier"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "policy_id": {
+      "type": "string"
+    },
+    "decision_ref": {
+      "type": "string",
+      "pattern": "^DEC-\\d{4}$",
+      "description": "the ratified decision this policy encodes"
+    },
+    "allowed_adapters": {
+      "const": ["fake"],
+      "description": "DEC-0009: the deterministic Fake Adapter is the only approved adapter"
+    },
+    "allowed_data_classes": {
+      "const": ["synthetic"],
+      "description": "DEC-0009: synthetic data only; real client data is prohibited from every model path"
+    },
+    "external_network_allowed": {
+      "const": false
+    },
+    "real_client_data_allowed": {
+      "const": false
+    },
+    "api_credentials_permitted": {
+      "const": false
+    },
+    "max_external_spend_usd_per_run": {
+      "const": 0
+    },
+    "max_external_spend_usd_per_month": {
+      "const": 0
+    },
+    "required_execution_tier": {
+      "const": 0,
+      "description": "Tier 0 — deterministic code, no model (docs/MODEL_AND_TOKEN_STRATEGY.md)"
+    }
+  },
+  "examples": [
+    {
+      "schema_version": "1.3.0",
+      "policy_id": "gateway-policy-0001",
+      "decision_ref": "DEC-0009",
+      "allowed_adapters": ["fake"],
+      "allowed_data_classes": ["synthetic"],
+      "external_network_allowed": false,
+      "real_client_data_allowed": false,
+      "api_credentials_permitted": false,
+      "max_external_spend_usd_per_run": 0,
+      "max_external_spend_usd_per_month": 0,
+      "required_execution_tier": 0
+    }
+  ],
+  "additionalProperties": false
+}

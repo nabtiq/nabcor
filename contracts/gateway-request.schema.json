@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/gateway-request.schema.json",
+  "title": "Gateway Capability Request",
+  "description": "Provider-neutral capability request crossing the gateway boundary (DEC-0010, INV-PROV-001, INV-TOK-001/002, INV-OBS-001). Carries full run attribution, an inline contract-validated token budget, and the context items with the reason each was loaded. Names no provider, model id, or transcript. The declared data_classification and adapter_id are claims the gateway checks against the active gateway policy — the schema deliberately admits values the policy will reject so rejection is enforced (and testable) at the policy layer, before adapter invocation.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "request_id",
+    "run_id",
+    "session_id",
+    "project_id",
+    "workspace_id",
+    "brand_id",
+    "workflow_id",
+    "skill_id",
+    "adapter_id",
+    "requested_tier",
+    "data_classification",
+    "output_contract",
+    "scenario_id",
+    "context_items",
+    "token_budget",
+    "max_output_tokens"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "workspace_id": {
+      "type": "string"
+    },
+    "brand_id": {
+      "type": "string"
+    },
+    "workflow_id": {
+      "type": "string"
+    },
+    "skill_id": {
+      "type": "string"
+    },
+    "adapter_id": {
+      "type": "string",
+      "description": "gateway adapter identifier; the active policy allowlist decides approval"
+    },
+    "requested_tier": {
+      "enum": [0, 1, 2, 3, 4],
+      "description": "capability tier (docs/MODEL_AND_TOKEN_STRATEGY.md); the active policy decides which tier is permitted"
+    },
+    "data_classification": {
+      "enum": ["synthetic", "real-client", "mixed", "unknown"],
+      "description": "classification of every input this request carries; the active policy decides which classes are permitted"
+    },
+    "output_contract": {
+      "type": "string",
+      "description": "artifact type the adapter output must validate against (a contracts/ schema name)"
+    },
+    "scenario_id": {
+      "type": "string",
+      "description": "deterministic capability/scenario identifier resolved by the adapter"
+    },
+    "context_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["artifact_id", "reason", "required"],
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "description": "why this item is loaded (INV-TOK-002; recorded in the context manifest)"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "true: unresolvable item is a typed failure before adapter invocation; false: unresolvable item is recorded as a retrieval failure"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "token_budget": {
+      "$ref": "https://nabcor.nabtiq.com/contracts/token-budget.schema.json",
+      "description": "inline token budget, validated against the token-budget contract"
+    },
+    "max_output_tokens": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "declared maximum output tokens for this invocation; checked against the budget hard stop before invocation"
+    }
+  },
+  "examples": [
+    {
+      "schema_version": "1.3.0",
+      "request_id": "req_0001",
+      "run_id": "run_0001",
+      "session_id": "sess_0001",
+      "project_id": "SLICE-001",
+      "workspace_id": "ws_local",
+      "brand_id": "brand_example",
+      "workflow_id": "wf_offline_check",
+      "skill_id": "gateway-selftest",
+      "adapter_id": "fake",
+      "requested_tier": 0,
+      "data_classification": "synthetic",
+      "output_contract": "assumption",
+      "scenario_id": "assumption-basic",
+      "context_items": [
+        {
+          "artifact_id": "src_0001",
+          "reason": "synthetic source under test",
+          "required": true
+        }
+      ],
+      "token_budget": {
+        "schema_version": "1.3.0",
+        "budget_id": "budget_offline_0001",
+        "scope": "skill",
+        "scope_ref": "gateway-selftest",
+        "fresh_input_budget": 0,
+        "cached_input_budget": null,
+        "cache_write_budget": null,
+        "output_budget": 1000,
+        "max_tool_calls": 1,
+        "max_iterations": 1,
+        "escalation_budget": null,
+        "hard_stop_output": 1000,
+        "basis": "offline deterministic fixture run — zero model tokens by construction (DEC-0009)"
+      },
+      "max_output_tokens": 0
+    }
+  ],
+  "additionalProperties": false
+}

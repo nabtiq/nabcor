@@ -176,7 +176,8 @@ No provider SDK and no framework exist.
   a namespace, fails digest verification on tampering, and never appears inline in
   artifacts, logs, or CLI output. The quarantine namespace is fail-closed
   (DEC-0007): the store exposes no method that reads quarantined bytes, pending
-  an authenticated human-gate implementation (Q-001). PDF/DOCX/image/logo
+  an authenticated human-gate implementation and an independent reviewer
+  (Q-001 answered by DEC-0008; both prerequisites still missing). PDF/DOCX/image/logo
   descriptors carry no bytes and are recorded `descriptor-only`; URLs stay
   `external-unfetched`.
 - **`classify-input` (Tier 0)** — deterministic classification of input descriptors
@@ -193,15 +194,40 @@ No provider SDK and no framework exist.
   UTF-16 units or bytes) bounds-checked against the captured content; claims
   citing quarantined sources are always rejected with a typed failure —
   quarantined and fail-closed pending authenticated human-gate implementation
-  (Q-001). It is a compiler over structured truth, not a natural-language
+  (Q-001, DEC-0008). It is a compiler over structured truth, not a natural-language
   extractor.
+- **Offline gateway kernel** (`src/gateway/`, DEC-0009/DEC-0010) — a
+  provider-neutral invocation boundary, validated as infrastructure only. A
+  strict machine-readable policy contract (`contracts/gateway-policy.schema.json`
+  plus the committed, CI-validated active policy) pins the ratified
+  zero-provider posture: fake adapter only, synthetic data only, tier 0, no
+  network, no credentials, zero external spend per run and per month. A strict
+  capability-request contract carries full attribution and an inline
+  contract-validated token budget; budgets are enforced before invocation; a
+  context manifest is persisted before every adapter call; adapter output is
+  returned only after validating against the requested contract; and every
+  invocation that passes request validation writes a truthful `model-run`
+  record to a dedicated immutable operational record store. The only adapter
+  is the **deterministic Fake Adapter** — test infrastructure, not a model:
+  its Tier-0 records carry zero tokens in all four classes and
+  `cost {mode: "free-tier", usd: 0, allocation: "none"}`, and are excluded
+  from model-quality and product-quality evidence (they never populate
+  EXP-0001).
 - **Synthetic CLI example** — `node dist/src/cli/run-example.js --out <dir>` runs the
   full deterministic path on English-only synthetic fixtures. No network, no model
   calls, no client data.
 
-What does **not** exist yet: provider-backed extraction, model calls of any kind, the
-model gateway, creative territories, channel specs, or the full vertical slice. Those
-remain blocked on Q-001/Q-002 and later phases.
+What does **not** exist yet: model calls of any kind, provider adapters,
+provider-backed extraction, creative territories, channel specs, or the full
+vertical slice. Q-002 is closed as **"no provider approved"** (DEC-0009):
+model-backed work is prohibited by ratified policy — with external/model spend
+capped at zero — rather than blocked on an open question, and enabling any
+provider requires a new ratified decision meeting DEC-0009's requirements.
+Only the offline gateway kernel and the Fake Adapter are validated; the
+gateway as a whole is **not** production-ready for model work. Gate roles are
+named (DEC-0008), but its four independent-review gates stay unapprovable
+until an independent reviewer is formally named. EXP-0001 has not run and has
+no results.
 
 ## Source-of-truth hierarchy
 

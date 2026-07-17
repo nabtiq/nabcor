@@ -1,6 +1,6 @@
 # Risk Register
 
-**Updated:** 2026-07-17
+**Updated:** 2026-07-18
 Material risks only. Review at every phase boundary.
 
 | ID | Risk | Probability | Impact | Early signal | Primary mitigation | Owner role | Status |
@@ -13,6 +13,6 @@ Material risks only. Review at every phase boundary.
 | RISK-MEM-01 | Second Brain becomes stale documentation theatre. | medium | high | decisions remain in chat; NOW is outdated; learnings are not loaded | session bootstrap, structural validation, phase-boundary review | product owner | open |
 | RISK-ARCH-01 | Schemas and consuming code drift. | medium | high | schema bump without migration/test changes | versioned contracts, negative fixtures, CI | architecture owner | open |
 | RISK-DATA-01 | Client material crosses brands or enters evaluation/training without rights. | low–medium | critical | missing rights records or shared content namespaces | default-deny rights, per-brand isolation, provider approvals | operator | open |
-| RISK-PROVIDER-01 | Product behavior couples to one provider/model. | medium | medium | skills import provider SDKs directly | provider-independent gateway and capability tiers | architecture owner | open |
+| RISK-PROVIDER-01 | Product behavior couples to one provider/model. | medium | medium | skills import provider SDKs directly | offline gateway kernel with fail-closed policy contract (DEC-0009/DEC-0010), capability tiers, provider-independence grep gate | architecture owner | open |
 | RISK-OPS-01 | Uncommitted or session-only work is lost. | medium | high | long work spans without canonical artifacts/commits | durable workspace, coherent checkpoints, append-only learning | operator | mitigated |
 | RISK-INTEG-01 | Documentation or runtime claims exceed enforced behavior (packaging truth, quarantine, provenance, capture). Phase 1A shipped four such gaps (corrected by DEC-0006); Phase 1A.1 itself then overstated "human-only quarantine release" — the check accepted caller-fabricated objects — and left `#chars=` offsets multilingually undefined (both corrected by DEC-0007). | medium | high | a stated guarantee has no failing test; a "quarantine"/"captured"/"zero-dependency"/"human-released" claim without an enforcement path; a coordinate or unit no contract defines | every stated boundary carries a deterministic test that fails without it (production-install smoke, fail-closed quarantine surface + fabricated-approval rejection, canonical-reference rejection, code-point fragment proofs on supplementary-plane text); claims of human action require an authentication path before they may be written; corrections are appended decisions, never silent rewrites | architecture owner | open |

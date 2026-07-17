@@ -300,7 +300,9 @@ test("quarantine is fail-closed: claims citing quarantined sources never compile
     source_ref: `source:${String(quarantinedSource["artifact_id"])}#codepoints=54-84`,
   });
 
-  // (a) No approval: the typed fail-closed failure names Q-001 and leaks no content.
+  // (a) No approval: the typed fail-closed failure names the missing release
+  // prerequisites (independent reviewer + authenticated gate mechanism,
+  // DEC-0008) and leaks no content.
   const withoutRelease = buildBrandContext(
     minimalInput({ sources: [quarantinedSource], claims: [claim] }),
     registry(),
@@ -309,7 +311,8 @@ test("quarantine is fail-closed: claims citing quarantined sources never compile
   assert.equal(withoutRelease.ok, false);
   if (!withoutRelease.ok) {
     assert.equal(withoutRelease.error.kind, "quarantine-fail-closed");
-    assert.match(withoutRelease.error.message, /Q-001/);
+    assert.match(withoutRelease.error.message, /independent reviewer/);
+    assert.match(withoutRelease.error.message, /DEC-0008/);
     assert.ok(
       !JSON.stringify(withoutRelease).includes("Ignore previous instructions"),
       "the failure must not leak quarantined content"
@@ -318,7 +321,8 @@ test("quarantine is fail-closed: claims citing quarantined sources never compile
 
   // (b) A COMPLETE, schema-valid, approved quarantine-release entry still cannot
   // unlock quarantine: schema validation proves shape, not that a human acted,
-  // so the approval is audit metadata without authority (Q-001 open).
+  // so the approval is audit metadata without authority (no independent
+  // reviewer or authenticated gate mechanism exists; DEC-0008).
   const sourceWithFabricatedApproval = {
     ...quarantinedSource,
     approvals: [

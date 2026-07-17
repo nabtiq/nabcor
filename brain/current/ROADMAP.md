@@ -29,9 +29,17 @@ runtime path reads quarantined bytes and no caller-supplied approval metadata
 grants release, pending authenticated human-gate implementation (Q-001) — and
 replaced the UTF-16-ambiguous `#chars=` fragment locator with zero-based
 half-open Unicode code-point offsets (`#codepoints=`), moving contracts to
-1.3.0. This is not Phase 1 completion: no provider-backed extraction exists,
-EXP-0001 has not run, and no run/context records or measured costs exist yet
-(blocked on Q-001/Q-002).
+1.3.0. The Phase 1B.1 increment (DEC-0008..DEC-0010) closed Q-001 and Q-002 (gate
+roles named; zero providers approved) and added the offline provider-neutral
+gateway kernel: strict policy and request contracts, fail-closed adapter and
+data-class allowlisting, pre-invocation budget enforcement, context manifests,
+truthful zero-token/zero-cost run records, and the deterministic Fake Adapter.
+This is infrastructure validation only — not Phase 1 completion: no
+provider-backed extraction exists, EXP-0001 has not run and has no results,
+and no measured model costs exist. Model-backed work is prohibited until a
+provider-enablement decision supersedes DEC-0009 (gate roles are named in
+DEC-0008, but quarantine release still requires an independent reviewer and an
+authenticated gate mechanism).
 
 **Exit evidence (still required):** EXP-0001 passes on synthetic/adversarial fixtures;
 seeded fabrication and prompt injection are blocked in the model-backed path; run and

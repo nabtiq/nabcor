@@ -15,7 +15,12 @@ Authority rank 4 (below decisions, above current state) — see `AGENTS.md`.
 - Production layer: `website-spec`, `social-asset-spec`.
 - Evaluation layer: `evaluation-report`.
 - Execution layer: `model-run`, `token-budget`, `context-manifest`,
-  `validation-matrix`, `deployment-readiness`.
+  `validation-matrix`, `deployment-readiness`, `gateway-policy`,
+  `gateway-request`.
+- `gateway-policy.active.json` — the committed active gateway policy document
+  (DEC-0009). Not a schema: a validated instance, checked in CI against
+  `gateway-policy.schema.json`; the runtime refuses to construct a gateway
+  from an invalid or missing policy.
 - `fixtures/positive.json`, `fixtures/negative.json` — validation fixtures (below).
 
 Execution-layer records are operational records, not creative artifacts — they carry
@@ -55,6 +60,18 @@ instead of invented claim refs — see fixture `P02`).
 Artifact `schema_version` for all contracts: **1.3.0** (was 1.2.0). The version is
 globally synchronized across all contracts; examples, fixtures, and
 runtime-generated artifacts carry it consistently.
+
+**Additive contracts at 1.3.0 (Phase 1B.1, DEC-0009/DEC-0010):**
+`gateway-policy` and `gateway-request` were added at the synchronized 1.3.0
+version. No existing contract changed meaning, so no version bump occurred.
+The `gateway-policy` contract pins the ratified zero-provider values (fake
+adapter only, synthetic data only, tier 0, no network, no credentials, zero
+spend) as constants: relaxing any of them is a meaning change that requires a
+superseding decision and the documented versioning procedure. Offline Fake
+Adapter runs use the existing `model-run` contract unchanged, recorded
+truthfully as `provider: "offline"`, tier 0, zero tokens, and
+`cost {mode: "free-tier", usd: 0, allocation: "none"}` — non-billed, zero,
+never conflated with measured API cost (see fixture `P08`).
 
 **Migration implications (1.2.0 → 1.3.0):** the `claim` fragment locator
 changed meaning (DEC-0007):
@@ -125,7 +142,9 @@ Two distinguishable layers, both required green (non-zero exit otherwise):
 
 - **Schema layer** (Ajv, draft-07 — an explicit development dependency): every schema
   compiles · `$id`s unique · every `examples[]` entry
-  and `fixtures/positive.json` case validates · every `fixtures/negative.json` case
+  and `fixtures/positive.json` case validates · the committed
+  `gateway-policy.active.json` document validates as a positive instance ·
+  every `fixtures/negative.json` case
   with `expect_fail_at: "schema"` is rejected.
 - **Semantic layer** — deterministic cross-field checks draft-07 cannot express
   cleanly, each named for the invariant it enforces:

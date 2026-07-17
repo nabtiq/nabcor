@@ -81,7 +81,8 @@ test("no exported content-store method can read quarantined bytes (DEC-0007 fail
   // validation cannot authenticate a human, so the release-bearing read API
   // was removed entirely. The store's public surface is exactly put + get, and
   // get reads the clear namespace only — quarantined bytes have no runtime
-  // read path until Q-001 delivers an authenticated release authority.
+  // read path until the independent reviewer and authenticated gate mechanism
+  // required for quarantine release both exist (DEC-0007, DEC-0008).
   const methods = Object.getOwnPropertyNames(FileContentStore.prototype).sort();
   assert.deepEqual(
     methods,
