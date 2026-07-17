@@ -3,9 +3,11 @@
 > Evidence-aware AI Creative Operating System for building distinctive, coherent brand worlds across channels.
 
 **Foundation version:** `0.1.0`
-**Status:** clean architecture baseline plus the deterministic Phase 1A truth kernel
-(DEC-0004/DEC-0005). No provider-backed extraction, no model calls, and no full
-vertical slice exist yet.
+**Status:** clean architecture baseline plus the deterministic Phase 1A truth
+kernel (DEC-0004/DEC-0005), the Phase 1B.1 offline gateway kernel
+(DEC-0009/DEC-0010), and the Phase 1B.2 deterministic structured-truth
+analysis (DEC-0011). No provider-backed extraction, no model calls, and no
+full vertical slice exist yet; Phase 1 is not complete.
 
 ## What NABCor is
 
@@ -176,8 +178,9 @@ No provider SDK and no framework exist.
   a namespace, fails digest verification on tampering, and never appears inline in
   artifacts, logs, or CLI output. The quarantine namespace is fail-closed
   (DEC-0007): the store exposes no method that reads quarantined bytes, pending
-  an authenticated human-gate implementation and an independent reviewer
-  (Q-001 answered by DEC-0008; both prerequisites still missing). PDF/DOCX/image/logo
+  a ratified authenticated gate mechanism and a formally named independent
+  reviewer (Q-001 is closed by DEC-0008; both prerequisites are still
+  missing). PDF/DOCX/image/logo
   descriptors carry no bytes and are recorded `descriptor-only`; URLs stay
   `external-unfetched`.
 - **`classify-input` (Tier 0)** — deterministic classification of input descriptors
@@ -186,16 +189,32 @@ No provider SDK and no framework exist.
   inline content is captured only into the quarantine namespace. Unclassified
   visuals record `visual_classification: null` — documentary status is never
   inferred from absence (INV-FACT-003). No OCR, parsing, or fetching.
+- **`analyze-structured-truth` (Tier 0, Phase 1B.2, DEC-0011)** —
+  deterministic contradiction and gap analysis over explicitly structured
+  fact slots. Claims carrying `fact_key`/`normalized_value`/
+  `normalization_basis` are grouped per slot and compared with exact,
+  type-sensitive equality (string `"1"` differs from number `1`; no case
+  folding, no Unicode normalization, no unit conversion, no fuzzy matching).
+  Gaps exist only relative to a versioned `truth-profile` artifact; blocking
+  flags come only from the profile; contradictions stay `open` — the analyzer
+  never selects a winner. Claims without fact metadata are listed explicitly
+  as unstructured, never keyword-parsed. This is **not** semantic
+  contradiction detection: paraphrase conflicts in prose remain invisible to
+  it, and the model-assisted capability that could see them stays prohibited
+  by DEC-0009. The analyzer never touches the gateway or the Fake Adapter.
 - **`build-brand-context` (Tier 0)** — deterministic compilation of already
-  structured claims, assumptions, contradictions, and gaps into a schema-valid
-  Brand Context Package. Claim provenance resolves through canonical
+  structured claims and assumptions plus one validated truth-analysis
+  artifact into a schema-valid Brand Context Package. Open contradictions and
+  gaps compile only from the truth analysis (exact claim coverage enforced,
+  `truth_analysis_ref` recorded, caller-supplied arrays rejected — DEC-0011).
+  Claim provenance resolves through canonical
   `source:<artifact_id>[#codepoints=a-b|#page=n]` references; fragment offsets
   are zero-based half-open Unicode code-point positions (DEC-0007 — never
   UTF-16 units or bytes) bounds-checked against the captured content; claims
   citing quarantined sources are always rejected with a typed failure —
-  quarantined and fail-closed pending authenticated human-gate implementation
-  (Q-001, DEC-0008). It is a compiler over structured truth, not a natural-language
-  extractor.
+  quarantine stays fail-closed pending a ratified authenticated gate
+  mechanism and a formally named independent reviewer (DEC-0007, DEC-0008).
+  It is a compiler over structured truth, not a natural-language extractor.
 - **Offline gateway kernel** (`src/gateway/`, DEC-0009/DEC-0010) — a
   provider-neutral invocation boundary, validated as infrastructure only. A
   strict machine-readable policy contract (`contracts/gateway-policy.schema.json`
@@ -218,7 +237,8 @@ No provider SDK and no framework exist.
   calls, no client data.
 
 What does **not** exist yet: model calls of any kind, provider adapters,
-provider-backed extraction, creative territories, channel specs, or the full
+provider-backed extraction, natural-language fact extraction, semantic
+contradiction detection, creative territories, channel specs, or the full
 vertical slice. Q-002 is closed as **"no provider approved"** (DEC-0009):
 model-backed work is prohibited by ratified policy — with external/model spend
 capped at zero — rather than blocked on an open question, and enabling any

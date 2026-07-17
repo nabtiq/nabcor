@@ -47,6 +47,7 @@ hypotheses anchored to BC-001 skill estimates where they exist (marked †):
 | `extract-source-facts` | tool-assisted call + validator | 2 | 15–30k | no |
 | `build-assumption-ledger` | single call + store | 1 | 1–3k/entry † | closing an assumption |
 | `detect-contradictions` | single call + deterministic pairing | 2 | 5–15k | resolution (INV-HUM-001(3)) |
+| `analyze-structured-truth` | deterministic service (implemented, DEC-0011) | 0 | ~0 | resolution downstream |
 | `infer-audience` | single call | 2 | 3–8k | confirmation optional |
 | `build-brand-context` | deterministic compile + call for gaps | 2 | 10–20k † | fact conflicts only |
 
@@ -86,6 +87,13 @@ hypotheses anchored to BC-001 skill estimates where they exist (marked †):
 
 Future channel-adapter skills are deliberately absent. They are specified only after a
 channel decision defines the adapter contract and deterministic gates.
+
+Model-assisted catalog entries (Tiers 1–4) are prohibited by the ratified
+zero-provider policy (DEC-0009) until a provider-enablement decision
+supersedes it. `analyze-structured-truth` (implemented, Phase 1B.2, DEC-0011)
+is the deterministic Tier-0 structured layer only — it compares explicit fact
+slots exactly and is **not** the Tier-2 semantic `detect-contradictions`
+capability, which stays unimplemented.
 
 ## 4. Skill specification template (used for every skill in Phase 1)
 

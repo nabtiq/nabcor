@@ -99,12 +99,25 @@ Transitions that require a human: `unconfirmed → verified` for inference-class
 
 ## 6. Contradiction handling
 
-Detection is a standing UNDERSTAND-skill duty (`detect-contradictions`): same subject,
-incompatible values, cross-source or cross-fragment. Each becomes a Contradiction
-record surfaced to a human; resolution is a decision record; the losing claim moves to
-`contradicted` and stays queryable (so the same conflict is never re-litigated — the
-BC-001 Josour/Nosour (transliterated) lesson, FAIL-04). Publication-critical facts (names, contact,
-domains) with open contradictions **block** publication surfaces (G4/G5).
+Detection is a standing UNDERSTAND duty. What exists today is the
+**deterministic Tier-0 structured layer** (DEC-0011,
+`src/understand/analyze-structured-truth.ts`): claims carrying explicit fact
+metadata (`fact_key`, `normalized_value`, `normalization_basis`) are grouped
+by slot and compared with exact, type-sensitive equality — no case folding,
+no Unicode normalization, no unit conversion, no fuzzy matching. Two or more
+distinct values in a single-cardinality slot become one open contradiction in
+a `truth-analysis` artifact; blocking status comes from the slot's truth
+profile. Claims without structured fact metadata are listed explicitly as
+unstructured — never keyword-parsed or silently ignored. The catalog's
+semantic `detect-contradictions` capability (paraphrase conflicts in
+unrestricted prose) remains unimplemented and prohibited under DEC-0009.
+
+Each detected contradiction is surfaced to a human with status fixed `open`;
+resolution is a decision record — never an analyzer output; the losing claim
+moves to `contradicted` and stays queryable (so the same conflict is never
+re-litigated — the BC-001 Josour/Nosour (transliterated) lesson, FAIL-04).
+Publication-critical facts (names, contact, domains) with open contradictions
+**block** publication surfaces (G4/G5).
 
 ## 7. Expiration and staleness
 
