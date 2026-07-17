@@ -116,7 +116,7 @@
     "schema": "website-spec.schema.json",
     "expect_fail_at": "semantic",
     "description": "factual copy slot with no claim_refs and no unresolved_fact_note (INV-FACT-001)",
-    "data": { "schema_version": "1.1.0", "artifact_id": "wspec_n17", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "visual_world_ref": "vw_1", "direction_ref": "dir_1", "campaign_ref": null, "page": "home", "locales": ["ar", "en"], "sections": [ { "section_id": "hero", "type": "hero", "intent": "authority", "copy_slots": [ { "slot_id": "proof", "role": "factual", "text": { "ar": "أكثر من 500 مشروع", "en": "500+ projects delivered" }, "claim_refs": [] } ] } ], "validation_matrix_ref": "vm_1", "conversion_intent": "contact" }
+    "data": { "schema_version": "1.1.0", "artifact_id": "wspec_n17", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "visual_world_ref": "vw_1", "direction_ref": "dir_1", "campaign_ref": null, "page": "home", "locales": ["ar", "en"], "sections": [ { "section_id": "hero", "type": "hero", "intent": "authority", "copy_slots": [ { "slot_id": "proof", "role": "factual", "text": { "ar": "[Arabic copy pending — 500+ projects claim]", "en": "500+ projects delivered" }, "claim_refs": [] } ] } ], "validation_matrix_ref": "vm_1", "conversion_intent": "contact" }
   },
   {
     "id": "N18-inference-verified-no-human",

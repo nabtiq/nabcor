@@ -1,0 +1,48 @@
+# Skill specification — template per docs/AGENT_AND_SKILL_ARCHITECTURE.md §4.
+# Phase 1A implements the deterministic compile half of this UNDERSTAND skill;
+# the catalog's model-assisted gap narration (Tier 2) stays unimplemented and
+# blocked on Q-002 (provider approval).
+skill_id: build-brand-context
+domain: UNDERSTAND
+purpose: >
+  Deterministically compile already structured, already validated truth —
+  source, claim, and assumption artifacts plus contradictions and gaps — into a
+  schema-valid Brand Context Package. Compilation of structured truth, not
+  natural-language extraction. Implemented in src/compile/build-brand-context.ts.
+input_contract: >
+  BrandContextInput (src/compile/build-brand-context.ts): source.schema.json[],
+  claim.schema.json[], assumption.schema.json[], contradiction/gap/identity
+  structures matching brand-context.schema.json shapes.
+output_contract: brand-context.schema.json
+required_context: [brand_ref, supplied artifacts only — no Second Brain reads]
+tools: []  # no model call exists or is hidden inside the compiler
+model_capability: tier-0 (deterministic; the Tier-2 gap-narration extension is
+  future work behind Q-002)
+deterministic_validations:
+  - every supplied source/claim/assumption is contract-valid (schema + semantic)
+  - all referenced sources, claims, and assumptions exist among the inputs;
+    dangling identity/audience/contradiction/mark references are rejected
+  - factual claims retain provenance — never model-inference sourced, and their
+    source_ref must resolve to a supplied source locator (INV-FACT-001)
+  - inference cannot become verified fact without human verification evidence
+    (INV-FACT-002)
+  - prompt-only mode admits prompt/brief sources only, so proof points cannot
+    be manufactured from evidence that is not there
+  - open contradictions pass through visibly; the compiler never resolves or
+    drops them (INV-HUM-001(3))
+  - missing information is a gap entry, never invented content
+  - provisional is derived (open assumptions or unverified claims), never asserted
+  - the output package validates against brand-context.schema.json before it is
+    returned or stored (INV-DET-001)
+failure_modes:
+  - invalid supplied artifact (typed validation-failed)
+  - dangling reference or cross-brand input (typed reference-violation)
+  - schema rejection of the compiled package (typed validation-failed)
+retry_rules: none — deterministic; a typed failure requires changed input
+human_approval: none inside the compiler; fact conflicts and inference
+  confirmations are human gates downstream (INV-HUM-001(3))
+token_budget: {output: 0, max_tool_calls: 0, max_iterations: 1}  # Tier 0: no model
+caching: not applicable (no model calls; deterministic output for identical input)
+evaluation: runtime tests in test/build-brand-context.test.ts — both synthetic
+  modes compile, unsupported/inference-as-fact/dangling-reference/cross-brand
+  inputs are rejected, contradictions stay visible

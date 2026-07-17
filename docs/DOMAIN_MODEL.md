@@ -107,7 +107,8 @@ immutable per version; a revision creates a new version linked by supersession
 
 ### Contradiction
 - **Purpose:** a first-class record that two claims/sources disagree, surfaced to a
-  human, resolved exactly once (BC-001 FAIL-04: the جسور/نسور name conflict class).
+  human, resolved exactly once (BC-001 FAIL-04: the Josour/Nosour — transliterated —
+  Arabic brand-name conflict class).
 - **Required:** the conflicting claim refs, description, status
   (`open | resolved | accepted-both`), resolution decision ref when resolved.
 - **Lifecycle:** detected → surfaced → resolved (via Decision) — losing claim becomes

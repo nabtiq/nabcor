@@ -106,7 +106,8 @@ implementation (`brain/learnings/BC-001.md`).
    ("operates in Dubai — company-profile.pdf p.3"); every asset with rights and
    technical facts (alpha, vector availability, resolution — INV-DATA-002, F04).
 3. **Contradiction surfacing (HUMAN GATE — facts).** Conflicts shown side by side
-   ("brochure says جسور, PDF footer says نسور; logo says جسور — which is canonical?").
+   ("brochure says Josour, PDF footer says Nosour; logo says Josour — which is
+   canonical?" — transliterated from the BC-001 Arabic brand-name conflict).
    The user resolves once; the resolution is a decision record; the losing variants
    stay recorded as contradicted.
 4. **The gap list.** What a credible site/campaign for this business normally carries

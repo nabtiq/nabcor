@@ -2,20 +2,27 @@
   "name": "nabcor",
   "version": "0.1.0",
   "private": true,
-  "description": "Evidence-aware AI Creative Operating System — clean foundation baseline.",
+  "type": "module",
+  "description": "Evidence-aware AI Creative Operating System — clean foundation baseline plus the deterministic Phase 1A truth kernel.",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "validate": "npm run validate:contracts && npm run validate:brain && npm run validate:repository",
+    "validate": "npm run validate:contracts && npm run validate:brain && npm run validate:repository && npm run validate:language && npm run typecheck && npm run test:runtime",
     "validate:contracts": "node contracts/validate.mjs",
     "validate:brain": "node scripts/validate-brain.mjs",
     "validate:repository": "node scripts/validate-repository.mjs",
-    "test": "npm run validate"
+    "validate:language": "node scripts/validate-language.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "test:runtime": "npm run build && node --test dist/test/*.test.js",
+    "test": "npm run test:runtime"
   },
   "devDependencies": {
+    "@types/node": "20.19.43",
     "ajv": "8.20.0",
-    "ajv-formats": "3.0.1"
+    "ajv-formats": "3.0.1",
+    "typescript": "5.9.3"
   }
 }

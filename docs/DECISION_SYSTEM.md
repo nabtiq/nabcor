@@ -58,4 +58,5 @@ unique and never reused.
 | DEC-0001 | NABCor is an AI Creative Operating System | ratified |
 | DEC-0002 | File-based Second Brain from day one | ratified |
 | DEC-0003 | Legacy website code is evidence, not product core | ratified |
-| DEC-0004 | Proposed first vertical slice | proposed |
+| DEC-0004 | First vertical slice | ratified |
+| DEC-0005 | Node.js 20 + strict TypeScript ESM, no framework | ratified |

@@ -3,22 +3,29 @@
 > A phase advances only when its exit evidence exists. Dates follow measured velocity,
 > not wishful planning.
 
-## Foundation — product truth exists *(current)*
+## Foundation — product truth exists *(complete)*
 
 **Outcome:** the new repository represents the Creative OS; source-of-truth hierarchy,
 contracts, Second Brain, evaluation authority, and scope boundaries are operational.
 
-**Exit evidence:** `npm run validate` passes; DEC-0001..0003 ratified; DEC-0004 and
-Phase 1 operating decisions reviewed by the product owner.
+**Exit evidence:** `npm run validate` passes; DEC-0001..0003 ratified; DEC-0004
+ratified and DEC-0005 (runtime) recorded by the product-owner Phase 1A instruction.
 
-## Phase 1 — truth works
+## Phase 1 — truth works *(current — Phase 1A landed, remainder blocked)*
 
 **Outcome:** prompt-only and evidence-rich inputs produce a schema-valid Brand Context
 Package: sources, rights, claims with provenance, contradictions, assumptions, and gaps.
 
-**Exit evidence:** EXP-0001 passes on synthetic/adversarial fixtures; seeded fabrication
-and prompt injection are blocked; run and context records exist; actual cost stays
-within a ratified budget.
+**Phase 1A evidence (deterministic kernel only):** contract registry, namespaced
+artifact store, Tier-0 classify-input with injection flagging, deterministic
+brand-context compiler, English-only language gate — all under `npm run validate`
+with runtime tests on synthetic fixtures. This is not Phase 1 completion: no
+provider-backed extraction exists, EXP-0001 has not run, and no run/context records
+or measured costs exist yet (blocked on Q-001/Q-002).
+
+**Exit evidence (still required):** EXP-0001 passes on synthetic/adversarial fixtures;
+seeded fabrication and prompt injection are blocked in the model-backed path; run and
+context records exist; actual cost stays within a ratified budget.
 
 ## Phase 2 — direction works
 

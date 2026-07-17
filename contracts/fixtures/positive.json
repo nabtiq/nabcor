@@ -9,7 +9,7 @@
     "id": "P02-factual-slot-with-confirm-note",
     "schema": "website-spec.schema.json",
     "description": "factual slot with empty claim_refs but an explicit unresolved_fact_note (confirm-slot pattern) passes — schema pressure must not encourage fabrication",
-    "data": { "schema_version": "1.1.0", "artifact_id": "wspec_p02", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "visual_world_ref": "vw_1", "direction_ref": "dir_1", "campaign_ref": null, "page": "home", "locales": ["ar", "en"], "sections": [ { "section_id": "hero", "type": "hero", "intent": "authority", "copy_slots": [ { "slot_id": "years", "role": "factual", "text": { "ar": "[سنوات الخبرة — بانتظار التأكيد]", "en": "[X years in operation — confirm]" }, "claim_refs": [], "unresolved_fact_note": "years-in-operation not provided by client; confirm before publication" } ] } ], "validation_matrix_ref": "vm_1", "conversion_intent": "contact" }
+    "data": { "schema_version": "1.1.0", "artifact_id": "wspec_p02", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "visual_world_ref": "vw_1", "direction_ref": "dir_1", "campaign_ref": null, "page": "home", "locales": ["ar", "en"], "sections": [ { "section_id": "hero", "type": "hero", "intent": "authority", "copy_slots": [ { "slot_id": "years", "role": "factual", "text": { "ar": "[Arabic copy pending — years-in-operation confirm-slot]", "en": "[X years in operation — confirm]" }, "claim_refs": [], "unresolved_fact_note": "years-in-operation not provided by client; confirm before publication" } ] } ], "validation_matrix_ref": "vm_1", "conversion_intent": "contact" }
   },
   {
     "id": "P03-model-run-subscription",

@@ -21,17 +21,9 @@ client data? What are the per-run and monthly hard ceilings? API-billed runs are
 preferred where cost must be measured; subscription usage must never be presented as a
 known per-project cost.
 
-### Q-003 — Implementation runtime
-
-Which language/runtime will implement the first deterministic kernel and gateway?
-Candidates must be compared against existing team capability, schema tooling, test
-quality, portability, and operational cost. The foundation does not preselect a web
-framework.
-
-### Q-004 — First vertical-slice ratification
-
-Ratify, revise, or reject DEC-0004. In particular: are one homepage spec plus three
-social specs the smallest useful cross-channel proof?
+**Scope note (2026-07-17):** Q-002 blocks provider-backed and model-backed work — the
+gateway, extraction, territories, evaluators with model calls. It does not block the
+offline deterministic kernel, which is why Phase 1A shipped without it.
 
 ## Experiment-owned questions
 
@@ -63,3 +55,9 @@ social specs the smallest useful cross-channel proof?
 
 Append resolved answers with date and decision ID, then remove the question from the
 active section in the same commit.
+
+- **Q-003 — Implementation runtime** · 2026-07-17 · closed by DEC-0005: Node.js 20 +
+  strict TypeScript ESM, no application or agent framework; alternatives recorded in
+  the decision.
+- **Q-004 — First vertical-slice ratification** · 2026-07-17 · closed by ratified
+  DEC-0004: slice boundary unchanged; slice risks remain owned by EXP-0002..0004.

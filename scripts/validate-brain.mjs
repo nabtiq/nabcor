@@ -20,9 +20,10 @@ const required = [
   "brain/archive/README.md",
 ];
 
+let requiredFileFailures = 0;
 for (const file of required) {
-  if (!existsSync(path(file))) fail(`missing ${file}`);
-  else if (!readFileSync(path(file), "utf8").trim()) fail(`empty ${file}`);
+  if (!existsSync(path(file))) { requiredFileFailures += 1; fail(`missing ${file}`); }
+  else if (!readFileSync(path(file), "utf8").trim()) { requiredFileFailures += 1; fail(`empty ${file}`); }
 }
 
 const now = readFileSync(path("brain/current/NOW.md"), "utf8");
@@ -51,7 +52,7 @@ for (const file of decisionFiles) {
   }
 }
 
-console.log(`Second Brain required files: ${required.length}/${required.length - failures}`);
+console.log(`Second Brain required files: ${required.length - requiredFileFailures}/${required.length}`);
 console.log(`Decision records checked: ${decisionFiles.length}; unique IDs: ${ids.size}`);
 
 if (failures) {

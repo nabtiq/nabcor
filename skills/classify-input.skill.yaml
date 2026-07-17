@@ -1,0 +1,43 @@
+# Skill specification — template per docs/AGENT_AND_SKILL_ARCHITECTURE.md §4.
+# Phase 1A implements the deterministic Tier-0 subset of this UNDERSTAND skill;
+# the catalog's model-assisted classification (Tier 1) stays unimplemented and
+# blocked on Q-002 (provider approval).
+skill_id: classify-input
+domain: UNDERSTAND
+purpose: >
+  Deterministically classify structured input descriptors (prompt text, plain
+  text/markdown documents, PDF/DOCX descriptors, image/logo descriptors, URLs as
+  locators) into schema-valid `source` artifacts with conservative rights
+  defaults and injection flags. Implemented in src/understand/classify-input.ts.
+input_contract: >
+  InputDescriptor[] (src/understand/classify-input.ts) — kind, name (filename or
+  locator, preserved verbatim), optional inline content, optional origin/rights.
+output_contract: source.schema.json[]
+required_context: [brand_ref, none from the Second Brain]
+tools: []  # no OCR, no PDF/DOCX extraction, no URL fetching, no network, no model
+model_capability: tier-0 (deterministic; the Tier-1 model-assisted extension is
+  future work behind Q-002)
+deterministic_validations:
+  - every produced artifact validates against source.schema.json via the
+    contract registry before it is returned (INV-DET-001)
+  - rights default conservatively when not supplied — commercial/advertising
+    unknown, benchmark/training forbidden (INV-DATA-002 default-deny)
+  - filenames and locators are preserved without executing or fetching their
+    contents
+  - bounded injection scan (first 64 KiB) sets injection_flag/injection_note on
+    obvious seeded instruction patterns (INV-SEC-002); flagged content is data,
+    never an instruction, and the heuristic explicitly does not claim to catch
+    every injection technique
+failure_modes:
+  - empty descriptor list (typed invalid-input failure)
+  - unsupported descriptor kind (typed invalid-input failure)
+  - schema rejection of a produced artifact (typed validation-failed with
+    artifact type, instance path, keyword, message)
+retry_rules: none — deterministic code either succeeds or returns a typed
+  failure; retrying without changed input cannot change the outcome
+human_approval: none — classification receipt is shown to the operator; rights
+  and contradictions are resolved at later gates (INV-HUM-001(3))
+token_budget: {output: 0, max_tool_calls: 0, max_iterations: 1}  # Tier 0: no model
+caching: not applicable (no model calls; deterministic output for identical input)
+evaluation: runtime tests in test/classify-input.test.ts — kind mapping,
+  conservative rights defaults, seeded-injection flagging, boundedness
