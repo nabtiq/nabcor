@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/visual-world.schema.json",
+  "title": "Visual World",
+  "description": "The executable aesthetic contract — typed successor of BC-001's THEME.md (L03). Governs all channel expression (INV-BRAND-001, INV-CHAN-001).",
+  "allOf": [
+    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "type": "object",
+      "required": ["brand_ref", "direction_ref", "palette", "typography", "imagery_rules", "motion"],
+      "properties": {
+        "brand_ref": { "type": "string" },
+        "direction_ref": { "type": "string" },
+        "palette": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["token", "hex", "role"], "properties": { "token": { "type": "string" }, "hex": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "role": { "type": "string" }, "rationale": { "type": "string" } } } },
+        "typography": { "type": "object", "required": ["display", "body"], "properties": { "display": { "type": "string" }, "body": { "type": "string" }, "arabic": { "type": "string" }, "scale_notes": { "type": "string" } } },
+        "imagery_rules": {
+          "type": "object",
+          "required": ["subjects", "grading", "negatives"],
+          "properties": {
+            "subjects": { "type": "array", "items": { "type": "string" } },
+            "grading": { "type": "string", "description": "the photographic house spec (BC-001 fixed-spec practice)" },
+            "negatives": { "type": "array", "items": { "type": "string" }, "description": "what never appears (no stock smiles, no text-in-image, ...)" },
+            "documentary_first": { "type": "boolean", "description": "real client imagery preferred over generated (INV-FACT-003)" }
+          }
+        },
+        "composition_grammar": { "type": "array", "items": { "type": "string" } },
+        "motion": {
+          "type": "object",
+          "required": ["stance", "safety"],
+          "properties": {
+            "stance": { "type": "string" },
+            "tokens": { "type": "object", "description": "durations/easings/stagger values" },
+            "safety": {
+              "type": "object",
+              "required": ["content_visible_without_js", "reduced_motion_fallback"],
+              "properties": {
+                "content_visible_without_js": { "const": true, "description": "INV-PE-001 — not configurable" },
+                "reduced_motion_fallback": { "type": "string" },
+                "rescue_mechanism": { "type": "string", "description": "pure-CSS dead-man rescue description" }
+              }
+            }
+          }
+        },
+        "themes": { "type": "array", "items": { "type": "string" }, "description": "declared theme variants; per-theme token values live in design-system (BC-001 33-file-sweep lesson)" },
+        "deviations_from_dna": { "type": "array", "items": { "type": "object", "required": ["what", "why", "approved_by"], "properties": { "what": { "type": "string" }, "why": { "type": "string" }, "approved_by": { "type": "string" } } } }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "vw_0001",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "reviewed",
+      "direction_ref": "dir_0001",
+      "palette": [ { "token": "canvas", "hex": "#101418", "role": "background", "rationale": "austere evidence-room ground" } ],
+      "typography": { "display": "grotesk", "body": "humanist sans", "arabic": "IBM Plex Sans Arabic" },
+      "imagery_rules": { "subjects": ["instruments macro", "annotated specimens"], "grading": "cool neutral, high micro-contrast, no bloom", "negatives": ["stock handshakes", "text baked into images"], "documentary_first": true },
+      "motion": { "stance": "minimal, procedural", "safety": { "content_visible_without_js": true, "reduced_motion_fallback": "art-directed static", "rescue_mechanism": "css dead-man timer reveals all after 4s without enhanced flag" } },
+      "themes": ["light"]
+    }
+  ]
+}

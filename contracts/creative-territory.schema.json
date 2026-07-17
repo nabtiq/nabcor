@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/creative-territory.schema.json",
+  "title": "Creative Territory",
+  "description": "One candidate direction with concept, aesthetics, rationale, sacrifices (DOMAIN_MODEL §4; EXP-0002 diversity).",
+  "allOf": [
+    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "type": "object",
+      "required": ["brand_ref", "brief_ref", "name", "concept", "rationale", "sacrifices"],
+      "properties": {
+        "brand_ref": { "type": "string" },
+        "brief_ref": { "type": "string" },
+        "name": { "type": "string" },
+        "concept": { "type": "string", "minLength": 50, "description": "one-paragraph creative idea — not a style tag" },
+        "palette_direction": { "type": "array", "items": { "type": "object", "properties": { "hex": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "role": { "type": "string" }, "rationale": { "type": "string" } } } },
+        "type_direction": { "type": "string" },
+        "imagery_world": { "type": "string" },
+        "motion_stance": { "type": "string" },
+        "rationale": { "type": "string", "description": "why this fits the brief" },
+        "sacrifices": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "what this direction deliberately gives up" },
+        "differentiation_axes": { "type": "array", "items": { "type": "string" }, "description": "the axes on which this differs from sibling territories" },
+        "rejection": { "type": ["object", "null"], "required": ["reason"], "properties": { "reason": { "type": "string" }, "rejected_by": { "type": "string" }, "at": { "type": "string", "format": "date-time" } } }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "terr_0001",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "reviewed",
+      "brief_ref": "brief_0001",
+      "name": "Evidence Room",
+      "concept": "The brand as a forensic evidence room: austere surfaces, annotated specimen photography, typographic labels like case files — credibility expressed as procedure made visible.",
+      "type_direction": "grotesk + mono annotations",
+      "imagery_world": "macro documentary of instruments and materials, annotated overlays",
+      "motion_stance": "minimal; reveal-safe; no decorative motion",
+      "rationale": "expresses rigor without corporate cliché; differentiates from legal-generic navy/serif",
+      "sacrifices": ["warmth", "consumer-brand playfulness"],
+      "differentiation_axes": ["austerity vs warmth", "documentary vs abstract"],
+      "rejection": null
+    }
+  ]
+}

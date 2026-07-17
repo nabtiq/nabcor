@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/design-system.schema.json",
+  "title": "Design System",
+  "description": "Deterministic compilation of a Visual World into per-theme token tables — maps to the nabcor two-layer token law (docs/build-a-theme.md). All declared themes carry values from day 1 (BC-001 retrofit lesson).",
+  "allOf": [
+    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "type": "object",
+      "required": ["brand_ref", "visual_world_ref", "themes"],
+      "properties": {
+        "brand_ref": { "type": "string" },
+        "visual_world_ref": { "type": "string" },
+        "themes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["theme_id", "tokens"],
+            "properties": {
+              "theme_id": { "type": "string" },
+              "tokens": { "type": "object", "description": "semantic token → value map (raw ramp + aliases per build-a-theme layering)", "minProperties": 1 },
+              "contrast_checked": { "type": "boolean", "description": "WCAG AA pass recorded per theme" }
+            }
+          }
+        },
+        "spacing_scale": { "type": "array", "items": { "type": "number" } },
+        "radii": { "type": "object" },
+        "compiled_outputs": { "type": "array", "items": { "type": "string" }, "description": "paths of generated tokens.css etc. (Phase 2+)" }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "ds_0001",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "visual_world_ref": "vw_0001",
+      "themes": [ { "theme_id": "light", "tokens": { "--color-brand-500": "#1a2b3c", "--color-canvas": "#fafafa" }, "contrast_checked": false } ]
+    }
+  ]
+}

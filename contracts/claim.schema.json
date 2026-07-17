@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/claim.schema.json",
+  "title": "Claim",
+  "description": "One statement with classification, provenance, confidence, verification state (PROVENANCE_AND_CONFIDENCE.md; INV-FACT-001/002).",
+  "allOf": [
+    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "type": "object",
+      "required": ["statement", "classification", "source_type", "confidence", "verification_status"],
+      "properties": {
+        "statement": { "type": "string", "minLength": 1 },
+        "classification": { "enum": ["factual", "inference", "hypothesis", "preference"] },
+        "source_type": { "enum": ["uploaded_document", "uploaded_image", "client_statement", "operator_input", "public_web", "reference_material", "model_inference", "model_generation"] },
+        "source_ref": { "type": ["string", "null"], "description": "fragment locator, e.g. company-profile.pdf#page=3 — REQUIRED for factual (enforced below)" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "confidence_basis": { "type": "string", "description": "a bare number is invalid (PROVENANCE §4)" },
+        "verification_status": { "enum": ["verified", "unconfirmed", "contradicted", "expired", "rejected"] },
+        "verified_by": { "type": ["string", "null"], "description": "user id when human-confirmed" },
+        "valid_from": { "type": ["string", "null"], "format": "date-time" },
+        "valid_until": { "type": ["string", "null"], "format": "date-time" },
+        "evidence": { "type": "array", "items": { "type": "object", "required": ["ref", "direction"], "properties": { "ref": { "type": "string" }, "direction": { "enum": ["supports", "contradicts"] }, "note": { "type": "string" } } } },
+        "resolution_decision_ref": { "type": ["string", "null"] }
+      },
+      "if": { "properties": { "classification": { "const": "factual" } } },
+      "then": { "required": ["source_ref", "confidence_basis"], "properties": { "source_ref": { "type": "string", "minLength": 1 } } }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "claim_001",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "The company operates in Dubai",
+      "classification": "factual",
+      "source_type": "uploaded_document",
+      "source_ref": "company-profile.pdf#page=3",
+      "confidence": 0.98,
+      "confidence_basis": "explicit statement in client's own profile document",
+      "verification_status": "verified"
+    },
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "claim_002",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "generated",
+      "statement": "The likely audience includes legal firms",
+      "classification": "inference",
+      "source_type": "model_inference",
+      "source_ref": null,
+      "confidence": 0.62,
+      "confidence_basis": "category norm for forensic consultancies; no client evidence",
+      "verification_status": "unconfirmed"
+    }
+  ]
+}

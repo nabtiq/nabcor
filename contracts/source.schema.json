@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/source.schema.json",
+  "title": "Source",
+  "description": "One client-provided or acquired input with classification, technical facts, and rights (DOMAIN_MODEL §2; INV-DATA-002; INV-SEC-002; BC-001 F04 fields).",
+  "allOf": [
+    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "type": "object",
+      "required": ["kind", "origin", "rights", "filename_or_locator"],
+      "properties": {
+        "kind": { "enum": ["document", "image", "logo", "reference", "url", "prompt", "brief", "video", "other"] },
+        "origin": { "enum": ["client", "operator", "generated", "licensed", "public_web"] },
+        "filename_or_locator": { "type": "string" },
+        "rights": { "$ref": "artifact-envelope.schema.json#/definitions/rights" },
+        "asset_facts": {
+          "type": "object",
+          "description": "intake-mandatory for image/logo kinds (BC-001 F04)",
+          "properties": {
+            "has_alpha": { "type": "boolean" },
+            "vector_available": { "type": "boolean" },
+            "source_resolution": { "type": "string" },
+            "aspect_ratio": { "type": "string" },
+            "variants": { "type": "object", "properties": { "dark": { "type": ["string", "null"] }, "light": { "type": ["string", "null"] } } }
+          }
+        },
+        "visual_classification": { "enum": ["documentary", "illustrative", "generated", "conceptual", null], "description": "PROVENANCE §11; required for visual kinds" },
+        "carries_own_brand_content": { "type": "boolean", "description": "reference materials carrying the client's own brand are ALSO mined (BC-001 FAIL-01 fix)" },
+        "injection_flag": { "type": "boolean", "description": "instruction-like embedded text detected (INV-SEC-002)" },
+        "injection_note": { "type": "string" },
+        "transformation_history": { "type": "array", "items": { "type": "object", "required": ["step"], "properties": { "step": { "type": "string" }, "tool_or_model": { "type": "string" }, "run_ref": { "type": "string" } } } }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.0.0",
+      "artifact_id": "src_0001",
+      "brand_ref": "brand_josour",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "accepted",
+      "kind": "document",
+      "origin": "client",
+      "filename_or_locator": "company-profile.pdf",
+      "rights": { "commercial_use": "allowed", "advertising_use": "unknown", "benchmark_use": "forbidden", "training_use": "forbidden" },
+      "injection_flag": false
+    }
+  ]
+}

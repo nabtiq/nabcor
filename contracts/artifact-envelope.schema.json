@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/artifact-envelope.schema.json",
+  "title": "Artifact envelope (shared definitions)",
+  "description": "Common envelope for all canonical NABCor artifacts (INV-VER-001, DOMAIN_MODEL.md). Referenced via allOf by concrete artifact schemas.",
+  "definitions": {
+    "envelope": {
+      "type": "object",
+      "required": ["schema_version", "artifact_id", "created_at", "creator_type", "lifecycle_status"],
+      "properties": {
+        "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "brand_ref": { "type": ["string", "null"] },
+        "project_ref": { "type": ["string", "null"] },
+        "created_at": { "type": "string", "format": "date-time" },
+        "creator_type": { "enum": ["human", "agent", "deterministic"] },
+        "lifecycle_status": { "enum": ["generated", "reviewed", "accepted", "revised", "rejected", "superseded", "published"] },
+        "supersedes": { "type": ["string", "null"] },
+        "superseded_by": { "type": ["string", "null"] },
+        "derived_from_runs": { "type": "array", "items": { "type": "string" } },
+        "validation_status": { "enum": ["unvalidated", "valid", "invalid"] },
+        "provisional": { "type": "boolean", "description": "true when derived from open assumptions/inferences (PROVENANCE §10)" },
+        "approvals": { "type": "array", "items": { "$ref": "#/definitions/approval" } }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "required": ["approved_by", "gate", "verdict", "at"],
+      "properties": {
+        "approved_by": { "type": "string", "description": "user id — a human (INV-HUM-001)" },
+        "gate": { "type": "string" },
+        "verdict": { "enum": ["approved", "rejected", "needs-revision"] },
+        "reason": { "type": "string" },
+        "at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "claim_ref": { "type": "string", "description": "claim artifact_id" },
+    "localized_text": {
+      "type": "object",
+      "description": "bilingual text pair (nabcor convention)",
+      "required": ["ar", "en"],
+      "properties": { "ar": { "type": "string" }, "en": { "type": "string" } }
+    },
+    "rights": {
+      "type": "object",
+      "description": "usage rights, default-deny for benchmark/training (INV-DATA-002)",
+      "required": ["commercial_use", "advertising_use", "benchmark_use", "training_use"],
+      "properties": {
+        "commercial_use": { "enum": ["allowed", "forbidden", "unknown"] },
+        "advertising_use": { "enum": ["allowed", "forbidden", "unknown"] },
+        "benchmark_use": { "enum": ["allowed", "forbidden"] },
+        "training_use": { "enum": ["allowed", "forbidden"] }
+      }
+    }
+  }
+}

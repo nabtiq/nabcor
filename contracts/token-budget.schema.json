@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/token-budget.schema.json",
+  "title": "Token Budget",
+  "description": "Budget object for a skill, workflow, or project (INV-TOK-001). Values are hypotheses until EXP-0005 baselines them; the mechanism is required.",
+  "type": "object",
+  "required": ["schema_version", "budget_id", "scope", "output_budget", "max_tool_calls", "max_iterations"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "budget_id": { "type": "string" },
+    "scope": { "enum": ["skill", "workflow", "project"] },
+    "scope_ref": { "type": "string", "description": "skill id / workflow id / project id" },
+    "fresh_input_budget": { "type": ["integer", "null"], "minimum": 0 },
+    "cached_input_budget": { "type": ["integer", "null"], "minimum": 0 },
+    "cache_write_budget": { "type": ["integer", "null"], "minimum": 0 },
+    "output_budget": { "type": "integer", "minimum": 0 },
+    "max_tool_calls": { "type": "integer", "minimum": 0 },
+    "max_iterations": { "type": "integer", "minimum": 1 },
+    "escalation_budget": { "type": ["integer", "null"], "minimum": 0, "description": "reserve a human may unlock; not silently spendable" },
+    "hard_stop_output": { "type": ["integer", "null"], "description": "absolute ceiling; breach pauses work + pings human" },
+    "basis": { "type": "string", "description": "where these numbers come from (stated assumptions — no arbitrary savings claims)" }
+  },
+  "examples": [
+    {
+      "schema_version": "1.0.0",
+      "budget_id": "budget_slice_0001",
+      "scope": "project",
+      "scope_ref": "SLICE-001",
+      "fresh_input_budget": 200000,
+      "cached_input_budget": null,
+      "cache_write_budget": null,
+      "output_budget": 450000,
+      "max_tool_calls": 600,
+      "max_iterations": 3,
+      "escalation_budget": 50000,
+      "hard_stop_output": 550000,
+      "basis": "BC-001 per-skill priors + 20% contingency; see MODEL_AND_TOKEN_STRATEGY §7"
+    }
+  ]
+}

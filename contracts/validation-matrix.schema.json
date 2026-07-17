@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/validation-matrix.schema.json",
+  "title": "Validation Matrix",
+  "description": "Machine-readable declaration of required render/review combinations for gate G3 (INV-AR-001, INV-PE-001). The F09/F03 combinations are non-optional.",
+  "type": "object",
+  "required": ["schema_version", "matrix_id", "dimensions", "required_combinations", "arabic_animation_captures_required"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "matrix_id": { "type": "string" },
+    "brand_ref": { "type": ["string", "null"] },
+    "dimensions": {
+      "type": "object",
+      "required": ["theme", "locale", "viewport", "motion_state", "js_state"],
+      "properties": {
+        "theme": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "locale": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "viewport": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "motion_state": { "type": "array", "minItems": 1, "items": { "enum": ["default", "reduced"] } },
+        "js_state": { "type": "array", "minItems": 1, "items": { "enum": ["enabled", "disabled"] } }
+      }
+    },
+    "required_combinations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "object", "properties": { "theme": { "type": "string" }, "locale": { "type": "string" }, "viewport": { "type": "string" }, "motion_state": { "type": "string" }, "js_state": { "type": "string" } } },
+      "description": "declared subset — full cross-product not mandated; js_state=disabled for every content page and Arabic captures for any text-splitting animation are mandatory members"
+    },
+    "arabic_animation_captures_required": { "type": "boolean" }
+  },
+  "examples": [
+    {
+      "schema_version": "1.0.0",
+      "matrix_id": "vm_0001",
+      "brand_ref": "brand_example",
+      "dimensions": {
+        "theme": ["light"],
+        "locale": ["ar", "en"],
+        "viewport": ["360", "1440"],
+        "motion_state": ["default", "reduced"],
+        "js_state": ["enabled", "disabled"]
+      },
+      "required_combinations": [
+        { "theme": "light", "locale": "ar", "viewport": "360", "motion_state": "default", "js_state": "enabled" },
+        { "theme": "light", "locale": "ar", "viewport": "1440", "motion_state": "default", "js_state": "disabled" },
+        { "theme": "light", "locale": "en", "viewport": "1440", "motion_state": "reduced", "js_state": "enabled" }
+      ],
+      "arabic_animation_captures_required": true
+    }
+  ]
+}
