@@ -52,9 +52,38 @@ instead of invented claim refs — see fixture `P02`).
 
 ## Versioning
 
-Artifact `schema_version` for all contracts: **1.2.0** (was 1.1.0). The version is
-globally synchronized across all contracts; examples and fixtures carry it
-consistently.
+Artifact `schema_version` for all contracts: **1.3.0** (was 1.2.0). The version is
+globally synchronized across all contracts; examples, fixtures, and
+runtime-generated artifacts carry it consistently.
+
+**Migration implications (1.2.0 → 1.3.0):** the `claim` fragment locator
+changed meaning (DEC-0007):
+
+- `claim.source_ref` character fragments now use
+  `source:<source artifact_id>#codepoints=<start>-<end>` — **zero-based,
+  half-open Unicode code-point offsets** `[start, end)`. Offsets count Unicode
+  code points (what `Array.from`/string iteration yield), never UTF-8 bytes,
+  UTF-16 code units, or user-perceived grapheme clusters; a combining mark is
+  its own code point. Captured content is addressed exactly as captured — the
+  runtime never normalizes Unicode, so composed and decomposed forms are
+  distinct.
+- The old `#chars=` form had undefined multilingual semantics (the runtime
+  counted UTF-16 code units) and is **rejected at the schema layer with no
+  compatibility fallback**. Migration rule: re-issue each old reference as a
+  `#codepoints=` reference computed against the original immutable captured
+  content. Old offsets are never reinterpreted automatically. No real
+  production artifacts existed, so no real-artifact migration was performed —
+  examples, fixtures, and synthetic runtime fixtures were re-issued in the
+  same change.
+- The semantic check `chars-fragment-ordered` is renamed
+  `codepoints-fragment-ordered` (`#codepoints=a-b` requires `a < b`; full
+  bounds and content-exactness are verified at compile time against the
+  content store in code-point coordinates).
+- Quarantine semantics (DEC-0007): a `quarantine-release` approvals entry on a
+  `source` artifact is **audit metadata without authority**. The runtime
+  rejects every claim citing quarantined content — fail-closed pending an
+  authenticated human-gate implementation (Q-001); schema validity of an
+  approval never releases anything.
 
 **Migration implications (1.1.0 → 1.2.0):** the `source` and `claim` contracts
 changed meaning (DEC-0006):
@@ -70,22 +99,21 @@ changed meaning (DEC-0006):
   **explicitly**; `null` is the honest unresolved state. A silent documentary
   default is prohibited (INV-FACT-003).
 - `claim.source_ref` must use the **canonical source-reference form**
-  `source:<source artifact_id>[#chars=<a>-<b>|#page=<n>]` — deterministic,
-  parseable, tied to the source artifact ID, independent of filenames and renames,
+  (fragment locator since revised by 1.3.0 above) — deterministic, parseable,
+  tied to the source artifact ID, independent of filenames and renames,
   fragment-preserving. Filename-based references (e.g.
   `company-profile.pdf#page=3`) are **rejected at the schema layer, not silently
   migrated**: re-issue the claim against the source artifact ID. There is no
   ambiguous fallback.
 - New semantic checks: `flagged-captured-content-must-be-quarantined`
-  (INV-SEC-002 — a flag is not a quarantine) and `chars-fragment-ordered`
-  (INV-FACT-001 — `#chars=a-b` requires `a < b`; full bounds and content-exactness
-  are verified at compile time against the content store).
+  (INV-SEC-002 — a flag is not a quarantine) and the fragment-order check
+  (INV-FACT-001 — fragment `a-b` requires `a < b`; renamed in 1.3.0).
 
-No real production artifact migration was performed because no real artifacts
-exist yet — examples, fixtures, and synthetic runtime fixtures are the only
-instances, and all were updated in the same change. Rules going forward: change a
-schema → bump `schema_version` expectations, update fixtures, never silently
-(AGENTS.md rule 15).
+No real production artifact migration was performed in either bump because no
+real artifacts exist yet — examples, fixtures, and synthetic runtime fixtures
+are the only instances, and all were updated in the same change. Rules going
+forward: change a schema → bump `schema_version` expectations, update fixtures,
+never silently (AGENTS.md rule 15).
 
 ## Validation
 

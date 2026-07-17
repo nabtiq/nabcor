@@ -4,11 +4,10 @@ import { readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { FileContentStore } from "../src/kernel/content-store.js";
-import { BRAND, NOW, WS, tempDir } from "./helpers.js";
+import { BRAND, WS, tempDir } from "./helpers.js";
 
 const CONTENT = "The bakery opened in 2019 in Deira.";
 const digestOf = (s: string) => createHash("sha256").update(Buffer.from(s, "utf8")).digest("hex");
-const RELEASE = { releasedBy: "user_owner", at: NOW, reason: "human reviewed" };
 
 test("content is captured immutably, addressed by SHA-256, and read back exactly", () => {
   const store = new FileContentStore(tempDir("content"));
@@ -62,27 +61,33 @@ test("a tampered blob fails digest verification and never leaks its content in t
   }
 });
 
-test("quarantined content is unreachable through normal retrieval and requires a human release record", () => {
+test("quarantine is fail-closed: normal retrieval cannot read it and no error leaks its content", () => {
   const store = new FileContentStore(tempDir("content"));
   const put = store.put(WS, BRAND, "quarantine", CONTENT);
   assert.ok(put.ok);
   if (!put.ok) return;
-  // Normal clear-content retrieval cannot return quarantined content.
+  // Normal clear-content retrieval cannot return quarantined content, even
+  // with the exact digest in hand.
   const clearRead = store.get(WS, BRAND, put.value.contentRef);
   assert.equal(clearRead.ok, false);
-  if (!clearRead.ok) assert.equal(clearRead.error.kind, "artifact-not-found");
-  // A release record without a human identity is refused.
-  const emptyRelease = store.getQuarantined(WS, BRAND, put.value.contentRef, {
-    releasedBy: "",
-    at: NOW,
-    reason: "r",
-  });
-  assert.equal(emptyRelease.ok, false);
-  if (!emptyRelease.ok) assert.equal(emptyRelease.error.kind, "invalid-input");
-  // A complete release record reads the quarantined bytes exactly.
-  const released = store.getQuarantined(WS, BRAND, put.value.contentRef, RELEASE);
-  assert.ok(released.ok);
-  if (released.ok) assert.equal(released.value, CONTENT);
+  if (!clearRead.ok) {
+    assert.equal(clearRead.error.kind, "artifact-not-found");
+    assert.ok(!clearRead.error.message.includes(CONTENT), "errors must not echo quarantined content");
+  }
+});
+
+test("no exported content-store method can read quarantined bytes (DEC-0007 fail-closed surface)", () => {
+  // A caller-created release object was the Phase 1A.1 forgery hole: schema
+  // validation cannot authenticate a human, so the release-bearing read API
+  // was removed entirely. The store's public surface is exactly put + get, and
+  // get reads the clear namespace only — quarantined bytes have no runtime
+  // read path until Q-001 delivers an authenticated release authority.
+  const methods = Object.getOwnPropertyNames(FileContentStore.prototype).sort();
+  assert.deepEqual(
+    methods,
+    ["constructor", "get", "put"].sort(),
+    "the content store must expose exactly put and get; a quarantine read API requires DEC-0007 to be superseded"
+  );
 });
 
 test("unsafe namespace identifiers and malformed references are rejected", () => {

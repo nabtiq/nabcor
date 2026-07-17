@@ -60,4 +60,5 @@ unique and never reused.
 | DEC-0003 | Legacy website code is evidence, not product core | ratified |
 | DEC-0004 | First vertical slice | ratified |
 | DEC-0005 | Node.js 20 + strict TypeScript ESM, no framework | ratified |
-| DEC-0006 | Runtime packaging truth: Ajv runtime deps, content capture, canonical source refs, enforceable quarantine | ratified |
+| DEC-0006 | Runtime packaging truth: Ajv runtime deps, content capture, canonical source refs, quarantine namespace (release claim corrected by DEC-0007) | ratified |
+| DEC-0007 | Fail-closed quarantine pending Q-001; Unicode code-point provenance locators; contracts 1.3.0 | ratified |

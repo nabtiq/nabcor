@@ -83,16 +83,20 @@ immutable per version; a revision creates a new version linked by supersession
   Source artifacts; read by the brand-context compiler for fragment verification.
 - **Lifecycle:** written once before its source artifact exists; never mutated;
   deduplicated by digest within one brand namespace; quarantined blobs are
-  released only by a recorded human `quarantine-release` approval (INV-HUM-001).
+  fail-closed — no runtime path reads them, pending an authenticated human-gate
+  implementation (Q-001, DEC-0007); a recorded `quarantine-release` approval is
+  audit metadata and grants no authority (INV-HUM-001).
 - **Class:** canonical (immutable raw material; content-addressed file store).
 
 ### Source Fragment
 - **Purpose:** an addressable region of a source (`source:src_0001#page=3`,
-  `source:src_0002#chars=57-88`) so provenance is precise, not file-level.
-  Fragment locators ride on canonical source-artifact references (DEC-0006) —
-  never on filenames. Character fragments on captured text are verified against
-  the Captured Content blob; page fragments on descriptors are structurally
-  valid but not-yet-content-verified.
+  `source:src_0002#codepoints=57-88`) so provenance is precise, not file-level.
+  Fragment locators ride on canonical source-artifact references
+  (DEC-0006/DEC-0007) — never on filenames. Code-point fragments are zero-based
+  half-open Unicode code-point ranges `[start, end)` — never UTF-16 units,
+  bytes, or grapheme clusters — verified against the Captured Content blob
+  exactly as captured (no Unicode normalization); page fragments on descriptors
+  are structurally valid but not-yet-content-verified.
 - **Required:** `fragment_id`, `source_ref`, locator, extracted text/description.
 - **Relationships:** cited by Claims and Evidence.
 - **Class:** derived (recomputable by re-mining the source; IDs stable once cited).

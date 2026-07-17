@@ -5,16 +5,21 @@
 // rather than invented content, and inference never silently becomes fact
 // (INV-FACT-001/002, INV-DET-001).
 //
-// Claim provenance is canonical (DEC-0006): a source_ref names a supplied source
-// ARTIFACT (`source:<artifact_id>[#chars=a-b|#page=n]`), never a filename, so two
-// sources sharing a filename can never satisfy each other's references. Character
-// fragments on captured text are verified against the immutable content store;
-// claims citing quarantined content are rejected unless the source artifact
-// carries a human quarantine-release approval (INV-SEC-002, INV-HUM-001).
+// Claim provenance is canonical (DEC-0006, DEC-0007): a source_ref names a
+// supplied source ARTIFACT (`source:<artifact_id>[#codepoints=a-b|#page=n]`),
+// never a filename, so two sources sharing a filename can never satisfy each
+// other's references. Code-point fragments on captured text are verified against
+// the immutable content store using Unicode code-point coordinates (never
+// String.length UTF-16 units — see src/kernel/source-ref.ts).
+//
+// Quarantine is FAIL-CLOSED (DEC-0007, INV-SEC-002, INV-HUM-001): every claim
+// citing a quarantined source is rejected with a typed failure. The runtime
+// cannot authenticate a human while Q-001 is open, so a `quarantine-release`
+// approval on the artifact is audit metadata only and grants no authority.
 import type { ContractRegistry } from "../kernel/contract-registry.js";
 import type { FileContentStore } from "../kernel/content-store.js";
 import { type Result, err, ok } from "../kernel/result.js";
-import { parseSourceRef } from "../kernel/source-ref.js";
+import { codePointLength, parseSourceRef } from "../kernel/source-ref.js";
 
 export interface IdentityInput {
   names: { value: string; lang?: string; claim_ref: string }[];
@@ -57,32 +62,6 @@ export interface BrandContextInput {
 }
 
 const PROMPT_ONLY_SOURCE_KINDS = new Set(["prompt", "brief"]);
-
-interface ApprovalRecord {
-  approved_by?: unknown;
-  gate?: unknown;
-  verdict?: unknown;
-  reason?: unknown;
-  at?: unknown;
-}
-
-/** The human quarantine-release approval on a source artifact, if one exists. */
-function quarantineRelease(source: Record<string, unknown>): ApprovalRecord | null {
-  const approvals = source["approvals"];
-  if (!Array.isArray(approvals)) return null;
-  for (const a of approvals as ApprovalRecord[]) {
-    if (
-      a &&
-      a.gate === "quarantine-release" &&
-      a.verdict === "approved" &&
-      typeof a.approved_by === "string" &&
-      a.approved_by.length > 0
-    ) {
-      return a;
-    }
-  }
-  return null;
-}
 
 export function buildBrandContext(
   input: BrandContextInput,
@@ -165,7 +144,7 @@ export function buildBrandContext(
     if (!parsed) {
       return err({
         kind: "reference-violation",
-        message: `claim '${claimId}' source_ref '${sourceRef}' is not a canonical source reference (source:<artifact_id>[#chars=a-b|#page=n]); filename-based references are rejected — re-issue the claim against the source artifact ID`,
+        message: `claim '${claimId}' source_ref '${sourceRef}' is not a canonical source reference (source:<artifact_id>[#codepoints=a-b|#page=n]); filename-based references and the retired #chars= form are rejected — re-issue the claim against the source artifact ID with code-point offsets`,
       });
     }
     const source = sourceById.get(parsed.sourceId);
@@ -177,41 +156,39 @@ export function buildBrandContext(
     }
     const capture = (source["capture"] ?? {}) as Record<string, unknown>;
 
-    // Quarantine boundary (INV-SEC-002/INV-HUM-001): claims citing quarantined
-    // content compile only with a recorded human quarantine-release approval on
-    // the source artifact. The runtime never fabricates one.
-    const release = capture["safety"] === "quarantined" ? quarantineRelease(source) : null;
-    if (capture["safety"] === "quarantined" && !release) {
+    // Quarantine boundary is fail-closed (DEC-0007, INV-SEC-002, INV-HUM-001):
+    // no claim citing a quarantined source compiles, whatever approval metadata
+    // the artifact carries — the runtime cannot authenticate a human release
+    // while Q-001 is open, so a syntactically valid `quarantine-release`
+    // approval is audit metadata only and grants no authority. The failure
+    // names only artifact IDs; captured content never appears in it.
+    if (capture["safety"] === "quarantined") {
       return err({
-        kind: "reference-violation",
-        message: `claim '${claimId}' cites quarantined source '${parsed.sourceId}' without a human quarantine-release approval on the source artifact`,
+        kind: "quarantine-fail-closed",
+        sourceId: parsed.sourceId,
+        message: `claim '${claimId}' cites quarantined source '${parsed.sourceId}': quarantine is fail-closed because no authenticated human release authority exists until Q-001 is resolved; a quarantine-release approval on the artifact is audit metadata and grants no release authority`,
       });
     }
 
-    if (parsed.fragment?.kind === "chars") {
-      // Character fragments are auditable only on captured text: verify exact
+    if (parsed.fragment?.kind === "codepoints") {
+      // Code-point fragments are auditable only on captured text: verify exact
       // access through the recorded content reference (digest-checked read).
+      // Bounds use Unicode code-point coordinates (DEC-0007), never
+      // String.length UTF-16 units.
       if (capture["status"] !== "captured" || typeof capture["content_ref"] !== "string") {
         return err({
           kind: "reference-violation",
-          message: `claim '${claimId}' uses a character fragment on source '${parsed.sourceId}', whose content is not captured (${String(capture["status"] ?? "no capture record")})`,
+          message: `claim '${claimId}' uses a code-point fragment on source '${parsed.sourceId}', whose content is not captured (${String(capture["status"] ?? "no capture record")})`,
         });
       }
-      const contentRef = capture["content_ref"];
-      const body =
-        capture["safety"] === "quarantined" && release
-          ? contentStore.getQuarantined(input.workspace, input.brandRef, contentRef, {
-              releasedBy: String(release.approved_by),
-              at: String(release.at ?? ""),
-              reason: String(release.reason ?? "quarantine-release approval"),
-            })
-          : contentStore.get(input.workspace, input.brandRef, contentRef);
+      const body = contentStore.get(input.workspace, input.brandRef, capture["content_ref"]);
       if (!body.ok) return body;
       const { start, end } = parsed.fragment;
-      if (start >= end || end > body.value.length) {
+      const length = codePointLength(body.value);
+      if (start >= end || end > length) {
         return err({
           kind: "reference-violation",
-          message: `claim '${claimId}' fragment chars=${start}-${end} is out of bounds for source '${parsed.sourceId}' (captured length ${body.value.length})`,
+          message: `claim '${claimId}' fragment codepoints=${start}-${end} is out of bounds for source '${parsed.sourceId}' (captured length ${length} code points)`,
         });
       }
     }
@@ -273,7 +250,7 @@ export function buildBrandContext(
     claims.some((c) => c["verification_status"] !== "verified");
 
   const artifact: Record<string, unknown> = {
-    schema_version: "1.2.0",
+    schema_version: "1.3.0",
     artifact_id: input.artifactId,
     brand_ref: input.brandRef,
     created_at: input.createdAt,

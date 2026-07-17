@@ -35,7 +35,7 @@ export const NOW = "2026-07-17T12:00:00Z";
 
 export function validClaim(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.2.0",
+    schema_version: "1.3.0",
     artifact_id: "claim_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -54,7 +54,7 @@ export function validClaim(overrides: Record<string, unknown> = {}): Record<stri
 
 export function validSource(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.2.0",
+    schema_version: "1.3.0",
     artifact_id: "src_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -77,7 +77,7 @@ export function validSource(overrides: Record<string, unknown> = {}): Record<str
 
 export function validAssumption(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.2.0",
+    schema_version: "1.3.0",
     artifact_id: "asm_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,

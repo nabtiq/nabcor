@@ -24,10 +24,14 @@ provider-blocking decisions (Q-001, Q-002) are resolved.
 - DEC-0005 — Node.js 20 + strict TypeScript ESM, no application or agent framework
   (dependency statement corrected by an append-only note; see DEC-0006).
 - DEC-0006 — Ajv/ajv-formats as declared runtime dependencies; immutable
-  content-addressed capture; canonical `source:` claim references; enforceable
-  quarantine with human-only release; contracts at 1.2.0.
+  content-addressed capture; canonical `source:` claim references (its
+  quarantine-release and `#chars=` fragment statements are corrected by an
+  append-only note; see DEC-0007).
+- DEC-0007 — quarantine is fail-closed pending authenticated human-gate
+  implementation (Q-001); provenance fragments use zero-based half-open
+  Unicode code-point offsets (`#codepoints=`); contracts at 1.3.0.
 
-## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006)
+## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006 and Phase 1A.2 / DEC-0007)
 
 - English-only repository policy with a deterministic language gate
   (`scripts/validate-language.mjs`, in `npm run validate` and CI).
@@ -38,15 +42,17 @@ provider-blocking decisions (Q-001, Q-002) are resolved.
   no-overwrite, lineage checks, symlink rejection, and sorted supported-type
   listing (`src/kernel/artifact-store.ts`).
 - Immutable SHA-256-addressed content store with clear/quarantine namespaces
-  (`src/kernel/content-store.ts`).
+  (`src/kernel/content-store.ts`); the quarantine namespace is fail-closed —
+  no runtime read path exists pending Q-001 (DEC-0007).
 - Tier-0 `classify-input` with conservative rights defaults, honest capture
   states, quarantine-only capture of flagged inline content, explicit-null
   visual classification, and a bounded injection-warning scanner
   (`src/understand/classify-input.ts`).
 - Tier-0 `build-brand-context` deterministic compiler with canonical
-  `source:<artifact_id>` claim references, bounds-checked captured fragments,
-  and human-gated quarantine release (`src/compile/build-brand-context.ts`).
-- Contracts at `schema_version` 1.2.0 (see `contracts/README.md` migration note).
+  `source:<artifact_id>` claim references, code-point fragment bounds checks
+  against captured content, and fail-closed rejection of every claim citing a
+  quarantined source (`src/compile/build-brand-context.ts`).
+- Contracts at `schema_version` 1.3.0 (see `contracts/README.md` migration note).
 - Synthetic CLI example (`src/cli/run-example.ts`) and runtime tests (`test/`).
 - Skill specs for exactly the two implemented capabilities (`skills/`).
 
@@ -54,7 +60,9 @@ provider-blocking decisions (Q-001, Q-002) are resolved.
 
 - Provider-backed extraction, the model gateway, and every model call: blocked on
   Q-002 (providers, data policy, spend) — not on the runtime, which is decided.
-- Named human gate roles: Q-001 remains open.
+- Named human gate roles: Q-001 remains open; quarantine release is therefore
+  fail-closed — flagged content stays fenced until an authenticated release
+  authority exists (DEC-0007).
 - Territories, direction, channel specs, evaluation skills: later phases.
 - EXP-0001 has not run; its Result section is empty.
 

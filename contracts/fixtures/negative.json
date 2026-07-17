@@ -5,7 +5,7 @@
     "expect_fail_at": "schema",
     "description": "missing required envelope field created_at",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "claim_n01",
       "creator_type": "agent",
       "lifecycle_status": "generated",
@@ -22,7 +22,7 @@
     "expect_fail_at": "schema",
     "description": "misspelled top-level field 'modee' rejected by propertyNames",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "bctx_n02",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -49,7 +49,7 @@
     "expect_fail_at": "schema",
     "description": "unknown nested field 'resale_use' inside closed rights object",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "src_n03",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -94,7 +94,7 @@
     "expect_fail_at": "schema",
     "description": "lifecycle_status 'draft' is not a lifecycle state",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "brief_n05",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -115,7 +115,7 @@
     "expect_fail_at": "schema",
     "description": "approval verdict 'maybe' not in enum",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "vw_n06",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -165,7 +165,7 @@
     "expect_fail_at": "semantic",
     "description": "status ratified but no approvals entry with gate=ratification (INV-HUM-001 / INV-DEC-001)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "DEC-9998-neg",
       "brand_ref": null,
       "created_at": "2026-07-17T12:00:00Z",
@@ -194,7 +194,7 @@
     "expect_fail_at": "schema",
     "description": "rights.commercial_use 'sure' not in enum",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "src_n08",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -221,7 +221,7 @@
     "expect_fail_at": "schema",
     "description": "rights omits default-deny training_use (INV-DATA-002 required field)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "src_n09",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -247,7 +247,7 @@
     "expect_fail_at": "schema",
     "description": "classification 'opinion' not in enum",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "claim_n10",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -266,7 +266,7 @@
     "expect_fail_at": "semantic",
     "description": "numeric score supplied with rubric_ref null (INV-EVAL-001)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "eval_n11",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -302,7 +302,7 @@
     "expect_fail_at": "semantic",
     "description": "overall_verdict pass while a blocking evaluation failed (INV-EVAL-001)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "eval_n12",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -338,7 +338,7 @@
     "expect_fail_at": "schema",
     "description": "negative output_tokens",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "run_id": "run_n13",
       "session_id": "s",
       "project_id": "p",
@@ -367,7 +367,7 @@
     "expect_fail_at": "schema",
     "description": "missing brand_id attribution field (INV-OBS-001)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "run_id": "run_n14",
       "session_id": "s",
       "project_id": "p",
@@ -395,7 +395,7 @@
     "expect_fail_at": "semantic",
     "description": "required combination references theme 'dark' not declared in dimensions (INV-AR-001/INV-PE-001)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "matrix_id": "vm_n15",
       "brand_ref": "b",
       "dimensions": {
@@ -435,7 +435,7 @@
     "expect_fail_at": "schema",
     "description": "deliberate typo overall_verdit rejected (propertyNames) and overall_verdict missing (required)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "eval_n16",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -471,7 +471,7 @@
     "expect_fail_at": "semantic",
     "description": "factual copy slot with no claim_refs and no unresolved_fact_note (INV-FACT-001)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "wspec_n17",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -495,7 +495,7 @@
               "slot_id": "proof",
               "role": "factual",
               "text": {
-                "ar": "[Arabic copy pending — 500+ projects claim]",
+                "ar": "[Arabic copy pending \u2014 500+ projects claim]",
                 "en": "500+ projects delivered"
               },
               "claim_refs": []
@@ -513,7 +513,7 @@
     "expect_fail_at": "semantic",
     "description": "inference claim marked verified without verified_by human (INV-FACT-002)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "claim_n18",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -535,7 +535,7 @@
     "expect_fail_at": "schema",
     "description": "capture.status=captured without content_ref/sha256/bytes/safety (DEC-0006: captured content must be auditable)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "src_n19",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -562,7 +562,7 @@
     "expect_fail_at": "schema",
     "description": "capture.sha256 is not a 64-char lowercase hex digest",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "src_n20",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -592,9 +592,9 @@
     "id": "N21-flagged-captured-not-quarantined",
     "schema": "source.schema.json",
     "expect_fail_at": "semantic",
-    "description": "injection-flagged captured content stored in the clear namespace — a flag is not a quarantine (INV-SEC-002)",
+    "description": "injection-flagged captured content stored in the clear namespace \u2014 a flag is not a quarantine (INV-SEC-002)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "src_n21",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -627,7 +627,7 @@
     "expect_fail_at": "schema",
     "description": "factual claim citing a mutable filename locator instead of a canonical source artifact reference (DEC-0006)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "claim_n22",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -643,12 +643,12 @@
     }
   },
   {
-    "id": "N23-chars-fragment-inverted",
+    "id": "N23-codepoints-fragment-inverted",
     "schema": "claim.schema.json",
     "expect_fail_at": "semantic",
-    "description": "character fragment with start >= end (INV-FACT-001 fragment bounds)",
+    "description": "code-point fragment with start >= end (INV-FACT-001 fragment bounds)",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "claim_n23",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -657,7 +657,7 @@
       "statement": "The working brand name is Veritas Forensics",
       "classification": "factual",
       "source_type": "client_statement",
-      "source_ref": "source:src_0002#chars=96-55",
+      "source_ref": "source:src_0002#codepoints=96-55",
       "confidence": 0.9,
       "confidence_basis": "stated in the intake prompt",
       "verification_status": "verified"
@@ -667,9 +667,9 @@
     "id": "N24-visual-without-classification",
     "schema": "source.schema.json",
     "expect_fail_at": "schema",
-    "description": "image source omitting visual_classification entirely — documentary status must never come from a silent default (INV-FACT-003); explicit null is the honest unresolved state",
+    "description": "image source omitting visual_classification entirely \u2014 documentary status must never come from a silent default (INV-FACT-003); explicit null is the honest unresolved state",
     "data": {
-      "schema_version": "1.2.0",
+      "schema_version": "1.3.0",
       "artifact_id": "src_n24",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -688,6 +688,27 @@
         "status": "descriptor-only"
       },
       "injection_flag": false
+    }
+  },
+  {
+    "id": "N25-retired-chars-fragment-form",
+    "schema": "claim.schema.json",
+    "expect_fail_at": "schema",
+    "description": "the retired UTF-16-ambiguous #chars= locator form is rejected at the schema layer, never silently migrated (DEC-0007): re-issue against the original captured content with #codepoints= offsets",
+    "data": {
+      "schema_version": "1.3.0",
+      "artifact_id": "claim_n25",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "statement": "The working brand name is Veritas Forensics",
+      "classification": "factual",
+      "source_type": "client_statement",
+      "source_ref": "source:src_0002#chars=57-88",
+      "confidence": 0.9,
+      "confidence_basis": "stated in the intake prompt",
+      "verification_status": "verified"
     }
   }
 ]

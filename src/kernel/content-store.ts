@@ -1,10 +1,13 @@
-// File-based content-addressed capture store (DEC-0006, INV-DATA-001, INV-VER-001,
-// INV-SEC-002). Captured source material (prompt/text/markdown bytes) is persisted
-// immutably under workspace/brand isolation, addressed by its SHA-256 digest:
+// File-based content-addressed capture store (DEC-0006, DEC-0007, INV-DATA-001,
+// INV-VER-001, INV-SEC-002). Captured source material (prompt/text/markdown bytes)
+// is persisted immutably under workspace/brand isolation, addressed by its SHA-256
+// digest:
 //   <root>/<workspace>/<brand>/content/<clear|quarantine>/<sha256-hex>
-// Flagged content lives only in the quarantine namespace; normal retrieval reads
-// the clear namespace exclusively, and quarantined content is readable only when
-// the caller supplies a human release record the runtime itself never fabricates.
+// Flagged content lives only in the quarantine namespace, which is FAIL-CLOSED:
+// the store can write into it but exposes no method that reads from it. The
+// runtime cannot authenticate a human (Q-001 is open), so no caller-supplied
+// record may unlock quarantined bytes; a read path returns only when an
+// authenticated human release authority exists (DEC-0007).
 // Error messages and results never echo captured content (no content in logs).
 import {
   existsSync,
@@ -36,13 +39,6 @@ export interface CapturedContent {
   deduplicated: boolean;
 }
 
-export interface QuarantineRelease {
-  /** Human user id from a recorded quarantine-release approval (INV-HUM-001). */
-  releasedBy: string;
-  at: string;
-  reason: string;
-}
-
 function sha256Hex(content: string): { digest: string; bytes: number } {
   const buf = Buffer.from(content, "utf8");
   return { digest: createHash("sha256").update(buf).digest("hex"), bytes: buf.byteLength };
@@ -51,7 +47,7 @@ function sha256Hex(content: string): { digest: string; bytes: number } {
 export class FileContentStore {
   constructor(private readonly root: string) {}
 
-  private checkSegment(field: string, value: string): KernelFailure | null {
+  #checkSegment(field: string, value: string): KernelFailure | null {
     if (!SAFE_ID.test(value) || value.includes("..")) {
       return {
         kind: "unsafe-identifier",
@@ -63,7 +59,7 @@ export class FileContentStore {
     return null;
   }
 
-  private resolveBlobPath(
+  #resolveBlobPath(
     workspace: string,
     brand: string,
     safety: ContentSafety,
@@ -73,7 +69,7 @@ export class FileContentStore {
       ["workspace", workspace],
       ["brand", brand],
     ] as const) {
-      const failure = this.checkSegment(field, value);
+      const failure = this.#checkSegment(field, value);
       if (failure) return err(failure);
     }
     if (!/^[0-9a-f]{64}$/.test(digest)) {
@@ -112,12 +108,12 @@ export class FileContentStore {
     content: string
   ): Result<CapturedContent> {
     const { digest, bytes } = sha256Hex(content);
-    const addressed = this.resolveBlobPath(workspace, brand, safety, digest);
+    const addressed = this.#resolveBlobPath(workspace, brand, safety, digest);
     if (!addressed.ok) return addressed;
     const path = addressed.value;
     if (existsSync(path)) {
       // Deterministic dedup: the existing blob must still match its digest.
-      const verified = this.verifyBlob(path, digest);
+      const verified = this.#verifyBlob(path, digest);
       if (!verified.ok) return verified;
       return ok({ contentRef: `sha256:${digest}`, sha256: digest, bytes, safety, deduplicated: true });
     }
@@ -143,7 +139,7 @@ export class FileContentStore {
     return ok({ contentRef: `sha256:${digest}`, sha256: digest, bytes, safety, deduplicated: false });
   }
 
-  private verifyBlob(path: string, digest: string): Result<string> {
+  #verifyBlob(path: string, digest: string): Result<string> {
     let body: string;
     try {
       body = readFileSync(path, "utf8");
@@ -161,7 +157,7 @@ export class FileContentStore {
     return ok(body);
   }
 
-  private getFrom(
+  #getFrom(
     workspace: string,
     brand: string,
     safety: ContentSafety,
@@ -175,7 +171,7 @@ export class FileContentStore {
       });
     }
     const digest = match[1]!;
-    const addressed = this.resolveBlobPath(workspace, brand, safety, digest);
+    const addressed = this.#resolveBlobPath(workspace, brand, safety, digest);
     if (!addressed.ok) return addressed;
     if (!existsSync(addressed.value)) {
       return err({
@@ -184,39 +180,18 @@ export class FileContentStore {
         message: `no ${safety} content for '${contentRef}' in ${workspace}/${brand}`,
       });
     }
-    return this.verifyBlob(addressed.value, digest);
+    return this.#verifyBlob(addressed.value, digest);
   }
 
   /**
    * Normal retrieval: clear namespace only. Quarantined content is structurally
-   * unreachable through this method regardless of the digest supplied.
+   * unreachable through this method regardless of the digest supplied. No other
+   * read method exists: quarantine is fail-closed until an authenticated human
+   * release authority exists (Q-001, DEC-0007) — caller-supplied strings or
+   * artifact metadata can never unlock it.
    */
   get(workspace: string, brand: string, contentRef: string): Result<string> {
-    return this.getFrom(workspace, brand, "clear", contentRef);
-  }
-
-  /**
-   * Quarantined retrieval requires an explicit human release record. The store
-   * cannot authenticate the human (Q-001 is open); it enforces that the caller
-   * carries a recorded release and that the runtime never reads quarantine
-   * silently. Fabricating a release outside a recorded human approval violates
-   * INV-HUM-001 and is rejected at the compile boundary, which requires a
-   * quarantine-release approval on the source artifact itself.
-   */
-  getQuarantined(
-    workspace: string,
-    brand: string,
-    contentRef: string,
-    release: QuarantineRelease
-  ): Result<string> {
-    if (!release.releasedBy || !release.at || !release.reason) {
-      return err({
-        kind: "invalid-input",
-        message:
-          "quarantined content requires a human release record (releasedBy, at, reason); none may be fabricated by the runtime",
-      });
-    }
-    return this.getFrom(workspace, brand, "quarantine", contentRef);
+    return this.#getFrom(workspace, brand, "clear", contentRef);
   }
 }
 

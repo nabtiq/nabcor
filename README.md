@@ -174,8 +174,11 @@ No provider SDK and no framework exist.
   separate clear and quarantine namespaces (DEC-0006). Captured content is
   persisted before its source artifact is returned, deduplicates by digest within
   a namespace, fails digest verification on tampering, and never appears inline in
-  artifacts, logs, or CLI output. PDF/DOCX/image/logo descriptors carry no bytes
-  and are recorded `descriptor-only`; URLs stay `external-unfetched`.
+  artifacts, logs, or CLI output. The quarantine namespace is fail-closed
+  (DEC-0007): the store exposes no method that reads quarantined bytes, pending
+  an authenticated human-gate implementation (Q-001). PDF/DOCX/image/logo
+  descriptors carry no bytes and are recorded `descriptor-only`; URLs stay
+  `external-unfetched`.
 - **`classify-input` (Tier 0)** — deterministic classification of input descriptors
   into schema-valid `source` artifacts with conservative rights defaults, honest
   capture states, and a bounded injection-warning scanner (INV-SEC-002). Flagged
@@ -185,10 +188,12 @@ No provider SDK and no framework exist.
 - **`build-brand-context` (Tier 0)** — deterministic compilation of already
   structured claims, assumptions, contradictions, and gaps into a schema-valid
   Brand Context Package. Claim provenance resolves through canonical
-  `source:<artifact_id>[#chars=a-b|#page=n]` references; character fragments are
-  bounds-checked against the captured content; claims citing quarantined sources
-  are rejected unless a human quarantine-release approval exists on the source
-  artifact. It is a compiler over structured truth, not a natural-language
+  `source:<artifact_id>[#codepoints=a-b|#page=n]` references; fragment offsets
+  are zero-based half-open Unicode code-point positions (DEC-0007 — never
+  UTF-16 units or bytes) bounds-checked against the captured content; claims
+  citing quarantined sources are always rejected with a typed failure —
+  quarantined and fail-closed pending authenticated human-gate implementation
+  (Q-001). It is a compiler over structured truth, not a natural-language
   extractor.
 - **Synthetic CLI example** — `node dist/src/cli/run-example.js --out <dir>` runs the
   full deterministic path on English-only synthetic fixtures. No network, no model

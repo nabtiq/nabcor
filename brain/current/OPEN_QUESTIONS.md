@@ -14,6 +14,12 @@ may hold several roles, but self-review must be declared on each approval.
 **Required answer:** named people/identities, roles, effective date, and any gate that
 requires an independent reviewer.
 
+**Dependency note (2026-07-17, DEC-0007):** quarantine release is fail-closed
+until this question is answered and an authenticated approval mechanism
+exists — the runtime cannot currently distinguish a human quarantine-release
+approval from a fabricated one, so no runtime path reads quarantined content.
+The Phase 1A.2 correction task explicitly did not resolve this question.
+
 ### Q-002 — Providers, data policy, and spend
 
 Which model providers/accounts may receive synthetic data? Which may receive real

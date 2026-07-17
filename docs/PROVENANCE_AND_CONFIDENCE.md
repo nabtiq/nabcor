@@ -1,8 +1,9 @@
 # Provenance and Confidence Model
 
-**Version:** 1.1 · 2026-07-17 · how NABCor separates truth from inference.
+**Version:** 1.2 · 2026-07-17 · how NABCor separates truth from inference.
 Enforced by `contracts/claim.schema.json`, `contracts/source.schema.json`, gate G4,
-and invariants INV-FACT-001/002/003; capture and canonical references per DEC-0006.
+and invariants INV-FACT-001/002/003; capture and canonical references per
+DEC-0006/DEC-0007.
 
 ## 1. Source types
 
@@ -30,23 +31,33 @@ The audit chain is: **source artifact → captured content → fragment → clai
   URLs are `external-unfetched`. Nothing is called "captured" unless its exact
   bytes are retrievable and digest-verifiable.
 - **Canonical references.** A claim's `source_ref` is
-  `source:<source artifact_id>[#chars=<a>-<b>|#page=<n>]` — deterministic,
-  parseable, tied to the source artifact ID, unaffected by renames or filename
-  collisions, fragment-preserving. Character fragments apply to captured text
-  only and are bounds-checked and read back through the recorded content
-  reference at compile time. Page references on descriptors are structurally
-  valid but **not-yet-content-verified** — no page contents were checked,
-  because no bytes exist. Filename-based references are rejected, never
-  silently migrated.
+  `source:<source artifact_id>[#codepoints=<start>-<end>|#page=<n>]` —
+  deterministic, parseable, tied to the source artifact ID, unaffected by
+  renames or filename collisions, fragment-preserving. Fragment offsets are
+  **zero-based, half-open Unicode code-point positions** `[start, end)`
+  (DEC-0007): they count Unicode code points, never UTF-8 bytes, UTF-16 code
+  units, or grapheme clusters — a combining mark is its own code point.
+  Captured content is addressed **exactly as captured**; the runtime never
+  normalizes Unicode, so composed and decomposed forms are distinct texts.
+  Code-point fragments apply to captured text only and are bounds-checked and
+  read back through the recorded content reference at compile time. Page
+  references on descriptors are structurally valid but
+  **not-yet-content-verified** — no page contents were checked, because no
+  bytes exist. Filename-based references and the retired UTF-16-ambiguous
+  `#chars=` form are rejected, never silently migrated: re-issue against the
+  original immutable captured content with code-point offsets.
 - **Detection vs flagging vs quarantine vs release.** These are four distinct
   things. *Detection* is the bounded deterministic scanner (obvious seeded
   attacks only — it does not claim completeness). *Flagging* is
   `injection_flag`/`injection_note` on the source artifact. *Quarantine* is
   enforcement: flagged inline content is captured only into an isolated
-  quarantine namespace, normal retrieval cannot return it, and brand-context
-  compilation rejects claims citing it. *Release* is a human act: a
-  `quarantine-release` approval recorded on the source artifact
-  (INV-HUM-001) — the runtime never fabricates one.
+  quarantine namespace, no runtime path reads quarantined bytes, and
+  brand-context compilation rejects every claim citing it with a typed
+  failure. *Release* **does not exist yet**: the runtime cannot authenticate a
+  human while Q-001 is open, so quarantine is fail-closed pending an
+  authenticated human-gate implementation (DEC-0007). A `quarantine-release`
+  approvals entry on a source artifact is audit metadata only and grants no
+  authority — schema validation proves shape, not that a human acted.
 
 ## 3. Claim classifications
 
