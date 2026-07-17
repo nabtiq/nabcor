@@ -22,11 +22,16 @@ brand-context compiler, English-only language gate — all under `npm run valida
 with runtime tests on synthetic fixtures. The Phase 1A.1 correction pass
 (DEC-0006) added declared runtime dependencies with a production-only install
 proof, immutable content-addressed capture of inline source material, canonical
-`source:` claim references verified against captured content, an enforceable
-quarantine namespace with human-only release, explicit-null visual
-classification, and contracts at 1.2.0. This is not Phase 1 completion: no
-provider-backed extraction exists, EXP-0001 has not run, and no run/context records
-or measured costs exist yet (blocked on Q-001/Q-002).
+`source:` claim references verified against captured content, an isolated
+quarantine namespace, explicit-null visual classification. The Phase 1A.2
+correction pass (DEC-0007) made the quarantine boundary fail-closed — no
+runtime path reads quarantined bytes and no caller-supplied approval metadata
+grants release, pending authenticated human-gate implementation (Q-001) — and
+replaced the UTF-16-ambiguous `#chars=` fragment locator with zero-based
+half-open Unicode code-point offsets (`#codepoints=`), moving contracts to
+1.3.0. This is not Phase 1 completion: no provider-backed extraction exists,
+EXP-0001 has not run, and no run/context records or measured costs exist yet
+(blocked on Q-001/Q-002).
 
 **Exit evidence (still required):** EXP-0001 passes on synthetic/adversarial fixtures;
 seeded fabrication and prompt injection are blocked in the model-backed path; run and

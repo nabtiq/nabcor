@@ -109,3 +109,29 @@ boundary — each requires a superseding or extending decision record.
 supersedes: null (corrects the dependency statement of DEC-0005 via an
 append-only note there; the DEC-0005 runtime selection itself stands)
 superseded_by: null
+
+## Correction note (2026-07-17, appended by DEC-0007 — original text above is unchanged)
+
+Two statements in this record overstated what the Phase 1A.1 runtime enforced,
+and are corrected by DEC-0007:
+
+1. Decision item 4 claimed quarantined content is released only by "a human
+   `quarantine-release` approval" and that "the runtime never fabricates such
+   an approval". In fact the release check accepted any caller-created release
+   object (`getQuarantined`) and any syntactically valid approvals entry on
+   the supplied source artifact (`buildBrandContext`). Schema validation
+   proves shape, not that a human acted, and Q-001 (who holds gate authority)
+   was and is unresolved — so "human-only release" and "enforceable quarantine
+   release" were claims without an enforcement path. DEC-0007 replaces the
+   release mechanism with a fail-closed boundary: no runtime path reads
+   quarantined bytes and no claim citing a quarantined source compiles, until
+   an authenticated human release authority exists. The quarantine namespace
+   isolation and retrieval denial described here were real and stand.
+2. Decision item 3 defined `#chars=<a>-<b>` fragments as "bounds-checked and
+   verified" without defining the coordinate unit. The implementation counted
+   UTF-16 code units (`String.length`), which is ambiguous for any
+   supplementary-plane or multi-unit text. DEC-0007 retires `#chars=` in favor
+   of `#codepoints=<start>-<end>` — zero-based, half-open Unicode code-point
+   offsets — with code-point-aware validation, and moves the synchronized
+   contract version to 1.3.0. Old `#chars=` references are rejected, never
+   silently reinterpreted; no real production artifacts existed to migrate.

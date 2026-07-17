@@ -17,6 +17,7 @@ export type KernelFailure =
   | { kind: "artifact-not-found"; artifactId: string; message: string }
   | { kind: "lineage-violation"; message: string }
   | { kind: "reference-violation"; message: string }
+  | { kind: "quarantine-fail-closed"; sourceId: string; message: string }
   | { kind: "invalid-input"; message: string }
   | { kind: "io-error"; message: string };
 

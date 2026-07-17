@@ -48,14 +48,14 @@ const SEMANTIC_CHECKS: Record<string, SemanticCheck[]> = {
           : [],
     },
     {
-      invariant: "INV-FACT-001 chars-fragment-ordered",
+      invariant: "INV-FACT-001 codepoints-fragment-ordered",
       check: (d) => {
         const ref = d["source_ref"];
         if (typeof ref !== "string") return [];
         const parsed = parseSourceRef(ref);
-        if (parsed?.fragment?.kind === "chars" && parsed.fragment.start >= parsed.fragment.end) {
+        if (parsed?.fragment?.kind === "codepoints" && parsed.fragment.start >= parsed.fragment.end) {
           return [
-            `source_ref character fragment ${parsed.fragment.start}-${parsed.fragment.end} is invalid: start must be less than end`,
+            `source_ref code-point fragment ${parsed.fragment.start}-${parsed.fragment.end} is invalid: start must be less than end`,
           ];
         }
         return [];

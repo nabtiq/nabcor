@@ -82,12 +82,12 @@ const SEMANTIC = {
           : [],
     },
     {
-      invariant: "INV-FACT-001 chars-fragment-ordered",
+      invariant: "INV-FACT-001 codepoints-fragment-ordered",
       check: (d) => {
         if (typeof d.source_ref !== "string") return [];
-        const m = /#chars=([0-9]+)-([0-9]+)$/.exec(d.source_ref);
+        const m = /#codepoints=([0-9]+)-([0-9]+)$/.exec(d.source_ref);
         if (m && Number(m[1]) >= Number(m[2]))
-          return [`source_ref character fragment ${m[1]}-${m[2]} is invalid: start must be less than end`];
+          return [`source_ref code-point fragment ${m[1]}-${m[2]} is invalid: start must be less than end`];
         return [];
       },
     },

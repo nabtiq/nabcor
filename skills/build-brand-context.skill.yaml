@@ -27,12 +27,16 @@ deterministic_validations:
     claim source_ref is a canonical source:<artifact_id> reference resolving to
     a supplied source artifact ID (INV-FACT-001, DEC-0006); filename-based
     references are rejected, and filename collisions cannot satisfy references
-  - character fragments on captured text are bounds-checked and read back
-    through the recorded content reference (digest-verified); page fragments on
-    descriptors stay structurally valid but not-yet-content-verified
-  - claims citing quarantined sources are rejected unless the source artifact
-    carries a human quarantine-release approval; the compiler never fabricates
-    one (INV-SEC-002, INV-HUM-001)
+  - code-point fragments (source:<artifact_id>#codepoints=a-b — zero-based
+    half-open Unicode code-point offsets, never UTF-16 units or bytes) on
+    captured text are bounds-checked and read back through the recorded content
+    reference (digest-verified); page fragments on descriptors stay
+    structurally valid but not-yet-content-verified (DEC-0007)
+  - claims citing quarantined sources are ALWAYS rejected with a typed
+    quarantine-fail-closed failure: no authenticated human release authority
+    exists until Q-001 is resolved, so a quarantine-release approval on the
+    source artifact is audit metadata and grants no authority
+    (DEC-0007, INV-SEC-002, INV-HUM-001)
   - inference cannot become verified fact without human verification evidence
     (INV-FACT-002)
   - prompt-only mode admits prompt/brief sources only, so proof points cannot
@@ -52,8 +56,11 @@ human_approval: none inside the compiler; fact conflicts and inference
   confirmations are human gates downstream (INV-HUM-001(3))
 token_budget: {output: 0, max_tool_calls: 0, max_iterations: 1}  # Tier 0: no model
 caching: not applicable (no model calls; deterministic output for identical input)
-evaluation: runtime tests in test/build-brand-context.test.ts — both synthetic
-  modes compile, unsupported/inference-as-fact/dangling-reference/cross-brand
-  inputs are rejected, contradictions stay visible, filename collisions cannot
-  satisfy references, fragments are bounds-checked against captured content,
-  and quarantined-source claims require a human release
+evaluation: runtime tests in test/build-brand-context.test.ts and
+  test/codepoint-fragments.test.ts — both synthetic modes compile,
+  unsupported/inference-as-fact/dangling-reference/cross-brand inputs are
+  rejected, contradictions stay visible, filename collisions cannot satisfy
+  references, code-point fragments are bounds-checked against captured content
+  across ASCII/Arabic/supplementary-plane/combining characters, and
+  quarantined-source claims always fail closed (no caller-supplied approval
+  can compile them)
