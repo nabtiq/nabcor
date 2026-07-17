@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Evidence-aware AI Creative Operating System — clean foundation baseline plus the deterministic Phase 1A truth kernel.",
+  "description": "Evidence-aware AI Creative Operating System — deterministic truth kernel (Phase 1A), offline provider-neutral gateway kernel (Phase 1B.1), and deterministic structured-truth analysis (Phase 1B.2). Zero providers, zero model calls (DEC-0009).",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"

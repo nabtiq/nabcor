@@ -18,7 +18,7 @@ const addFormats = addFormatsModule.default;
 import { type Result, type ValidationIssue, err, ok } from "./result.js";
 import { parseSourceRef } from "./source-ref.js";
 
-// Artifact types the Phase 1A kernel stores and exchanges. Other contracts
+// Artifact types the Phase 1A/1B kernel stores and exchanges. Other contracts
 // (decision, evaluation-report, ...) compile too, but only these cross the
 // kernel's runtime boundaries in this phase.
 export const SUPPORTED_ARTIFACT_TYPES = [
@@ -26,6 +26,8 @@ export const SUPPORTED_ARTIFACT_TYPES = [
   "claim",
   "assumption",
   "brand-context",
+  "truth-profile",
+  "truth-analysis",
 ] as const;
 export type SupportedArtifactType = (typeof SUPPORTED_ARTIFACT_TYPES)[number];
 
@@ -77,6 +79,67 @@ const SEMANTIC_CHECKS: Record<string, SemanticCheck[]> = {
           ];
         }
         return [];
+      },
+    },
+  ],
+  "truth-profile": [
+    {
+      invariant: "DEC-0011 unique-sorted-fact-keys",
+      check: (d) => {
+        // Code-unit comparison, never locale-dependent collation, so ordering
+        // is byte-stable across environments (DEC-0011 determinism).
+        const out: string[] = [];
+        const slots = (d["slots"] ?? []) as { fact_key: string }[];
+        for (let i = 1; i < slots.length; i++) {
+          const prev = slots[i - 1]!.fact_key;
+          const cur = slots[i]!.fact_key;
+          if (cur === prev) out.push(`duplicate fact_key '${cur}' in slots`);
+          else if (cur < prev) out.push(`slots not deterministically sorted: '${cur}' follows '${prev}'`);
+        }
+        return out;
+      },
+    },
+  ],
+  "truth-analysis": [
+    {
+      invariant: "DEC-0011 deterministic-ordering",
+      check: (d) => {
+        const out: string[] = [];
+        const sortedAsc = (arr: string[], label: string): void => {
+          for (let i = 1; i < arr.length; i++) {
+            if (!(arr[i]! > arr[i - 1]!))
+              out.push(`${label} not strictly sorted: '${arr[i]}' follows '${arr[i - 1]}'`);
+          }
+        };
+        sortedAsc((d["analyzed_claim_refs"] ?? []) as string[], "analyzed_claim_refs");
+        sortedAsc((d["unstructured_claim_refs"] ?? []) as string[], "unstructured_claim_refs");
+        sortedAsc((d["unprofiled_fact_claim_refs"] ?? []) as string[], "unprofiled_fact_claim_refs");
+        const contradictions = (d["open_contradictions"] ?? []) as { fact_key: string }[];
+        sortedAsc(contradictions.map((c) => c.fact_key), "open_contradictions fact_keys");
+        const gaps = (d["gaps"] ?? []) as { fact_key: string }[];
+        sortedAsc(gaps.map((g) => g.fact_key), "gaps fact_keys");
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0011 refs-within-analyzed",
+      check: (d) => {
+        const out: string[] = [];
+        const analyzed = new Set((d["analyzed_claim_refs"] ?? []) as string[]);
+        const requireIn = (refs: string[], label: string): void => {
+          for (const r of refs) {
+            if (!analyzed.has(r)) out.push(`${label} references '${r}', which is not in analyzed_claim_refs`);
+          }
+        };
+        for (const c of (d["open_contradictions"] ?? []) as { fact_key: string; claim_refs?: string[] }[]) {
+          requireIn(c.claim_refs ?? [], `contradiction '${c.fact_key}'`);
+        }
+        for (const g of (d["gaps"] ?? []) as { fact_key: string; claim_refs?: string[] }[]) {
+          requireIn(g.claim_refs ?? [], `gap '${g.fact_key}'`);
+        }
+        requireIn((d["unstructured_claim_refs"] ?? []) as string[], "unstructured_claim_refs");
+        requireIn((d["unprofiled_fact_claim_refs"] ?? []) as string[], "unprofiled_fact_claim_refs");
+        return out;
       },
     },
   ],

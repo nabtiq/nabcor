@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { buildBrandContext, type BrandContextInput } from "../src/compile/build-brand-context.js";
 import type { FileContentStore } from "../src/kernel/content-store.js";
+import { analyzeStructuredTruth } from "../src/understand/analyze-structured-truth.js";
 import { classifyInput, type InputDescriptor } from "../src/understand/classify-input.js";
 import {
   BRAND,
@@ -10,6 +11,7 @@ import {
   contentStore,
   loadSyntheticCase,
   registry,
+  truthAnalysisFor,
   validAssumption,
   validClaim,
   validSource,
@@ -24,11 +26,11 @@ function caseInput(name: "prompt-only" | "evidence-rich"): {
     brand_ref: string;
     id_prefix: string;
     mode: "prompt-only" | "evidence-rich";
+    analysis_id: string;
     descriptors: InputDescriptor[];
+    truth_profile: unknown;
     claims: unknown[];
     assumptions: unknown[];
-    contradictions: { claim_refs: string[]; description: string; blocking_publication?: boolean }[];
-    gaps: { what: string; why_needed: string; blocking?: boolean }[];
     identity: BrandContextInput["identity"];
     audience?: { claim_ref: string }[];
     market?: { locales?: string[] };
@@ -42,6 +44,15 @@ function caseInput(name: "prompt-only" | "evidence-rich"): {
   }, registry(), store);
   assert.ok(classified.ok, JSON.stringify(classified));
   const sources = classified.ok ? classified.value : [];
+  const analyzed = analyzeStructuredTruth({
+    artifactId: fixture.analysis_id,
+    workspace: WS,
+    brandRef: fixture.brand_ref,
+    createdAt: NOW,
+    truthProfile: fixture.truth_profile,
+    claims: fixture.claims,
+  }, registry());
+  assert.ok(analyzed.ok, JSON.stringify(analyzed));
   return {
     input: {
       artifactId: `bctx_${name}_t`,
@@ -52,8 +63,7 @@ function caseInput(name: "prompt-only" | "evidence-rich"): {
       sources,
       claims: fixture.claims,
       assumptions: fixture.assumptions,
-      contradictions: fixture.contradictions,
-      gaps: fixture.gaps,
+      truthAnalysis: analyzed.ok ? analyzed.value : {},
       identity: fixture.identity,
       ...(fixture.audience ? { audience: fixture.audience } : {}),
       ...(fixture.market ? { market: fixture.market } : {}),
@@ -118,6 +128,7 @@ test("the synthetic injection fixture yields no claim from the quarantined sourc
 });
 
 function minimalInput(overrides: Partial<BrandContextInput> = {}): BrandContextInput {
+  const claims = overrides.claims ?? [validClaim()];
   return {
     artifactId: "bctx_t_0001",
     workspace: WS,
@@ -125,10 +136,9 @@ function minimalInput(overrides: Partial<BrandContextInput> = {}): BrandContextI
     mode: "evidence-rich",
     createdAt: NOW,
     sources: [validSource()],
-    claims: [validClaim()],
+    claims,
     assumptions: [validAssumption()],
-    contradictions: [],
-    gaps: [],
+    truthAnalysis: truthAnalysisFor(claims),
     identity: { names: [{ value: "Test Co", lang: "en", claim_ref: "claim_t_0001" }] },
     ...overrides,
   };
@@ -401,15 +411,15 @@ test("a missing source, claim, or assumption reference is rejected", () => {
   assert.equal(unknownIdentityClaim.ok, false);
   if (!unknownIdentityClaim.ok) assert.equal(unknownIdentityClaim.error.kind, "reference-violation");
 
-  const unknownContradictionClaim = buildBrandContext(
+  const analysisWithGhostClaim = buildBrandContext(
     minimalInput({
-      contradictions: [{ claim_refs: ["claim_t_0001", "claim_ghost"], description: "d" }],
+      truthAnalysis: truthAnalysisFor([validClaim(), validClaim({ artifact_id: "claim_ghost" })]),
     }),
     registry(),
     store
   );
-  assert.equal(unknownContradictionClaim.ok, false);
-  if (!unknownContradictionClaim.ok) assert.equal(unknownContradictionClaim.error.kind, "reference-violation");
+  assert.equal(analysisWithGhostClaim.ok, false);
+  if (!analysisWithGhostClaim.ok) assert.equal(analysisWithGhostClaim.error.kind, "reference-violation");
 
   const unknownMark = buildBrandContext(
     minimalInput({
@@ -457,4 +467,130 @@ test("cross-brand inputs are rejected", () => {
   );
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.error.kind, "reference-violation");
+});
+
+// ---- truth-analysis authority (DEC-0011) -----------------------------------
+
+test("the compiled package records truth_analysis_ref and carries the analysis's contradictions and gaps verbatim", () => {
+  const store = contentStore();
+  const claims = [
+    validClaim(),
+    validClaim({
+      artifact_id: "claim_t_0002",
+      verification_status: "unconfirmed",
+      lifecycle_status: "generated",
+    }),
+  ];
+  const analysis = truthAnalysisFor(claims, {
+    open_contradictions: [
+      {
+        fact_key: "identity.primary_name",
+        claim_refs: ["claim_t_0001", "claim_t_0002"],
+        distinct_values: ["A Name", "B Name"],
+        description:
+          "single-cardinality fact slot 'identity.primary_name' carries 2 distinct normalized values across 2 eligible claims; resolution requires a human decision",
+        blocking_publication: true,
+        status: "open",
+      },
+    ],
+    gaps: [
+      {
+        fact_key: "market.default_locale",
+        kind: "missing",
+        what: "no eligible structured claim supplies required fact slot 'market.default_locale'",
+        why_needed: "locale decides rendering direction and copy language defaults",
+        blocking: true,
+        claim_refs: [],
+      },
+    ],
+  });
+  const result = buildBrandContext(
+    minimalInput({ claims, truthAnalysis: analysis }),
+    registry(),
+    store
+  );
+  assert.ok(result.ok, JSON.stringify(result));
+  if (!result.ok) return;
+  assert.equal(result.value["truth_analysis_ref"], "ta_t_0001");
+  const contradictions = result.value["open_contradictions"] as Record<string, unknown>[];
+  assert.equal(contradictions.length, 1);
+  assert.deepEqual(contradictions[0]!["claim_refs"], ["claim_t_0001", "claim_t_0002"]);
+  assert.equal(contradictions[0]!["blocking_publication"], true);
+  const gaps = result.value["gaps"] as Record<string, unknown>[];
+  assert.equal(gaps.length, 1);
+  assert.equal(gaps[0]!["blocking"], true);
+});
+
+test("caller-supplied contradiction or gap arrays are rejected — the analyzer bypass is closed", () => {
+  const store = contentStore();
+  const withContradictions = buildBrandContext(
+    {
+      ...minimalInput(),
+      contradictions: [{ claim_refs: ["claim_t_0001"], description: "injected" }],
+    } as unknown as BrandContextInput,
+    registry(),
+    store
+  );
+  assert.equal(withContradictions.ok, false);
+  if (!withContradictions.ok) {
+    assert.equal(withContradictions.error.kind, "invalid-input");
+    assert.match(withContradictions.error.message, /truth-analysis/);
+  }
+  const withGaps = buildBrandContext(
+    { ...minimalInput(), gaps: [] } as unknown as BrandContextInput,
+    registry(),
+    store
+  );
+  assert.equal(withGaps.ok, false);
+  if (!withGaps.ok) assert.equal(withGaps.error.kind, "invalid-input");
+});
+
+test("an analysis whose claim coverage mismatches the supplied claims is rejected in both directions", () => {
+  const store = contentStore();
+  // The analysis covers a claim the compiler was never given.
+  const extraAnalyzed = buildBrandContext(
+    minimalInput({
+      truthAnalysis: truthAnalysisFor([validClaim(), validClaim({ artifact_id: "claim_extra" })]),
+    }),
+    registry(),
+    store
+  );
+  assert.equal(extraAnalyzed.ok, false);
+  if (!extraAnalyzed.ok) {
+    assert.equal(extraAnalyzed.error.kind, "reference-violation");
+    assert.match(extraAnalyzed.error.message, /was not supplied/);
+  }
+  // The compiler holds a claim the analysis never covered.
+  const unanalyzed = buildBrandContext(
+    minimalInput({
+      claims: [validClaim(), validClaim({ artifact_id: "claim_t_0002" })],
+      truthAnalysis: truthAnalysisFor([validClaim()]),
+    }),
+    registry(),
+    store
+  );
+  assert.equal(unanalyzed.ok, false);
+  if (!unanalyzed.ok) {
+    assert.equal(unanalyzed.error.kind, "reference-violation");
+    assert.match(unanalyzed.error.message, /not covered by truth analysis/);
+  }
+});
+
+test("a cross-brand or contract-invalid truth analysis is rejected", () => {
+  const store = contentStore();
+  const crossBrand = buildBrandContext(
+    minimalInput({ truthAnalysis: truthAnalysisFor([validClaim()], { brand_ref: "brand_other" }) }),
+    registry(),
+    store
+  );
+  assert.equal(crossBrand.ok, false);
+  if (!crossBrand.ok) assert.equal(crossBrand.error.kind, "reference-violation");
+
+  const missingProfileRef = buildBrandContext(
+    minimalInput({ truthAnalysis: truthAnalysisFor([validClaim()], { truth_profile_ref: "" }) }),
+    registry(),
+    store
+  );
+  assert.equal(missingProfileRef.ok, false, "an empty profile reference is contract-invalid");
+  if (!missingProfileRef.ok) assert.equal(missingProfileRef.error.kind, "validation-failed");
 });

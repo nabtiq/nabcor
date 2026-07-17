@@ -65,3 +65,4 @@ unique and never reused.
 | DEC-0008 | Human gate roles: Ibrahim Mohamed holds all four roles with mandatory self-review declaration; four gates require independent review; quarantine release stays fail-closed | ratified |
 | DEC-0009 | Zero-provider offline execution policy: no external provider approved, Fake Adapter only, synthetic data only, zero spend; Q-002 closed as "no provider approved" | ratified |
 | DEC-0010 | Offline provider-neutral gateway kernel: fail-closed policy contract, deterministic Fake Adapter, structured-output validation, manifest/run-record observability, pre-invocation budgets | ratified |
+| DEC-0011 | Deterministic structured-truth analysis boundary: explicit fact slots and exact type-sensitive comparison only, profile-relative gaps, open contradictions, no prose interpretation, no gateway/Fake Adapter involvement | ratified |

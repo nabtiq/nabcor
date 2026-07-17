@@ -35,7 +35,7 @@ export const NOW = "2026-07-17T12:00:00Z";
 
 export function validClaim(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.3.0",
+    schema_version: "1.4.0",
     artifact_id: "claim_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -54,7 +54,7 @@ export function validClaim(overrides: Record<string, unknown> = {}): Record<stri
 
 export function validSource(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.3.0",
+    schema_version: "1.4.0",
     artifact_id: "src_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -77,7 +77,7 @@ export function validSource(overrides: Record<string, unknown> = {}): Record<str
 
 export function validAssumption(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.3.0",
+    schema_version: "1.4.0",
     artifact_id: "asm_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -88,6 +88,72 @@ export function validAssumption(overrides: Record<string, unknown> = {}): Record
     status: "open",
     owner: "operator",
     revisit_trigger: "client confirms language priorities",
+    ...overrides,
+  };
+}
+
+export function validSlot(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    fact_key: "identity.primary_name",
+    description: "the brand's primary trading name",
+    cardinality: "single",
+    requirement: "required",
+    why_needed: "every output renders the name",
+    blocking_if_missing: true,
+    blocking_if_conflicting: true,
+    ...overrides,
+  };
+}
+
+export function validTruthProfile(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    schema_version: "1.4.0",
+    artifact_id: "tp_t_0001",
+    brand_ref: "brand_test",
+    created_at: NOW,
+    creator_type: "human",
+    lifecycle_status: "accepted",
+    description: "synthetic test truth profile",
+    slots: [validSlot()],
+    ...overrides,
+  };
+}
+
+/**
+ * A contract-valid truth-analysis artifact covering exactly the given claims,
+ * with no contradictions or gaps — the minimal analysis compiler tests need.
+ * Claims carrying fact metadata land in unprofiled refs (the default test
+ * profile is unrelated), the rest in unstructured refs.
+ */
+export function truthAnalysisFor(
+  claims: unknown[],
+  overrides: Record<string, unknown> = {}
+): Record<string, unknown> {
+  const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+  const records = claims as Record<string, unknown>[];
+  const ids = records.map((c) => String(c["artifact_id"])).sort(byCodeUnit);
+  const structured = records
+    .filter((c) => typeof c["fact_key"] === "string")
+    .map((c) => String(c["artifact_id"]))
+    .sort(byCodeUnit);
+  const unstructured = records
+    .filter((c) => typeof c["fact_key"] !== "string")
+    .map((c) => String(c["artifact_id"]))
+    .sort(byCodeUnit);
+  return {
+    schema_version: "1.4.0",
+    artifact_id: "ta_t_0001",
+    brand_ref: "brand_test",
+    created_at: NOW,
+    creator_type: "deterministic",
+    lifecycle_status: "generated",
+    truth_profile_ref: "tp_t_0001",
+    analyzer_version: "analyze-structured-truth-1.0.0",
+    analyzed_claim_refs: ids,
+    open_contradictions: [],
+    gaps: [],
+    unstructured_claim_refs: unstructured,
+    unprofiled_fact_claim_refs: structured,
     ...overrides,
   };
 }

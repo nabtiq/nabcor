@@ -3,54 +3,396 @@
     "id": "P01-ratified-decision-with-approval",
     "schema": "decision.schema.json",
     "description": "ratified decision carrying the required ratification approval passes schema + semantic",
-    "data": { "schema_version": "1.3.0", "artifact_id": "DEC-9997-pos", "brand_ref": null, "created_at": "2026-07-17T12:00:00Z", "creator_type": "human", "lifecycle_status": "accepted", "approvals": [ { "approved_by": "user_owner", "gate": "ratification", "verdict": "approved", "reason": "reviewed", "at": "2026-07-17T13:00:00Z" } ], "decision_id": "DEC-9997-pos", "title": "t", "status": "ratified", "context": "c", "problem": "p", "options": [ { "option_id": "a", "summary": "s" } ], "selected_option": "a", "reason": "r", "revisit_trigger": "t", "decided_by": "user_owner" }
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "DEC-9997-pos",
+      "brand_ref": null,
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "approvals": [
+        {
+          "approved_by": "user_owner",
+          "gate": "ratification",
+          "verdict": "approved",
+          "reason": "reviewed",
+          "at": "2026-07-17T13:00:00Z"
+        }
+      ],
+      "decision_id": "DEC-9997-pos",
+      "title": "t",
+      "status": "ratified",
+      "context": "c",
+      "problem": "p",
+      "options": [
+        {
+          "option_id": "a",
+          "summary": "s"
+        }
+      ],
+      "selected_option": "a",
+      "reason": "r",
+      "revisit_trigger": "t",
+      "decided_by": "user_owner"
+    }
   },
   {
     "id": "P02-factual-slot-with-confirm-note",
     "schema": "website-spec.schema.json",
-    "description": "factual slot with empty claim_refs but an explicit unresolved_fact_note (confirm-slot pattern) passes — schema pressure must not encourage fabrication",
-    "data": { "schema_version": "1.3.0", "artifact_id": "wspec_p02", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "visual_world_ref": "vw_1", "direction_ref": "dir_1", "campaign_ref": null, "page": "home", "locales": ["ar", "en"], "sections": [ { "section_id": "hero", "type": "hero", "intent": "authority", "copy_slots": [ { "slot_id": "years", "role": "factual", "text": { "ar": "[Arabic copy pending — years-in-operation confirm-slot]", "en": "[X years in operation — confirm]" }, "claim_refs": [], "unresolved_fact_note": "years-in-operation not provided by client; confirm before publication" } ] } ], "validation_matrix_ref": "vm_1", "conversion_intent": "contact" }
+    "description": "factual slot with empty claim_refs but an explicit unresolved_fact_note (confirm-slot pattern) passes \u2014 schema pressure must not encourage fabrication",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "wspec_p02",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "generated",
+      "visual_world_ref": "vw_1",
+      "direction_ref": "dir_1",
+      "campaign_ref": null,
+      "page": "home",
+      "locales": [
+        "ar",
+        "en"
+      ],
+      "sections": [
+        {
+          "section_id": "hero",
+          "type": "hero",
+          "intent": "authority",
+          "copy_slots": [
+            {
+              "slot_id": "years",
+              "role": "factual",
+              "text": {
+                "ar": "[Arabic copy pending \u2014 years-in-operation confirm-slot]",
+                "en": "[X years in operation \u2014 confirm]"
+              },
+              "claim_refs": [],
+              "unresolved_fact_note": "years-in-operation not provided by client; confirm before publication"
+            }
+          ]
+        }
+      ],
+      "validation_matrix_ref": "vm_1",
+      "conversion_intent": "contact"
+    }
   },
   {
     "id": "P03-model-run-subscription",
     "schema": "model-run.schema.json",
     "description": "subscription-billed run with usd null and allocation none passes (cost modes never conflated)",
-    "data": { "schema_version": "1.3.0", "run_id": "run_p03", "session_id": "s", "project_id": "p", "workspace_id": "w", "brand_id": "b", "workflow_id": "wf", "skill_id": "sk", "attribution_confidence": "confirmed", "provider": "anthropic", "model": "m", "started_at": "2026-07-17T12:00:00Z", "input_tokens": 100, "output_tokens": 50, "cached_tokens": 4000, "cache_creation_tokens": 0, "reasoning_tokens": null, "cost": { "mode": "subscription", "usd": null, "allocation": "none" } }
+    "data": {
+      "schema_version": "1.4.0",
+      "run_id": "run_p03",
+      "session_id": "s",
+      "project_id": "p",
+      "workspace_id": "w",
+      "brand_id": "b",
+      "workflow_id": "wf",
+      "skill_id": "sk",
+      "attribution_confidence": "confirmed",
+      "provider": "anthropic",
+      "model": "m",
+      "started_at": "2026-07-17T12:00:00Z",
+      "input_tokens": 100,
+      "output_tokens": 50,
+      "cached_tokens": 4000,
+      "cache_creation_tokens": 0,
+      "reasoning_tokens": null,
+      "cost": {
+        "mode": "subscription",
+        "usd": null,
+        "allocation": "none"
+      }
+    }
   },
   {
     "id": "P04-captured-prompt-source",
     "schema": "source.schema.json",
     "description": "captured prompt source with content-addressed reference, digest, byte size, media type, and clear safety state (DEC-0006)",
-    "data": { "schema_version": "1.3.0", "artifact_id": "src_p04", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "deterministic", "lifecycle_status": "generated", "kind": "prompt", "origin": "client", "filename_or_locator": "prompt-0001", "rights": { "commercial_use": "unknown", "advertising_use": "unknown", "benchmark_use": "forbidden", "training_use": "forbidden" }, "capture": { "status": "captured", "content_ref": "sha256:9647045f0b80c157c97dacd8dffc70425dc05bcfc270be0f2e29849830ee8123", "sha256": "9647045f0b80c157c97dacd8dffc70425dc05bcfc270be0f2e29849830ee8123", "bytes": 113, "media_type": "text/plain", "safety": "clear" }, "injection_flag": false }
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "src_p04",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "kind": "prompt",
+      "origin": "client",
+      "filename_or_locator": "prompt-0001",
+      "rights": {
+        "commercial_use": "unknown",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden",
+        "training_use": "forbidden"
+      },
+      "capture": {
+        "status": "captured",
+        "content_ref": "sha256:9647045f0b80c157c97dacd8dffc70425dc05bcfc270be0f2e29849830ee8123",
+        "sha256": "9647045f0b80c157c97dacd8dffc70425dc05bcfc270be0f2e29849830ee8123",
+        "bytes": 113,
+        "media_type": "text/plain",
+        "safety": "clear"
+      },
+      "injection_flag": false
+    }
   },
   {
     "id": "P05-flagged-content-quarantined",
     "schema": "source.schema.json",
     "description": "injection-flagged captured content correctly held in the quarantine namespace passes schema and semantic layers (INV-SEC-002)",
-    "data": { "schema_version": "1.3.0", "artifact_id": "src_p05", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "deterministic", "lifecycle_status": "generated", "kind": "document", "origin": "operator", "filename_or_locator": "notes.txt", "rights": { "commercial_use": "unknown", "advertising_use": "unknown", "benchmark_use": "forbidden", "training_use": "forbidden" }, "capture": { "status": "captured", "content_ref": "sha256:3e95592df44df741d713f4065d45bd7d7b6b46cbf08119e6bf19a8d8553d8334", "sha256": "3e95592df44df741d713f4065d45bd7d7b6b46cbf08119e6bf19a8d8553d8334", "bytes": 99, "media_type": "text/plain", "safety": "quarantined" }, "injection_flag": true, "injection_note": "deterministic heuristic matched instruction-like patterns; content flagged and treated as data, never obeyed" }
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "src_p05",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "kind": "document",
+      "origin": "operator",
+      "filename_or_locator": "notes.txt",
+      "rights": {
+        "commercial_use": "unknown",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden",
+        "training_use": "forbidden"
+      },
+      "capture": {
+        "status": "captured",
+        "content_ref": "sha256:3e95592df44df741d713f4065d45bd7d7b6b46cbf08119e6bf19a8d8553d8334",
+        "sha256": "3e95592df44df741d713f4065d45bd7d7b6b46cbf08119e6bf19a8d8553d8334",
+        "bytes": 99,
+        "media_type": "text/plain",
+        "safety": "quarantined"
+      },
+      "injection_flag": true,
+      "injection_note": "deterministic heuristic matched instruction-like patterns; content flagged and treated as data, never obeyed"
+    }
   },
   {
     "id": "P06-canonical-codepoints-fragment",
     "schema": "claim.schema.json",
     "description": "canonical code-point fragment reference in correct order passes both layers (DEC-0006/DEC-0007)",
-    "data": { "schema_version": "1.3.0", "artifact_id": "claim_p06", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "human", "lifecycle_status": "accepted", "statement": "The working brand name is Veritas Forensics", "classification": "factual", "source_type": "client_statement", "source_ref": "source:src_p04#codepoints=95-112", "confidence": 0.95, "confidence_basis": "name stated verbatim in the captured intake prompt", "verification_status": "verified" }
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "claim_p06",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "statement": "The working brand name is Veritas Forensics",
+      "classification": "factual",
+      "source_type": "client_statement",
+      "source_ref": "source:src_p04#codepoints=95-112",
+      "confidence": 0.95,
+      "confidence_basis": "name stated verbatim in the captured intake prompt",
+      "verification_status": "verified"
+    }
   },
   {
     "id": "P07-unclassified-visual-explicit-null",
     "schema": "source.schema.json",
-    "description": "image source with explicitly unresolved (null) visual_classification passes — the honest state for an unclassified visual (INV-FACT-003)",
-    "data": { "schema_version": "1.3.0", "artifact_id": "src_p07", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "deterministic", "lifecycle_status": "generated", "kind": "image", "origin": "client", "filename_or_locator": "shopfront.jpg", "rights": { "commercial_use": "unknown", "advertising_use": "unknown", "benchmark_use": "forbidden", "training_use": "forbidden" }, "capture": { "status": "descriptor-only" }, "visual_classification": null, "injection_flag": false }
+    "description": "image source with explicitly unresolved (null) visual_classification passes \u2014 the honest state for an unclassified visual (INV-FACT-003)",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "src_p07",
+      "brand_ref": "b",
+      "created_at": "2026-07-17T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "kind": "image",
+      "origin": "client",
+      "filename_or_locator": "shopfront.jpg",
+      "rights": {
+        "commercial_use": "unknown",
+        "advertising_use": "unknown",
+        "benchmark_use": "forbidden",
+        "training_use": "forbidden"
+      },
+      "capture": {
+        "status": "descriptor-only"
+      },
+      "visual_classification": null,
+      "injection_flag": false
+    }
   },
   {
     "id": "P08-offline-fake-adapter-model-run",
     "schema": "model-run.schema.json",
-    "description": "Tier-0 offline Fake Adapter run record: provider 'offline', zero tokens in all four classes, cost {mode: free-tier, usd: 0, allocation: none} — truthful zero-spend accounting, excluded from model-quality evidence (DEC-0009/DEC-0010)",
-    "data": { "schema_version": "1.3.0", "run_id": "run_p08", "session_id": "sess_p08", "project_id": "SLICE-001", "workspace_id": "ws_local", "brand_id": "brand_example", "workflow_id": "wf_offline_check", "skill_id": "gateway-selftest", "attribution_confidence": "confirmed", "artifact_ids_in": ["src_0001"], "artifact_ids_out": ["asm_0001"], "context_manifest_ref": "cm_run_p08", "provider": "offline", "model": "deterministic-fake-adapter-v1", "model_tier": 0, "prompt_version": null, "started_at": "2026-07-18T12:00:00Z", "latency_ms": null, "input_tokens": 0, "output_tokens": 0, "cached_tokens": 0, "cache_creation_tokens": 0, "reasoning_tokens": null, "cost": { "mode": "free-tier", "usd": 0, "allocation": "none" }, "tool_calls": 1, "retry_count": 0, "failure_type": null, "media": null, "human_review": "none", "accepted": null, "rejected_reason": null, "superseded_by": null }
+    "description": "Tier-0 offline Fake Adapter run record: provider 'offline', zero tokens in all four classes, cost {mode: free-tier, usd: 0, allocation: none} \u2014 truthful zero-spend accounting, excluded from model-quality evidence (DEC-0009/DEC-0010)",
+    "data": {
+      "schema_version": "1.4.0",
+      "run_id": "run_p08",
+      "session_id": "sess_p08",
+      "project_id": "SLICE-001",
+      "workspace_id": "ws_local",
+      "brand_id": "brand_example",
+      "workflow_id": "wf_offline_check",
+      "skill_id": "gateway-selftest",
+      "attribution_confidence": "confirmed",
+      "artifact_ids_in": [
+        "src_0001"
+      ],
+      "artifact_ids_out": [
+        "asm_0001"
+      ],
+      "context_manifest_ref": "cm_run_p08",
+      "provider": "offline",
+      "model": "deterministic-fake-adapter-v1",
+      "model_tier": 0,
+      "prompt_version": null,
+      "started_at": "2026-07-18T12:00:00Z",
+      "latency_ms": null,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cached_tokens": 0,
+      "cache_creation_tokens": 0,
+      "reasoning_tokens": null,
+      "cost": {
+        "mode": "free-tier",
+        "usd": 0,
+        "allocation": "none"
+      },
+      "tool_calls": 1,
+      "retry_count": 0,
+      "failure_type": null,
+      "media": null,
+      "human_review": "none",
+      "accepted": null,
+      "rejected_reason": null,
+      "superseded_by": null
+    }
   },
   {
     "id": "P09-gateway-request-synthetic",
     "schema": "gateway-request.schema.json",
     "description": "provider-neutral gateway request with inline contract-validated token budget, context items with load reasons, and a deterministic scenario id (DEC-0010)",
-    "data": { "schema_version": "1.3.0", "request_id": "req_p09", "run_id": "run_p09", "session_id": "sess_p09", "project_id": "SLICE-001", "workspace_id": "ws_local", "brand_id": "brand_example", "workflow_id": "wf_offline_check", "skill_id": "gateway-selftest", "adapter_id": "fake", "requested_tier": 0, "data_classification": "synthetic", "output_contract": "assumption", "scenario_id": "assumption-basic", "context_items": [ { "artifact_id": "src_0001", "reason": "synthetic source under test", "required": true } ], "token_budget": { "schema_version": "1.3.0", "budget_id": "budget_p09", "scope": "skill", "scope_ref": "gateway-selftest", "fresh_input_budget": 0, "cached_input_budget": null, "cache_write_budget": null, "output_budget": 1000, "max_tool_calls": 1, "max_iterations": 1, "escalation_budget": null, "hard_stop_output": 1000, "basis": "offline deterministic fixture run — zero model tokens by construction (DEC-0009)" }, "max_output_tokens": 0 }
+    "data": {
+      "schema_version": "1.4.0",
+      "request_id": "req_p09",
+      "run_id": "run_p09",
+      "session_id": "sess_p09",
+      "project_id": "SLICE-001",
+      "workspace_id": "ws_local",
+      "brand_id": "brand_example",
+      "workflow_id": "wf_offline_check",
+      "skill_id": "gateway-selftest",
+      "adapter_id": "fake",
+      "requested_tier": 0,
+      "data_classification": "synthetic",
+      "output_contract": "assumption",
+      "scenario_id": "assumption-basic",
+      "context_items": [
+        {
+          "artifact_id": "src_0001",
+          "reason": "synthetic source under test",
+          "required": true
+        }
+      ],
+      "token_budget": {
+        "schema_version": "1.4.0",
+        "budget_id": "budget_p09",
+        "scope": "skill",
+        "scope_ref": "gateway-selftest",
+        "fresh_input_budget": 0,
+        "cached_input_budget": null,
+        "cache_write_budget": null,
+        "output_budget": 1000,
+        "max_tool_calls": 1,
+        "max_iterations": 1,
+        "escalation_budget": null,
+        "hard_stop_output": 1000,
+        "basis": "offline deterministic fixture run \u2014 zero model tokens by construction (DEC-0009)"
+      },
+      "max_output_tokens": 0
+    }
+  },
+  {
+    "id": "P10-claim-structured-fact-inference",
+    "schema": "claim.schema.json",
+    "description": "an inference may carry structured fact metadata and remains an unconfirmed inference (a normalized value never upgrades verification status, DEC-0011)",
+    "data": {
+      "schema_version": "1.4.0",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "agent",
+      "lifecycle_status": "accepted",
+      "statement": "The primary audience is likely law firms",
+      "classification": "inference",
+      "source_type": "operator_input",
+      "source_ref": null,
+      "confidence": 0.5,
+      "confidence_basis": "operator judgment from category norms",
+      "verification_status": "unconfirmed",
+      "artifact_id": "claim_p10",
+      "fact_key": "audience.primary",
+      "normalized_value": "law firms",
+      "normalization_basis": "audience phrase copied from the inference statement"
+    }
+  },
+  {
+    "id": "P11-truth-profile-minimal",
+    "schema": "truth-profile.schema.json",
+    "description": "minimal single-slot truth profile with sorted unique fact keys",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "tp_p11",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "human",
+      "lifecycle_status": "accepted",
+      "description": "minimal fixture profile",
+      "slots": [
+        {
+          "fact_key": "identity.primary_name",
+          "description": "primary trading name",
+          "cardinality": "single",
+          "requirement": "required",
+          "why_needed": "every output renders the name",
+          "blocking_if_missing": true,
+          "blocking_if_conflicting": true
+        }
+      ]
+    }
+  },
+  {
+    "id": "P12-truth-analysis-unverified-gap",
+    "schema": "truth-analysis.schema.json",
+    "description": "truth analysis with an unverified gap citing analyzed unconfirmed claims, deterministic ordering, and explicit unstructured listing",
+    "data": {
+      "schema_version": "1.4.0",
+      "artifact_id": "ta_p12",
+      "brand_ref": "brand_example",
+      "created_at": "2026-07-18T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "truth_profile_ref": "tp_p11",
+      "analyzer_version": "analyze-structured-truth-1.0.0",
+      "analyzed_claim_refs": [
+        "claim_010",
+        "claim_011",
+        "claim_012"
+      ],
+      "open_contradictions": [],
+      "gaps": [
+        {
+          "fact_key": "identity.primary_name",
+          "kind": "unverified",
+          "what": "required fact slot 'identity.primary_name' has only unconfirmed or inference support where verified truth is required",
+          "why_needed": "every output renders the name",
+          "blocking": true,
+          "claim_refs": [
+            "claim_010"
+          ]
+        }
+      ],
+      "unstructured_claim_refs": [
+        "claim_011"
+      ],
+      "unprofiled_fact_claim_refs": [
+        "claim_012"
+      ]
+    }
   }
 ]

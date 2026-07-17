@@ -83,8 +83,10 @@ immutable per version; a revision creates a new version linked by supersession
   Source artifacts; read by the brand-context compiler for fragment verification.
 - **Lifecycle:** written once before its source artifact exists; never mutated;
   deduplicated by digest within one brand namespace; quarantined blobs are
-  fail-closed — no runtime path reads them, pending an authenticated human-gate
-  implementation (Q-001, DEC-0007); a recorded `quarantine-release` approval is
+  fail-closed — no runtime path reads them, pending both a formally named
+  independent reviewer and a ratified authenticated gate mechanism
+  (DEC-0007, DEC-0008 — Q-001 is closed, but both release prerequisites are
+  still missing); a recorded `quarantine-release` approval is
   audit metadata and grants no authority (INV-HUM-001).
 - **Class:** canonical (immutable raw material; content-addressed file store).
 
@@ -139,6 +141,39 @@ immutable per version; a revision creates a new version linked by supersession
 - **Lifecycle:** detected → surfaced → resolved (via Decision) — losing claim becomes
   `contradicted`, never deleted.
 - **Class:** canonical (stored as claim relationships + a decision on resolution).
+- Detection today is the deterministic Tier-0 structured layer only
+  (DEC-0011): explicit fact slots compared exactly, status fixed to `open`.
+  Semantic detection over prose remains prohibited (DEC-0009).
+
+### Truth Profile
+- **Purpose:** the versioned declaration of the fact slots one workflow or Brand
+  Context Package expects (DEC-0011) — per slot: fact key, description,
+  cardinality (`single | multi`), requirement (`required | optional`),
+  `why_needed`, and profile-owned blocking flags for missing and conflicting
+  states. Workflow-scoped expectation, not a universal ontology: absence from
+  a profile is not evidence that information is universally required. Carries
+  no provider or model policy.
+- **Required:** envelope, `brand_ref`, description, unique deterministically
+  sorted slots.
+- **Relationships:** referenced by Truth Analyses; brand-isolated
+  (INV-DATA-001).
+- **Class:** canonical. Contract: `contracts/truth-profile.schema.json`.
+
+### Truth Analysis
+- **Purpose:** the deterministic analyzer's result over one claim set and one
+  truth profile (DEC-0011): open contradictions (exact type-sensitive
+  distinct-value groups on single-cardinality slots), gaps
+  (`missing | unverified`, profile-relative), and the explicit listings of
+  unstructured and unprofiled claims. The single authoritative input for a
+  Brand Context Package's contradictions and gaps (`truth_analysis_ref`).
+- **Required:** envelope, `brand_ref`, truth-profile ref, analyzer version,
+  exact analyzed claim refs, contradictions (status fixed `open`), gaps,
+  unstructured/unprofiled claim listings.
+- **Relationships:** derived from Claims + one Truth Profile; consumed by the
+  brand-context compiler; contradictions resolve downstream via Decisions
+  (INV-HUM-001(3)).
+- **Class:** derived (recomputable; persisted because the compiler consumes
+  it). Contract: `contracts/truth-analysis.schema.json`.
 
 ## 3. Decision and preference layer
 

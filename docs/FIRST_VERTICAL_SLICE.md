@@ -50,7 +50,7 @@ Full journeys: `constitution/NORTH_STAR_EXPERIENCE.md`.
 |---|---|---|---|
 | 1 | Ingest + classify | classify-input | `source` records (rights, injection flags) |
 | 2 | Extract truth | extract-source-facts, infer-audience | `claim` records (+fragments) |
-| 3 | Surface conflicts | detect-contradictions | contradiction entries → human resolutions (`decision`) |
+| 3 | Surface conflicts | analyze-structured-truth (implemented Tier-0 structured layer, DEC-0011); detect-contradictions (Tier-2 semantic layer, prohibited under DEC-0009) | `truth-analysis` (open contradictions) → human resolutions (`decision`) |
 | 4 | Ledger the unknowns | build-assumption-ledger | `assumption` records |
 | 5 | Compile | build-brand-context | `brand-context` + `creative-brief` |
 | 6 | Explore | generate-creative-territories + critique-territories | `creative-territory` ×3 |

@@ -165,6 +165,58 @@ const SEMANTIC = {
           .map((slot) => `copy slot '${slot.slot_id}': factual role without claim_refs`),
     },
   ],
+  "truth-profile.schema.json": [
+    {
+      invariant: "DEC-0011 unique-sorted-fact-keys",
+      check: (d) => {
+        // Code-unit comparison, never locale-dependent collation: ordering must
+        // be byte-stable across environments (DEC-0011 determinism).
+        const out = [];
+        const keys = (d.slots ?? []).map((s) => s.fact_key);
+        for (let i = 1; i < keys.length; i++) {
+          if (keys[i] === keys[i - 1]) out.push(`duplicate fact_key '${keys[i]}' in slots`);
+          else if (keys[i] < keys[i - 1])
+            out.push(`slots not deterministically sorted: '${keys[i]}' follows '${keys[i - 1]}'`);
+        }
+        return out;
+      },
+    },
+  ],
+  "truth-analysis.schema.json": [
+    {
+      invariant: "DEC-0011 deterministic-ordering",
+      check: (d) => {
+        const out = [];
+        const sortedAsc = (arr, label) => {
+          for (let i = 1; i < arr.length; i++)
+            if (!(arr[i] > arr[i - 1]))
+              out.push(`${label} not strictly sorted: '${arr[i]}' follows '${arr[i - 1]}'`);
+        };
+        sortedAsc(d.analyzed_claim_refs ?? [], "analyzed_claim_refs");
+        sortedAsc(d.unstructured_claim_refs ?? [], "unstructured_claim_refs");
+        sortedAsc(d.unprofiled_fact_claim_refs ?? [], "unprofiled_fact_claim_refs");
+        sortedAsc((d.open_contradictions ?? []).map((c) => c.fact_key), "open_contradictions fact_keys");
+        sortedAsc((d.gaps ?? []).map((g) => g.fact_key), "gaps fact_keys");
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0011 refs-within-analyzed",
+      check: (d) => {
+        const out = [];
+        const analyzed = new Set(d.analyzed_claim_refs ?? []);
+        const requireIn = (refs, label) => {
+          for (const r of refs)
+            if (!analyzed.has(r)) out.push(`${label} references '${r}', which is not in analyzed_claim_refs`);
+        };
+        for (const c of d.open_contradictions ?? []) requireIn(c.claim_refs ?? [], `contradiction '${c.fact_key}'`);
+        for (const g of d.gaps ?? []) requireIn(g.claim_refs ?? [], `gap '${g.fact_key}'`);
+        requireIn(d.unstructured_claim_refs ?? [], "unstructured_claim_refs");
+        requireIn(d.unprofiled_fact_claim_refs ?? [], "unprofiled_fact_claim_refs");
+        return out;
+      },
+    },
+  ],
 };
 
 function runSemantic(schemaFile, data) {

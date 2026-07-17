@@ -12,7 +12,7 @@ import {
   parseSourceRef,
 } from "../src/kernel/source-ref.js";
 import { classifyInput } from "../src/understand/classify-input.js";
-import { BRAND, NOW, WS, contentStore, registry, validClaim } from "./helpers.js";
+import { BRAND, NOW, WS, contentStore, registry, truthAnalysisFor, validClaim } from "./helpers.js";
 
 const ARABIC_BEH = String.fromCodePoint(0x0628); // Arabic letter, 1 code point = 1 UTF-16 unit
 const GCLEF = String.fromCodePoint(0x1d11e); // supplementary plane, 1 code point = 2 UTF-16 units
@@ -31,6 +31,12 @@ function compileFragment(content: string, start: number, end: number) {
   );
   assert.ok(classified.ok, JSON.stringify(classified));
   const source = classified.ok ? classified.value[0]! : {};
+  const claims = [
+    validClaim({
+      source_type: "client_statement",
+      source_ref: `source:${String(source["artifact_id"])}#codepoints=${start}-${end}`,
+    }),
+  ];
   const input: BrandContextInput = {
     artifactId: "bctx_cp_0001",
     workspace: WS,
@@ -38,15 +44,9 @@ function compileFragment(content: string, start: number, end: number) {
     mode: "prompt-only",
     createdAt: NOW,
     sources: [source],
-    claims: [
-      validClaim({
-        source_type: "client_statement",
-        source_ref: `source:${String(source["artifact_id"])}#codepoints=${start}-${end}`,
-      }),
-    ],
+    claims,
     assumptions: [],
-    contradictions: [],
-    gaps: [],
+    truthAnalysis: truthAnalysisFor(claims),
     identity: { names: [{ value: "Test Co", claim_ref: "claim_t_0001" }] },
   };
   return buildBrandContext(input, registry(), store);

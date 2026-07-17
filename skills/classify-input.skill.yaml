@@ -1,7 +1,9 @@
 # Skill specification — template per docs/AGENT_AND_SKILL_ARCHITECTURE.md §4.
 # Phase 1A implements the deterministic Tier-0 subset of this UNDERSTAND skill;
 # the catalog's model-assisted classification (Tier 1) stays unimplemented and
-# blocked on Q-002 (provider approval).
+# prohibited by the ratified zero-provider policy (DEC-0009; Q-002 closed as
+# "no provider approved") — a future provider requires a superseding
+# provider-enablement decision, not an answer to an open question.
 skill_id: classify-input
 domain: UNDERSTAND
 purpose: >
@@ -21,7 +23,7 @@ output_contract: source.schema.json[]
 required_context: [workspace, brand_ref, none from the Second Brain]
 tools: []  # no OCR, no PDF/DOCX extraction, no URL fetching, no network, no model
 model_capability: tier-0 (deterministic; the Tier-1 model-assisted extension is
-  future work behind Q-002)
+  prohibited by DEC-0009 until a provider-enablement decision supersedes it)
 deterministic_validations:
   - every produced artifact validates against source.schema.json via the
     contract registry before it is returned (INV-DET-001)
