@@ -209,9 +209,9 @@ immutable per version; a revision creates a new version linked by supersession
   has Variants.
 - **Lifecycle:** envelope lifecycle + G6 contact-sheet approval for generated assets
   entering production.
-- **Class:** canonical. (Foundation: represented by `source.schema.json` for inputs and
-  spec slot references for outputs; a dedicated asset schema lands with generation
-  infrastructure in Phase 2 — recorded in OPEN_QUESTIONS Q-007.)
+- **Class:** canonical. (Foundation: represented by `contracts/source.schema.json` for
+  inputs and spec slot references for outputs; a dedicated asset schema lands with
+  generation infrastructure in Phase 2 — recorded in OPEN_QUESTIONS Q-007.)
 
 ### Asset Variant
 - **Purpose:** a derived rendition of an Asset (size ladder, theme pair, crop,
