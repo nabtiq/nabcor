@@ -3,34 +3,72 @@
 **Updated:** 2026-07-17. Assumptions carry risk class (LOW/MEDIUM/HIGH). High-risk
 assumptions must not silently become architectural decisions (Master Prompt §14).
 
-## A. Questions blocking implementation (resolve before/at Phase 1 start)
+## Ratification (blocking — decision records)
 
-```yaml
-- id: Q-001
-  question: How does the in-flight multi-page core work (uncommitted in the main
-    working tree: routing/, schema/site.ts, [...segments]/, multipage tests) relate to
-    the foundation? Merge first, park, or continue in parallel?
-  why_blocking: Phase 4's spec→site bridge and RISK-ARCH-01 depend on which core ships;
-    website-spec assumptions differ between single-page and multi-page cores.
-  needs: product-owner decision → decision record (DEC series)
-  proposed_safe_default: continue Phase 1 (truth layer) which is core-agnostic; decide
-    before Phase 3 spec work hardens.
+DEC-0001..0004 are **proposed**. No product-owner approval exists as repository
+evidence, so nothing yet carries rank-3 authority (AGENTS.md §Decision authority).
 
-- id: Q-002
-  question: Who are the named humans behind the gate roles (operator, reviewer,
-    evaluation owner, product owner) while the team is effectively one person?
-  why_blocking: INV-HUM-001 requires decided_by naming a human; one person holding all
-    roles is acceptable but must be explicit (self-review is a known weakness).
-  needs: product-owner statement recorded in a decision or in this file's answer log.
+**Exact action required from the product owner, per record:** review the record, then
+either (a) ratify — set `status: ratified`, set `decided_by` to your identity, and add
+an approvals entry `{approved_by: <you>, gate: "ratification", verdict: "approved",
+at: <timestamp>}` (the semantic validator enforces this shape); or (b) reply with the
+requested change and the record is revised as `proposed`. A single commit or written
+statement in this file's Answer log naming the four records and the verdict is
+sufficient evidence.
 
-- id: Q-003
-  question: Which model providers/accounts are approved for Phase 1, and what is the
-    monthly spend ceiling?
-  why_blocking: token budgets (EXP-0005) and routing config need real ceilings;
-    BC-001 ran on a subscription with unknowable allocation — Phase 1 should prefer
-    API-billed usage for measurable cost (INV-OBS-001).
-  needs: product-owner decision.
-```
+## A. Product-owner decision packet (blocking — resolve before/at Phase 1 start)
+
+### Q-001 — In-flight multi-page core work
+
+Uncommitted in the main working tree: `packages/core/src/routing/`, `schema/site.ts`,
+`apps/demo/src/app/[locale]/[...segments]/`, multipage tests.
+
+- **Option A — merge/complete first.** The multi-page core lands (its own review/
+  decision) before Phase 1 starts. *Consequence:* Phase 1 delayed by that work;
+  Phase 3/4 spec assumptions settle early; no parallel-stream sync risk.
+- **Option B — park it.** Stash/branch the work; Phase 1 proceeds on the current core.
+  *Consequence:* fastest Phase 1 start; the work risks going stale; the spec→site
+  bridge (Phase 4) is designed against the single-page core and revisited later.
+- **Option C — continue in parallel with an explicit boundary.** Multi-page work
+  continues on its own branch; the Foundation slice treats the core as a black box
+  until Phase 3, when `website-spec` assumptions must be settled. *Consequence:* no
+  delay either side; requires the F08-class sync gate discipline (INV-AGENT-001) and a
+  decision before Phase 3 hardens specs.
+- **Recommended safe default: Option C** — Phase 1 (truth layer) is core-agnostic
+  either way; the real deadline is Phase 3.
+
+### Q-002 — Named humans behind the gate roles
+
+Roles required by INV-HUM-001 and the evaluation framework: **product owner** (scope,
+ratification, budgets) · **operator** (runs projects, claim/asset gates) · **reviewer**
+(direction/acceptance gates) · **evaluation owner** (calibration, eval-failure triage).
+
+One named person may hold multiple roles — that is acceptable and expected at current
+team size — but it must be stated, because it makes several gates **self-review**: the
+person approving is the person who produced. Known weakness; the mitigations are the
+deterministic gates (which don't care who runs them) and honest recording of the role
+under which each approval was made.
+
+**Exact statement needed for ratification (fill and append to the Answer log):**
+> "I, <name>, hold the roles: <list>. I understand the direction, claims, asset,
+> acceptance, and publication gates will be self-reviewed until additional reviewers
+> are named. Effective <date>."
+
+### Q-003 — Approved providers and spend ceilings
+
+Needed before any Phase 1 model call:
+
+1. **Approved providers/accounts** for Phase 1 (foundation default assumption:
+   Anthropic + OpenAI, per BC-001 operational history — confirm or amend).
+2. **Billing mode:** subscription usage is unmeasurable per project (BC-001's true
+   cost is permanently unknown); API billing makes cost a recorded fact (INV-OBS-001).
+   Recommended: API keys for all Phase 1 runs.
+3. **Ceilings:** a monthly ceiling and a per-slice-run ceiling (the budget artifact's
+   `hard_stop`). Foundation hypothesis to confirm or replace: ≈$60–90 per full slice
+   run, 450k output tokens, hard stop 550k (`docs/MODEL_AND_TOKEN_STRATEGY.md` §7).
+4. **Client-data boundary:** no real client data is sent to any provider until that
+   provider is explicitly approved for it (INV-DATA-001); benchmark runs use synthetic
+   bundles only.
 
 ## B. Questions testable by experiment
 

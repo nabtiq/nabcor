@@ -96,6 +96,11 @@ NABCOR_FOUNDATION_v1.0_to_v1.1_CHANGELOG.md    BC-001 change ledger
 superseded. Do not silently resolve a conflict — record it (an OPEN_QUESTIONS entry or
 a decision record) and proceed per the higher source.
 
+**Decision authority:** only `ratified` decision records carry rank-3 authority.
+`proposed` records are proposals — read them for context, do not treat them as
+binding, and do not implement work that only a proposed decision authorizes without
+surfacing that gap (docs/DECISION_SYSTEM.md §Status semantics).
+
 ## Context policy (Second Brain layers)
 
 - **Layer 1 — Canonical truth** (hierarchy ranks 1–5): load *selectively by relevance*

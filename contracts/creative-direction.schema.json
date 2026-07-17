@@ -4,23 +4,52 @@
   "title": "Creative Direction",
   "description": "The ratified territory, refined — the governing creative decision that unlocks production (INV-BRAND-001).",
   "allOf": [
-    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
     {
       "type": "object",
-      "required": ["brand_ref", "territory_ref", "selection_decision_ref"],
+      "required": [
+        "brand_ref",
+        "territory_ref",
+        "selection_decision_ref"
+      ],
       "properties": {
-        "brand_ref": { "type": "string" },
-        "territory_ref": { "type": "string" },
-        "selection_decision_ref": { "type": "string", "description": "decision record of the human selection (Gate 1)" },
-        "refinements": { "type": "array", "items": { "type": "string" } },
-        "blend_notes": { "type": ["string", "null"], "description": "when the human blended territories" },
-        "constraints_carried": { "type": "array", "items": { "type": "string" } }
+        "brand_ref": {
+          "type": "string"
+        },
+        "territory_ref": {
+          "type": "string"
+        },
+        "selection_decision_ref": {
+          "type": "string",
+          "description": "decision record of the human selection (Gate 1)"
+        },
+        "refinements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blend_notes": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "when the human blended territories"
+        },
+        "constraints_carried": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     }
   ],
   "examples": [
     {
-      "schema_version": "1.0.0",
+      "schema_version": "1.1.0",
       "artifact_id": "dir_0001",
       "brand_ref": "brand_example",
       "created_at": "2026-07-17T12:00:00Z",
@@ -28,8 +57,32 @@
       "lifecycle_status": "accepted",
       "territory_ref": "terr_0001",
       "selection_decision_ref": "DEC-1001-brand-example-direction",
-      "refinements": ["soften the mono annotations for body contexts"],
+      "refinements": [
+        "soften the mono annotations for body contexts"
+      ],
       "blend_notes": null
     }
-  ]
+  ],
+  "propertyNames": {
+    "enum": [
+      "approvals",
+      "artifact_id",
+      "blend_notes",
+      "brand_ref",
+      "constraints_carried",
+      "created_at",
+      "creator_type",
+      "derived_from_runs",
+      "lifecycle_status",
+      "project_ref",
+      "provisional",
+      "refinements",
+      "schema_version",
+      "selection_decision_ref",
+      "superseded_by",
+      "supersedes",
+      "territory_ref",
+      "validation_status"
+    ]
+  }
 }

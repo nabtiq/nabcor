@@ -7,8 +7,10 @@
 
 ## Current phase
 
-Phase 0 — Foundation. **Complete pending human review** (this branch:
-`foundation/phase-0`, worktree `~/Nabtiq/Nabdev/nabcor-foundation`).
+Phase 0 — Foundation. **Authored and validated; pending product-owner ratification**
+(this branch: `foundation/phase-0`, worktree `~/Nabtiq/Nabdev/nabcor-foundation`).
+Independent-review corrections applied: contracts hardened + negative fixtures +
+semantic checks + CI workflow; DEC-0001..0004 set to `proposed`.
 
 ## Current objective
 
@@ -26,8 +28,10 @@ product owner so Phase 1 implementation can start from a fixed base.
 
 ## Current blockers
 
-- Human review of: the four ratified-pending-review decision records (DEC-0001..0004),
-  the invariant set, and the slice budget assumptions
+- Product-owner ratification of the four **proposed** decision records
+  (DEC-0001..0004) — exact action in `OPEN_QUESTIONS.md` §Ratification.
+- Product-owner answers to Q-001..Q-003 (decision packet in `OPEN_QUESTIONS.md`).
+- Review of the invariant set and the slice budget assumptions
   (`docs/MODEL_AND_TOKEN_STRATEGY.md` §7).
 
 ## Immediate next actions

@@ -4,55 +4,225 @@
   "title": "Decision record",
   "description": "A durable, explainable choice (INV-DEC-001; docs/DECISION_SYSTEM.md). Machine-readable source of truth; prose renderings are derived.",
   "allOf": [
-    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
     {
       "type": "object",
-      "required": ["decision_id", "title", "status", "context", "problem", "options", "selected_option", "reason", "decided_by", "revisit_trigger"],
+      "required": [
+        "decision_id",
+        "title",
+        "status",
+        "context",
+        "problem",
+        "options",
+        "selected_option",
+        "reason",
+        "decided_by",
+        "revisit_trigger"
+      ],
       "properties": {
-        "decision_id": { "type": "string", "pattern": "^DEC-[0-9]{4,}(-[a-z0-9-]+)?$" },
-        "title": { "type": "string" },
-        "status": { "enum": ["proposed", "ratified", "superseded", "revisited"] },
-        "decision_type": { "enum": ["product", "architecture", "direction", "fact-resolution", "claim-policy", "scope", "deployment", "other"] },
-        "context": { "type": "string" },
-        "problem": { "type": "string" },
-        "options": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["option_id", "summary"], "properties": { "option_id": { "type": "string" }, "summary": { "type": "string" } } } },
-        "selected_option": { "type": "string" },
-        "rejected_options": { "type": "array", "items": { "type": "object", "required": ["option_id", "reason"], "properties": { "option_id": { "type": "string" }, "reason": { "type": "string" } } } },
-        "reason": { "type": "string" },
-        "evidence": { "type": "array", "items": { "type": "string" } },
-        "assumptions": { "type": "array", "items": { "type": "string" }, "description": "assumption artifact ids" },
-        "consequences": { "type": "array", "items": { "type": "string" } },
-        "risks": { "type": "array", "items": { "type": "string" } },
-        "affected_artifacts": { "type": "array", "items": { "type": "string" } },
-        "revisit_trigger": { "type": "string" },
-        "decided_by": { "type": "string", "description": "human identity for INV-HUM-001 decision classes" }
+        "decision_id": {
+          "type": "string",
+          "pattern": "^DEC-[0-9]{4,}(-[a-z0-9-]+)?$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "proposed",
+            "ratified",
+            "superseded",
+            "revisited"
+          ]
+        },
+        "decision_type": {
+          "enum": [
+            "product",
+            "architecture",
+            "direction",
+            "fact-resolution",
+            "claim-policy",
+            "scope",
+            "deployment",
+            "other"
+          ]
+        },
+        "context": {
+          "type": "string"
+        },
+        "problem": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "option_id",
+              "summary"
+            ],
+            "properties": {
+              "option_id": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "selected_option": {
+          "type": "string"
+        },
+        "rejected_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "option_id",
+              "reason"
+            ],
+            "properties": {
+              "option_id": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "reason": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "assumption artifact ids"
+        },
+        "consequences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "risks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "affected_artifacts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "revisit_trigger": {
+          "type": "string"
+        },
+        "decided_by": {
+          "type": "string",
+          "minLength": 1,
+          "description": "while status=proposed: the proposer; on ratification: the approving human (INV-HUM-001). A ratified record must also carry an approvals entry with gate='ratification' (semantic check, docs/DECISION_SYSTEM.md)"
+        }
       }
     }
   ],
   "examples": [
     {
-      "schema_version": "1.0.0",
-      "artifact_id": "DEC-0003",
+      "schema_version": "1.1.0",
+      "artifact_id": "DEC-9999-example",
       "brand_ref": null,
       "created_at": "2026-07-17T12:00:00Z",
       "creator_type": "human",
       "lifecycle_status": "accepted",
-      "decision_id": "DEC-0003",
-      "title": "First vertical slice: spec-level outputs",
+      "approvals": [
+        {
+          "approved_by": "user_owner",
+          "gate": "ratification",
+          "verdict": "approved",
+          "reason": "reviewed options and evidence",
+          "at": "2026-07-17T13:00:00Z"
+        }
+      ],
+      "decision_id": "DEC-9999-example",
+      "title": "First vertical slice: spec-level outputs (synthetic example)",
       "status": "ratified",
       "decision_type": "product",
       "context": "Slice boundary needed before Phase 1",
       "problem": "Where does the slice stop?",
       "options": [
-        { "option_id": "spec-level", "summary": "validated specifications, preview-ready" },
-        { "option_id": "build-level", "summary": "also compile to a rendered site" }
+        {
+          "option_id": "spec-level",
+          "summary": "validated specifications, preview-ready"
+        },
+        {
+          "option_id": "build-level",
+          "summary": "also compile to a rendered site"
+        }
       ],
       "selected_option": "spec-level",
-      "rejected_options": [ { "option_id": "build-level", "reason": "couples unproven layers to proven production; too costly to iterate" } ],
+      "rejected_options": [
+        {
+          "option_id": "build-level",
+          "reason": "couples unproven layers to proven production; too costly to iterate"
+        }
+      ],
       "reason": "isolates the unproven intelligence spine; keeps evaluation runs cheap",
-      "evidence": ["Master Prompt D14", "BC-001 delivery evidence"],
+      "evidence": [
+        "Master Prompt D14",
+        "BC-001 delivery evidence"
+      ],
       "revisit_trigger": "stable slice evaluations",
-      "decided_by": "hanafi"
+      "decided_by": "user_owner"
     }
-  ]
+  ],
+  "propertyNames": {
+    "enum": [
+      "affected_artifacts",
+      "approvals",
+      "artifact_id",
+      "assumptions",
+      "brand_ref",
+      "consequences",
+      "context",
+      "created_at",
+      "creator_type",
+      "decided_by",
+      "decision_id",
+      "decision_type",
+      "derived_from_runs",
+      "evidence",
+      "lifecycle_status",
+      "options",
+      "problem",
+      "project_ref",
+      "provisional",
+      "reason",
+      "rejected_options",
+      "revisit_trigger",
+      "risks",
+      "schema_version",
+      "selected_option",
+      "status",
+      "superseded_by",
+      "supersedes",
+      "title",
+      "validation_status"
+    ]
+  }
 }

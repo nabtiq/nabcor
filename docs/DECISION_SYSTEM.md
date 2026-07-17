@@ -28,6 +28,21 @@ Required fields: `decision_id`, `title`, `date`, `status`
 `assumptions`, `consequences`, `risks`, `affected_artifacts`, `revisit_trigger`,
 `supersedes`/`superseded_by`, `decided_by` (a human for INV-HUM-001 classes).
 
+## Status semantics and ratification
+
+- `proposed` — authored (by anyone, including an agent) but **not approved by the
+  product owner**. Proposed records bind nobody; they are input for review, cited only
+  as proposals.
+- `ratified` — explicitly approved by the authorized human. Ratification is recorded
+  **as repository evidence**: an `approvals` entry
+  `{approved_by: <human user>, gate: "ratification", verdict: "approved", at: …}` on
+  the record, `status` set to `ratified`, and `decided_by` naming the approving human.
+  A `ratified` record without that approval entry is invalid (semantic check
+  `INV-HUM-001/INV-DEC-001 ratification-approval` in `contracts/validate.mjs`).
+- `superseded` / `revisited` — as before; supersession links both directions.
+- `decided_by` while `proposed` names the proposer; ratification replaces it with the
+  approving human.
+
 ## Rules
 
 1. A decision is binding only in `ratified` status.
@@ -43,9 +58,12 @@ Required fields: `decision_id`, `title`, `date`, `status`
 
 ## Seed records
 
-| ID | Title |
-|---|---|
-| DEC-0001 | Product category: AI Creative Operating System |
-| DEC-0002 | Second Brain: file-based, three context layers, no vector DB yet |
-| DEC-0003 | First vertical slice: spec-level, two input modes |
-| DEC-0004 | BC-001 adoption: evidence classes and accepted findings bind the foundation |
+All four are `proposed` — awaiting product-owner ratification (see
+`brain/current/OPEN_QUESTIONS.md` §Ratification for the exact action):
+
+| ID | Title | Status |
+|---|---|---|
+| DEC-0001 | Product category: AI Creative Operating System | proposed |
+| DEC-0002 | Second Brain: file-based, three context layers, no vector DB yet | proposed |
+| DEC-0003 | First vertical slice: spec-level, two input modes | proposed |
+| DEC-0004 | BC-001 adoption: evidence classes and accepted findings bind the foundation | proposed |

@@ -1,7 +1,17 @@
 # NABCor Foundation Report — Phase 0
 
 **Date:** 2026-07-17 · **Branch:** `foundation/phase-0` (durable worktree
-`~/Nabtiq/Nabdev/nabcor-foundation`) · **Status:** complete pending human review.
+`~/Nabtiq/Nabdev/nabcor-foundation`) · **Status:** authored and validated —
+**pending product-owner ratification** (nothing is ratified yet; see §13).
+
+**Correction pass (2026-07-17, independent review):** contracts hardened to reject
+unknown fields (draft-07-safe `propertyNames` closure); 18 negative + 3 positive
+fixtures and a deterministic semantic-validation layer added to `contracts/validate.mjs`;
+first CI workflow added (`.github/workflows/foundation-contracts.yml`); DEC-0001..0004
+corrected from `ratified` to `proposed` (no product-owner approval exists as repository
+evidence); Q-001..Q-003 expanded into a product-owner decision packet
+(`brain/current/OPEN_QUESTIONS.md`). Contract `schema_version` bumped 1.0.0 → 1.1.0
+(migration note in `contracts/README.md`).
 
 ## 1. Repository audit summary
 
@@ -28,7 +38,11 @@ Creative OS, kept intact.
 - `docs/` (new) — DOMAIN_MODEL.md, PROVENANCE_AND_CONFIDENCE.md, DECISION_SYSTEM.md,
   AGENT_AND_SKILL_ARCHITECTURE.md, MODEL_AND_TOKEN_STRATEGY.md,
   EVALUATION_FRAMEWORK.md, FIRST_VERTICAL_SLICE.md
-- `contracts/` — 20 draft-07 JSON Schemas + `validate.mjs` + README (all green)
+- `contracts/` — 20 draft-07 JSON Schemas (strict: unknown fields rejected) +
+  `validate.mjs` (schema + semantic layers) + `fixtures/{positive,negative}.json` +
+  README documenting the closure design and open-map exceptions
+- `.github/workflows/foundation-contracts.yml` — first CI workflow: contract
+  validation on contracts/ changes (pinned actions, `contents: read`)
 - `brain/` — current/{NOW,ROADMAP,RISKS,OPEN_QUESTIONS}.md ·
   decisions/DEC-0001..0004 · experiments/EXP-0001..0005 ·
   research/agent-patterns/500-AI-Agents-Projects-analysis.md ·
@@ -113,9 +127,16 @@ decision record. The four website-core deferred doors stay shut.
 
 ## 12. Testing and validation completed
 
-- `node contracts/validate.mjs`: **all 20 schemas compile (draft-07/ajv), all 22
-  embedded examples validate, all $ids unique** — runnable by anyone, no new
-  dependencies (ajv resolved transitively).
+**VERIFIED (commands executed / files inspected in this checkout):**
+
+- `node contracts/validate.mjs` — exit 0: **20/20 schemas compiled (draft-07/ajv,
+  no new dependencies) · 23/23 positive cases passed (20 embedded examples + 3
+  positive fixtures) · 18/18 negative fixtures correctly rejected (12 schema-layer,
+  6 semantic-layer) · 13 semantic-check executions green on positive cases · $ids
+  unique**.
+- `npm test` (apps/demo workspace) — passed after the validator edit (test-after-edit
+  hook run in this worktree); confirms the production layer is unaffected.
+- Workflow YAML parsed valid (python yaml.safe_load; jobs/on structure checked).
 - ID uniqueness sweep across all foundation docs: 62 ID definitions
   (INV/DEC/EXP/RISK/Q/ASM/G/BM/P series), zero duplicates.
 - Path-reference sweep across all new docs: all repo-relative references resolve
@@ -127,15 +148,30 @@ decision record. The four website-core deferred doors stay shut.
   that exist (P1–P12 table ↔ INVARIANTS.md).
 - Slice ↔ domain model mapping: every slice artifact is a defined domain entity with
   a contract (FIRST_VERTICAL_SLICE §3 ↔ DOMAIN_MODEL ↔ contracts/).
-- NOT validated: Mermaid ERD rendering (syntax follows standard erDiagram grammar;
-  render-check it in any Mermaid viewer); the benchmark cases themselves (defined,
-  not yet authored — Phase 1).
+- `git diff` scope: no file under `packages/`, `apps/`, or `prompts/` modified.
+
+**NOT YET VERIFIED (do not read as passed):**
+
+- GitHub Actions execution of `foundation-contracts.yml` — the branch has not been
+  pushed; CI status exists only after a push.
+- Full website build and Playwright a11y suite — not run in this pass; contract
+  changes cannot affect them (no production file touched), and they belong to the
+  channel layer's own gates.
+- Benchmark performance — benchmark cases are defined, not authored or executed.
+- Model-cost hypotheses (slice budget ≈$60–90 / 450k output) — EXP-0005 measures them.
+- Mermaid ERD rendering — syntax follows standard erDiagram grammar; render-check it
+  in any Mermaid viewer.
+- External retrospective evidence (josouralazl `retrospective/bc-001`) — cited from
+  the prior integration pass; not re-verifiable from this checkout alone.
 
 ## 13. Known limitations
 
-- **Decision records are `ratified` pending product-owner review** — DEC-0002 in
-  particular was decided by the foundation agent within Master-Prompt constraints and
-  needs explicit human ratification (Q-002 context).
+- **Decision records DEC-0001..0004 are `proposed`, not ratified.** No product-owner
+  approval exists as repository evidence, so per `docs/DECISION_SYSTEM.md` they bind
+  nobody yet. The exact ratification action (status flip + approvals entry, enforced
+  by the semantic validator) is specified in `brain/current/OPEN_QUESTIONS.md`
+  §Ratification. DEC-0001/0003/0004's *direction* originates from the product owner's
+  own prompts; the records still require formal ratification.
 - **Budget numbers are hypotheses** (INV-TOK-001 note; EXP-0005 exists to replace them).
 - **The 500-AI-Agents analysis** is catalog-level (README/taxonomy), not
   run-the-projects level — sufficient for pattern verdicts, stated in the note.

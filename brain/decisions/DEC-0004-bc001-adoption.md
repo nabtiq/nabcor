@@ -2,8 +2,8 @@
 decision_id: DEC-0004
 title: "BC-001 adoption: evidence classes and accepted findings bind the foundation"
 date: 2026-07-17
-status: ratified
-decided_by: "hanafi (product owner) — via the BC-001 integration directive (2026-07-17); dispositions executed per acceptance ledger"
+status: proposed
+decided_by: "foundation agent (proposer). The BC-001 integration directive (2026-07-17) came from the product owner; the evidence-class dispositions are the agent's work; ratification of this record required from the product owner"
 context: >
   A forensic retrospective of the Josour Al Azl production build (branch
   retrospective/bc-001 @ 4b06c2e, josouralazl repo) produced measured evidence about
@@ -55,3 +55,5 @@ superseded_by: null
 # DEC-0004 — BC-001 adoption
 
 One measured case, adopted through evidence classes — never as universal proof.
+
+**Ratification:** pending — see `brain/current/OPEN_QUESTIONS.md` §Ratification.

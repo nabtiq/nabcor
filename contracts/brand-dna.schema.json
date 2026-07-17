@@ -4,35 +4,240 @@
   "title": "Brand DNA",
   "description": "Durable identity facts and expression rules territories must honor (DOMAIN_MODEL §4). Verified elements cite claims; proposed elements are marked.",
   "allOf": [
-    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
     {
       "type": "object",
-      "required": ["brand_ref", "names", "palette", "typography", "voice"],
+      "required": [
+        "brand_ref",
+        "names",
+        "palette",
+        "typography",
+        "voice"
+      ],
       "properties": {
-        "brand_ref": { "type": "string" },
-        "names": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["value", "status"], "properties": { "value": { "type": "string" }, "lang": { "type": "string" }, "status": { "enum": ["verified", "proposed"] }, "claim_ref": { "type": ["string", "null"] } } } },
-        "palette": { "type": "array", "items": { "type": "object", "required": ["hex", "role", "status"], "properties": { "hex": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "role": { "type": "string" }, "status": { "enum": ["verified", "proposed"] }, "claim_ref": { "type": ["string", "null"] }, "rationale": { "type": "string" } } } },
-        "typography": { "type": "object", "required": ["display", "body"], "properties": { "display": { "type": "string" }, "body": { "type": "string" }, "arabic": { "type": "string", "description": "required for bilingual brands" }, "status": { "enum": ["verified", "proposed"] } } },
-        "marks": { "type": "array", "items": { "type": "object", "properties": { "source_ref": { "type": "string" }, "kind": { "enum": ["logo", "mark", "favicon"] } } } },
-        "voice": { "type": "object", "required": ["traits"], "properties": { "traits": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "never": { "type": "array", "items": { "type": "string" } } } },
-        "values": { "type": "array", "items": { "type": "string" } },
-        "identity_constraints": { "type": "array", "items": { "type": "string" }, "description": "hard rules from brand guides (strict-identity clients)" }
+        "brand_ref": {
+          "type": "string"
+        },
+        "names": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "value",
+              "status"
+            ],
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "lang": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "verified",
+                  "proposed"
+                ]
+              },
+              "claim_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "palette": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "hex",
+              "role",
+              "status"
+            ],
+            "properties": {
+              "hex": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "role": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "verified",
+                  "proposed"
+                ]
+              },
+              "claim_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "rationale": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "typography": {
+          "type": "object",
+          "required": [
+            "display",
+            "body"
+          ],
+          "properties": {
+            "display": {
+              "type": "string"
+            },
+            "body": {
+              "type": "string"
+            },
+            "arabic": {
+              "type": "string",
+              "description": "required for bilingual brands"
+            },
+            "status": {
+              "enum": [
+                "verified",
+                "proposed"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "marks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source_ref": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "logo",
+                  "mark",
+                  "favicon"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "voice": {
+          "type": "object",
+          "required": [
+            "traits"
+          ],
+          "properties": {
+            "traits": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "never": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "identity_constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "hard rules from brand guides (strict-identity clients)"
+        }
       }
     }
   ],
   "examples": [
     {
-      "schema_version": "1.0.0",
+      "schema_version": "1.1.0",
       "artifact_id": "dna_0001",
       "brand_ref": "brand_example",
       "created_at": "2026-07-17T12:00:00Z",
       "creator_type": "agent",
       "lifecycle_status": "reviewed",
       "provisional": true,
-      "names": [ { "value": "Veritas Forensics", "lang": "en", "status": "proposed", "claim_ref": null } ],
-      "palette": [ { "hex": "#101418", "role": "canvas", "status": "proposed", "claim_ref": null, "rationale": "evidence-room austerity" } ],
-      "typography": { "display": "grotesk", "body": "humanist sans", "arabic": "IBM Plex Sans Arabic", "status": "proposed" },
-      "voice": { "traits": ["precise", "calm", "procedural"], "never": ["hype", "exclamation marks"] }
+      "names": [
+        {
+          "value": "Veritas Forensics",
+          "lang": "en",
+          "status": "proposed",
+          "claim_ref": null
+        }
+      ],
+      "palette": [
+        {
+          "hex": "#101418",
+          "role": "canvas",
+          "status": "proposed",
+          "claim_ref": null,
+          "rationale": "evidence-room austerity"
+        }
+      ],
+      "typography": {
+        "display": "grotesk",
+        "body": "humanist sans",
+        "arabic": "IBM Plex Sans Arabic",
+        "status": "proposed"
+      },
+      "voice": {
+        "traits": [
+          "precise",
+          "calm",
+          "procedural"
+        ],
+        "never": [
+          "hype",
+          "exclamation marks"
+        ]
+      }
     }
-  ]
+  ],
+  "propertyNames": {
+    "enum": [
+      "approvals",
+      "artifact_id",
+      "brand_ref",
+      "created_at",
+      "creator_type",
+      "derived_from_runs",
+      "identity_constraints",
+      "lifecycle_status",
+      "marks",
+      "names",
+      "palette",
+      "project_ref",
+      "provisional",
+      "schema_version",
+      "superseded_by",
+      "supersedes",
+      "typography",
+      "validation_status",
+      "values",
+      "voice"
+    ]
+  }
 }

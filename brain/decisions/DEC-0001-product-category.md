@@ -2,8 +2,8 @@
 decision_id: DEC-0001
 title: "Product category: AI Creative Operating System, not AI website builder"
 date: 2026-07-17
-status: ratified
-decided_by: "hanafi (product owner) — via Foundation Master Prompt §1; executed by foundation agent"
+status: proposed
+decided_by: "foundation agent (proposer). Direction originates from the product owner's Phase 0 Master Prompt §1, but no ratification of this record exists as repository evidence; ratification required from the product owner"
 context: >
   nabcor began as a shared foundation for client websites (README three-layer model,
   8-prompt pipeline). The Foundation Master Prompt redefines the product as a Creative
@@ -55,3 +55,6 @@ superseded_by: null
 
 The website builder is the first channel engine, not the product. All future scope
 questions test against the Creative OS spine defined in the constitution (§2, §5).
+
+**Ratification:** pending — see `brain/current/OPEN_QUESTIONS.md` §Ratification for
+the exact approval action. Proposed records bind nobody (docs/DECISION_SYSTEM.md).

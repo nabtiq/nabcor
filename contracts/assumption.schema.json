@@ -4,24 +4,67 @@
   "title": "Assumption",
   "description": "A working belief with risk class, owner, and revisit condition (DOMAIN_MODEL §2; Master Prompt §14).",
   "allOf": [
-    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
     {
       "type": "object",
-      "required": ["statement", "risk", "status", "revisit_trigger"],
+      "required": [
+        "statement",
+        "risk",
+        "status",
+        "revisit_trigger"
+      ],
       "properties": {
-        "statement": { "type": "string", "minLength": 1 },
-        "risk": { "enum": ["low", "medium", "high"] },
-        "status": { "enum": ["open", "confirmed", "retired", "violated"] },
-        "owner": { "type": ["string", "null"] },
-        "revisit_trigger": { "type": "string", "description": "'never' is not a trigger" },
-        "expires_at": { "type": ["string", "null"], "format": "date-time" },
-        "affects": { "type": "array", "items": { "type": "string" }, "description": "artifact ids depending on this assumption" }
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "risk": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "status": {
+          "enum": [
+            "open",
+            "confirmed",
+            "retired",
+            "violated"
+          ]
+        },
+        "owner": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "revisit_trigger": {
+          "type": "string",
+          "description": "'never' is not a trigger"
+        },
+        "expires_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "affects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "artifact ids depending on this assumption"
+        }
       }
     }
   ],
   "examples": [
     {
-      "schema_version": "1.0.0",
+      "schema_version": "1.1.0",
       "artifact_id": "asm_brand_0001",
       "brand_ref": "brand_example",
       "created_at": "2026-07-17T12:00:00Z",
@@ -32,7 +75,33 @@
       "status": "open",
       "owner": "operator",
       "revisit_trigger": "client confirms language priorities at facts gate",
-      "affects": ["brief_0001"]
+      "affects": [
+        "brief_0001"
+      ]
     }
-  ]
+  ],
+  "propertyNames": {
+    "enum": [
+      "affects",
+      "approvals",
+      "artifact_id",
+      "brand_ref",
+      "created_at",
+      "creator_type",
+      "derived_from_runs",
+      "expires_at",
+      "lifecycle_status",
+      "owner",
+      "project_ref",
+      "provisional",
+      "revisit_trigger",
+      "risk",
+      "schema_version",
+      "statement",
+      "status",
+      "superseded_by",
+      "supersedes",
+      "validation_status"
+    ]
+  }
 }

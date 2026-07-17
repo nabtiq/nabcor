@@ -2,8 +2,8 @@
 decision_id: DEC-0002
 title: "Second Brain: file-based, three context layers, no vector database yet"
 date: 2026-07-17
-status: ratified
-decided_by: "foundation agent per Master Prompt §9 + D8 constraints; ratification pending product-owner review"
+status: proposed
+decided_by: "foundation agent (proposer), per Master Prompt §9 + D8 constraints; ratification required from the product owner"
 context: >
   Agents and humans need persistent, discoverable project memory: decisions, state,
   risks, questions, research, experiments, learnings. The Master Prompt mandates a
@@ -58,3 +58,5 @@ superseded_by: null
 Files over infrastructure until evidence demands otherwise. The three-layer authority
 model (canonical / working / archive) is enforced by AGENTS.md context policy, not by
 tooling, at this stage.
+
+**Ratification:** pending — see `brain/current/OPEN_QUESTIONS.md` §Ratification.

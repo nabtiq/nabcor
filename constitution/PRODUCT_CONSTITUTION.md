@@ -1,6 +1,6 @@
 # NABCor Product Constitution
 
-**Status:** ratified pending human review · **Version:** 1.0 · **Date:** 2026-07-17
+**Status:** proposed — pending product-owner ratification · **Version:** 1.0 · **Date:** 2026-07-17
 **Authority:** rank 1 in the source-of-truth hierarchy (see `AGENTS.md` §Source of truth).
 Nothing below is marketing copy. Every rule here binds humans and coding agents alike.
 Changes require a decision record (`docs/DECISION_SYSTEM.md`).

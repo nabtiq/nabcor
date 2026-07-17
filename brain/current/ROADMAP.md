@@ -4,7 +4,7 @@
 > Advancing a phase requires the prior phase's exit evidence. Dates are deliberately
 > absent until Phase 1 velocity data exists.
 
-## Phase 0 — Foundation *(current; complete pending review)*
+## Phase 0 — Foundation *(current; authored — pending product-owner ratification)*
 
 **Outcome:** every future addition is coherent, measurable, explainable, and hard to
 derail. **Exit evidence:** ratified constitution/invariants/decisions; valid contracts;

@@ -4,42 +4,182 @@
   "title": "Website Specification",
   "description": "Channel-expression contract for the website: sections with claim-bound copy slots and sourced image slots. Upstream of the nabcor SiteContent instance (DOMAIN_MODEL §9). Requires a ratified direction (INV-BRAND-001).",
   "allOf": [
-    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
     {
       "type": "object",
-      "required": ["brand_ref", "visual_world_ref", "direction_ref", "page", "sections", "validation_matrix_ref"],
+      "required": [
+        "brand_ref",
+        "visual_world_ref",
+        "direction_ref",
+        "page",
+        "sections",
+        "validation_matrix_ref"
+      ],
       "properties": {
-        "brand_ref": { "type": "string" },
-        "visual_world_ref": { "type": "string" },
-        "direction_ref": { "type": "string" },
-        "campaign_ref": { "type": ["string", "null"] },
-        "page": { "type": "string", "description": "slice scope: 'home'" },
-        "locales": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "brand_ref": {
+          "type": "string"
+        },
+        "visual_world_ref": {
+          "type": "string"
+        },
+        "direction_ref": {
+          "type": "string"
+        },
+        "campaign_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "page": {
+          "type": "string",
+          "description": "slice scope: 'home'"
+        },
+        "locales": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
         "sections": {
           "type": "array",
           "minItems": 1,
           "items": {
             "type": "object",
-            "required": ["section_id", "type", "intent"],
+            "required": [
+              "section_id",
+              "type",
+              "intent"
+            ],
             "properties": {
-              "section_id": { "type": "string" },
-              "type": { "type": "string", "description": "maps to nabcor section types where applicable (hero, services, portfolio, ...)" },
-              "intent": { "type": "string", "description": "what this section must achieve" },
-              "copy_slots": { "type": "array", "items": { "type": "object", "required": ["slot_id", "role"], "properties": { "slot_id": { "type": "string" }, "role": { "enum": ["factual", "positioning", "cta", "label"] }, "text": { "$ref": "artifact-envelope.schema.json#/definitions/localized_text" }, "claim_refs": { "type": "array", "items": { "type": "string" }, "description": "REQUIRED non-empty for role=factual (G4)" }, "unresolved_fact_note": { "type": ["string", "null"], "description": "renders as an explicit confirm-slot, never an invented value" } } } },
-              "image_slots": { "type": "array", "items": { "type": "object", "required": ["slot_id", "fulfillment"], "properties": { "slot_id": { "type": "string" }, "fulfillment": { "enum": ["source_asset", "image_brief", "placeholder"] }, "source_ref": { "type": ["string", "null"] }, "image_brief": { "type": ["string", "null"] }, "visual_classification": { "enum": ["documentary", "illustrative", "generated", "conceptual"] }, "alt": { "$ref": "artifact-envelope.schema.json#/definitions/localized_text" } } } },
-              "motion_notes": { "type": "string" }
-            }
+              "section_id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "description": "maps to nabcor section types where applicable (hero, services, portfolio, ...)"
+              },
+              "intent": {
+                "type": "string",
+                "description": "what this section must achieve"
+              },
+              "copy_slots": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "slot_id",
+                    "role"
+                  ],
+                  "properties": {
+                    "slot_id": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "enum": [
+                        "factual",
+                        "positioning",
+                        "cta",
+                        "label"
+                      ]
+                    },
+                    "text": {
+                      "$ref": "artifact-envelope.schema.json#/definitions/localized_text"
+                    },
+                    "claim_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "REQUIRED non-empty for role=factual (G4)"
+                    },
+                    "unresolved_fact_note": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "renders as an explicit confirm-slot, never an invented value"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "image_slots": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "slot_id",
+                    "fulfillment"
+                  ],
+                  "properties": {
+                    "slot_id": {
+                      "type": "string"
+                    },
+                    "fulfillment": {
+                      "enum": [
+                        "source_asset",
+                        "image_brief",
+                        "placeholder"
+                      ]
+                    },
+                    "source_ref": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "image_brief": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "visual_classification": {
+                      "enum": [
+                        "documentary",
+                        "illustrative",
+                        "generated",
+                        "conceptual"
+                      ]
+                    },
+                    "alt": {
+                      "$ref": "artifact-envelope.schema.json#/definitions/localized_text"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "motion_notes": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
           }
         },
-        "responsive_requirements": { "type": "array", "items": { "type": "string" } },
-        "validation_matrix_ref": { "type": "string", "description": "validation-matrix artifact declaring required theme×locale×viewport×motion×js combinations" },
-        "conversion_intent": { "type": "string", "description": "primary action the page drives" }
+        "responsive_requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "validation_matrix_ref": {
+          "type": "string",
+          "description": "validation-matrix artifact declaring required theme×locale×viewport×motion×js combinations"
+        },
+        "conversion_intent": {
+          "type": "string",
+          "description": "primary action the page drives"
+        }
       }
     }
   ],
   "examples": [
     {
-      "schema_version": "1.0.0",
+      "schema_version": "1.1.0",
       "artifact_id": "wspec_0001",
       "brand_ref": "brand_example",
       "created_at": "2026-07-17T12:00:00Z",
@@ -49,18 +189,69 @@
       "direction_ref": "dir_0001",
       "campaign_ref": "launch_0001",
       "page": "home",
-      "locales": ["en", "ar"],
+      "locales": [
+        "en",
+        "ar"
+      ],
       "sections": [
         {
           "section_id": "hero",
           "type": "hero",
           "intent": "establish forensic authority in 5 seconds",
-          "copy_slots": [ { "slot_id": "headline", "role": "positioning", "text": { "ar": "الحقيقة، موثّقة.", "en": "Truth, documented." }, "claim_refs": [] } ],
-          "image_slots": [ { "slot_id": "hero-visual", "fulfillment": "image_brief", "source_ref": null, "image_brief": "macro of annotated evidence instruments, cool neutral grade", "visual_classification": "illustrative", "alt": { "ar": "أدوات تحقيق جنائي", "en": "forensic instruments close-up" } } ]
+          "copy_slots": [
+            {
+              "slot_id": "headline",
+              "role": "positioning",
+              "text": {
+                "ar": "الحقيقة، موثّقة.",
+                "en": "Truth, documented."
+              },
+              "claim_refs": []
+            }
+          ],
+          "image_slots": [
+            {
+              "slot_id": "hero-visual",
+              "fulfillment": "image_brief",
+              "source_ref": null,
+              "image_brief": "macro of annotated evidence instruments, cool neutral grade",
+              "visual_classification": "illustrative",
+              "alt": {
+                "ar": "أدوات تحقيق جنائي",
+                "en": "forensic instruments close-up"
+              }
+            }
+          ]
         }
       ],
       "validation_matrix_ref": "vm_0001",
       "conversion_intent": "request a consultation"
     }
-  ]
+  ],
+  "propertyNames": {
+    "enum": [
+      "approvals",
+      "artifact_id",
+      "brand_ref",
+      "campaign_ref",
+      "conversion_intent",
+      "created_at",
+      "creator_type",
+      "derived_from_runs",
+      "direction_ref",
+      "lifecycle_status",
+      "locales",
+      "page",
+      "project_ref",
+      "provisional",
+      "responsive_requirements",
+      "schema_version",
+      "sections",
+      "superseded_by",
+      "supersedes",
+      "validation_matrix_ref",
+      "validation_status",
+      "visual_world_ref"
+    ]
+  }
 }

@@ -4,46 +4,267 @@
   "title": "Brand Context Package",
   "description": "The compiled hinge between truth and creativity: verified claims, assumptions, contradictions, gaps, identity facts (DOMAIN_MODEL; NORTH_STAR both modes).",
   "allOf": [
-    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
     {
       "type": "object",
-      "required": ["brand_ref", "mode", "identity", "claim_refs", "assumption_refs", "gaps"],
+      "required": [
+        "brand_ref",
+        "mode",
+        "identity",
+        "claim_refs",
+        "assumption_refs",
+        "gaps"
+      ],
       "properties": {
-        "brand_ref": { "type": "string" },
-        "mode": { "enum": ["prompt-only", "evidence-rich", "mixed"] },
+        "brand_ref": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "prompt-only",
+            "evidence-rich",
+            "mixed"
+          ]
+        },
         "identity": {
           "type": "object",
-          "required": ["names"],
+          "required": [
+            "names"
+          ],
           "properties": {
-            "names": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["value", "claim_ref"], "properties": { "value": { "type": "string" }, "lang": { "type": "string" }, "claim_ref": { "$ref": "artifact-envelope.schema.json#/definitions/claim_ref" } } } },
-            "contacts": { "type": "array", "items": { "type": "object", "required": ["kind", "value", "claim_ref"], "properties": { "kind": { "enum": ["email", "phone", "whatsapp", "address", "domain", "social"] }, "value": { "type": "string" }, "claim_ref": { "type": "string" } } } },
-            "existing_palette": { "type": "array", "items": { "type": "object", "properties": { "hex": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }, "claim_ref": { "type": "string" } } } },
-            "marks": { "type": "array", "items": { "type": "string" }, "description": "source artifact ids for logos/marks" }
+            "names": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "value",
+                  "claim_ref"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  },
+                  "lang": {
+                    "type": "string"
+                  },
+                  "claim_ref": {
+                    "$ref": "artifact-envelope.schema.json#/definitions/claim_ref"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "contacts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "value",
+                  "claim_ref"
+                ],
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "email",
+                      "phone",
+                      "whatsapp",
+                      "address",
+                      "domain",
+                      "social"
+                    ]
+                  },
+                  "value": {
+                    "type": "string"
+                  },
+                  "claim_ref": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "existing_palette": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "hex": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "claim_ref": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "marks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "source artifact ids for logos/marks"
+            }
+          },
+          "additionalProperties": false
+        },
+        "claim_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         },
-        "claim_refs": { "type": "array", "items": { "type": "string" } },
-        "assumption_refs": { "type": "array", "items": { "type": "string" } },
-        "open_contradictions": { "type": "array", "items": { "type": "object", "required": ["claim_refs", "description"], "properties": { "claim_refs": { "type": "array", "minItems": 2, "items": { "type": "string" } }, "description": { "type": "string" }, "blocking_publication": { "type": "boolean" } } } },
-        "gaps": { "type": "array", "items": { "type": "object", "required": ["what", "why_needed"], "properties": { "what": { "type": "string" }, "why_needed": { "type": "string" }, "blocking": { "type": "boolean" } } } },
-        "audience": { "type": "array", "items": { "type": "object", "required": ["claim_ref"], "properties": { "claim_ref": { "type": "string" } } } },
-        "market": { "type": "object", "properties": { "locales": { "type": "array", "items": { "type": "string" } }, "default_locale_claim_ref": { "type": "string" } } }
+        "assumption_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "open_contradictions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim_refs",
+              "description"
+            ],
+            "properties": {
+              "claim_refs": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": {
+                "type": "string"
+              },
+              "blocking_publication": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "what",
+              "why_needed"
+            ],
+            "properties": {
+              "what": {
+                "type": "string"
+              },
+              "why_needed": {
+                "type": "string"
+              },
+              "blocking": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "audience": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim_ref"
+            ],
+            "properties": {
+              "claim_ref": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "market": {
+          "type": "object",
+          "properties": {
+            "locales": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "default_locale_claim_ref": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
       }
     }
   ],
   "examples": [
     {
-      "schema_version": "1.0.0",
+      "schema_version": "1.1.0",
       "artifact_id": "bctx_0001",
       "brand_ref": "brand_example",
       "created_at": "2026-07-17T12:00:00Z",
       "creator_type": "agent",
       "lifecycle_status": "reviewed",
       "mode": "prompt-only",
-      "identity": { "names": [ { "value": "Veritas Forensics", "lang": "en", "claim_ref": "claim_010" } ] },
-      "claim_refs": ["claim_001", "claim_002", "claim_010"],
-      "assumption_refs": ["asm_brand_0001"],
+      "identity": {
+        "names": [
+          {
+            "value": "Veritas Forensics",
+            "lang": "en",
+            "claim_ref": "claim_010"
+          }
+        ]
+      },
+      "claim_refs": [
+        "claim_001",
+        "claim_002",
+        "claim_010"
+      ],
+      "assumption_refs": [
+        "asm_brand_0001"
+      ],
       "open_contradictions": [],
-      "gaps": [ { "what": "regulatory constraints for forensic services marketing in UAE", "why_needed": "affects claims and CTA language", "blocking": false } ]
+      "gaps": [
+        {
+          "what": "regulatory constraints for forensic services marketing in UAE",
+          "why_needed": "affects claims and CTA language",
+          "blocking": false
+        }
+      ]
     }
-  ]
+  ],
+  "propertyNames": {
+    "enum": [
+      "approvals",
+      "artifact_id",
+      "assumption_refs",
+      "audience",
+      "brand_ref",
+      "claim_refs",
+      "created_at",
+      "creator_type",
+      "derived_from_runs",
+      "gaps",
+      "identity",
+      "lifecycle_status",
+      "market",
+      "mode",
+      "open_contradictions",
+      "project_ref",
+      "provisional",
+      "schema_version",
+      "superseded_by",
+      "supersedes",
+      "validation_status"
+    ]
+  }
 }

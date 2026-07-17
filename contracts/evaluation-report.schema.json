@@ -4,49 +4,148 @@
   "title": "Evaluation Report",
   "description": "Aggregated evaluations for an artifact set. Every score carries reason + evidence; every evaluator declares authority (INV-EVAL-001).",
   "allOf": [
-    { "$ref": "artifact-envelope.schema.json#/definitions/envelope" },
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
     {
       "type": "object",
-      "required": ["brand_ref", "evaluated_artifacts", "evaluations", "overall_verdict"],
+      "required": [
+        "brand_ref",
+        "evaluated_artifacts",
+        "evaluations",
+        "overall_verdict"
+      ],
       "properties": {
-        "brand_ref": { "type": "string" },
-        "evaluated_artifacts": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "brand_ref": {
+          "type": "string"
+        },
+        "evaluated_artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
         "evaluations": {
           "type": "array",
           "minItems": 1,
           "items": {
             "type": "object",
-            "required": ["dimension", "method", "authority", "verdict", "reason", "evidence"],
+            "required": [
+              "dimension",
+              "method",
+              "authority",
+              "verdict",
+              "reason",
+              "evidence"
+            ],
             "properties": {
-              "dimension": { "type": "string", "description": "e.g. factual-integrity, creative-distinctiveness, brand-fidelity" },
-              "gate_id": { "type": ["string", "null"], "description": "G1..G8 where applicable" },
-              "method": { "enum": ["deterministic", "model", "human"] },
-              "authority": { "enum": ["blocking", "advisory", "experimental"] },
-              "verdict": { "enum": ["pass", "fail", "warn", "info"] },
-              "score": { "type": ["number", "null"], "description": "optional; invalid without rubric_ref + reason" },
-              "rubric_ref": { "type": ["string", "null"] },
-              "reason": { "type": "string", "minLength": 1 },
-              "evidence": { "type": "array", "minItems": 1, "items": { "type": "string" } },
-              "evaluator": { "type": "string", "description": "skill id, tool, or user id" },
-              "run_ref": { "type": ["string", "null"] }
-            }
+              "dimension": {
+                "type": "string",
+                "description": "e.g. factual-integrity, creative-distinctiveness, brand-fidelity"
+              },
+              "gate_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "G1..G8 where applicable"
+              },
+              "method": {
+                "enum": [
+                  "deterministic",
+                  "model",
+                  "human"
+                ]
+              },
+              "authority": {
+                "enum": [
+                  "blocking",
+                  "advisory",
+                  "experimental"
+                ]
+              },
+              "verdict": {
+                "enum": [
+                  "pass",
+                  "fail",
+                  "warn",
+                  "info"
+                ]
+              },
+              "score": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "optional; invalid without rubric_ref + reason"
+              },
+              "rubric_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "evaluator": {
+                "type": "string",
+                "description": "skill id, tool, or user id"
+              },
+              "run_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
           }
         },
-        "overall_verdict": { "enum": ["pass", "fail", "pass-with-warnings"] },
-        "blocking_failures": { "type": "array", "items": { "type": "string" } },
-        "cost_actuals_ref": { "type": ["string", "null"], "description": "token-usage rollup reference" }
+        "overall_verdict": {
+          "enum": [
+            "pass",
+            "fail",
+            "pass-with-warnings"
+          ]
+        },
+        "blocking_failures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cost_actuals_ref": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "token-usage rollup reference"
+        }
       }
     }
   ],
   "examples": [
     {
-      "schema_version": "1.0.0",
+      "schema_version": "1.1.0",
       "artifact_id": "eval_0001",
       "brand_ref": "brand_example",
       "created_at": "2026-07-17T12:00:00Z",
       "creator_type": "agent",
       "lifecycle_status": "generated",
-      "evaluated_artifacts": ["wspec_0001", "sspec_0001"],
+      "evaluated_artifacts": [
+        "wspec_0001",
+        "sspec_0001"
+      ],
       "evaluations": [
         {
           "dimension": "factual-integrity",
@@ -57,7 +156,9 @@
           "score": null,
           "rubric_ref": null,
           "reason": "all factual-role copy slots resolve to verified claims; no unledgered contact strings in output",
-          "evidence": ["scan log: 0 violations across 14 copy slots"],
+          "evidence": [
+            "scan log: 0 violations across 14 copy slots"
+          ],
           "evaluator": "validate-claims",
           "run_ref": "run_0042"
         }
@@ -65,5 +166,27 @@
       "overall_verdict": "pass",
       "blocking_failures": []
     }
-  ]
+  ],
+  "propertyNames": {
+    "enum": [
+      "approvals",
+      "artifact_id",
+      "blocking_failures",
+      "brand_ref",
+      "cost_actuals_ref",
+      "created_at",
+      "creator_type",
+      "derived_from_runs",
+      "evaluated_artifacts",
+      "evaluations",
+      "lifecycle_status",
+      "overall_verdict",
+      "project_ref",
+      "provisional",
+      "schema_version",
+      "superseded_by",
+      "supersedes",
+      "validation_status"
+    ]
+  }
 }

@@ -5,6 +5,7 @@
   "description": "Common envelope for all canonical NABCor artifacts (INV-VER-001, DOMAIN_MODEL.md). Referenced via allOf by concrete artifact schemas.",
   "definitions": {
     "envelope": {
+      "$comment": "Deliberately OPEN (no additionalProperties/propertyNames): this is an allOf composition target. Top-level closure is enforced per concrete schema via a root propertyNames enum listing envelope + own properties — the draft-07-safe pattern (additionalProperties:false here would reject every concrete schema's own fields).",
       "type": "object",
       "required": ["schema_version", "artifact_id", "created_at", "creator_type", "lifecycle_status"],
       "properties": {
@@ -27,19 +28,21 @@
       "type": "object",
       "required": ["approved_by", "gate", "verdict", "at"],
       "properties": {
-        "approved_by": { "type": "string", "description": "user id — a human (INV-HUM-001)" },
+        "approved_by": { "type": "string", "minLength": 1, "description": "user id — a human (INV-HUM-001)" },
         "gate": { "type": "string" },
         "verdict": { "enum": ["approved", "rejected", "needs-revision"] },
         "reason": { "type": "string" },
         "at": { "type": "string", "format": "date-time" }
-      }
+      },
+      "additionalProperties": false
     },
     "claim_ref": { "type": "string", "description": "claim artifact_id" },
     "localized_text": {
       "type": "object",
-      "description": "bilingual text pair (nabcor convention)",
+      "description": "locale-keyed text map; ar+en required (nabcor bilingual convention), additional BCP-47-style locale keys permitted by pattern — the one documented open-by-pattern map",
       "required": ["ar", "en"],
-      "properties": { "ar": { "type": "string" }, "en": { "type": "string" } }
+      "patternProperties": { "^[a-z]{2,3}(-[A-Z]{2})?$": { "type": "string" } },
+      "additionalProperties": false
     },
     "rights": {
       "type": "object",
@@ -50,7 +53,8 @@
         "advertising_use": { "enum": ["allowed", "forbidden", "unknown"] },
         "benchmark_use": { "enum": ["allowed", "forbidden"] },
         "training_use": { "enum": ["allowed", "forbidden"] }
-      }
+      },
+      "additionalProperties": false
     }
   }
 }

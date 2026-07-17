@@ -1,6 +1,6 @@
 # NABCor North Star Experience
 
-**Status:** ratified pending human review · **Version:** 1.0 · 2026-07-17
+**Status:** proposed — pending product-owner ratification · **Version:** 1.0 · 2026-07-17
 The ideal end-to-end experience for the two input modes. This is the experience the
 first vertical slice approximates (`docs/FIRST_VERTICAL_SLICE.md`) and later phases
 complete. Artifact names reference `contracts/`; gates reference

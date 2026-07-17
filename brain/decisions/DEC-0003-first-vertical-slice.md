@@ -2,8 +2,8 @@
 decision_id: DEC-0003
 title: "First vertical slice: spec-level outputs, two input modes, five human gates"
 date: 2026-07-17
-status: ratified
-decided_by: "hanafi (product owner) — slice shape fixed in Foundation Master Prompt D14; boundaries executed by foundation agent"
+status: proposed
+decided_by: "foundation agent (proposer). Slice shape originates from the product owner's Master Prompt D14; the spec-level boundary is the agent's proposal; ratification required from the product owner"
 context: >
   The Master Prompt fixes the slice pipeline: input → brand context → three territories
   → human selection → direction package → one premium homepage spec → three connected
@@ -55,3 +55,5 @@ superseded_by: null
 
 Specs, not sites. The slice proves the intelligence spine; the existing channel layer
 already proves production.
+
+**Ratification:** pending — see `brain/current/OPEN_QUESTIONS.md` §Ratification.

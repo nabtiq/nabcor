@@ -1,0 +1,20 @@
+[
+  {
+    "id": "P01-ratified-decision-with-approval",
+    "schema": "decision.schema.json",
+    "description": "ratified decision carrying the required ratification approval passes schema + semantic",
+    "data": { "schema_version": "1.1.0", "artifact_id": "DEC-9997-pos", "brand_ref": null, "created_at": "2026-07-17T12:00:00Z", "creator_type": "human", "lifecycle_status": "accepted", "approvals": [ { "approved_by": "user_owner", "gate": "ratification", "verdict": "approved", "reason": "reviewed", "at": "2026-07-17T13:00:00Z" } ], "decision_id": "DEC-9997-pos", "title": "t", "status": "ratified", "context": "c", "problem": "p", "options": [ { "option_id": "a", "summary": "s" } ], "selected_option": "a", "reason": "r", "revisit_trigger": "t", "decided_by": "user_owner" }
+  },
+  {
+    "id": "P02-factual-slot-with-confirm-note",
+    "schema": "website-spec.schema.json",
+    "description": "factual slot with empty claim_refs but an explicit unresolved_fact_note (confirm-slot pattern) passes — schema pressure must not encourage fabrication",
+    "data": { "schema_version": "1.1.0", "artifact_id": "wspec_p02", "brand_ref": "b", "created_at": "2026-07-17T12:00:00Z", "creator_type": "agent", "lifecycle_status": "generated", "visual_world_ref": "vw_1", "direction_ref": "dir_1", "campaign_ref": null, "page": "home", "locales": ["ar", "en"], "sections": [ { "section_id": "hero", "type": "hero", "intent": "authority", "copy_slots": [ { "slot_id": "years", "role": "factual", "text": { "ar": "[سنوات الخبرة — بانتظار التأكيد]", "en": "[X years in operation — confirm]" }, "claim_refs": [], "unresolved_fact_note": "years-in-operation not provided by client; confirm before publication" } ] } ], "validation_matrix_ref": "vm_1", "conversion_intent": "contact" }
+  },
+  {
+    "id": "P03-model-run-subscription",
+    "schema": "model-run.schema.json",
+    "description": "subscription-billed run with usd null and allocation none passes (cost modes never conflated)",
+    "data": { "schema_version": "1.1.0", "run_id": "run_p03", "session_id": "s", "project_id": "p", "workspace_id": "w", "brand_id": "b", "workflow_id": "wf", "skill_id": "sk", "attribution_confidence": "confirmed", "provider": "anthropic", "model": "m", "started_at": "2026-07-17T12:00:00Z", "input_tokens": 100, "output_tokens": 50, "cached_tokens": 4000, "cache_creation_tokens": 0, "reasoning_tokens": null, "cost": { "mode": "subscription", "usd": null, "allocation": "none" } }
+  }
+]

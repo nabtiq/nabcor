@@ -1,6 +1,6 @@
 # NABCor Non-Goals and Scope
 
-**Status:** ratified pending human review · **Version:** 1.0 · 2026-07-17
+**Status:** proposed — pending product-owner ratification · **Version:** 1.0 · 2026-07-17
 Everything here is excluded **on purpose**. Items move out of this file only via a
 decision record. Re-proposing a listed item without new evidence is a scope defect.
 
