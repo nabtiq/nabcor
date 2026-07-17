@@ -33,7 +33,9 @@ all packages schema-valid, within 1.5× stage budget.
 budget >2× (soft fail → redesign extraction chunking before rerun).
 
 **Expected cost.** 7 cases × ~40–75k output ≈ 300–520k output tokens (assumption:
-UNDERSTAND-stage budget per case; billing mode requires the Q-002 decision).
+UNDERSTAND-stage budget per case; billing mode requires a future
+provider-enablement decision superseding DEC-0009 — Q-002 is closed as
+"no provider approved", so this experiment cannot run yet).
 
 **Decision enabled.** Phase 1 → Phase 2 advance; whether extraction needs an
 Arabic-OCR tool investment (BM-07/BC-001 FAIL-03 class).

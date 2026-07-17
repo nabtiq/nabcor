@@ -114,3 +114,16 @@ supersedes: null (complements DEC-0007: names gate-role identities but leaves
 its fail-closed rule in force because no authenticated approval mechanism is
 designed and gate 1 requires an independent reviewer)
 superseded_by: null
+
+## Status note (appended 2026-07-18, Phase 1B.2 — original text above is unchanged)
+
+This record states in several places that Q-002 "remains open" and continues
+to block model-backed work. That was true when this decision was written and
+ratified; later in the same Phase 1B.1 delivery, DEC-0009 closed Q-002 as
+"no provider approved." Model-backed work is therefore no longer blocked on
+an open question — it is prohibited by the ratified zero-provider policy, and
+enabling any provider requires a new ratified decision meeting DEC-0009's
+nine requirements. Everything else here stands: the four roles, the mandatory
+`self_review: true` declaration, the four independent-review gates (still
+frozen — no independent reviewer has been named and no authenticated gate
+mechanism exists), and the fail-closed quarantine rule.

@@ -19,8 +19,9 @@ BM-24 (extreme-budget adversarial) for breach behavior.
 **Baseline.** BC-001 anchors (915k output full build; 78% cache-read cost share;
 ≈7% discard) — for scale orientation, not as a target.
 
-**Method.** If Q-002 approves API billing, runs use measured API cost; otherwise cost
-allocation remains explicitly unknown. Run
+**Method.** If a future provider-enablement decision (superseding DEC-0009,
+which closed Q-002 as "no provider approved") approves API billing, runs use
+measured API cost; otherwise cost allocation remains explicitly unknown. Run
 records + context manifests analyzed per stage/skill; budget breach simulated on
 BM-24; per-skill actuals compared to the catalog's budget hypotheses.
 

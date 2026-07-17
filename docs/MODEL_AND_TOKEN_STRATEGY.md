@@ -98,7 +98,9 @@ rollups, budget compliance, and the experimental survival/yield metrics
 (EXPERIMENTAL until BC-002 validates calculation — INV-EVAL-001).
 
 Preference proposed for Phase 1: **API-billed keys, not subscription sessions**, so
-cost is measured rather than estimated (BC-001's true allocation is unknowable; Q-002).
+cost is measured rather than estimated (BC-001's true allocation is unknowable).
+This preference feeds the future provider-enablement decision DEC-0009 point 9
+requires; Q-002 itself is closed as "no provider approved".
 
 ## 7. Initial first-vertical-slice budget (hypothesis, stated assumptions)
 
