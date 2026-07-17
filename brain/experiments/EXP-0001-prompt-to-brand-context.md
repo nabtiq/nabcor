@@ -1,6 +1,6 @@
 # EXP-0001 — Prompt to Brand Context
 
-**Status:** defined · **Phase:** 1 · **Enables:** Phase 1 exit (ROADMAP), Q-004 partial.
+**Status:** defined · **Phase:** 1 · **Enables:** Phase 1 exit evidence.
 
 **Question.** Can the UNDERSTAND path produce a valid, honest Brand Context Package
 from both input modes — with zero fabrication and correct inference labeling?
@@ -33,7 +33,7 @@ all packages schema-valid, within 1.5× stage budget.
 budget >2× (soft fail → redesign extraction chunking before rerun).
 
 **Expected cost.** 7 cases × ~40–75k output ≈ 300–520k output tokens (assumption:
-UNDERSTAND-stage budget per case; API-billed per Q-003).
+UNDERSTAND-stage budget per case; billing mode requires the Q-002 decision).
 
 **Decision enabled.** Phase 1 → Phase 2 advance; whether extraction needs an
 Arabic-OCR tool investment (BM-07/BC-001 FAIL-03 class).

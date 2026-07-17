@@ -4,8 +4,8 @@
 decision records). **Version:** 1.0 · 2026-07-17.
 Severity levels: `critical` (violating output/build must not ship; BLOCKING gates),
 `high` (must be fixed before the phase completes), `advisory` (tracked, reported).
-Gate IDs (G1–G8) are defined in `docs/EVALUATION_FRAMEWORK.md`. Evidence classes
-(`VALIDATED_BC001` etc.) follow `NABCOR_FOUNDATION_v1.0_to_v1.1_CHANGELOG.md`.
+Gate IDs (G1–G8) are defined in `docs/EVALUATION_FRAMEWORK.md`. BC-001 evidence labels
+retain the boundaries summarized in `brain/learnings/BC-001.md`.
 
 Every invariant: unique ID · rule · rationale · enforcement · failure example ·
 required test/validation · severity.
@@ -153,16 +153,18 @@ severity: critical
 id: INV-DEC-001
 title: Durable decisions are typed, versioned artifacts
 rule: Every durable decision (direction selection, scope change, architecture choice,
-  claim policy, deployment fact) exists as a decision record per contracts/decision.schema.json;
-  the machine-readable artifact is the source of truth; prose renderings are derived;
-  a decision existing only in chat or prose is unratified and binds nobody.
+  claim policy, deployment fact) exists in its applicable canonical form. Repository
+  governance decisions use the validated brain/decisions Markdown record; runtime and
+  brand decisions use contracts/decision.schema.json. A decision existing only in chat
+  or unstructured prose is unratified and binds nobody.
 rationale: VALIDATED_BC001 (L03 — written contracts carried three rounds without drift);
   the typed form adds queryability (SUPPORTED_BC001).
-enforcement: [decision.schema validation, AGENTS.md session rules (agents must check
-  affected decision records before changing related code), G-series gates read decisions]
+enforcement: [validate:brain for repository decisions, decision.schema validation for
+  runtime artifacts, AGENTS.md session rules, G-series gates read runtime decisions]
 failure_example: the Josoor/Josour spelling stayed unsettled for 6 days because it lived
   in memory and prose instead of a record forcing resolution.
-required_test: schema validation in contracts/validate.mjs; foundation report link check.
+required_test: npm run validate checks repository decision identity/status/approval;
+  contracts/validate.mjs checks runtime decision artifacts.
 severity: critical
 ```
 
@@ -234,7 +236,7 @@ required_test: pre-flight with a seeded missing DNS assertion fails G5.
 severity: critical
 ```
 
-## Progressive enhancement (website channel)
+## Progressive enhancement (rendered web channels)
 
 ```yaml
 id: INV-PE-001

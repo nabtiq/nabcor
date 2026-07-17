@@ -1,7 +1,7 @@
 # EXP-0005 — Token Budget Baseline
 
 **Status:** defined · **Phase:** 1–3 (runs alongside every other experiment) ·
-**Enables:** Q-003/Q-004; real budget values (INV-TOK-001); ASM-003 check.
+**Enables:** real budget values (INV-TOK-001), Q-005, and the ASM-003 check.
 
 **Question.** What does the slice actually cost per stage and per skill — and does
 artifact-based context passing reduce spend versus long-session re-reading (BC-001
@@ -19,7 +19,8 @@ BM-24 (extreme-budget adversarial) for breach behavior.
 **Baseline.** BC-001 anchors (915k output full build; 78% cache-read cost share;
 ≈7% discard) — for scale orientation, not as a target.
 
-**Method.** All runs API-billed (Q-003) so cost is measured, not estimated; run
+**Method.** If Q-002 approves API billing, runs use measured API cost; otherwise cost
+allocation remains explicitly unknown. Run
 records + context manifests analyzed per stage/skill; budget breach simulated on
 BM-24; per-skill actuals compared to the catalog's budget hypotheses.
 

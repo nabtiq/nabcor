@@ -3,7 +3,7 @@
 //
 //   node contracts/validate.mjs
 //
-// Schema layer   — draft-07 (ajv, resolved from the existing dependency graph):
+// Schema layer   — draft-07 (Ajv + ajv-formats, explicit dev dependencies):
 //   every *.schema.json compiles · $ids unique · every examples[] entry and every
 //   positive fixture validates · every negative fixture with expect_fail_at:"schema"
 //   is rejected.
@@ -17,17 +17,21 @@ import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-let Ajv;
+let Ajv, addFormats;
 try {
-  Ajv = require("ajv");
+  const ajvModule = require("ajv");
+  const formatsModule = require("ajv-formats");
+  Ajv = ajvModule.default ?? ajvModule;
+  addFormats = formatsModule.default ?? formatsModule;
 } catch {
-  console.error("FAIL: ajv not resolvable from node_modules. Run `npm install` first.");
+  console.error("FAIL: ajv/ajv-formats not resolvable. Run `npm ci` first.");
   process.exit(2);
 }
 
 const dir = dirname(fileURLToPath(import.meta.url));
 const files = readdirSync(dir).filter((f) => f.endsWith(".schema.json")).sort();
 const ajv = new Ajv({ allErrors: true, strict: false });
+addFormats(ajv);
 
 let failures = 0;
 const fail = (msg) => { failures++; console.error("FAIL " + msg); };

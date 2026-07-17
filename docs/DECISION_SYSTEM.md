@@ -1,6 +1,6 @@
 # Decision System
 
-**Version:** 1.0 · 2026-07-17 · governs `brain/decisions/` and all durable choices.
+**Version:** 1.1 · 2026-07-17 · governs `brain/decisions/` and all durable choices.
 Invariant: INV-DEC-001. Contract: `contracts/decision.schema.json`.
 
 ## When a decision record is required
@@ -16,17 +16,15 @@ for those.
 
 ## Format
 
-Files: `brain/decisions/DEC-NNNN-<slug>.md` (product/architecture scope) with YAML
-front-matter conforming to `contracts/decision.schema.json`; brand-scoped decisions
-live in the brand's namespace with the same schema. IDs are unique, sequential,
-never reused. Machine-readable front-matter is the source of truth; the prose body is
-the derived human rendering (INV-DEC-001 dual-form rule).
+Repository-governance files use `brain/decisions/DEC-NNNN-<slug>.md` and the template in
+`brain/templates/DECISION_TEMPLATE.md`. They require identity, status, proposer,
+approval evidence when ratified, context, alternatives, evidence boundary,
+consequences, revisit trigger, and supersession.
 
-Required fields: `decision_id`, `title`, `date`, `status`
-(`proposed | ratified | superseded | revisited`), `context`, `problem`,
-`options` (each with summary), `selected_option`, `reason`, `evidence`,
-`assumptions`, `consequences`, `risks`, `affected_artifacts`, `revisit_trigger`,
-`supersedes`/`superseded_by`, `decided_by` (a human for INV-HUM-001 classes).
+Runtime/brand decisions are structured artifacts conforming to
+`contracts/decision.schema.json`. The Markdown record is canonical for repository
+governance; the JSON contract is canonical for product runtime artifacts. IDs are
+unique and never reused.
 
 ## Status semantics and ratification
 
@@ -34,14 +32,11 @@ Required fields: `decision_id`, `title`, `date`, `status`
   product owner**. Proposed records bind nobody; they are input for review, cited only
   as proposals.
 - `ratified` — explicitly approved by the authorized human. Ratification is recorded
-  **as repository evidence**: an `approvals` entry
-  `{approved_by: <human user>, gate: "ratification", verdict: "approved", at: …}` on
-  the record, `status` set to `ratified`, and `decided_by` naming the approving human.
-  A `ratified` record without that approval entry is invalid (semantic check
-  `INV-HUM-001/INV-DEC-001 ratification-approval` in `contracts/validate.mjs`).
-- `superseded` / `revisited` — as before; supersession links both directions.
-- `decided_by` while `proposed` names the proposer; ratification replaces it with the
-  approving human.
+  **as repository evidence**: repository decisions record `approved_by` and
+  `approved_at`; runtime decisions carry the schema-defined approval entry. A ratified
+  record without human approval evidence is invalid.
+- `rejected` — reviewed and declined; the reasoning remains durable.
+- `superseded` — replaced by a linked later record.
 
 ## Rules
 
@@ -58,12 +53,9 @@ Required fields: `decision_id`, `title`, `date`, `status`
 
 ## Seed records
 
-All four are `proposed` — awaiting product-owner ratification (see
-`brain/current/OPEN_QUESTIONS.md` §Ratification for the exact action):
-
 | ID | Title | Status |
 |---|---|---|
-| DEC-0001 | Product category: AI Creative Operating System | proposed |
-| DEC-0002 | Second Brain: file-based, three context layers, no vector DB yet | proposed |
-| DEC-0003 | First vertical slice: spec-level, two input modes | proposed |
-| DEC-0004 | BC-001 adoption: evidence classes and accepted findings bind the foundation | proposed |
+| DEC-0001 | NABCor is an AI Creative Operating System | ratified |
+| DEC-0002 | File-based Second Brain from day one | ratified |
+| DEC-0003 | Legacy website code is evidence, not product core | ratified |
+| DEC-0004 | Proposed first vertical slice | proposed |

@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://nabcor.nabtiq.com/contracts/design-system.schema.json",
   "title": "Design System",
-  "description": "Deterministic compilation of a Visual World into per-theme token tables — maps to the nabcor two-layer token law (docs/build-a-theme.md). All declared themes carry values from day 1 (BC-001 retrofit lesson).",
+  "description": "Deterministic compilation of a Visual World into per-theme semantic token tables. All declared themes carry values from day one; future channel adapters map them to implementation-specific tokens.",
   "allOf": [
     {
       "$ref": "artifact-envelope.schema.json#/definitions/envelope"
@@ -36,7 +36,7 @@
               },
               "tokens": {
                 "type": "object",
-                "description": "semantic token → value map (raw ramp + aliases per build-a-theme layering)",
+                "description": "semantic token → value map (raw color ramp plus semantic alias layers)",
                 "minProperties": 1
               },
               "contrast_checked": {
