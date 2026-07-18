@@ -6,8 +6,9 @@
 **Status:** clean architecture baseline plus the deterministic Phase 1A truth
 kernel (DEC-0004/DEC-0005), the Phase 1B.1 offline gateway kernel
 (DEC-0009/DEC-0010), the Phase 1B.2 deterministic structured-truth
-analysis (DEC-0011), and the Phase 1B.2.1 resolution-safe claim lifecycle
-correction (DEC-0012). No provider-backed extraction, no model calls, no
+analysis (DEC-0011), the Phase 1B.2.1 resolution-safe claim lifecycle
+correction (DEC-0012), and the Phase 1B.2.2 store-authoritative claim
+snapshots (DEC-0013). No provider-backed extraction, no model calls, no
 authoritative human contradiction resolution, and no full vertical slice
 exist yet; Phase 1 is not complete.
 
@@ -191,6 +192,19 @@ No provider SDK and no framework exist.
   inline content is captured only into the quarantine namespace. Unclassified
   visuals record `visual_classification: null` — documentary status is never
   inferred from absence (INV-FACT-003). No OCR, parsing, or fetching.
+- **Claim snapshots (Tier 0, Phase 1B.2.2, DEC-0013)** — canonical claim
+  membership comes from the Artifact Store, never a caller-supplied array.
+  `src/kernel/claim-snapshot.ts` captures the COMPLETE claim set of one
+  workspace/brand namespace with strict fail-closed enumeration (a
+  symlinked or non-canonical entry fails the capture instead of being
+  skipped), per-claim contract validation, an enumerate → load → enumerate
+  stability check, and per-claim + aggregate sha256 digests over versioned
+  canonical JSON (`claim-set-sha256-1.0.0`, Node built-in crypto — no new
+  dependency). Analyses record the snapshot reference and digest;
+  compilation reconciles them against the live store and fails closed with
+  a typed `stale-analysis` failure when the canonical set changed —
+  re-analysis is required, and a supplied subset can never hide an
+  independent conflicting lineage.
 - **`project-active-claims` (Tier 0, Phase 1B.2.1, DEC-0012)** —
   deterministic active-claim lineage projection. Claim artifacts are
   immutable per version: a revision is a new artifact whose `supersedes`
@@ -203,9 +217,12 @@ No provider SDK and no framework exist.
   `expired` (or lifecycle `rejected`) are retained for audit but inactive
   as current truth.
 - **`analyze-structured-truth` (Tier 0, Phase 1B.2, DEC-0011; corrected by
-  Phase 1B.2.1, DEC-0012)** —
+  Phase 1B.2.1, DEC-0012 and Phase 1B.2.2, DEC-0013)** —
   deterministic contradiction and gap analysis over explicitly structured
-  fact slots. Claims carrying `fact_key`/`normalized_value`/
+  fact slots. Claim membership loads from the Artifact Store snapshot of
+  the analysis namespace — legacy caller-supplied `claims` arrays are
+  rejected at runtime, and the analysis records its snapshot reference and
+  claim-set digest. Claims carrying `fact_key`/`normalized_value`/
   `normalization_basis` are grouped per slot and compared with exact,
   type-sensitive equality (string `"1"` differs from number `1`; no case
   folding, no Unicode normalization, no unit conversion, no fuzzy matching).
@@ -222,10 +239,15 @@ No provider SDK and no framework exist.
   could see them stays prohibited by DEC-0009. The analyzer never touches
   the gateway or the Fake Adapter.
 - **`build-brand-context` (Tier 0)** — deterministic compilation of already
-  structured claims and assumptions plus one validated truth-analysis
-  artifact into a schema-valid Brand Context Package. Open contradictions and
-  gaps compile only from the truth analysis (exact claim coverage enforced,
-  `truth_analysis_ref` recorded, caller-supplied arrays rejected — DEC-0011).
+  structured truth into a schema-valid Brand Context Package. The truth
+  analysis and its claim snapshot load from the Artifact Store by
+  reference; the compiler verifies the analysis-snapshot digest binding,
+  re-captures the canonical claim namespace, and fails closed with a typed
+  `stale-analysis` failure when the claim set changed after analysis
+  (DEC-0013). Open contradictions and gaps compile only from the truth
+  analysis (`truth_analysis_ref` recorded; caller-supplied
+  contradiction/gap/claims arrays rejected at runtime — DEC-0011,
+  DEC-0013).
   The package compiles EFFECTIVE current claims only (DEC-0012): its
   `claim_refs` are the analysis's effective lineage heads, and identity,
   audience, or market references to superseded, contradicted, rejected, or

@@ -2,25 +2,26 @@
 
 > Current state only. Git contains history; `brain/archive/` contains retired context.
 
-**Updated:** 2026-07-18
+**Updated:** 2026-07-19
 
 ## Current phase
 
-Phase 1B.2.1 — resolution-safe claim lifecycle correction (DEC-0012) on top
-of the Phase 1B.2 deterministic structured-truth analysis, the Phase 1B.1
-offline gateway kernel, and the Phase 1A truth kernel. The clean foundation
-baseline (`0.1.0`) remains the historical boundary (`FOUNDATION_BASELINE.md`).
+Phase 1B.2.2 — store-authoritative claim snapshots (DEC-0013) on top of the
+Phase 1B.2.1 resolution-safe claim lifecycle (DEC-0012), the Phase 1B.2
+deterministic structured-truth analysis, the Phase 1B.1 offline gateway
+kernel, and the Phase 1A truth kernel. The clean foundation baseline
+(`0.1.0`) remains the historical boundary (`FOUNDATION_BASELINE.md`).
 Phase 1 is not complete.
 
 ## Current objective
 
-Deliver Phase 1B.2.1: contradicted claims retained but inactive, current
-truth derived from a validated lineage projection over immutable claim
-revisions (never caller omission), Brand Context compiled from effective
-claims only — then obtain the Product Owner's ratification of the
-authenticated human-gate mechanism (Q-009) so fact resolution can safely
-apply claim revisions. Model-backed work stays prohibited by the
-zero-provider policy (DEC-0009) — a policy boundary, not an open question.
+Deliver Phase 1B.2.2: canonical claim membership derived from Artifact
+Store snapshots (never a caller-supplied array), analyses digest-bound to
+the exact claims loaded, and compilation failing closed on stale analyses —
+then obtain the Product Owner's ratification of the authenticated
+human-gate mechanism (Q-009) so fact resolution can safely apply claim
+revisions. Model-backed work stays prohibited by the zero-provider policy
+(DEC-0009) — a policy boundary, not an open question.
 
 ## Ratified decisions
 
@@ -60,7 +61,16 @@ zero-provider policy (DEC-0009) — a policy boundary, not an open question.
   closed; Brand Context compiles effective claims only; a shape-valid
   Decision artifact is not evidence a human acted, and authoritative human
   contradiction resolution stays unimplemented pending an authenticated
-  human-gate mechanism (Q-009).
+  human-gate mechanism (Q-009). (Its caller-asserted completeness gap is
+  corrected by an append-only note; see DEC-0013.)
+- DEC-0013 — store-authoritative claim snapshots: the Artifact Store is the
+  authority for claim-set membership; truth analysis enumerates the
+  canonical workspace/brand claim namespace into deterministic
+  digest-bound snapshots (strict fail-closed enumeration, stable-capture
+  check, sha256 content and aggregate digests, injectable clock); public
+  analysis/compilation APIs reject caller-supplied claim arrays at
+  runtime; compilation reconciles the snapshot against the live store and
+  fails closed on stale analyses; DEC-0012 lineage semantics unchanged.
 
 ## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006 and Phase 1A.2 / DEC-0007)
 
@@ -151,6 +161,34 @@ zero-provider policy (DEC-0009) — a policy boundary, not an open question.
   authentication, signing, key handling, or quarantine release was built
   (Q-009 records the human-gate decision packet).
 
+## Implemented (Phase 1B.2.2, DEC-0013)
+
+- Store-authoritative claim snapshots (`src/kernel/claim-snapshot.ts`,
+  `contracts/claim-snapshot.schema.json`, contracts 1.5.0 → 1.6.0):
+  canonical claim membership is enumerated from the exact workspace/brand
+  Artifact Store namespace — strict fail-closed enumeration
+  (`FileArtifactStore.listStrict`; symlinked/non-canonical entries fail the
+  capture instead of being skipped), per-claim contract validation, an
+  enumerate → load → enumerate stability check (typed `snapshot-unstable`
+  failure), per-claim and aggregate sha256 digests over versioned
+  canonical JSON (`claim-set-sha256-1.0.0`), and an injectable clock.
+  Zero-claim namespaces are valid snapshots.
+- Analyzer boundary correction: `analyze-structured-truth` (2.0.0) loads
+  claims from the store and records `claim_snapshot_ref` +
+  `claim_set_digest`; legacy caller-supplied `claims`/`claim_refs` fields
+  are rejected at runtime. A supplied array is not evidence of
+  completeness — omitting an independent conflicting lineage no longer
+  hides its contradiction (the Phase 1B.2.1 residual defect, reproduced
+  with a failing test before correction).
+- Compiler stale-analysis protection: `build-brand-context` loads the
+  analysis and snapshot by reference, verifies their digest binding,
+  re-captures the canonical namespace, and fails closed with a typed
+  `stale-analysis` failure when any claim appeared, disappeared, or
+  changed content since analysis; re-analysis recovers. Store list
+  ordering is code-unit deterministic.
+- No new runtime dependency (Node.js built-in crypto only); no provider,
+  model, network, or Fake Adapter involvement.
+
 ## Blocked / not implemented
 
 - Authoritative human contradiction resolution: the resolution-safe
@@ -185,8 +223,8 @@ zero-provider policy (DEC-0009) — a policy boundary, not an open question.
 
 ## Definition of done for the current objective
 
-Phase 1B.2.1 merged with validation green; NOW, ROADMAP, RISKS, and
-OPEN_QUESTIONS consistent with DEC-0008..DEC-0012; contradicted claims
-retained but inactive with lineage-projected current truth; no claim of
-implemented human resolution, authentication, or semantic detection
-anywhere; EXP-0001 still unexecuted and empty.
+Phase 1B.2.2 merged with validation green; NOW, ROADMAP, RISKS, and
+OPEN_QUESTIONS consistent with DEC-0008..DEC-0013; canonical claim
+membership store-derived and snapshot-bound with stale compilation failing
+closed; no claim of implemented human resolution, authentication, or
+semantic detection anywhere; EXP-0001 still unexecuted and empty.

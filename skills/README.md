@@ -36,6 +36,11 @@ analyzes effective lineage heads only: contradicted claims are retained but
 inactive as current truth, current truth is a validated projection over the
 complete immutable claim revision set (never caller omission), and the
 lineage rules live in one place — `src/understand/project-active-claims.ts`.
+Since Phase 1B.2.2 (DEC-0013) claim membership itself is
+store-authoritative: analysis enumerates the canonical workspace/brand
+namespace into a digest-bound claim snapshot, caller-supplied claim arrays
+are rejected at runtime, and compilation reconciles the snapshot against
+the live store — stale analyses fail closed and require re-analysis.
 
 Authoritative human contradiction resolution is NOT implemented: applying a
 resolution (creating the losing claim's `contradicted` revision) requires

@@ -8,7 +8,8 @@ Authority rank 4 (below decisions, above current state) — see `AGENTS.md`.
 
 - `artifact-envelope.schema.json` — shared envelope + definitions (`envelope`,
   `approval`, `localized_text`, `rights`) referenced by artifact schemas via `allOf`.
-- Truth layer: `source`, `claim`, `assumption`, `truth-profile`, `truth-analysis`.
+- Truth layer: `source`, `claim`, `assumption`, `claim-snapshot`,
+  `truth-profile`, `truth-analysis`.
 - Decision layer: `decision`.
 - Creative layer: `brand-context`, `creative-brief`, `creative-territory`,
   `creative-direction`, `brand-dna`, `visual-world`, `design-system`.
@@ -57,11 +58,43 @@ instead of invented claim refs — see fixture `P02`).
 
 ## Versioning
 
-Artifact `schema_version` for all contracts: **1.5.0** (was 1.4.0). The version is
+Artifact `schema_version` for all contracts: **1.6.0** (was 1.5.0). The version is
 globally synchronized across all contracts; examples, fixtures, and
 runtime-generated artifacts carry it consistently.
 
-**Migration implications (1.4.0 → 1.5.0):** the `truth-analysis` and
+**Migration implications (1.5.0 → 1.6.0):** one contract was added and the
+`truth-analysis` contract changed meaning (DEC-0013, Phase 1B.2.2):
+
+- `claim-snapshot` (new, canonical): the store-authoritative snapshot of
+  the COMPLETE canonical claim set of one workspace/brand namespace at
+  capture time. Carries `workspace`, a versioned `snapshot_algorithm`
+  (`claim-set-sha256-1.0.0`: canonical JSON with code-unit-sorted object
+  keys and no whitespace; `content_digest` is sha256 over each validated
+  claim artifact; `claim_set_digest` is sha256 over the sorted
+  `{claim_ref, content_digest}` pair array — implementation
+  `src/kernel/canonical-json.ts`, mirrored in `contracts/validate.mjs`),
+  the sorted pair array, and the aggregate digest. Semantic layer:
+  `sorted-unique-claim-refs` and `aggregate-digest-consistency` (the
+  aggregate is recomputed from the listed pairs — a fabricated aggregate
+  cannot bind contents it does not bind). A zero-claim namespace is a
+  valid snapshot.
+- `truth-analysis` gains **required** `claim_snapshot_ref` and
+  `claim_set_digest`: an analysis is bound to the exact claim membership
+  and contents it analyzed. Canonical claim membership comes from Artifact
+  Store enumeration — a caller-supplied claims array is never evidence of
+  completeness, the runtime rejects legacy `claims`/`claim_refs` inputs,
+  and compilation reconciles the snapshot against the live store, failing
+  closed (typed `stale-analysis`) when any claim appeared, disappeared, or
+  changed content since analysis.
+- The deterministic analyzer version moved `analyze-structured-truth-1.1.0`
+  → `-2.0.0` (its public input boundary changed: claims load from the
+  store; the caller supplies snapshot/analysis artifact IDs and an
+  injected clock).
+- No real production artifacts existed at 1.5.0, so no real-artifact
+  migration was performed — examples, fixtures, and synthetic runtime
+  fixtures were re-issued at 1.6.0 in the same change.
+
+**Historical — migration implications (1.4.0 → 1.5.0):** the `truth-analysis` and
 `brand-context` contracts changed meaning (DEC-0012, Phase 1B.2.1):
 
 - `truth-analysis` gains three **required** lineage-projection collections:
@@ -230,7 +263,8 @@ Two distinguishable layers, both required green (non-zero exit otherwise):
   js-disabled-presence (INV-AR-001/INV-PE-001) · factual-slots-claim-backed
   (INV-FACT-001) · unique-sorted-fact-keys and deterministic-ordering
   (DEC-0011) · lineage-partition and refs-within-effective
-  (DEC-0011/DEC-0012). Negative fixtures with
+  (DEC-0011/DEC-0012) · sorted-unique-claim-refs and
+  aggregate-digest-consistency (DEC-0013). Negative fixtures with
   `expect_fail_at: "semantic"` must pass the schema layer and fail here.
 
 The command prints: schemas compiled, positive cases passed, negative cases correctly

@@ -166,3 +166,26 @@ judgment via an append-only note there; DEC-0011's structured-analysis
 boundary, exact comparison semantics, and no-prose-interpretation rules
 stand unchanged)
 superseded_by: null
+
+## Correction note (appended 2026-07-19, Phase 1B.2.2 — original text above is unchanged)
+
+This record required the analyzer input to be "the COMPLETE claim revision
+set" and validated every supplied lineage, but completeness itself was
+asserted by the caller rather than proven from canonical storage. The
+implemented checks proved INTERNAL lineage consistency — dangling
+predecessors, hidden successors, cycles, forks, duplicates, and
+conflicting `superseded_by` metadata all failed closed — yet none of them
+could detect the omission of an entire INDEPENDENT lineage: a standalone
+claim left out of the supplied array dangles nothing, so two conflicting
+standalone claims could be reduced to one by simply not supplying the
+other, and the contradiction disappeared without a superseding revision, a
+resolution decision, a lineage record, or an auditable reason. The defect
+was reproduced with a failing regression test against main `ba0b080`.
+
+DEC-0013 corrects this: canonical claim membership comes from Artifact
+Store enumeration bound into deterministic digest-verified claim
+snapshots, the public analysis and compilation APIs reject caller-supplied
+claim arrays at runtime, and compilation fails closed on stale analyses.
+Everything else in this record stands unchanged: immutable claim
+revisions, lineage projection semantics, inactive-head rules, and the
+authentication boundary (Q-009).

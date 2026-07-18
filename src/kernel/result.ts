@@ -20,6 +20,11 @@ export type KernelFailure =
   | { kind: "quarantine-fail-closed"; sourceId: string; message: string }
   | { kind: "invalid-input"; message: string }
   | { kind: "io-error"; message: string }
+  // Store-authoritative claim snapshots (DEC-0013): capture observed the
+  // canonical claim namespace changing mid-capture, or a persisted
+  // analysis/snapshot no longer matches the canonical store.
+  | { kind: "snapshot-unstable"; message: string }
+  | { kind: "stale-analysis"; message: string }
   // Gateway boundary failures (DEC-0009/DEC-0010). Every rejection crossing the
   // gateway is one of these typed values — raw exceptions never cross it.
   | { kind: "invalid-request"; issues: ValidationIssue[]; message: string }

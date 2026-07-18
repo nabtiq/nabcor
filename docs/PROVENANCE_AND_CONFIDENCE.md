@@ -90,12 +90,16 @@ the old one — never an in-place edit. Current truth is derived from
 validated lineage heads (the active-claim projection, DEC-0012), and a
 `contradicted`, `rejected`, or `expired` head is retained for audit but
 inactive: it creates no active contradictions and satisfies no required
-slots. Omission is not resolution — the projection requires the complete
-revision set and fails closed on hidden or dangling lineage. Applying a
-contradiction resolution (creating the losing claim's `contradicted`
-revision) requires the authenticated human-gate mechanism (Q-009), which
-does not yet exist: a shape-valid approval object proves shape, not that a
-human acted.
+slots. Omission is not resolution — canonical claim membership comes from
+an Artifact Store snapshot of the exact workspace/brand namespace
+(DEC-0013): analysis enumerates the store rather than trusting a supplied
+array, the analysis artifact is digest-bound to exactly the claims it
+loaded, and compilation reconciles that snapshot against the live store,
+failing closed on any claim that appeared, disappeared, or changed since
+analysis (stale analysis requires re-analysis). Applying a contradiction
+resolution (creating the losing claim's `contradicted` revision) requires
+the authenticated human-gate mechanism (Q-009), which does not yet exist:
+a shape-valid approval object proves shape, not that a human acted.
 
 ## 5. Confidence rules
 

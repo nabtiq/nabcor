@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/claim-snapshot.schema.json",
+  "title": "Claim Snapshot",
+  "description": "Store-authoritative snapshot of the COMPLETE canonical claim set of one workspace/brand namespace at capture time (DEC-0013). Canonical claim membership comes from Artifact Store enumeration, never from a caller-supplied array: the snapshot binds its exact membership and validated per-claim contents through deterministic sha256 digests (algorithm claim-set-sha256-1.0.0: canonical JSON with code-unit-sorted object keys, no whitespace; content_digest over each validated claim artifact; claim_set_digest over the sorted pair array). Truth analysis records the snapshot it was derived from; compilation reconciles the snapshot against the live store and fails closed when membership or content has changed. A zero-claim namespace is a valid snapshot. No model, provider, or network field exists.",
+  "allOf": [
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
+    {
+      "type": "object",
+      "required": [
+        "brand_ref",
+        "workspace",
+        "snapshot_algorithm",
+        "claims",
+        "claim_set_digest"
+      ],
+      "properties": {
+        "brand_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workspace": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+          "description": "workspace namespace the claims were enumerated from; together with brand_ref it names the exact canonical namespace this snapshot is authoritative for"
+        },
+        "snapshot_algorithm": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*-[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "description": "versioned canonicalization/digest algorithm identifier (currently claim-set-sha256-1.0.0, src/kernel/canonical-json.ts); a future algorithm change is a new version, never a silent reinterpretation"
+        },
+        "claims": {
+          "type": "array",
+          "uniqueItems": true,
+          "description": "one entry per canonical claim in the namespace at capture time, sorted by claim_ref in code-unit order (semantic layer); empty for a zero-claim namespace",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim_ref",
+              "content_digest"
+            ],
+            "properties": {
+              "claim_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "content_digest": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "description": "sha256 over the canonical serialization of the validated claim artifact"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "claim_set_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "aggregate sha256 over the canonical serialization of the claims pair array; must equal the recomputation over the listed entries (semantic layer)"
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.6.0",
+      "artifact_id": "snap_0001",
+      "brand_ref": "brand_example",
+      "workspace": "ws_example",
+      "created_at": "2026-07-19T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "snapshot_algorithm": "claim-set-sha256-1.0.0",
+      "claims": [
+        {
+          "claim_ref": "claim_001",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "claim_ref": "claim_002",
+          "content_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ],
+      "claim_set_digest": "sha256:7f54a2ca382131c9d5f9be47d0b7bd68fad9bd08d844fbe396209c8ef23f7ae3"
+    }
+  ],
+  "propertyNames": {
+    "enum": [
+      "approvals",
+      "artifact_id",
+      "brand_ref",
+      "claim_set_digest",
+      "claims",
+      "created_at",
+      "creator_type",
+      "derived_from_runs",
+      "lifecycle_status",
+      "project_ref",
+      "provisional",
+      "schema_version",
+      "snapshot_algorithm",
+      "superseded_by",
+      "supersedes",
+      "validation_status",
+      "workspace"
+    ]
+  }
+}

@@ -27,6 +27,7 @@ interface SyntheticCase {
   id_prefix: string;
   mode: "prompt-only" | "evidence-rich" | "mixed";
   analysis_id: string;
+  snapshot_id: string;
   descriptors: InputDescriptor[];
   truth_profile: unknown;
   claims: unknown[];
@@ -101,30 +102,41 @@ function runCase(fixtureFile: string, contextId: string): void {
     }
   }
 
-  // Deterministic Tier-0 structured-truth analysis: contradictions and gaps
-  // are computed from explicit fact slots against the truth profile — never
-  // supplied by the caller (DEC-0011). No gateway or adapter is involved.
+  // Deterministic Tier-0 structured-truth analysis: claim membership comes
+  // from the Artifact Store snapshot of the namespace the claims were just
+  // persisted into — never from a caller array (DEC-0013) — and
+  // contradictions and gaps are computed from explicit fact slots against
+  // the truth profile (DEC-0011). No gateway or adapter is involved.
   const analyzed = analyzeStructuredTruth({
     artifactId: fixture.analysis_id,
+    snapshotArtifactId: fixture.snapshot_id,
     workspace: WORKSPACE,
     brandRef: brand,
     createdAt,
     truthProfile: fixture.truth_profile,
-    claims: fixture.claims,
-  }, registry);
+  }, store, registry);
   if (!analyzed.ok) {
     console.error(`FAIL analyze-structured-truth: ${describeFailure(analyzed.error)}`);
     process.exit(1);
   }
-  const analysisPut = store.put(WORKSPACE, brand, "truth-analysis", analyzed.value);
+  const snapshotPut = store.put(WORKSPACE, brand, "claim-snapshot", analyzed.value.snapshot);
+  if (!snapshotPut.ok) {
+    console.error(`FAIL store claim-snapshot: ${describeFailure(snapshotPut.error)}`);
+    process.exit(1);
+  }
+  const analysisPut = store.put(WORKSPACE, brand, "truth-analysis", analyzed.value.analysis);
   if (!analysisPut.ok) {
     console.error(`FAIL store truth-analysis: ${describeFailure(analysisPut.error)}`);
     process.exit(1);
   }
-  const unstructured = (analyzed.value["unstructured_claim_refs"] as unknown[]).length;
+  const analysis = analyzed.value.analysis;
+  const unstructured = (analysis["unstructured_claim_refs"] as unknown[]).length;
   console.log(
-    `  truth-analysis ${fixture.analysis_id} (contradictions=${(analyzed.value["open_contradictions"] as unknown[]).length}, ` +
-      `gaps=${(analyzed.value["gaps"] as unknown[]).length}, unstructured_claims=${unstructured})`
+    `  claim-snapshot ${fixture.snapshot_id} (canonical_claims=${(analyzed.value.snapshot["claims"] as unknown[]).length})`
+  );
+  console.log(
+    `  truth-analysis ${fixture.analysis_id} (contradictions=${(analysis["open_contradictions"] as unknown[]).length}, ` +
+      `gaps=${(analysis["gaps"] as unknown[]).length}, unstructured_claims=${unstructured})`
   );
 
   const marks = classified.value
@@ -137,13 +149,12 @@ function runCase(fixtureFile: string, contextId: string): void {
     mode: fixture.mode,
     createdAt,
     sources: classified.value,
-    claims: fixture.claims,
     assumptions: fixture.assumptions,
-    truthAnalysis: analyzed.value,
+    truthAnalysisRef: fixture.analysis_id,
     identity: { ...fixture.identity, ...(marks.length > 0 ? { marks } : {}) },
     ...(fixture.audience ? { audience: fixture.audience } : {}),
     ...(fixture.market ? { market: fixture.market } : {}),
-  }, registry, contentStore);
+  }, store, registry, contentStore);
   if (!compiled.ok) {
     console.error(`FAIL build-brand-context: ${describeFailure(compiled.error)}`);
     process.exit(1);

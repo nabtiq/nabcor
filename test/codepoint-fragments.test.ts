@@ -12,7 +12,15 @@ import {
   parseSourceRef,
 } from "../src/kernel/source-ref.js";
 import { classifyInput } from "../src/understand/classify-input.js";
-import { BRAND, NOW, WS, contentStore, registry, truthAnalysisFor, validClaim } from "./helpers.js";
+import {
+  BRAND,
+  NOW,
+  WS,
+  contentStore,
+  registry,
+  storeWithAnalysis,
+  validClaim,
+} from "./helpers.js";
 
 const ARABIC_BEH = String.fromCodePoint(0x0628); // Arabic letter, 1 code point = 1 UTF-16 unit
 const GCLEF = String.fromCodePoint(0x1d11e); // supplementary plane, 1 code point = 2 UTF-16 units
@@ -37,6 +45,7 @@ function compileFragment(content: string, start: number, end: number) {
       source_ref: `source:${String(source["artifact_id"])}#codepoints=${start}-${end}`,
     }),
   ];
+  const { store: artifactStore } = storeWithAnalysis(claims, {}, "codepoints");
   const input: BrandContextInput = {
     artifactId: "bctx_cp_0001",
     workspace: WS,
@@ -44,12 +53,11 @@ function compileFragment(content: string, start: number, end: number) {
     mode: "prompt-only",
     createdAt: NOW,
     sources: [source],
-    claims,
     assumptions: [],
-    truthAnalysis: truthAnalysisFor(claims),
+    truthAnalysisRef: "ta_t_0001",
     identity: { names: [{ value: "Test Co", claim_ref: "claim_t_0001" }] },
   };
-  return buildBrandContext(input, registry(), store);
+  return buildBrandContext(input, artifactStore, registry(), store);
 }
 
 test("code-point coordinates are stable across ASCII, Arabic, supplementary-plane, and combining characters", () => {
@@ -95,10 +103,24 @@ test("a range computed under UTF-16 assumptions is rejected as out of bounds in 
 });
 
 test("inverted, empty, and out-of-bounds code-point ranges are rejected", () => {
-  const inverted = compileFragment(MIXED, 5, 2);
-  assert.equal(inverted.ok, false, "start > end must fail");
-  const empty = compileFragment(MIXED, 3, 3);
-  assert.equal(empty.ok, false, "start == end must fail (half-open range is empty)");
+  // Inverted and empty ranges fail the claim contract itself (the semantic
+  // fragment-order check), so under the store-authoritative boundary
+  // (DEC-0013) they can never become canonical claims at all.
+  for (const [start, end, label] of [
+    [5, 2, "start > end"],
+    [3, 3, "start == end (half-open range is empty)"],
+  ] as const) {
+    const rejected = registry().validate(
+      "claim",
+      validClaim({
+        source_type: "client_statement",
+        source_ref: `source:src_cp_0001#codepoints=${start}-${end}`,
+      })
+    );
+    assert.equal(rejected.ok, false, `${label} must fail the claim contract`);
+  }
+  // An in-order range that overruns the captured content is storable but
+  // fails closed at compile time against the content store.
   const overrun = compileFragment(MIXED, 0, 999);
   assert.equal(overrun.ok, false, "end beyond the captured code-point length must fail");
 });

@@ -11,20 +11,26 @@ skill_id: analyze-structured-truth
 domain: UNDERSTAND
 purpose: >
   Deterministically detect open contradictions and gaps over EXPLICITLY
-  structured fact slots: project the complete claim revision set into
-  effective lineage heads (src/understand/project-active-claims.ts,
-  DEC-0012), group effective claims by fact_key, compare normalized scalar
-  values with exact type-sensitive equality, and evaluate required/optional
-  slots against one versioned truth profile. Produces a schema-valid
-  truth-analysis artifact recording the full lineage partition. Implemented
-  in src/understand/analyze-structured-truth.ts.
+  structured fact slots: capture a store-authoritative snapshot of the
+  canonical workspace/brand claim namespace (src/kernel/claim-snapshot.ts,
+  DEC-0013), project it into effective lineage heads
+  (src/understand/project-active-claims.ts, DEC-0012), group effective
+  claims by fact_key, compare normalized scalar values with exact
+  type-sensitive equality, and evaluate required/optional slots against one
+  versioned truth profile. Produces a schema-valid truth-analysis artifact
+  bound to its claim snapshot (reference + aggregate digest) and recording
+  the full lineage partition. Implemented in
+  src/understand/analyze-structured-truth.ts.
 input_contract: >
   TruthAnalysisInput (src/understand/analyze-structured-truth.ts): one
-  truth-profile.schema.json artifact and claim.schema.json[] — the COMPLETE
-  revision set of every claim lineage in scope, not a caller-chosen subset —
-  plus workspace and brand identity for isolation checks. Boundary values
-  stay unknown until contract validation.
-output_contract: truth-analysis.schema.json
+  truth-profile.schema.json artifact, workspace/brand identity, artifact
+  IDs for the produced analysis and snapshot, and an injected clock — plus
+  the FileArtifactStore holding the canonical claims. Claim membership
+  comes from Artifact Store enumeration (DEC-0013): a caller-supplied
+  claims array is rejected at runtime, because a supplied subset is not
+  evidence of completeness. Boundary values stay unknown until contract
+  validation.
+output_contract: truth-analysis.schema.json (plus the bound claim-snapshot.schema.json artifact)
 required_context: [workspace, brand_ref, supplied artifacts only — no Second Brain reads]
 tools: []          # no OCR, no parsing, no fetching, no network
 model_calls: none  # Tier 0 — deterministic code end to end
@@ -34,6 +40,14 @@ model_capability: tier-0 (deterministic; the Tier-2 semantic
   detect-contradictions extension is prohibited by DEC-0009 until a
   provider-enablement decision supersedes it)
 deterministic_validations:
+  - canonical claim membership is enumerated from the exact workspace/brand
+    Artifact Store namespace (DEC-0013): strict fail-closed enumeration
+    (symlinked/non-file/non-canonical entries fail the capture instead of
+    being skipped), an enumerate-load-enumerate stability check (typed
+    snapshot-unstable failure on mid-capture change), and per-claim +
+    aggregate sha256 digests binding the snapshot to the exact validated
+    contents; a zero-claim namespace is a valid snapshot; legacy
+    caller-supplied claims/claim_refs fields are rejected at runtime
   - the truth profile and every claim are contract-valid (schema + semantic)
     before anything is read from them (INV-DET-001)
   - the profile and every claim belong to the analysis brand; cross-brand
@@ -70,13 +84,19 @@ deterministic_validations:
   - the produced artifact validates against truth-analysis.schema.json before
     it is returned or stored
 failure_modes:
+  - legacy caller-supplied claims/claim_refs input (typed invalid-input,
+    DEC-0013)
+  - irregular canonical namespace entry or namespace change during capture
+    (typed namespace-violation / snapshot-unstable, DEC-0013)
   - invalid profile or claim artifact (typed validation-failed)
-  - cross-brand profile or claim (typed reference-violation)
+  - cross-brand profile or claim (typed reference-violation /
+    namespace-violation)
   - duplicate claim artifact IDs (typed invalid-input)
   - lineage violation — self-supersession, cycle, dangling predecessor,
     ambiguous fork, conflicting superseded_by, or hidden successor (typed
     lineage-violation, DEC-0012)
-  - schema rejection of the produced analysis (typed validation-failed)
+  - schema rejection of the produced analysis or snapshot (typed
+    validation-failed)
 retry_rules: none — deterministic code either succeeds or returns a typed
   failure; retrying without changed input cannot change the outcome
 human_approval: none inside detection; contradiction resolution and
@@ -95,8 +115,9 @@ limitations: >
   statements a human would read as conflicting produce no contradiction here.
   Effective structured claims whose fact_key is not in the profile are listed
   under unprofiled_fact_claim_refs. Absence from the profile is not evidence
-  that information is universally required. The input must be the complete
-  revision set: partial lineages fail closed rather than projecting, and the
+  that information is universally required. Claims must be persisted to the
+  canonical store before analysis — the analyzer cannot be handed a claim
+  array, partial lineages fail closed rather than projecting, and the
   analyzer cannot resolve contradictions — it only keeps human resolutions
   closed once the losing claim's contradicted revision exists.
 evaluation: runtime tests in test/analyze-structured-truth.test.ts and

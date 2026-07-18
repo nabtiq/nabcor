@@ -1,6 +1,6 @@
 # Open Questions and Assumptions
 
-**Updated:** 2026-07-18
+**Updated:** 2026-07-19
 
 Unknowns stay visible until evidence or a ratified decision resolves them.
 
@@ -49,7 +49,11 @@ Unknowns stay visible until evidence or a ratified decision resolves them.
   loop.
 
   No option is chosen here. Option A is recommended; the question stays
-  open for Product Owner ratification. Separately: naming an independent
+  open for Product Owner ratification. (Status unchanged by Phase 1B.2.2 /
+  DEC-0013, which corrected claim-set membership authority only — a future
+  resolution mechanism must also compose with snapshot staleness: applying
+  a resolution changes the canonical claim set and invalidates prior
+  analyses by construction.) Separately: naming an independent
   reviewer remains a distinct requirement for DEC-0008's four
   independent-review gates — it is NOT required for ordinary fact
   resolution by the current Product Owner, provided `self_review: true`

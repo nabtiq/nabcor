@@ -48,7 +48,13 @@ resolution-semantics defect: contradicted claims are now retained but
 inactive as current truth, current truth is a validated lineage projection
 over immutable claim revisions (contracts 1.4.0 → 1.5.0 — never caller
 omission; cycles, forks, and hidden successors fail closed), and Brand
-Context compiles effective claims only. Authoritative human contradiction
+Context compiles effective claims only. The Phase 1B.2.2 correction
+(DEC-0013) closed the residual omission vulnerability DEC-0012 left open:
+canonical claim membership now comes from Artifact Store snapshots
+(contracts 1.5.0 → 1.6.0) — strict fail-closed enumeration, digest-bound
+analyses, runtime rejection of caller claim arrays, and stale-analysis
+protection in compilation — so a caller subset can no longer hide an
+independent conflicting lineage. Authoritative human contradiction
 resolution remains unimplemented: applying a resolution requires the
 authenticated human-gate mechanism (Q-009), because a shape-valid approval
 proves nothing about who acted. This is deterministic infrastructure only —

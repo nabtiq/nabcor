@@ -23,6 +23,10 @@ import { type KernelFailure, type Result, err, ok } from "./result.js";
 // excludes path separators, "..", hidden files, and empty segments by construction.
 const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
+// Deterministic code-unit string comparison — never locale-dependent collation
+// (DEC-0013: enumeration order must be byte-stable across environments).
+const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
 export interface StoreAddress {
   workspace: string;
   brand: string;
@@ -224,7 +228,57 @@ export class FileArtifactStore {
         out.push({ type: t, artifactId: entry.name.replace(/\.json$/, "") });
       }
     }
-    out.sort((a, b) => (a.type === b.type ? a.artifactId.localeCompare(b.artifactId) : a.type.localeCompare(b.type)));
+    out.sort((a, b) => (a.type === b.type ? byCodeUnit(a.artifactId, b.artifactId) : byCodeUnit(a.type, b.type)));
     return ok(out);
+  }
+
+  /**
+   * Strict canonical enumeration of one type in one workspace/brand namespace
+   * (DEC-0013 snapshot capture). Unlike list() — a browsing view that skips
+   * irregular entries — every symlinked, non-file, non-.json, or unsafely
+   * named entry in the namespace FAILS CLOSED: an entry that a snapshot would
+   * silently omit could hide a canonical claim from analysis. A missing
+   * namespace directory is a valid empty enumeration. Results are code-unit
+   * sorted.
+   */
+  listStrict(workspace: string, brand: string, type: string): Result<string[]> {
+    for (const [field, value] of [
+      ["workspace", workspace],
+      ["brand", brand],
+      ["type", type],
+    ] as const) {
+      const failure = this.checkSegment(field, value);
+      if (failure) return err(failure);
+    }
+    if (!this.registry.isSupported(type)) {
+      return err({
+        kind: "unknown-artifact-type",
+        artifactType: type,
+        message: `artifact type '${type}' is not a supported store type`,
+      });
+    }
+    const dir = join(this.root, workspace, brand, type);
+    if (!existsSync(dir)) return ok([]);
+    if (firstSymlinkWithin(resolve(this.root), resolve(dir))) {
+      return err({
+        kind: "namespace-violation",
+        message: `canonical namespace ${workspace}/${brand}/${type} contains a symlinked path component and is refused`,
+      });
+    }
+    const ids: string[] = [];
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isSymbolicLink() || !entry.isFile() || !entry.name.endsWith(".json")) {
+        return err({
+          kind: "namespace-violation",
+          message: `canonical namespace ${workspace}/${brand}/${type} contains irregular entry '${entry.name}' (symlinked, non-file, or non-canonical name); strict enumeration fails closed rather than hiding it`,
+        });
+      }
+      const artifactId = entry.name.replace(/\.json$/, "");
+      const failure = this.checkSegment("artifact_id", artifactId);
+      if (failure) return err(failure);
+      ids.push(artifactId);
+    }
+    ids.sort(byCodeUnit);
+    return ok(ids);
   }
 }
