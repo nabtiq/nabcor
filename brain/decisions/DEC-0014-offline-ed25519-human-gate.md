@@ -67,9 +67,13 @@ machinery only; it authorizes no business action.
    selected by the approval artifact.
 10. **Replays are prevented through atomic nonce consumption.** The
     deterministic receipt (`approval-receipt-id-sha256-1.0.0` over policy,
-    key ID, and nonce) is persisted no-overwrite via tmp-plus-hard-link;
-    exactly one concurrent consumption succeeds; one approval authorizes
-    exactly one consumption; a denial consumes nothing.
+    key ID, nonce, and the signed workspace/brand namespace) is persisted
+    no-overwrite via tmp-plus-hard-link; exactly one concurrent consumption
+    succeeds; one approval authorizes exactly one consumption; a denial
+    consumes nothing. Nonce single-use is scoped per
+    (policy, key, workspace, brand) — since the namespace fields are
+    signature-covered, each signed approval has exactly one consumable
+    identity, and receipts stay brand/workspace isolated per INV-DATA-001.
 11. **Key validity, expiry, rotation, and revocation fail closed.** Unknown,
     not-yet-valid, expired, and revoked keys — and unknown roles, gates,
     algorithms, or fields anywhere in the chain — deny authorization. A

@@ -45,14 +45,33 @@ export function keyIdForSpkiDer(spkiDer: Buffer): string {
 }
 
 /**
- * Deterministic replay-receipt identity over the trusted policy reference, the
- * signing key, and the nonce — collision-resistant by construction, so the
- * first persisted receipt for a (policy, key, nonce) triple blocks every later
- * consumption attempt of the same signed approval.
+ * Deterministic replay-receipt identity over the full consumption scope: the
+ * trusted policy reference, the signing key, the nonce, and the signed
+ * workspace/brand namespace. Nonce single-use is scoped per
+ * (policy, key, workspace, brand) — workspace and brand are signature-covered
+ * payload fields, so one signed approval maps to exactly one consumable
+ * receipt identity, and the first persisted receipt blocks every later
+ * consumption attempt of that approval. Receipt IDs are globally unique
+ * across namespaces because the namespace participates in the digest.
  */
-export function receiptIdFor(keyId: string, nonce: string, policyRef: string): string {
+export function receiptIdFor(
+  keyId: string,
+  nonce: string,
+  policyRef: string,
+  workspace: string,
+  brandRef: string
+): string {
   return `r${createHash("sha256")
-    .update(canonicalJson({ key_id: keyId, nonce, policy_ref: policyRef }), "utf8")
+    .update(
+      canonicalJson({
+        brand_ref: brandRef,
+        key_id: keyId,
+        nonce,
+        policy_ref: policyRef,
+        workspace,
+      }),
+      "utf8"
+    )
     .digest("hex")}`;
 }
 

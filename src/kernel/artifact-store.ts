@@ -103,11 +103,20 @@ export class FileArtifactStore {
     if (!addressed.ok) return addressed;
     const path = addressed.value;
     // Cross-brand writes are namespace violations (INV-DATA-001): the artifact's
-    // own brand_ref must name the namespace it is written into.
+    // own brand_ref must name the namespace it is written into. The same rule
+    // applies to any artifact type carrying an internal workspace field
+    // (claim-snapshot): a document naming a foreign workspace must not enter
+    // this workspace's namespace (Phase 1B.3A review finding).
     if (data["brand_ref"] !== brand) {
       return err({
         kind: "namespace-violation",
         message: `artifact brand_ref '${String(data["brand_ref"])}' does not match target brand namespace '${brand}'`,
+      });
+    }
+    if ("workspace" in data && data["workspace"] !== workspace) {
+      return err({
+        kind: "namespace-violation",
+        message: `artifact workspace '${String(data["workspace"])}' does not match target workspace namespace '${workspace}'`,
       });
     }
 
@@ -187,6 +196,12 @@ export class FileArtifactStore {
       return err({
         kind: "namespace-violation",
         message: `stored artifact '${artifactId}' carries brand_ref '${String(validated.value["brand_ref"])}' but was read from brand namespace '${brand}'`,
+      });
+    }
+    if ("workspace" in validated.value && validated.value["workspace"] !== workspace) {
+      return err({
+        kind: "namespace-violation",
+        message: `stored artifact '${artifactId}' carries workspace '${String(validated.value["workspace"])}' but was read from workspace namespace '${workspace}'`,
       });
     }
     // Address integrity (DEC-0013 clarification, Phase 1B.3A): the canonical

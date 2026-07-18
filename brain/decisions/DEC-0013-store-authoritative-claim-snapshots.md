@@ -172,10 +172,17 @@ Phase 1B.3A (DEC-0014) closes this at the read boundary: `store.get` now
 fails with a typed `artifact-address-mismatch` failure whenever the
 internal `artifact_id` differs from the requested canonical address, for
 every supported artifact type; the same invariant applies to operational
-record reads (`FileRunRecordStore.get`). Snapshot capture consequently
-fails immediately on a filename/identity disagreement instead of
-proceeding, and no analyzer, compiler, registry, or approval-verification
+record reads (`FileRunRecordStore.get`) and approval-receipt reads. The
+independent review of that correction found the same asymmetry one level
+up: a claim-snapshot's internal `workspace` field was reconciled against
+neither the write nor the read address, so a snapshot naming a foreign
+workspace could enter and leave another workspace's namespace. Both store
+boundaries now also require any internal `workspace` field to equal the
+workspace address segment (typed `namespace-violation`). Snapshot capture
+consequently fails immediately on a filename/identity disagreement instead
+of proceeding, and no analyzer, compiler, registry, or approval-verification
 consumer can receive a misaddressed artifact. Regression tests plant a
-valid artifact under a different canonical filename and prove the failure
-occurs during `store.get`/snapshot capture, not later during compiler
-reconciliation. Everything else in this record stands unchanged.
+valid artifact under a different canonical filename (and a
+foreign-workspace snapshot) and prove the failure occurs during
+`store.get`/snapshot capture, not later during compiler reconciliation.
+Everything else in this record stands unchanged.

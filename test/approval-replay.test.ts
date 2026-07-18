@@ -9,8 +9,9 @@ import test from "node:test";
 import { promisify } from "node:util";
 import { approvalPayloadDigest, receiptIdFor } from "../src/authority/approval-payload.js";
 import { verifyAndConsumeApproval } from "../src/authority/verify-approval.js";
+import { contentDigest } from "../src/kernel/canonical-json.js";
 import { approvalScenario, signedEvidence, testNonce, POLICY_ID } from "./authority-helpers.js";
-import { BRAND, WS, repoRoot } from "./helpers.js";
+import { BRAND, WS, repoRoot, validClaim } from "./helpers.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -108,6 +109,58 @@ test("receipts are immutable and namespace-isolated", () => {
   if (!planted.ok) assert.equal(planted.error.kind, "namespace-violation");
 });
 
+test("nonce single-use is scoped per signed namespace, and receipt IDs stay globally unique across namespaces", () => {
+  // Two approvals signed by the same key with the SAME nonce, each binding its
+  // own signed workspace/brand and target: each consumes once in its own
+  // namespace (the namespace is signature-covered, so neither can be replayed
+  // into the other), and their receipt IDs differ because the namespace
+  // participates in the receipt identity (Phase 1B.3A review finding).
+  const s = approvalScenario();
+  const sharedNonce = testNonce();
+  const first = verifyAndConsumeApproval(signedEvidence(s, { nonce: sharedNonce }), s.deps);
+  assert.ok(first.ok, "first namespace consumption authorizes");
+
+  const otherClaim = validClaim({ artifact_id: "claim_ns_0001", brand_ref: "brand_other" });
+  assert.ok(s.store.put(WS, "brand_other", "claim", otherClaim).ok);
+  const otherStored = s.store.get(WS, "brand_other", "claim", "claim_ns_0001");
+  assert.ok(otherStored.ok);
+  if (!otherStored.ok || !first.ok) return;
+  const second = verifyAndConsumeApproval(
+    signedEvidence(s, {
+      nonce: sharedNonce,
+      brand_ref: "brand_other",
+      target_artifact_ref: "claim_ns_0001",
+      target_artifact_digest: contentDigest(otherStored.value),
+    }),
+    s.deps
+  );
+  assert.ok(second.ok, "a separately signed approval for another namespace is its own consumption");
+  if (second.ok) {
+    assert.notEqual(second.value.receiptId, first.value.receiptId, "receipt IDs are namespace-distinct");
+  }
+  // Within one namespace the shared nonce is spent: a THIRD approval reusing
+  // it against the first namespace fails as replay even for a new target.
+  const third = verifyAndConsumeApproval(signedEvidence(s, { nonce: sharedNonce }), s.deps);
+  assert.equal(third.ok, false);
+  if (!third.ok) assert.equal(third.error.kind, "approval-replay");
+});
+
+test("an oversized payload is refused before contract validation", () => {
+  const s = approvalScenario();
+  const evidence = signedEvidence(s);
+  // Inflate the payload past MAX_PAYLOAD_BYTES; the signature and digest are
+  // irrelevant because the size gate runs first.
+  (evidence["payload"] as Record<string, unknown>)["reason"] = "x".repeat(20000);
+  const result = verifyAndConsumeApproval(evidence, s.deps);
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.error.kind, "approval-unauthorized");
+    if (result.error.kind === "approval-unauthorized") {
+      assert.equal(result.error.reason, "payload-oversized");
+    }
+  }
+});
+
 test("concurrent consumption of one nonce across processes produces exactly one success", async () => {
   // True cross-process atomicity: N child processes race to consume the SAME
   // receipt through FileApprovalReceiptStore; linkSync's EEXIST guarantee
@@ -116,7 +169,7 @@ test("concurrent consumption of one nonce across processes produces exactly one 
   const nonce = testNonce();
   const receipt = {
     schema_version: "1.7.0",
-    receipt_id: receiptIdFor(s.auth.keyId, nonce, POLICY_ID),
+    receipt_id: receiptIdFor(s.auth.keyId, nonce, POLICY_ID, WS, BRAND),
     receipt_algorithm: "approval-receipt-id-sha256-1.0.0",
     evidence_ref: "apev_race_0001",
     payload_digest: approvalPayloadDigest({ race: true }),

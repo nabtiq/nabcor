@@ -75,19 +75,29 @@ export function verifyAndConsumeApproval(
   evidence: unknown,
   deps: HumanGateVerifierDeps
 ): Result<AuthorizedApproval> {
-  // 1–2. Boundary data is unknown until contract-validated (schema + semantic
-  // layers: closed payload, digest consistency, self-review consistency).
+  // 1. Boundary data is unknown. The size cap runs BEFORE contract
+  // validation so an oversized payload is refused without ever being
+  // canonicalized twice or schema-walked (the closed schema's field bounds
+  // keep every contract-valid payload well under the cap; this check is the
+  // reachable guard for everything else).
+  if (typeof evidence === "object" && evidence !== null) {
+    const rawPayload = (evidence as Record<string, unknown>)["payload"];
+    if (
+      typeof rawPayload === "object" &&
+      rawPayload !== null &&
+      approvalPayloadBytes(rawPayload as Record<string, unknown>).length > MAX_PAYLOAD_BYTES
+    ) {
+      return deny("payload-oversized", `canonical payload exceeds ${MAX_PAYLOAD_BYTES} bytes`);
+    }
+  }
+
+  // 2. Contract validation (schema + semantic layers: closed payload, digest
+  // consistency, self-review consistency).
   const validated = deps.contracts.validate("approval-evidence", evidence);
   if (!validated.ok) return validated;
   const evidenceId = String(validated.value["evidence_id"]);
   const payload = validated.value["payload"] as Record<string, unknown>;
   const signature = validated.value["signature"] as Record<string, unknown>;
-  if (approvalPayloadBytes(payload).length > MAX_PAYLOAD_BYTES) {
-    return deny(
-      "payload-oversized",
-      `canonical payload for evidence '${evidenceId}' exceeds ${MAX_PAYLOAD_BYTES} bytes`
-    );
-  }
 
   // 3–4. The active policy and registry come from the trusted fixed boundary
   // only (loaded at construction); the evidence cannot choose them.
@@ -236,7 +246,7 @@ export function verifyAndConsumeApproval(
   const payloadDigest = approvalPayloadDigest(payload);
   const receipt: Record<string, unknown> = {
     schema_version: String(policy["schema_version"]),
-    receipt_id: receiptIdFor(keyId, nonce, String(policy["policy_id"])),
+    receipt_id: receiptIdFor(keyId, nonce, String(policy["policy_id"]), workspace, brandRef),
     receipt_algorithm: RECEIPT_ALGORITHM,
     evidence_ref: evidenceId,
     payload_digest: payloadDigest,
@@ -260,7 +270,9 @@ export function verifyAndConsumeApproval(
   if (!consumed.ok) return consumed;
 
   // 22. Authorized. This result is evidence, not an action: applying any
-  // business effect remains a separate, still-unimplemented step.
+  // business effect remains a separate, still-unimplemented step. Consumers
+  // MUST branch on `verdict` — an authorized result proves the human's
+  // decision was authentic, and that decision may be a rejection.
   return ok({
     evidenceId,
     approvalId: String(payload["approval_id"]),

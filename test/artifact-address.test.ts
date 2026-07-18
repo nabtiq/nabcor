@@ -92,6 +92,45 @@ test("snapshot capture fails immediately when a claim file's filename and intern
   }
 });
 
+test("an artifact carrying an internal workspace field must name its workspace namespace at write AND read", () => {
+  // claim-snapshot is the supported type with an internal workspace field
+  // (Phase 1B.3A review finding: it was reconciled at neither boundary).
+  const root = tempDir("addr-workspace");
+  const store = new FileArtifactStore(root, registry());
+  const snapshot = {
+    schema_version: "1.7.0",
+    artifact_id: "snap_ws_0001",
+    brand_ref: BRAND,
+    workspace: "ws_FOREIGN",
+    created_at: NOW,
+    creator_type: "deterministic",
+    lifecycle_status: "generated",
+    snapshot_algorithm: "claim-set-sha256-1.0.0",
+    claims: [],
+    claim_set_digest: "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  };
+  const put = store.put(WS, BRAND, "claim-snapshot", snapshot);
+  assert.equal(put.ok, false, "a snapshot naming a foreign workspace must not enter this namespace");
+  if (!put.ok) assert.equal(put.error.kind, "namespace-violation");
+
+  // Plant it directly (bypassing put) and prove the read boundary refuses too.
+  mkdirSync(join(root, WS, BRAND, "claim-snapshot"), { recursive: true });
+  writeFileSync(
+    join(root, WS, BRAND, "claim-snapshot", "snap_ws_0001.json"),
+    JSON.stringify(snapshot, null, 2) + "\n",
+    "utf8"
+  );
+  const got = store.get(WS, BRAND, "claim-snapshot", "snap_ws_0001");
+  assert.equal(got.ok, false);
+  if (!got.ok) assert.equal(got.error.kind, "namespace-violation");
+
+  // The honestly addressed snapshot (a different id — the planted file
+  // occupies the first address) still writes and reads.
+  const honest = { ...snapshot, artifact_id: "snap_ws_0002", workspace: WS };
+  assert.ok(store.put(WS, BRAND, "claim-snapshot", honest).ok, "an honest workspace must persist");
+  assert.ok(store.get(WS, BRAND, "claim-snapshot", "snap_ws_0002").ok, "and read back");
+});
+
 test("operational record reads refuse a record whose identity field differs from its canonical filename", () => {
   const root = tempDir("addr-record");
   const recordStore = new FileRunRecordStore(root, registry());

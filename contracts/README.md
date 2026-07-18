@@ -105,12 +105,15 @@ no existing contract changed meaning:
   Contract validity proves shape only; authorization additionally requires
   the runtime verifier's policy/registry/target/signature/replay checks.
 - `approval-receipt` (new): the immutable consumption record. `receipt_id`
-  is deterministically derived ('r' + sha256 over the canonical JSON of
-  `{key_id, nonce, policy_ref}`, algorithm
-  `approval-receipt-id-sha256-1.0.0`; semantic layer recomputes), so a
-  second consumption of the same nonce collides with the first receipt.
-  `verification_result` is pinned to `authorized`: denials never persist
-  receipts.
+  is deterministically derived over the full consumption scope ('r' +
+  sha256 over the canonical JSON of
+  `{brand_ref, key_id, nonce, policy_ref, workspace}`, algorithm
+  `approval-receipt-id-sha256-1.0.0`; semantic layer recomputes). Nonce
+  single-use is scoped per (policy, key, workspace, brand) — the namespace
+  fields are signature-covered, so one signed approval maps to exactly one
+  consumable identity and a second consumption of it collides with its
+  receipt. `verification_result` is pinned to `authorized`: denials never
+  persist receipts.
 - No real production artifacts existed at 1.6.0, so no real-artifact
   migration was performed — examples, fixtures, and synthetic runtime
   fixtures were re-issued at 1.7.0 in the same change.

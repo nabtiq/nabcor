@@ -106,8 +106,28 @@ test("key and receipt identities are deterministic digests", () => {
   const der = Buffer.from(auth.spkiB64, "base64");
   assert.equal(keyIdForSpkiDer(der), auth.keyId);
   assert.match(auth.keyId, /^k[0-9a-f]{64}$/);
-  const r1 = receiptIdFor(auth.keyId, "0".repeat(32), "hgp-test-1");
-  assert.equal(receiptIdFor(auth.keyId, "0".repeat(32), "hgp-test-1"), r1);
-  assert.notEqual(receiptIdFor(auth.keyId, "1".repeat(32), "hgp-test-1"), r1, "nonce changes the identity");
-  assert.notEqual(receiptIdFor(auth.keyId, "0".repeat(32), "hgp-other"), r1, "policy changes the identity");
+  const r1 = receiptIdFor(auth.keyId, "0".repeat(32), "hgp-test-1", "ws_test", "brand_test");
+  assert.equal(receiptIdFor(auth.keyId, "0".repeat(32), "hgp-test-1", "ws_test", "brand_test"), r1);
+  assert.notEqual(
+    receiptIdFor(auth.keyId, "1".repeat(32), "hgp-test-1", "ws_test", "brand_test"),
+    r1,
+    "nonce changes the identity"
+  );
+  assert.notEqual(
+    receiptIdFor(auth.keyId, "0".repeat(32), "hgp-other", "ws_test", "brand_test"),
+    r1,
+    "policy changes the identity"
+  );
+  // The consumption scope is namespace-aware: receipt IDs stay globally
+  // unique because the signed workspace/brand participate in the digest.
+  assert.notEqual(
+    receiptIdFor(auth.keyId, "0".repeat(32), "hgp-test-1", "ws_other", "brand_test"),
+    r1,
+    "workspace changes the identity"
+  );
+  assert.notEqual(
+    receiptIdFor(auth.keyId, "0".repeat(32), "hgp-test-1", "ws_test", "brand_other"),
+    r1,
+    "brand changes the identity"
+  );
 });

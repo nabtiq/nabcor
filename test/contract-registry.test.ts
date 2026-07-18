@@ -36,6 +36,7 @@ test("the runtime registry mirror agrees with validate.mjs on every fixture of a
     "truth-profile",
     "truth-analysis",
     "claim-snapshot",
+    "model-run",
     "human-gate-policy",
     "authority-registry",
     "approval-evidence",

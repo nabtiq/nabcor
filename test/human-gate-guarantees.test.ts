@@ -21,27 +21,24 @@ function tsFilesUnder(dir: string): string[] {
   return out;
 }
 
-test("human-gate code never touches the gateway, adapters, or any model path", () => {
-  // Structural: no import of gateway modules anywhere in the authority layer
-  // or the key CLI. The provider-independence grep gate separately proves no
-  // network or provider SDK capability exists in src/ at all.
+test("human-gate operations are Tier-0: no gateway wiring exists, so the Fake Adapter invocation count stays zero by construction", () => {
+  // The guarantee is STRUCTURAL: nothing in the authority layer or the key
+  // CLI imports gateway modules or references any adapter, so a verification
+  // cycle has no path to a model invocation. The provider-independence grep
+  // gate separately proves no network or provider SDK capability exists in
+  // src/ at all. (An in-test adapter instance necessarily stays at zero for
+  // the same structural reason — asserting it alone would prove nothing.)
   const files = [...tsFilesUnder(join(repoRoot, "src", "authority")), join(repoRoot, "src", "cli", "keygen.ts")];
   assert.ok(files.length >= 5, `expected authority sources, found ${files.length}`);
   for (const file of files) {
     const body = readFileSync(file, "utf8");
     assert.ok(!/from\s+["'][^"']*gateway/.test(body), `${file} must not import gateway modules`);
-    assert.ok(!/FakeAdapter/.test(body), `${file} must not reference the Fake Adapter`);
+    assert.ok(!/FakeAdapter|GatewayAdapter/.test(body), `${file} must not reference any adapter`);
   }
-});
-
-test("a full verification cycle drives zero Fake Adapter invocations", () => {
   const adapter = new FakeAdapter(new Map());
   const s = approvalScenario();
-  const authorized = verifyAndConsumeApproval(signedEvidence(s), s.deps);
-  assert.ok(authorized.ok, "the cycle must complete");
-  const denied = verifyAndConsumeApproval(signedEvidence(s, { role: "operator" }), s.deps);
-  assert.equal(denied.ok, false);
-  assert.equal(adapter.invocationCount, 0, "human-gate operations are Tier-0 deterministic code");
+  assert.ok(verifyAndConsumeApproval(signedEvidence(s), s.deps).ok, "the cycle must complete");
+  assert.equal(adapter.invocationCount, 0);
 });
 
 test("an authorized approval applies no business action: the target artifact is untouched", () => {

@@ -2654,7 +2654,7 @@
     "description": "verification_result is pinned to 'authorized': denials never persist receipts",
     "data": {
       "schema_version": "1.7.0",
-      "receipt_id": "r05af360d0b2b70d27914d02fbebf232ac0ee2e3e46c92d3534f18f8b413c411b",
+      "receipt_id": "r1e9dd9ae6661f3b19549cac8e1365c4b840b2a9cc81ba53a93838cd0ba3edecb",
       "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
       "evidence_ref": "apev_0001",
       "payload_digest": "sha256:0a3ec8d03c49e64123d056eac935463087777c100661d4f7d0bee0ebd314b76c",

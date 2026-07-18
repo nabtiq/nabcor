@@ -62,9 +62,12 @@ const approvalPayloadDigest = (payload) =>
   `sha256:${createHash("sha256")
     .update(`${APPROVAL_DOMAIN}\n${canonicalJson(payload)}`, "utf8")
     .digest("hex")}`;
-const receiptIdFor = (keyId, nonce, policyRef) =>
+const receiptIdFor = (keyId, nonce, policyRef, workspace, brandRef) =>
   `r${createHash("sha256")
-    .update(canonicalJson({ key_id: keyId, nonce, policy_ref: policyRef }), "utf8")
+    .update(
+      canonicalJson({ brand_ref: brandRef, key_id: keyId, nonce, policy_ref: policyRef, workspace }),
+      "utf8"
+    )
     .digest("hex")}`;
 // The four DEC-0008 gates that require a formally named independent reviewer.
 const INDEPENDENT_REVIEW_GATES = [
@@ -220,11 +223,11 @@ const SEMANTIC = {
     {
       invariant: "DEC-0014 receipt-id-consistency",
       check: (d) => {
-        const recomputed = receiptIdFor(d.key_id, d.nonce, d.policy_ref);
+        const recomputed = receiptIdFor(d.key_id, d.nonce, d.policy_ref, d.workspace, d.brand_ref);
         return d.receipt_id === recomputed
           ? []
           : [
-              `receipt_id '${d.receipt_id}' does not match the recomputation '${recomputed}' over {key_id, nonce, policy_ref}`,
+              `receipt_id '${d.receipt_id}' does not match the recomputation '${recomputed}' over {brand_ref, key_id, nonce, policy_ref, workspace}`,
             ];
       },
     },

@@ -46,8 +46,14 @@ interface SemanticCheck {
 // the canonical implementation instead of holding a third copy).
 const approvalPayloadDigestOf = (payload: unknown): string =>
   approvalPayloadDigest(payload as Record<string, unknown>);
-const receiptIdOf = (keyId: unknown, nonce: unknown, policyRef: unknown): string =>
-  receiptIdFor(String(keyId), String(nonce), String(policyRef));
+const receiptIdOf = (d: Record<string, unknown>): string =>
+  receiptIdFor(
+    String(d["key_id"]),
+    String(d["nonce"]),
+    String(d["policy_ref"]),
+    String(d["workspace"]),
+    String(d["brand_ref"])
+  );
 const INDEPENDENT_REVIEW_GATES = [
   "quarantine-release",
   "client-facing-publishing",
@@ -225,11 +231,11 @@ const SEMANTIC_CHECKS: Record<string, SemanticCheck[]> = {
     {
       invariant: "DEC-0014 receipt-id-consistency",
       check: (d) => {
-        const recomputed = receiptIdOf(d["key_id"], d["nonce"], d["policy_ref"]);
+        const recomputed = receiptIdOf(d);
         return d["receipt_id"] === recomputed
           ? []
           : [
-              `receipt_id '${String(d["receipt_id"])}' does not match the recomputation '${recomputed}' over {key_id, nonce, policy_ref}`,
+              `receipt_id '${String(d["receipt_id"])}' does not match the recomputation '${recomputed}' over {brand_ref, key_id, nonce, policy_ref, workspace}`,
             ];
       },
     },
@@ -291,6 +297,20 @@ const SEMANTIC_CHECKS: Record<string, SemanticCheck[]> = {
           if (cur === prev) out.push(`duplicate fact_key '${cur}' in slots`);
           else if (cur < prev) out.push(`slots not deterministically sorted: '${cur}' follows '${prev}'`);
         }
+        return out;
+      },
+    },
+  ],
+  "model-run": [
+    {
+      invariant: "INV-OBS-001 cost-mode-consistency",
+      check: (d) => {
+        const out: string[] = [];
+        const c = (d["cost"] ?? {}) as Record<string, unknown>;
+        if (c["mode"] === "api" && (typeof c["usd"] !== "number" || c["allocation"] !== "measured"))
+          out.push("cost.mode=api requires numeric usd and allocation=measured");
+        if (c["mode"] === "subscription" && (c["usd"] !== null || c["allocation"] !== "none"))
+          out.push("cost.mode=subscription requires usd=null and allocation=none (never conflated)");
         return out;
       },
     },
