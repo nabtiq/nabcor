@@ -42,14 +42,22 @@ analysis: claim fact metadata (contracts 1.3.0 → 1.4.0), strict
 `analyze-structured-truth` service (exact type-sensitive comparison over
 explicit fact slots; open contradictions; profile-relative gaps; explicit
 unstructured listings), and the compiler rule that contradictions and gaps
-enter a Brand Context Package only through a validated truth analysis. This
-is deterministic infrastructure only — not Phase 1 completion: no
-provider-backed or natural-language extraction exists, no semantic
-contradiction detection exists, EXP-0001 has not run and has no results,
-and no measured model costs exist. Model-backed work is prohibited until a
-provider-enablement decision supersedes DEC-0009 (gate roles are named in
-DEC-0008, but quarantine release still requires an independent reviewer and an
-authenticated gate mechanism).
+enter a Brand Context Package only through a validated truth analysis. The
+Phase 1B.2.1 correction (DEC-0012) fixed that increment's
+resolution-semantics defect: contradicted claims are now retained but
+inactive as current truth, current truth is a validated lineage projection
+over immutable claim revisions (contracts 1.4.0 → 1.5.0 — never caller
+omission; cycles, forks, and hidden successors fail closed), and Brand
+Context compiles effective claims only. Authoritative human contradiction
+resolution remains unimplemented: applying a resolution requires the
+authenticated human-gate mechanism (Q-009), because a shape-valid approval
+proves nothing about who acted. This is deterministic infrastructure only —
+not Phase 1 completion: no provider-backed or natural-language extraction
+exists, no semantic contradiction detection exists, EXP-0001 has not run
+and has no results, and no measured model costs exist. Model-backed work is
+prohibited until a provider-enablement decision supersedes DEC-0009 (gate
+roles are named in DEC-0008, but quarantine release still requires an
+independent reviewer and an authenticated gate mechanism).
 
 **Exit evidence (still required):** EXP-0001 passes on synthetic/adversarial fixtures;
 seeded fabrication and prompt injection are blocked in the model-backed path; run and

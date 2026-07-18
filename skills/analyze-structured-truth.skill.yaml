@@ -1,23 +1,29 @@
 # Skill specification — template per docs/AGENT_AND_SKILL_ARCHITECTURE.md §4.
 # Phase 1B.2 (DEC-0011) implements this deterministic Tier-0 UNDERSTAND
-# service. It is NOT the catalog's Tier-2 `detect-contradictions` capability:
-# semantic contradiction detection over unrestricted prose remains
-# unimplemented and prohibited by the ratified zero-provider policy
-# (DEC-0009) until a provider-enablement decision supersedes it.
+# service; Phase 1B.2.1 (DEC-0012) corrected its lifecycle semantics —
+# contradicted claims are retained but inactive, and current truth is a
+# validated lineage projection over the complete claim revision set. It is
+# NOT the catalog's Tier-2 `detect-contradictions` capability: semantic
+# contradiction detection over unrestricted prose remains unimplemented and
+# prohibited by the ratified zero-provider policy (DEC-0009) until a
+# provider-enablement decision supersedes it.
 skill_id: analyze-structured-truth
 domain: UNDERSTAND
 purpose: >
   Deterministically detect open contradictions and gaps over EXPLICITLY
-  structured fact slots: group contract-valid claims by fact_key, compare
-  normalized scalar values with exact type-sensitive equality, and evaluate
-  required/optional slots against one versioned truth profile. Produces a
-  schema-valid truth-analysis artifact. Implemented in
-  src/understand/analyze-structured-truth.ts.
+  structured fact slots: project the complete claim revision set into
+  effective lineage heads (src/understand/project-active-claims.ts,
+  DEC-0012), group effective claims by fact_key, compare normalized scalar
+  values with exact type-sensitive equality, and evaluate required/optional
+  slots against one versioned truth profile. Produces a schema-valid
+  truth-analysis artifact recording the full lineage partition. Implemented
+  in src/understand/analyze-structured-truth.ts.
 input_contract: >
   TruthAnalysisInput (src/understand/analyze-structured-truth.ts): one
-  truth-profile.schema.json artifact and claim.schema.json[] — plus workspace
-  and brand identity for isolation checks. Boundary values stay unknown until
-  contract validation.
+  truth-profile.schema.json artifact and claim.schema.json[] — the COMPLETE
+  revision set of every claim lineage in scope, not a caller-chosen subset —
+  plus workspace and brand identity for isolation checks. Boundary values
+  stay unknown until contract validation.
 output_contract: truth-analysis.schema.json
 required_context: [workspace, brand_ref, supplied artifacts only — no Second Brain reads]
 tools: []          # no OCR, no parsing, no fetching, no network
@@ -33,18 +39,29 @@ deterministic_validations:
   - the profile and every claim belong to the analysis brand; cross-brand
     inputs are rejected (INV-DATA-001)
   - duplicate claim artifact IDs are rejected
+  - every claim lineage is validated before projection (DEC-0012):
+    self-supersession, lineage cycles, dangling predecessors, ambiguous
+    forks, conflicting superseded_by metadata, and lifecycle-superseded
+    claims whose successor is missing from the complete set all fail
+    closed — omission is not resolution, and claim artifacts are immutable
+    (a revision is a new artifact linked by supersedes)
+  - only EFFECTIVE lineage heads participate in analysis; superseded
+    historical revisions and inactive heads (verification contradicted/
+    rejected/expired, lifecycle rejected) neither create contradictions nor
+    satisfy slots, and every excluded claim is listed explicitly with its
+    partition/reason in the produced artifact — a resolved contradiction
+    stays closed on re-analysis
   - only claims with explicit fact metadata participate; comparison is exact
     and type-sensitive — string "1" differs from number 1, no case folding,
     no Unicode normalization, no unit conversion, no fuzzy matching
   - single-cardinality slots with two or more distinct normalized values
     produce exactly one open contradiction; identical duplicate values are
     never contradictions; multi slots accumulate without conflict
-  - retired claims (verification rejected/expired, lifecycle
-    rejected/superseded) neither create contradictions nor satisfy slots
   - gaps are produced only relative to the supplied truth profile: required
-    slots with no eligible claim are `missing`, required slots with only
-    unconfirmed/inference support are `unverified`, optional absence is not a
-    gap, and an open contradiction is never converted into a gap
+    slots with no eligible effective claim are `missing` (a contradicted
+    head is not support), required slots with only unconfirmed/inference
+    support are `unverified`, optional absence is not a gap, and an open
+    contradiction is never converted into a gap
   - blocking flags are copied from the profile; the analyzer assigns none
   - contradictions are fixed to status "open"; no winner is ever selected
     (INV-HUM-001(3))
@@ -56,27 +73,42 @@ failure_modes:
   - invalid profile or claim artifact (typed validation-failed)
   - cross-brand profile or claim (typed reference-violation)
   - duplicate claim artifact IDs (typed invalid-input)
+  - lineage violation — self-supersession, cycle, dangling predecessor,
+    ambiguous fork, conflicting superseded_by, or hidden successor (typed
+    lineage-violation, DEC-0012)
   - schema rejection of the produced analysis (typed validation-failed)
 retry_rules: none — deterministic code either succeeds or returns a typed
   failure; retrying without changed input cannot change the outcome
 human_approval: none inside detection; contradiction resolution and
   inference confirmation are human gates downstream (INV-HUM-001(3)) —
-  resolution produces a decision record, never an analyzer output
+  resolution produces a decision record, never an analyzer output.
+  Authoritative resolution (creating the losing claim's contradicted
+  revision) remains unimplemented pending the authenticated human-gate
+  mechanism (Q-009): a shape-valid decision or approval artifact is not
+  evidence that a human acted (DEC-0012)
 token_budget: {output: 0, max_tool_calls: 0, max_iterations: 1}  # Tier 0: zero model tokens
 caching: not applicable (no model calls; deterministic output for identical input)
 limitations: >
-  Claims without structured fact metadata are listed under
+  Effective claims without structured fact metadata are listed under
   unstructured_claim_refs and are NOT analyzed: they are never keyword-parsed,
   text-compared, silently ignored, or converted into assumptions. Two prose
   statements a human would read as conflicting produce no contradiction here.
-  Structured claims whose fact_key is not in the profile are listed under
-  unprofiled_fact_claim_refs. Absence from the profile is not evidence that
-  information is universally required.
-evaluation: runtime tests in test/analyze-structured-truth.test.ts —
+  Effective structured claims whose fact_key is not in the profile are listed
+  under unprofiled_fact_claim_refs. Absence from the profile is not evidence
+  that information is universally required. The input must be the complete
+  revision set: partial lineages fail closed rather than projecting, and the
+  analyzer cannot resolve contradictions — it only keeps human resolutions
+  closed once the losing claim's contradicted revision exists.
+evaluation: runtime tests in test/analyze-structured-truth.test.ts and
+  test/project-active-claims.test.ts —
   profile/claim contract enforcement, exact type-sensitive comparison
   (string-vs-number, case, Unicode composition), single/multi cardinality,
-  missing/unverified/optional gap rules, retired-claim exclusion, explicit
-  unstructured/unprofiled listing, brand isolation (analyzer and artifact
-  store), duplicate rejection, byte-equivalent determinism, contract validity
-  of the output, and proof that no gateway import exists and the Fake Adapter
-  is never invoked
+  missing/unverified/optional gap rules, lineage projection (three-version
+  chains, contradicted/rejected/expired/lifecycle-rejected inactive heads,
+  fail-closed cycles/forks/dangling/hidden-successor/conflicting-metadata
+  cases, resolution-loop closure reproduced as a failing test before the
+  DEC-0012 correction), explicit partition and unstructured/unprofiled
+  listing, brand isolation (analyzer and artifact store), duplicate
+  rejection, byte-equivalent determinism, contract validity of the output,
+  and proof that no gateway import exists and the Fake Adapter is never
+  invoked

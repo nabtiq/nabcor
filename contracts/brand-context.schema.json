@@ -121,6 +121,7 @@
         },
         "claim_refs": {
           "type": "array",
+          "description": "EFFECTIVE current claim references only (DEC-0012): the compiler copies the truth analysis's effective_claim_refs; superseded and inactive revisions stay auditable through truth_analysis_ref, never as package claims",
           "items": {
             "type": "string"
           }

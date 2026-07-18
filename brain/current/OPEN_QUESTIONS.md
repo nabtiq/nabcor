@@ -6,7 +6,57 @@ Unknowns stay visible until evidence or a ratified decision resolves them.
 
 ## Blocking before Phase 1
 
-None. Q-001 and Q-002 are closed (see the answer log). Provider-backed work is
+- **Q-009 — Authoritative runtime human decisions (authenticated human-gate
+  mechanism).** BLOCKING for the human fact-resolution loop and every
+  runtime path that must prove a human acted.
+
+  **Why this is open.** Repository-level product-owner instructions are
+  valid approval evidence for repository governance decisions (the DEC-*
+  records ratified this way are legitimate). Runtime artifacts are
+  different: a decision or approval object that arrives at a runtime
+  boundary needs machine-verifiable authority, and none exists. A
+  schema-valid approval object proves shape, not identity — the runtime
+  cannot authenticate the human, their session, their role, their
+  signature, or their approval authority (the forgeable-approval failure
+  DEC-0007 corrected for quarantine release applies to every runtime human
+  decision). DEC-0008 additionally requires `self_review: true` on every
+  approval the current single reviewer grants, and the approval contract
+  has no machine-readable `self_review` field, so even a well-intended
+  approval cannot currently be recorded in the required form. Consequence:
+  fact resolution cannot safely apply claim revisions — DEC-0012 prepared
+  the resolution-safe lifecycle (contradicted claims inactive, lineage
+  projection, immutable revisions), but creating the losing claim's
+  `contradicted` revision from a resolution decision stays unimplemented
+  until authority is machine-verifiable.
+
+  **Option A — Offline Ed25519 approval evidence (recommended).** A
+  public-key authority registry committed as non-secret configuration
+  (key IDs, roles, validity windows); private keys never committed; a
+  canonical signed approval payload (artifact digest, gate, verdict,
+  approver identity, explicit `self_review`, nonce/replay identifier,
+  timestamp); verification with Node.js built-in `crypto` (no new
+  dependency); replay protection via recorded nonces; key rotation and
+  revocation through registry updates with decision records. Works
+  offline with no provider or network, consistent with DEC-0009.
+  **Option B — GitHub-backed approval evidence.** Human approval tied to
+  GitHub identity and repository evidence (signed commits, reviewed PRs,
+  or workflow attestations). Requires network and GitHub coupling;
+  appropriate for repository workflows but less suitable for a future
+  standalone product runtime.
+  **Option C — Defer runtime authority.** Keep contradiction resolution
+  manual and repository-only; no runtime claim-resolution path. Safest
+  short-term option, but Phase 1 cannot close the human fact-resolution
+  loop.
+
+  No option is chosen here. Option A is recommended; the question stays
+  open for Product Owner ratification. Separately: naming an independent
+  reviewer remains a distinct requirement for DEC-0008's four
+  independent-review gates — it is NOT required for ordinary fact
+  resolution by the current Product Owner, provided `self_review: true`
+  is authenticated and recorded by whatever mechanism this question
+  ratifies.
+
+Q-001 and Q-002 are closed (see the answer log). Provider-backed work is
 now gated by the DEC-0009 provider-enablement requirements, not by an open
 question.
 

@@ -30,6 +30,12 @@ deterministic_validations:
   - the truth-analysis artifact is contract-valid, belongs to the same brand,
     and its analyzed claim set EXACTLY matches the supplied claims — a package
     can neither drop analyzed claims nor smuggle in unanalyzed ones (DEC-0011)
+  - the package compiles EFFECTIVE current claims only (DEC-0012): claim_refs
+    are the analysis's effective_claim_refs (validated lineage heads), and an
+    identity/audience/market reference to a superseded, contradicted,
+    rejected, or expired claim fails closed; historical revisions stay
+    auditable through truth_analysis_ref, and no stored claim is mutated or
+    deleted
   - caller-supplied contradiction/gap arrays are rejected with a typed failure:
     analysis results cannot be injected, omitted, or independently rewritten,
     and the package records truth_analysis_ref (DEC-0011)
@@ -58,7 +64,8 @@ deterministic_validations:
     compiler never resolves or drops them (INV-HUM-001(3))
   - missing information is a gap entry from the truth analysis, never invented
     content
-  - provisional is derived (open assumptions or unverified claims), never asserted
+  - provisional is derived (open assumptions or unverified EFFECTIVE claims —
+    historical revisions do not count, DEC-0012), never asserted
   - the output package validates against brand-context.schema.json before it is
     returned or stored (INV-DET-001)
 failure_modes:

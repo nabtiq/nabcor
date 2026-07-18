@@ -6,17 +6,21 @@
 
 ## Current phase
 
-Phase 1B.2 — deterministic structured-truth analysis, extending the Phase 1A
-truth kernel and the Phase 1B.1 offline gateway kernel. The clean foundation
+Phase 1B.2.1 — resolution-safe claim lifecycle correction (DEC-0012) on top
+of the Phase 1B.2 deterministic structured-truth analysis, the Phase 1B.1
+offline gateway kernel, and the Phase 1A truth kernel. The clean foundation
 baseline (`0.1.0`) remains the historical boundary (`FOUNDATION_BASELINE.md`).
 Phase 1 is not complete.
 
 ## Current objective
 
-Deliver Phase 1B.2: deterministic contradiction/gap analysis over explicit
-fact slots (DEC-0011), then propose the next deterministic UNDERSTAND
-increment. Model-backed work stays prohibited by the zero-provider policy
-(DEC-0009) — a policy boundary, not an open question.
+Deliver Phase 1B.2.1: contradicted claims retained but inactive, current
+truth derived from a validated lineage projection over immutable claim
+revisions (never caller omission), Brand Context compiled from effective
+claims only — then obtain the Product Owner's ratification of the
+authenticated human-gate mechanism (Q-009) so fact resolution can safely
+apply claim revisions. Model-backed work stays prohibited by the
+zero-provider policy (DEC-0009) — a policy boundary, not an open question.
 
 ## Ratified decisions
 
@@ -47,7 +51,16 @@ increment. Model-backed work stays prohibited by the zero-provider policy
 - DEC-0011 — deterministic structured-truth analysis boundary: explicit fact
   slots and exact type-sensitive comparison only; profile-relative gaps; open
   contradictions with no automatic resolution; no prose interpretation; no
-  gateway or Fake Adapter involvement.
+  gateway or Fake Adapter involvement (its contradicted-claims-stay-active
+  judgment is corrected by an append-only note; see DEC-0012).
+- DEC-0012 — resolution-safe claim lifecycle: contradicted claims are
+  retained but inactive as current truth; current truth is a validated
+  lineage projection over immutable claim revisions, never caller omission;
+  cycles, self-supersession, dangling lineage, and ambiguous forks fail
+  closed; Brand Context compiles effective claims only; a shape-valid
+  Decision artifact is not evidence a human acted, and authoritative human
+  contradiction resolution stays unimplemented pending an authenticated
+  human-gate mechanism (Q-009).
 
 ## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006 and Phase 1A.2 / DEC-0007)
 
@@ -110,8 +123,43 @@ increment. Model-backed work stays prohibited by the zero-provider policy
 - This is deterministic structured analysis only: no natural-language
   extraction, no semantic paraphrase detection, no model-quality evidence.
 
+## Implemented (Phase 1B.2.1, DEC-0012)
+
+- Deterministic active-claim lineage projection
+  (`src/understand/project-active-claims.ts`): the complete claim revision
+  set is validated and partitioned into effective heads, superseded
+  history, and inactive heads (contradicted/rejected/expired/
+  lifecycle-rejected) with a closed reason enum. Self-supersession,
+  cycles, dangling predecessors, ambiguous forks, conflicting
+  `superseded_by` metadata, and lifecycle-superseded claims with hidden
+  successors all fail closed. Omission is not resolution; claim artifacts
+  stay immutable — no claim was mutated or deleted.
+- Analyzer correction: `analyze-structured-truth` (1.1.0) analyzes
+  effective claims only. Contradicted claims are retained but inactive —
+  they create no active contradictions and satisfy no required slots, so a
+  human resolution stays closed on re-analysis. Excluded claims remain
+  explicitly visible in the analysis for audit.
+- Truth-analysis contract 1.5.0 (contracts synchronized 1.4.0 → 1.5.0):
+  required `effective_claim_refs`, `superseded_claim_refs`, and
+  `inactive_head_claims` collections with exact-partition and
+  effective-only-participation semantic checks.
+- Brand Context compiler: packages compile effective current claims only;
+  identity/audience/market references to superseded or inactive claims
+  fail closed; `provisional` derives from effective claims and open
+  assumptions only.
+- Shape-valid approvals remain unauthenticated evidence: no resolver,
+  authentication, signing, key handling, or quarantine release was built
+  (Q-009 records the human-gate decision packet).
+
 ## Blocked / not implemented
 
+- Authoritative human contradiction resolution: the resolution-safe
+  lifecycle exists (DEC-0012), but applying a resolution — creating the
+  losing claim's `contradicted` revision with `resolution_decision_ref` —
+  is BLOCKED on the authenticated human-gate mechanism (Q-009). A
+  schema-valid Decision or Approval artifact proves shape, not that a
+  human acted, and the approval contract has no machine-readable
+  `self_review` field (DEC-0008 requires `self_review: true`).
 - Provider adapters, real model calls, provider-backed extraction, and
   semantic contradiction detection: prohibited by the ratified zero-provider
   policy (DEC-0009, zero spend); enabling any provider requires a new
@@ -130,14 +178,15 @@ increment. Model-backed work stays prohibited by the zero-provider policy
 
 ## Immediate next actions
 
-1. Propose the next Phase 1 increment as a proposal for product-owner review
-   (candidates: deterministic assumption-ledger tooling, human
-   contradiction-resolution decision flow, or truth-profile authoring for the
-   first real workflow).
+1. Product Owner ratifies an option for Q-009 (authenticated human-gate
+   mechanism; Option A — offline Ed25519 approval evidence — is
+   recommended). Fact resolution cannot apply claim revisions before that.
 2. Keep `npm run validate` green on every change.
 
 ## Definition of done for the current objective
 
-Phase 1B.2 merged with validation green; NOW, ROADMAP, RISKS, and
-OPEN_QUESTIONS consistent with DEC-0008..DEC-0011; no semantic-detection or
-model-quality claims anywhere.
+Phase 1B.2.1 merged with validation green; NOW, ROADMAP, RISKS, and
+OPEN_QUESTIONS consistent with DEC-0008..DEC-0012; contradicted claims
+retained but inactive with lineage-projected current truth; no claim of
+implemented human resolution, authentication, or semantic detection
+anywhere; EXP-0001 still unexecuted and empty.
