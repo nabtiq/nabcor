@@ -154,3 +154,28 @@ supersedes: null (extends DEC-0012 via an append-only correction note
 there: its lineage semantics stand; this record adds the membership
 authority its "complete revision set" input assumed)
 superseded_by: null
+
+## Clarification note (appended 2026-07-19, Phase 1B.3A — original text above is unchanged)
+
+This record made the Artifact Store the authority for claim-set membership,
+but the read boundary itself had a residual gap: `FileArtifactStore.get`
+validated the artifact contract and the brand namespace without proving
+that the stored file's internal `artifact_id` equals the canonical
+filename address it was requested from. A schema-valid artifact planted
+under (or copied to) a foreign canonical filename therefore read back
+successfully under the wrong identity, and snapshot capture — which loads
+every enumerated claim through `store.get` — would have bound such a file
+into a snapshot under its address rather than its identity, surfacing the
+mismatch only later (if at all) through digest reconciliation.
+
+Phase 1B.3A (DEC-0014) closes this at the read boundary: `store.get` now
+fails with a typed `artifact-address-mismatch` failure whenever the
+internal `artifact_id` differs from the requested canonical address, for
+every supported artifact type; the same invariant applies to operational
+record reads (`FileRunRecordStore.get`). Snapshot capture consequently
+fails immediately on a filename/identity disagreement instead of
+proceeding, and no analyzer, compiler, registry, or approval-verification
+consumer can receive a misaddressed artifact. Regression tests plant a
+valid artifact under a different canonical filename and prove the failure
+occurs during `store.get`/snapshot capture, not later during compiler
+reconciliation. Everything else in this record stands unchanged.

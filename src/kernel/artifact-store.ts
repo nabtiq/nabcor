@@ -189,6 +189,21 @@ export class FileArtifactStore {
         message: `stored artifact '${artifactId}' carries brand_ref '${String(validated.value["brand_ref"])}' but was read from brand namespace '${brand}'`,
       });
     }
+    // Address integrity (DEC-0013 clarification, Phase 1B.3A): the canonical
+    // filename IS the artifact's address, so the stored file's internal
+    // artifact_id must equal the requested one for every supported type. A
+    // mismatch means the file was tampered with or planted under a foreign
+    // address; it is refused before any consumer can act on it.
+    if (validated.value["artifact_id"] !== artifactId) {
+      return err({
+        kind: "artifact-address-mismatch",
+        artifactId,
+        storedArtifactId: String(validated.value["artifact_id"]),
+        message: `artifact stored at canonical address '${artifactId}' in ${workspace}/${brand}/${type} carries internal artifact_id '${String(
+          validated.value["artifact_id"]
+        )}'; filename and internal identity must agree`,
+      });
+    }
     return validated;
   }
 

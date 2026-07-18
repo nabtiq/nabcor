@@ -210,6 +210,19 @@ export class FileRunRecordStore implements RunRecordStore {
     if (!validated.ok) return validated;
     const nsFailure = this.#namespaceViolation(workspace, brand, type, validated.value);
     if (nsFailure) return err(nsFailure);
+    // Address integrity (Phase 1B.3A, same invariant as FileArtifactStore.get):
+    // the record's own identity field must equal the canonical filename it was
+    // read from; a mismatched file is tampering or misplacement, not data.
+    if (validated.value[ID_FIELD[type]] !== recordId) {
+      return err({
+        kind: "artifact-address-mismatch",
+        artifactId: recordId,
+        storedArtifactId: String(validated.value[ID_FIELD[type]]),
+        message: `operational record stored at canonical address '${recordId}' in ${workspace}/${brand}/${type} carries internal ${ID_FIELD[type]} '${String(
+          validated.value[ID_FIELD[type]]
+        )}'; filename and internal identity must agree`,
+      });
+    }
     return validated;
   }
 }
