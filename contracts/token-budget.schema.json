@@ -86,7 +86,7 @@
   },
   "examples": [
     {
-      "schema_version": "1.4.0",
+      "schema_version": "1.5.0",
       "budget_id": "budget_slice_0001",
       "scope": "project",
       "scope_ref": "SLICE-001",

@@ -1,5 +1,6 @@
 // Tier-0 analyze-structured-truth: deterministic contradiction and gap analysis
-// over EXPLICITLY structured fact slots (DEC-0011; skills/analyze-structured-truth.skill.yaml).
+// over EXPLICITLY structured fact slots (DEC-0011, DEC-0012;
+// skills/analyze-structured-truth.skill.yaml).
 //
 // This is analysis of structured truth, not extraction: only claims carrying
 // explicit fact metadata (fact_key + normalized_value + normalization_basis)
@@ -11,19 +12,30 @@
 // status comes only from the profile. Contradictions stay open — deterministic
 // code never selects which conflicting claim is true (INV-HUM-001(3)).
 //
+// Current truth is a lineage projection, not the raw claim array (DEC-0012):
+// the analyzer receives the COMPLETE claim revision set, validates every
+// lineage through project-active-claims (the single implementation of lineage
+// rules — no second copy exists here), and analyzes EFFECTIVE claims only.
+// Superseded historical revisions and inactive heads (contradicted, rejected,
+// expired, lifecycle-rejected) are recorded explicitly for audit but create no
+// contradictions and satisfy no slots — a claim a human resolved against
+// stays queryable without re-litigating the conflict it lost.
+//
 // Claims WITHOUT structured fact metadata are listed under
-// unstructured_claim_refs. They are never keyword-parsed, text-compared,
-// silently ignored, or converted into assumptions: detecting semantic
-// contradictions in unrestricted prose is out of this capability's scope and
-// remains prohibited pending a provider-enablement decision (DEC-0009).
+// unstructured_claim_refs (effective claims only). They are never
+// keyword-parsed, text-compared, silently ignored, or converted into
+// assumptions: detecting semantic contradictions in unrestricted prose is out
+// of this capability's scope and remains prohibited pending a
+// provider-enablement decision (DEC-0009).
 //
 // No gateway, adapter, model, provider, or network involvement exists here —
 // the Fake Adapter is gateway test infrastructure and is never used to
 // simulate intelligence (DEC-0011).
 import type { ContractRegistry } from "../kernel/contract-registry.js";
-import { type Result, err, ok } from "../kernel/result.js";
+import { type Result, err } from "../kernel/result.js";
+import { projectActiveClaims } from "./project-active-claims.js";
 
-export const ANALYZER_VERSION = "analyze-structured-truth-1.0.0";
+export const ANALYZER_VERSION = "analyze-structured-truth-1.1.0";
 
 export interface TruthAnalysisInput {
   artifactId: string;
@@ -32,7 +44,10 @@ export interface TruthAnalysisInput {
   createdAt: string;
   /** Contract-valid truth-profile artifact; stays unknown until validated. */
   truthProfile: unknown;
-  /** Contract-valid claim artifacts; stay unknown until validated. */
+  /**
+   * Contract-valid claim artifacts — the COMPLETE revision set of every
+   * lineage in scope (DEC-0012); stay unknown until validated.
+   */
   claims: unknown[];
 }
 
@@ -49,68 +64,50 @@ interface ProfileSlot {
 // Deterministic code-unit string comparison — never locale-dependent collation.
 const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
-// A claim whose verification or lifecycle state retired it must not create
-// active contradictions or satisfy required slots (DEC-0011). Claims marked
-// `contradicted` still participate: surfacing an unresolved-looking conflict is
-// conservative, and hiding it would be an undisclosed filtering heuristic.
-const INACTIVE_VERIFICATION = new Set(["rejected", "expired"]);
-const INACTIVE_LIFECYCLE = new Set(["rejected", "superseded"]);
-
 export function analyzeStructuredTruth(
   input: TruthAnalysisInput,
   registry: ContractRegistry
 ): Result<Record<string, unknown>> {
-  // 1. Boundary validation: profile and every claim are contract-validated
-  //    (schema + semantic) before anything is read from them (INV-DET-001).
+  // 1. Boundary validation: the profile is contract-validated (schema +
+  //    semantic) before anything is read from it (INV-DET-001).
   const profileResult = registry.validate("truth-profile", input.truthProfile);
   if (!profileResult.ok) return profileResult;
   const profile = profileResult.value;
-  const claims: Record<string, unknown>[] = [];
-  for (const c of input.claims) {
-    const v = registry.validate("claim", c);
-    if (!v.ok) return v;
-    claims.push(v.value);
-  }
 
-  // 2. Brand isolation (INV-DATA-001): the profile and every claim must belong
-  //    to the analysis brand.
+  // 2. Brand isolation for the profile (INV-DATA-001); claim validation,
+  //    claim brand isolation, duplicate rejection, and every lineage rule
+  //    live in the projection — the analyzer holds no second implementation.
   if (profile["brand_ref"] !== input.brandRef) {
     return err({
       kind: "reference-violation",
       message: `truth profile '${String(profile["artifact_id"])}' carries brand_ref '${String(profile["brand_ref"])}', expected '${input.brandRef}' (workspace '${input.workspace}'); cross-brand profiles are rejected`,
     });
   }
-  for (const c of claims) {
-    if (c["brand_ref"] !== input.brandRef) {
-      return err({
-        kind: "reference-violation",
-        message: `claim '${String(c["artifact_id"])}' carries brand_ref '${String(c["brand_ref"])}', expected '${input.brandRef}' (workspace '${input.workspace}'); cross-brand claims are rejected`,
-      });
-    }
-  }
 
-  // 3. Duplicate claim artifacts are rejected — one claim, one reference.
-  const seenIds = new Set<string>();
-  for (const c of claims) {
-    const id = String(c["artifact_id"]);
-    if (seenIds.has(id)) {
-      return err({
-        kind: "invalid-input",
-        message: `duplicate claim artifact_id '${id}' in the analysis input; each claim participates exactly once`,
-      });
-    }
-    seenIds.add(id);
-  }
+  // 3. Lineage projection (DEC-0012): validate the complete revision set and
+  //    derive effective current truth from lineage heads. Cycles,
+  //    self-supersession, dangling references, ambiguous forks, and hidden
+  //    successors fail closed inside the projection.
+  const projected = projectActiveClaims(
+    { workspace: input.workspace, brandRef: input.brandRef, claims: input.claims },
+    registry
+  );
+  if (!projected.ok) return projected;
+  const projection = projected.value;
+  const effectiveClaims = projection.effectiveClaimRefs.map(
+    (id) => projection.claimById.get(id)!
+  );
 
   const slots = profile["slots"] as unknown as ProfileSlot[];
   const slotByKey = new Map(slots.map((s) => [s.fact_key, s]));
 
-  // 4. Partition claims: structured (explicit fact metadata) vs unstructured;
-  //    structured claims split into profiled and unprofiled fact keys.
+  // 4. Partition EFFECTIVE claims: structured (explicit fact metadata) vs
+  //    unstructured; structured claims split into profiled and unprofiled
+  //    fact keys. Superseded and inactive claims are audit entries only.
   const unstructuredRefs: string[] = [];
   const unprofiledRefs: string[] = [];
   const byFactKey = new Map<string, Record<string, unknown>[]>();
-  for (const c of claims) {
+  for (const c of effectiveClaims) {
     const id = String(c["artifact_id"]);
     if (typeof c["fact_key"] !== "string") {
       unstructuredRefs.push(id);
@@ -126,18 +123,13 @@ export function analyzeStructuredTruth(
     else byFactKey.set(key, [c]);
   }
 
-  // 5. Per-slot deterministic analysis. Eligibility excludes retired claims;
-  //    a conflict between verified and unconfirmed claims is still surfaced —
+  // 5. Per-slot deterministic analysis over effective claims. A conflict
+  //    between verified and unconfirmed effective claims is still surfaced —
   //    the analyzer never selects a winner.
   const contradictions: Record<string, unknown>[] = [];
   const gaps: Record<string, unknown>[] = [];
   for (const slot of slots) {
-    const group = byFactKey.get(slot.fact_key) ?? [];
-    const eligible = group.filter(
-      (c) =>
-        !INACTIVE_VERIFICATION.has(String(c["verification_status"])) &&
-        !INACTIVE_LIFECYCLE.has(String(c["lifecycle_status"]))
-    );
+    const eligible = byFactKey.get(slot.fact_key) ?? [];
 
     // Exact, type-sensitive distinctness: string "1" and number 1 are two
     // values; identical duplicates collapse to one and are not contradictions.
@@ -168,7 +160,9 @@ export function analyzeStructuredTruth(
     // Gap logic applies to required slots only: absence from an optional slot
     // is not a gap, and absence from the profile is not evidence of universal
     // requirement. An open contradiction is surfaced as a contradiction, never
-    // silently converted into a missing fact.
+    // silently converted into a missing fact. Inactive heads (including
+    // contradicted claims) supply nothing here — a slot whose only support
+    // lost a resolution is missing, not unverified (DEC-0012).
     if (slot.requirement !== "required" || contradicted) continue;
     if (eligible.length === 0) {
       gaps.push({
@@ -193,9 +187,12 @@ export function analyzeStructuredTruth(
 
   // 6. Stable, deterministically sorted output. Slots are already sorted by
   //    fact_key (truth-profile semantic layer), so contradictions and gaps
-  //    emerged sorted; claim-reference lists are sorted explicitly.
+  //    emerged sorted; the projection's collections are already code-unit
+  //    sorted; remaining claim-reference lists are sorted explicitly. The
+  //    complete input set stays recorded (audit); the effective, superseded,
+  //    and inactive-head partitions make lineage state explicit (DEC-0012).
   const artifact: Record<string, unknown> = {
-    schema_version: "1.4.0",
+    schema_version: "1.5.0",
     artifact_id: input.artifactId,
     brand_ref: input.brandRef,
     created_at: input.createdAt,
@@ -203,7 +200,13 @@ export function analyzeStructuredTruth(
     lifecycle_status: "generated",
     truth_profile_ref: String(profile["artifact_id"]),
     analyzer_version: ANALYZER_VERSION,
-    analyzed_claim_refs: claims.map((c) => String(c["artifact_id"])).sort(byCodeUnit),
+    analyzed_claim_refs: projection.inputClaimRefs,
+    effective_claim_refs: projection.effectiveClaimRefs,
+    superseded_claim_refs: projection.supersededClaimRefs,
+    inactive_head_claims: projection.inactiveHeadClaims.map((c) => ({
+      claim_ref: c.claim_ref,
+      reason: c.reason,
+    })),
     open_contradictions: contradictions,
     gaps,
     unstructured_claim_refs: unstructuredRefs.sort(byCodeUnit),

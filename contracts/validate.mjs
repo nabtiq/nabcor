@@ -193,6 +193,9 @@ const SEMANTIC = {
               out.push(`${label} not strictly sorted: '${arr[i]}' follows '${arr[i - 1]}'`);
         };
         sortedAsc(d.analyzed_claim_refs ?? [], "analyzed_claim_refs");
+        sortedAsc(d.effective_claim_refs ?? [], "effective_claim_refs");
+        sortedAsc(d.superseded_claim_refs ?? [], "superseded_claim_refs");
+        sortedAsc((d.inactive_head_claims ?? []).map((c) => c.claim_ref), "inactive_head_claims claim_refs");
         sortedAsc(d.unstructured_claim_refs ?? [], "unstructured_claim_refs");
         sortedAsc(d.unprofiled_fact_claim_refs ?? [], "unprofiled_fact_claim_refs");
         sortedAsc((d.open_contradictions ?? []).map((c) => c.fact_key), "open_contradictions fact_keys");
@@ -201,13 +204,43 @@ const SEMANTIC = {
       },
     },
     {
-      invariant: "DEC-0011 refs-within-analyzed",
+      invariant: "DEC-0012 lineage-partition",
       check: (d) => {
+        // effective + superseded + inactive heads must partition the complete
+        // analyzed set exactly: no overlap, no omission, no extras.
         const out = [];
         const analyzed = new Set(d.analyzed_claim_refs ?? []);
+        const partitions = [
+          ["effective_claim_refs", d.effective_claim_refs ?? []],
+          ["superseded_claim_refs", d.superseded_claim_refs ?? []],
+          ["inactive_head_claims", (d.inactive_head_claims ?? []).map((c) => c.claim_ref)],
+        ];
+        const seen = new Map();
+        for (const [label, refs] of partitions) {
+          for (const r of refs) {
+            if (!analyzed.has(r)) out.push(`${label} references '${r}', which is not in analyzed_claim_refs`);
+            const prior = seen.get(r);
+            if (prior) out.push(`'${r}' appears in both ${prior} and ${label}; the partitions must be disjoint`);
+            else seen.set(r, label);
+          }
+        }
+        for (const r of analyzed)
+          if (!seen.has(r))
+            out.push(`analyzed claim '${r}' is in none of effective/superseded/inactive; the partition must be complete`);
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0011/DEC-0012 refs-within-effective",
+      check: (d) => {
+        // Contradictions, gaps, and the unstructured/unprofiled listings see
+        // effective current truth only — an inactive or superseded claim can
+        // appear in none of them (DEC-0012).
+        const out = [];
+        const effective = new Set(d.effective_claim_refs ?? []);
         const requireIn = (refs, label) => {
           for (const r of refs)
-            if (!analyzed.has(r)) out.push(`${label} references '${r}', which is not in analyzed_claim_refs`);
+            if (!effective.has(r)) out.push(`${label} references '${r}', which is not in effective_claim_refs`);
         };
         for (const c of d.open_contradictions ?? []) requireIn(c.claim_refs ?? [], `contradiction '${c.fact_key}'`);
         for (const g of d.gaps ?? []) requireIn(g.claim_refs ?? [], `gap '${g.fact_key}'`);
