@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/approval-receipt.schema.json",
+  "title": "Approval consumption receipt",
+  "description": "Immutable record that one signed approval was verified and its nonce consumed (DEC-0014). Receipt creation is atomic and no-overwrite: the receipt_id is deterministically derived from the trusted policy reference, the signing key ID, and the nonce (algorithm approval-receipt-id-sha256-1.0.0: 'r' + sha256 hex over the canonical JSON of {key_id, nonce, policy_ref}; semantic layer recomputes), so a second consumption of the same nonce collides with the first receipt and fails as approval-replay. Only successful, fully authorized consumptions persist receipts — verification_result is pinned to 'authorized'; failed signature or policy checks never consume a nonce and never create a receipt. Receipts are workspace/brand isolated audit records; they carry identifiers and digests only, never key material or signed payload bodies.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "receipt_algorithm",
+    "evidence_ref",
+    "payload_digest",
+    "key_id",
+    "nonce",
+    "workspace",
+    "brand_ref",
+    "target_artifact_ref",
+    "target_artifact_type",
+    "target_artifact_digest",
+    "gate",
+    "verdict",
+    "verification_result",
+    "consumed_at",
+    "policy_ref",
+    "policy_version",
+    "registry_ref",
+    "registry_version"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "receipt_id": {
+      "type": "string",
+      "pattern": "^r[0-9a-f]{64}$"
+    },
+    "receipt_algorithm": {
+      "const": "approval-receipt-id-sha256-1.0.0"
+    },
+    "evidence_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+      "description": "evidence_id of the consumed approval evidence"
+    },
+    "payload_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "key_id": {
+      "type": "string",
+      "pattern": "^k[0-9a-f]{64}$"
+    },
+    "nonce": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32,64}$"
+    },
+    "workspace": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "brand_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "target_artifact_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "target_artifact_type": {
+      "enum": [
+        "source",
+        "claim",
+        "assumption",
+        "brand-context",
+        "claim-snapshot",
+        "truth-profile",
+        "truth-analysis"
+      ]
+    },
+    "target_artifact_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "gate": {
+      "enum": [
+        "fact-resolution-approval",
+        "quarantine-release",
+        "client-facing-publishing",
+        "blocking-evaluation-gate-change",
+        "real-client-data-provider-approval"
+      ]
+    },
+    "verdict": {
+      "enum": [
+        "approved",
+        "rejected"
+      ]
+    },
+    "verification_result": {
+      "const": "authorized",
+      "description": "pinned: only successful consumptions persist receipts; denials return typed failures without touching the receipt store"
+    },
+    "consumed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "the verifier's injected clock at consumption time"
+    },
+    "policy_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "policy_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "registry_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "registry_version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "schema_version": "1.7.0",
+      "receipt_id": "r05af360d0b2b70d27914d02fbebf232ac0ee2e3e46c92d3534f18f8b413c411b",
+      "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
+      "evidence_ref": "apev_0001",
+      "payload_digest": "sha256:0a3ec8d03c49e64123d056eac935463087777c100661d4f7d0bee0ebd314b76c",
+      "key_id": "k307297211a27f90494c82db278dc854afa0fa87c35abd06c24f24ee2ef36666b",
+      "nonce": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+      "workspace": "ws_example",
+      "brand_ref": "brand_example",
+      "target_artifact_ref": "claim_001",
+      "target_artifact_type": "claim",
+      "target_artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "gate": "fact-resolution-approval",
+      "verdict": "approved",
+      "verification_result": "authorized",
+      "consumed_at": "2026-07-19T12:05:00Z",
+      "policy_ref": "hgp-nabcor-1",
+      "policy_version": 1,
+      "registry_ref": "areg-nabcor",
+      "registry_version": 1
+    }
+  ]
+}

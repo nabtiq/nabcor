@@ -37,7 +37,7 @@ export const NOW = "2026-07-17T12:00:00Z";
 
 export function validClaim(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.6.0",
+    schema_version: "1.7.0",
     artifact_id: "claim_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -56,7 +56,7 @@ export function validClaim(overrides: Record<string, unknown> = {}): Record<stri
 
 export function validSource(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.6.0",
+    schema_version: "1.7.0",
     artifact_id: "src_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -79,7 +79,7 @@ export function validSource(overrides: Record<string, unknown> = {}): Record<str
 
 export function validAssumption(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.6.0",
+    schema_version: "1.7.0",
     artifact_id: "asm_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -109,7 +109,7 @@ export function validSlot(overrides: Record<string, unknown> = {}): Record<strin
 
 export function validTruthProfile(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.6.0",
+    schema_version: "1.7.0",
     artifact_id: "tp_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,
@@ -137,7 +137,7 @@ export function snapshotFor(
     .map((c) => ({ claim_ref: String(c["artifact_id"]), content_digest: contentDigest(c) }))
     .sort((a, b) => byCodeUnit(a.claim_ref, b.claim_ref));
   const base: Record<string, unknown> = {
-    schema_version: "1.6.0",
+    schema_version: "1.7.0",
     artifact_id: "snap_t_0001",
     brand_ref: "brand_test",
     workspace: WS,
@@ -183,7 +183,7 @@ export function truthAnalysisFor(
     .map((c) => String(c["artifact_id"]))
     .sort(byCodeUnit);
   return {
-    schema_version: "1.6.0",
+    schema_version: "1.7.0",
     artifact_id: "ta_t_0001",
     brand_ref: "brand_test",
     created_at: NOW,

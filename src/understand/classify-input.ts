@@ -135,7 +135,7 @@ export function classifyInput(
     }
 
     const artifact: Record<string, unknown> = {
-      schema_version: "1.6.0",
+      schema_version: "1.7.0",
       artifact_id: `${prefix}_${String(i + 1).padStart(4, "0")}`,
       brand_ref: options.brandRef,
       created_at: options.createdAt,

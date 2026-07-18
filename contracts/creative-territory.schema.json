@@ -106,7 +106,7 @@
   ],
   "examples": [
     {
-      "schema_version": "1.6.0",
+      "schema_version": "1.7.0",
       "artifact_id": "terr_0001",
       "brand_ref": "brand_example",
       "created_at": "2026-07-17T12:00:00Z",

@@ -1,0 +1,221 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/approval-evidence.schema.json",
+  "title": "Signed approval evidence",
+  "description": "Machine-verifiable evidence that an authorized human approved or rejected one exact artifact action at one gate (DEC-0014). The payload block is the EXACT signed content: strictly versioned, domain-separated, closed to unknown fields, and covering identity, role, gate, target artifact address and digest, verdict, self_review, requester identity, nonce, validity window, key ID, and policy binding. The signed bytes are UTF-8 of domain_separator + LF + canonical JSON of the payload (algorithm approval-payload-sha256-1.0.0); payload_digest is sha256 over the same bytes and is recomputed by the semantic layer. The outer fields (evidence_id, signature, payload_digest) carry addressing and encoding only — no unsigned field can change authorization semantics. Contract validity proves shape and internal consistency ONLY: authorization additionally requires policy authorization, registry key resolution, target digest recomputation, signature verification, and atomic nonce consumption by the verification service. Legacy envelope approvals entries remain unauthenticated audit metadata and grant no runtime authority.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "payload",
+    "payload_digest",
+    "signature"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "payload_type",
+        "payload_version",
+        "domain",
+        "approval_id",
+        "workspace",
+        "brand_ref",
+        "target_artifact_type",
+        "target_artifact_ref",
+        "target_artifact_digest",
+        "gate",
+        "verdict",
+        "reason",
+        "requester_id",
+        "approver_id",
+        "role",
+        "self_review",
+        "key_id",
+        "policy_ref",
+        "policy_version",
+        "nonce",
+        "issued_at",
+        "expires_at"
+      ],
+      "properties": {
+        "payload_type": {
+          "const": "nabcor-human-gate-approval"
+        },
+        "payload_version": {
+          "const": "1.0.0"
+        },
+        "domain": {
+          "const": "nabcor-human-gate-approval-v1",
+          "description": "domain-separation identifier, repeated inside the signed payload and prefixed to the signed bytes"
+        },
+        "approval_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+        },
+        "workspace": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+        },
+        "brand_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+        },
+        "target_artifact_type": {
+          "enum": [
+            "source",
+            "claim",
+            "assumption",
+            "brand-context",
+            "claim-snapshot",
+            "truth-profile",
+            "truth-analysis"
+          ]
+        },
+        "target_artifact_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+          "description": "canonical Artifact Store address of the exact target artifact"
+        },
+        "target_artifact_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "sha256 over the canonical serialization of the validated stored target artifact (claim-set-sha256-1.0.0 content digest); the verifier recomputes it from the store and rejects stale digests"
+        },
+        "gate": {
+          "enum": [
+            "fact-resolution-approval",
+            "quarantine-release",
+            "client-facing-publishing",
+            "blocking-evaluation-gate-change",
+            "real-client-data-provider-approval"
+          ]
+        },
+        "verdict": {
+          "enum": [
+            "approved",
+            "rejected"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "requester_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+        },
+        "approver_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+        },
+        "role": {
+          "enum": [
+            "product-owner",
+            "operator",
+            "reviewer",
+            "evaluation-owner"
+          ]
+        },
+        "self_review": {
+          "type": "boolean",
+          "description": "must equal (requester_id === approver_id); the semantic layer and the verifier both recompute and enforce this (DEC-0008)"
+        },
+        "key_id": {
+          "type": "string",
+          "pattern": "^k[0-9a-f]{64}$"
+        },
+        "policy_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+        },
+        "policy_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32,64}$",
+          "description": "single-use replay identifier; consumed atomically through the immutable receipt store"
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "payload_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "sha256 over the domain-separated canonical payload bytes; recomputed by the semantic layer — a mismatched digest is contract-invalid"
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "algorithm",
+        "signature_b64"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "ed25519"
+        },
+        "signature_b64": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9+/]{86}==$",
+          "description": "standard base64 of the 64-byte Ed25519 signature over the domain-separated canonical payload bytes"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "schema_version": "1.7.0",
+      "evidence_id": "apev_0001",
+      "payload": {
+        "payload_type": "nabcor-human-gate-approval",
+        "payload_version": "1.0.0",
+        "domain": "nabcor-human-gate-approval-v1",
+        "approval_id": "appr_0001",
+        "workspace": "ws_example",
+        "brand_ref": "brand_example",
+        "target_artifact_type": "claim",
+        "target_artifact_ref": "claim_001",
+        "target_artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "gate": "fact-resolution-approval",
+        "verdict": "approved",
+        "reason": "reviewed the contradiction evidence and selected the verified revision",
+        "requester_id": "synthetic-example-owner",
+        "approver_id": "synthetic-example-owner",
+        "role": "product-owner",
+        "self_review": true,
+        "key_id": "k307297211a27f90494c82db278dc854afa0fa87c35abd06c24f24ee2ef36666b",
+        "policy_ref": "hgp-nabcor-1",
+        "policy_version": 1,
+        "nonce": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+        "issued_at": "2026-07-19T12:00:00Z",
+        "expires_at": "2026-07-19T13:00:00Z"
+      },
+      "payload_digest": "sha256:0a3ec8d03c49e64123d056eac935463087777c100661d4f7d0bee0ebd314b76c",
+      "signature": {
+        "algorithm": "ed25519",
+        "signature_b64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.6.0",
+  "schema_version": "1.7.0",
   "policy_id": "gateway-policy-0001",
   "decision_ref": "DEC-0009",
   "allowed_adapters": ["fake"],

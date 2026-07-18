@@ -39,7 +39,7 @@
     }
   ],
   "truth_profile": {
-    "schema_version": "1.6.0",
+    "schema_version": "1.7.0",
     "artifact_id": "tp_ev_0001",
     "brand_ref": "brand_synthetic_evidence",
     "created_at": "2026-07-17T12:00:00Z",
@@ -87,7 +87,7 @@
   },
   "claims": [
     {
-      "schema_version": "1.6.0",
+      "schema_version": "1.7.0",
       "artifact_id": "claim_ev_0001",
       "brand_ref": "brand_synthetic_evidence",
       "created_at": "2026-07-17T12:00:00Z",
@@ -105,7 +105,7 @@
       "normalization_basis": "region name taken verbatim from the cited profile statement; no case folding"
     },
     {
-      "schema_version": "1.6.0",
+      "schema_version": "1.7.0",
       "artifact_id": "claim_ev_0002",
       "brand_ref": "brand_synthetic_evidence",
       "created_at": "2026-07-17T12:00:00Z",
@@ -123,7 +123,7 @@
       "normalization_basis": "name taken verbatim from the profile cover; no case folding, no Unicode normalization"
     },
     {
-      "schema_version": "1.6.0",
+      "schema_version": "1.7.0",
       "artifact_id": "claim_ev_0003",
       "brand_ref": "brand_synthetic_evidence",
       "created_at": "2026-07-17T12:00:00Z",
@@ -141,7 +141,7 @@
       "normalization_basis": "email address copied verbatim from the brochure contact block; no case folding"
     },
     {
-      "schema_version": "1.6.0",
+      "schema_version": "1.7.0",
       "artifact_id": "claim_ev_0004",
       "brand_ref": "brand_synthetic_evidence",
       "created_at": "2026-07-17T12:00:00Z",
@@ -156,7 +156,7 @@
       "verification_status": "unconfirmed"
     },
     {
-      "schema_version": "1.6.0",
+      "schema_version": "1.7.0",
       "artifact_id": "claim_ev_0005",
       "brand_ref": "brand_synthetic_evidence",
       "created_at": "2026-07-17T12:00:00Z",
@@ -176,7 +176,7 @@
   ],
   "assumptions": [
     {
-      "schema_version": "1.6.0",
+      "schema_version": "1.7.0",
       "artifact_id": "asm_ev_0001",
       "brand_ref": "brand_synthetic_evidence",
       "created_at": "2026-07-17T12:00:00Z",

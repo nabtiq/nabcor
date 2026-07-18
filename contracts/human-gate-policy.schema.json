@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/human-gate-policy.schema.json",
+  "title": "Human-gate policy",
+  "description": "The committed, CI-validated active policy governing authenticated human-gate approvals (DEC-0014). The runtime loads the active policy through a trusted fixed boundary; an approval artifact must not choose its policy. The contract pins the ratified Phase 1B.3A posture as constants: Ed25519 signatures verified with Node.js built-in crypto, the versioned domain-separated canonical payload algorithm, single-use nonce replay consumption, default-deny behavior, and independent_reviewer_named fixed to false — the four DEC-0008 independent-review gates stay frozen until a superseding decision names and enrolls an independent reviewer through the documented versioning procedure. Authorization comes from this policy and its referenced authority registry, never from evidence content.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "policy_id",
+    "policy_version",
+    "decision_ref",
+    "signature_algorithm",
+    "payload_type",
+    "payload_version",
+    "canonicalization_algorithm",
+    "domain_separator",
+    "authority_registry_ref",
+    "authority_registry_version",
+    "independent_reviewer_named",
+    "allowed_gates",
+    "gate_requirements",
+    "max_approval_ttl_seconds",
+    "clock_skew_seconds",
+    "replay_policy",
+    "default_deny"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "policy_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "policy_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "decision_ref": {
+      "const": "DEC-0014",
+      "description": "the ratified decision this policy encodes; a different policy requires a superseding decision and a new contract version"
+    },
+    "signature_algorithm": {
+      "const": "ed25519",
+      "description": "pinned: Ed25519 only (DEC-0014); algorithm substitution is schema-invalid"
+    },
+    "payload_type": {
+      "const": "nabcor-human-gate-approval"
+    },
+    "payload_version": {
+      "const": "1.0.0"
+    },
+    "canonicalization_algorithm": {
+      "const": "approval-payload-sha256-1.0.0",
+      "description": "versioned canonical serialization: code-unit-sorted object keys, no whitespace, strict UTF-8; the signed bytes are UTF-8 of domain_separator + LF + canonical JSON of the payload; sha256 over the same bytes is the payload digest (src/authority/approval-payload.ts, mirrored in contracts/validate.mjs)"
+    },
+    "domain_separator": {
+      "const": "nabcor-human-gate-approval-v1",
+      "description": "domain-separation identifier prefixed to the signed bytes and repeated inside the signed payload"
+    },
+    "authority_registry_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+      "description": "registry_id of the exact authority registry this policy trusts; the verifier loads it through the same trusted boundary and rejects any other registry"
+    },
+    "authority_registry_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "independent_reviewer_named": {
+      "const": false,
+      "description": "pinned false at 1.7.0: no independent reviewer is formally named or enrolled (DEC-0008), so every gate requiring independent review fails closed; naming one is a superseding decision plus a contract migration, never a config flip"
+    },
+    "allowed_gates": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "fact-resolution-approval",
+          "quarantine-release",
+          "client-facing-publishing",
+          "blocking-evaluation-gate-change",
+          "real-client-data-provider-approval"
+        ]
+      }
+    },
+    "gate_requirements": {
+      "type": "object",
+      "description": "per-gate authorization requirements; keys must exactly equal allowed_gates (semantic layer), and the four DEC-0008 independent-review gates must carry independent_review_required true (semantic layer)",
+      "minProperties": 1,
+      "propertyNames": {
+        "enum": [
+          "fact-resolution-approval",
+          "quarantine-release",
+          "client-facing-publishing",
+          "blocking-evaluation-gate-change",
+          "real-client-data-provider-approval"
+        ]
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["required_role", "independent_review_required"],
+        "properties": {
+          "required_role": {
+            "enum": ["product-owner", "operator", "reviewer", "evaluation-owner"]
+          },
+          "independent_review_required": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "max_approval_ttl_seconds": {
+      "type": "integer",
+      "minimum": 60,
+      "maximum": 604800,
+      "description": "maximum permitted expires_at - issued_at window; longer-lived approvals are rejected"
+    },
+    "clock_skew_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 900,
+      "description": "small documented allowance for issued_at arriving marginally ahead of the verifier's injected clock"
+    },
+    "replay_policy": {
+      "const": "single-use-nonce",
+      "description": "pinned: one approval authorizes exactly one consumption; the nonce is consumed atomically through the immutable receipt store before any authorized result is returned"
+    },
+    "default_deny": {
+      "const": true,
+      "description": "pinned: anything not explicitly authorized by this policy and its registry is denied"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "schema_version": "1.7.0",
+      "policy_id": "hgp-nabcor-1",
+      "policy_version": 1,
+      "decision_ref": "DEC-0014",
+      "signature_algorithm": "ed25519",
+      "payload_type": "nabcor-human-gate-approval",
+      "payload_version": "1.0.0",
+      "canonicalization_algorithm": "approval-payload-sha256-1.0.0",
+      "domain_separator": "nabcor-human-gate-approval-v1",
+      "authority_registry_ref": "areg-nabcor",
+      "authority_registry_version": 1,
+      "independent_reviewer_named": false,
+      "allowed_gates": [
+        "fact-resolution-approval",
+        "quarantine-release",
+        "client-facing-publishing",
+        "blocking-evaluation-gate-change",
+        "real-client-data-provider-approval"
+      ],
+      "gate_requirements": {
+        "fact-resolution-approval": {
+          "required_role": "product-owner",
+          "independent_review_required": false
+        },
+        "quarantine-release": {
+          "required_role": "reviewer",
+          "independent_review_required": true
+        },
+        "client-facing-publishing": {
+          "required_role": "reviewer",
+          "independent_review_required": true
+        },
+        "blocking-evaluation-gate-change": {
+          "required_role": "evaluation-owner",
+          "independent_review_required": true
+        },
+        "real-client-data-provider-approval": {
+          "required_role": "product-owner",
+          "independent_review_required": true
+        }
+      },
+      "max_approval_ttl_seconds": 86400,
+      "clock_skew_seconds": 300,
+      "replay_policy": "single-use-nonce",
+      "default_deny": true
+    }
+  ]
+}

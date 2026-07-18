@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/authority-registry.schema.json",
+  "title": "Authority registry",
+  "description": "Versioned public-key registry of human-gate authorities (DEC-0014). Public keys are non-secret, versioned authority configuration; private keys must never appear here or anywhere in the repository. Registry revisions are immutable documents with explicit lineage: a change is a new registry_version superseding the prior one, never an in-place edit. Each key_id is the sha256 digest of the key's SPKI DER bytes prefixed with 'k' (semantic layer recomputes it), binding identity to key material. Unknown roles, algorithms, statuses, and fields are schema-invalid — the registry fails closed. An empty authorities array is valid: it means no authority is enrolled and no runtime approval can verify.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "registry_id",
+    "registry_version",
+    "supersedes_registry_version",
+    "created_at",
+    "decision_ref",
+    "authorities"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "registry_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "registry_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "supersedes_registry_version": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "description": "explicit lineage: exactly registry_version - 1, or null for the first revision (semantic layer)"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "decision_ref": {
+      "type": "string",
+      "pattern": "^DEC-[0-9]{4,}$",
+      "description": "the ratified decision authorizing this registry revision"
+    },
+    "authorities": {
+      "type": "array",
+      "description": "enrolled human-gate authorities; empty means no runtime approval can verify",
+      "items": {
+        "type": "object",
+        "required": [
+          "key_id",
+          "subject_id",
+          "label",
+          "algorithm",
+          "public_key_spki_b64",
+          "roles",
+          "valid_from",
+          "valid_until",
+          "status"
+        ],
+        "properties": {
+          "key_id": {
+            "type": "string",
+            "pattern": "^k[0-9a-f]{64}$",
+            "description": "'k' + sha256 hex over the SPKI DER bytes of public_key_spki_b64 (semantic layer recomputes)"
+          },
+          "subject_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+            "description": "stable machine identity of the human authority; the signed payload's approver_id must equal it"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "public human-readable identity label"
+          },
+          "algorithm": {
+            "const": "ed25519",
+            "description": "pinned: Ed25519 only (DEC-0014); any other key type is schema-invalid"
+          },
+          "public_key_spki_b64": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9+/]{20,512}={0,2}$",
+            "description": "standard base64 (no line breaks) of the DER-encoded SubjectPublicKeyInfo; must decode to a valid Ed25519 public key (semantic layer)"
+          },
+          "roles": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": ["product-owner", "operator", "reviewer", "evaluation-owner"]
+            }
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_until": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "null means no scheduled expiry; when present it must be after valid_from (semantic layer)"
+          },
+          "status": {
+            "enum": ["active", "revoked"]
+          },
+          "revoked_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revocation_reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "schema_version": "1.7.0",
+      "registry_id": "areg-example",
+      "registry_version": 1,
+      "supersedes_registry_version": null,
+      "created_at": "2026-07-19T12:00:00Z",
+      "decision_ref": "DEC-0014",
+      "authorities": [
+        {
+          "key_id": "k307297211a27f90494c82db278dc854afa0fa87c35abd06c24f24ee2ef36666b",
+          "subject_id": "synthetic-example-owner",
+          "label": "Synthetic example authority (documentation only; no private key exists for this entry)",
+          "algorithm": "ed25519",
+          "public_key_spki_b64": "MCowBQYDK2VwAyEAU+suOR5cxx92qQp+UbMbPRLz4N6MTPfUMi1Oylw9WUA=",
+          "roles": ["product-owner"],
+          "valid_from": "2026-07-19T00:00:00Z",
+          "valid_until": null,
+          "status": "active"
+        }
+      ]
+    }
+  ]
+}
