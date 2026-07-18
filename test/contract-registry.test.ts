@@ -30,7 +30,17 @@ test("the runtime registry mirror agrees with validate.mjs on every fixture of a
   // contract fixture of a runtime-mirrored type through the TypeScript
   // registry, so a future edit to one mirror without the other fails CI
   // instead of drifting silently (DEC-0013 review finding).
-  const mirrored = new Set(["claim", "source", "truth-profile", "truth-analysis", "claim-snapshot"]);
+  const mirrored = new Set([
+    "claim",
+    "source",
+    "truth-profile",
+    "truth-analysis",
+    "claim-snapshot",
+    "human-gate-policy",
+    "authority-registry",
+    "approval-evidence",
+    "approval-receipt",
+  ]);
   const typeOf = (schemaFile: string): string => schemaFile.replace(/\.schema\.json$/, "");
   const r = registry();
   let checked = 0;

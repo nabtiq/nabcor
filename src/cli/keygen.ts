@@ -19,7 +19,7 @@
 // the candidate to the active registry — is a separate human-ratified change,
 // never something this tool performs. No network access exists here.
 import { generateKeyPairSync } from "node:crypto";
-import { existsSync, lstatSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, realpathSync, writeFileSync } from "node:fs";
 import { dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { keyIdForSpkiDer } from "../authority/approval-payload.js";
@@ -54,27 +54,31 @@ function parseArgs(argv: string[]): Map<string, string> {
   return out;
 }
 
-/** Refuse any output path whose existing components include a symlink. */
-function refuseSymlinkPath(path: string): void {
-  let current = resolve(path);
-  while (true) {
-    if (existsSync(current) && lstatSync(current).isSymbolicLink()) {
-      fail(`refusing '${path}': path component '${current}' is a symlink`);
-    }
-    const parent = dirname(current);
-    if (parent === current) return;
-    current = parent;
-  }
-}
-
 function refuseUnsafeOutput(path: string, kind: string, forbidInRepo: boolean): string {
   const abs = resolve(path);
-  refuseSymlinkPath(abs);
-  if (existsSync(abs)) fail(`refusing to overwrite existing ${kind} at '${abs}'`);
+  let targetStat = null;
+  try {
+    targetStat = lstatSync(abs);
+  } catch {
+    // target does not exist — the required state
+  }
+  if (targetStat?.isSymbolicLink()) fail(`refusing '${path}': the target is a symlink`);
+  if (targetStat) fail(`refusing to overwrite existing ${kind} at '${abs}'`);
   const parent = dirname(abs);
   if (!existsSync(parent)) fail(`${kind} directory '${parent}' does not exist (create it explicitly first)`);
-  if (forbidInRepo && (abs === REPO_ROOT || abs.startsWith(REPO_ROOT + sep))) {
-    fail(`refusing to write private key material inside the repository ('${abs}')`);
+  // The operator-named parent directory itself must not be a symlink — a
+  // redirected directory would silently move the output elsewhere. Deeper
+  // system-level links (e.g. macOS /var -> /private/var) are resolved with
+  // realpath instead, which also anchors the repository check below.
+  if (lstatSync(parent).isSymbolicLink()) {
+    fail(`refusing '${path}': its directory '${parent}' is a symlink`);
+  }
+  if (forbidInRepo) {
+    const realParent = realpathSync(parent);
+    const realRepo = realpathSync(REPO_ROOT);
+    if (realParent === realRepo || realParent.startsWith(realRepo + sep)) {
+      fail(`refusing to write private key material inside the repository ('${abs}')`);
+    }
   }
   return abs;
 }
