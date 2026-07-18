@@ -5,9 +5,11 @@
 **Foundation version:** `0.1.0`
 **Status:** clean architecture baseline plus the deterministic Phase 1A truth
 kernel (DEC-0004/DEC-0005), the Phase 1B.1 offline gateway kernel
-(DEC-0009/DEC-0010), and the Phase 1B.2 deterministic structured-truth
-analysis (DEC-0011). No provider-backed extraction, no model calls, and no
-full vertical slice exist yet; Phase 1 is not complete.
+(DEC-0009/DEC-0010), the Phase 1B.2 deterministic structured-truth
+analysis (DEC-0011), and the Phase 1B.2.1 resolution-safe claim lifecycle
+correction (DEC-0012). No provider-backed extraction, no model calls, no
+authoritative human contradiction resolution, and no full vertical slice
+exist yet; Phase 1 is not complete.
 
 ## What NABCor is
 
@@ -189,24 +191,46 @@ No provider SDK and no framework exist.
   inline content is captured only into the quarantine namespace. Unclassified
   visuals record `visual_classification: null` — documentary status is never
   inferred from absence (INV-FACT-003). No OCR, parsing, or fetching.
-- **`analyze-structured-truth` (Tier 0, Phase 1B.2, DEC-0011)** —
+- **`project-active-claims` (Tier 0, Phase 1B.2.1, DEC-0012)** —
+  deterministic active-claim lineage projection. Claim artifacts are
+  immutable per version: a revision is a new artifact whose `supersedes`
+  names the prior version, and current truth is derived from validated
+  lineage heads over the COMPLETE revision set — never from a caller
+  omitting inconvenient claims. Self-supersession, lineage cycles, dangling
+  predecessors, ambiguous forks, conflicting `superseded_by` metadata, and
+  lifecycle-superseded claims with hidden successors all fail closed.
+  Heads whose verification status is `contradicted`, `rejected`, or
+  `expired` (or lifecycle `rejected`) are retained for audit but inactive
+  as current truth.
+- **`analyze-structured-truth` (Tier 0, Phase 1B.2, DEC-0011; corrected by
+  Phase 1B.2.1, DEC-0012)** —
   deterministic contradiction and gap analysis over explicitly structured
   fact slots. Claims carrying `fact_key`/`normalized_value`/
   `normalization_basis` are grouped per slot and compared with exact,
   type-sensitive equality (string `"1"` differs from number `1`; no case
   folding, no Unicode normalization, no unit conversion, no fuzzy matching).
-  Gaps exist only relative to a versioned `truth-profile` artifact; blocking
-  flags come only from the profile; contradictions stay `open` — the analyzer
-  never selects a winner. Claims without fact metadata are listed explicitly
-  as unstructured, never keyword-parsed. This is **not** semantic
-  contradiction detection: paraphrase conflicts in prose remain invisible to
-  it, and the model-assisted capability that could see them stays prohibited
-  by DEC-0009. The analyzer never touches the gateway or the Fake Adapter.
+  Analysis runs over EFFECTIVE claims from the lineage projection only:
+  contradicted claims are retained but inactive — they create no active
+  contradictions and satisfy no required slots, so a human resolution stays
+  closed on re-analysis, and every excluded claim stays explicitly visible
+  in the analysis. Gaps exist only relative to a versioned `truth-profile`
+  artifact; blocking flags come only from the profile; contradictions stay
+  `open` — the analyzer never selects a winner. Claims without fact
+  metadata are listed explicitly as unstructured, never keyword-parsed.
+  This is **not** semantic contradiction detection: paraphrase conflicts in
+  prose remain invisible to it, and the model-assisted capability that
+  could see them stays prohibited by DEC-0009. The analyzer never touches
+  the gateway or the Fake Adapter.
 - **`build-brand-context` (Tier 0)** — deterministic compilation of already
   structured claims and assumptions plus one validated truth-analysis
   artifact into a schema-valid Brand Context Package. Open contradictions and
   gaps compile only from the truth analysis (exact claim coverage enforced,
   `truth_analysis_ref` recorded, caller-supplied arrays rejected — DEC-0011).
+  The package compiles EFFECTIVE current claims only (DEC-0012): its
+  `claim_refs` are the analysis's effective lineage heads, and identity,
+  audience, or market references to superseded, contradicted, rejected, or
+  expired claims fail closed. Historical revisions stay auditable through
+  the referenced truth analysis; no stored claim is mutated or deleted.
   Claim provenance resolves through canonical
   `source:<artifact_id>[#codepoints=a-b|#page=n]` references; fragment offsets
   are zero-based half-open Unicode code-point positions (DEC-0007 — never
@@ -238,7 +262,10 @@ No provider SDK and no framework exist.
 
 What does **not** exist yet: model calls of any kind, provider adapters,
 provider-backed extraction, natural-language fact extraction, semantic
-contradiction detection, creative territories, channel specs, or the full
+contradiction detection, authoritative human contradiction resolution
+(applying a resolution requires the authenticated human-gate mechanism —
+Q-009 — because a shape-valid approval object proves shape, not that a
+human acted), creative territories, channel specs, or the full
 vertical slice. Q-002 is closed as **"no provider approved"** (DEC-0009):
 model-backed work is prohibited by ratified policy — with external/model spend
 capped at zero — rather than blocked on an open question, and enabling any

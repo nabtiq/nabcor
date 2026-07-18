@@ -576,6 +576,228 @@ test("an analysis whose claim coverage mismatches the supplied claims is rejecte
   }
 });
 
+test("the compiled package carries effective claim refs only; history stays behind the truth analysis (DEC-0012)", () => {
+  const store = contentStore();
+  const claims = [
+    validClaim(),
+    validClaim({
+      artifact_id: "claim_t_0002",
+      supersedes: "claim_t_0001",
+      lifecycle_status: "revised",
+      source_ref: "source:src_t_0001#page=2",
+    }),
+    validClaim({
+      artifact_id: "claim_t_0003",
+      verification_status: "contradicted",
+      source_ref: "source:src_t_0001#page=4",
+    }),
+  ];
+  const analysis = truthAnalysisFor(claims, {
+    effective_claim_refs: ["claim_t_0002"],
+    superseded_claim_refs: ["claim_t_0001"],
+    inactive_head_claims: [
+      { claim_ref: "claim_t_0003", reason: "verification-contradicted" },
+    ],
+    unstructured_claim_refs: ["claim_t_0002"],
+    unprofiled_fact_claim_refs: [],
+  });
+  const result = buildBrandContext(
+    minimalInput({
+      claims,
+      truthAnalysis: analysis,
+      identity: { names: [{ value: "Test Co", claim_ref: "claim_t_0002" }] },
+    }),
+    registry(),
+    store
+  );
+  assert.ok(result.ok, JSON.stringify(result));
+  if (!result.ok) return;
+  assert.deepEqual(
+    result.value["claim_refs"],
+    ["claim_t_0002"],
+    "superseded and inactive revisions must not appear as current package claims"
+  );
+  assert.equal(
+    result.value["provisional"],
+    true,
+    "open assumptions and unverified effective claims drive provisional; history does not"
+  );
+});
+
+test("identity references to superseded or inactive claims fail closed (DEC-0012)", () => {
+  const store = contentStore();
+  const claims = [
+    validClaim(),
+    validClaim({
+      artifact_id: "claim_t_0002",
+      supersedes: "claim_t_0001",
+      lifecycle_status: "revised",
+      source_ref: "source:src_t_0001#page=2",
+    }),
+    validClaim({
+      artifact_id: "claim_t_0003",
+      verification_status: "contradicted",
+      source_ref: "source:src_t_0001#page=4",
+    }),
+  ];
+  const analysis = truthAnalysisFor(claims, {
+    effective_claim_refs: ["claim_t_0002"],
+    superseded_claim_refs: ["claim_t_0001"],
+    inactive_head_claims: [
+      { claim_ref: "claim_t_0003", reason: "verification-contradicted" },
+    ],
+    unstructured_claim_refs: ["claim_t_0002"],
+    unprofiled_fact_claim_refs: [],
+  });
+
+  // A name backed by the superseded historical revision cannot compile.
+  const supersededName = buildBrandContext(
+    minimalInput({
+      claims,
+      truthAnalysis: analysis,
+      identity: { names: [{ value: "Old Co", claim_ref: "claim_t_0001" }] },
+    }),
+    registry(),
+    store
+  );
+  assert.equal(supersededName.ok, false);
+  if (!supersededName.ok) {
+    assert.equal(supersededName.error.kind, "reference-violation");
+    assert.match(supersededName.error.message, /superseded by a later revision/);
+  }
+
+  // A name backed by the contradicted inactive head cannot compile either.
+  const contradictedName = buildBrandContext(
+    minimalInput({
+      claims,
+      truthAnalysis: analysis,
+      identity: { names: [{ value: "Disputed Co", claim_ref: "claim_t_0003" }] },
+    }),
+    registry(),
+    store
+  );
+  assert.equal(contradictedName.ok, false);
+  if (!contradictedName.ok) {
+    assert.equal(contradictedName.error.kind, "reference-violation");
+    assert.match(contradictedName.error.message, /verification-contradicted/);
+  }
+});
+
+test("a fabricated analysis cannot promote a contradicted claim back into effective truth (DEC-0012)", () => {
+  const store = contentStore();
+  const claims = [
+    validClaim(),
+    validClaim({
+      artifact_id: "claim_t_0002",
+      verification_status: "contradicted",
+      source_ref: "source:src_t_0001#page=2",
+    }),
+  ];
+  // Internally self-consistent partitions (disjoint, complete, sorted) that
+  // disagree with the actual claim data: the contradicted claim is declared
+  // effective. Semantic validation alone cannot catch this — the compiler's
+  // re-derived projection must.
+  const fabricated = truthAnalysisFor(claims, {
+    effective_claim_refs: ["claim_t_0001", "claim_t_0002"],
+    superseded_claim_refs: [],
+    inactive_head_claims: [],
+    unstructured_claim_refs: ["claim_t_0001", "claim_t_0002"],
+  });
+  assert.ok(
+    registry().validate("truth-analysis", fabricated).ok,
+    "the fixture must pass contract validation or this test proves nothing"
+  );
+  const result = buildBrandContext(
+    minimalInput({ claims, truthAnalysis: fabricated }),
+    registry(),
+    store
+  );
+  assert.equal(result.ok, false, "declared-effective must be checked against derived lineage state");
+  if (!result.ok) {
+    assert.equal(result.error.kind, "reference-violation");
+    assert.match(result.error.message, /does not match the claims/);
+    assert.match(result.error.message, /claim_t_0002/);
+  }
+});
+
+test("a fabricated analysis cannot hide a supersession and keep the predecessor effective (DEC-0012)", () => {
+  const store = contentStore();
+  const claims = [
+    validClaim(),
+    validClaim({
+      artifact_id: "claim_t_0002",
+      supersedes: "claim_t_0001",
+      lifecycle_status: "revised",
+      source_ref: "source:src_t_0001#page=2",
+    }),
+  ];
+  const fabricated = truthAnalysisFor(claims, {
+    effective_claim_refs: ["claim_t_0001", "claim_t_0002"],
+    superseded_claim_refs: [],
+    inactive_head_claims: [],
+    unstructured_claim_refs: ["claim_t_0001", "claim_t_0002"],
+  });
+  assert.ok(registry().validate("truth-analysis", fabricated).ok);
+  const result = buildBrandContext(
+    minimalInput({ claims, truthAnalysis: fabricated }),
+    registry(),
+    store
+  );
+  assert.equal(result.ok, false, "a superseded predecessor must not stay declared effective");
+  if (!result.ok) {
+    assert.equal(result.error.kind, "reference-violation");
+    assert.match(result.error.message, /claim_t_0001/);
+    assert.match(result.error.message, /superseded/);
+  }
+});
+
+test("audience and market references to inactive claims fail closed (DEC-0012)", () => {
+  const store = contentStore();
+  const claims = [
+    validClaim(),
+    validClaim({
+      artifact_id: "claim_t_0002",
+      verification_status: "contradicted",
+      source_ref: "source:src_t_0001#page=2",
+    }),
+  ];
+  const analysis = truthAnalysisFor(claims, {
+    effective_claim_refs: ["claim_t_0001"],
+    superseded_claim_refs: [],
+    inactive_head_claims: [
+      { claim_ref: "claim_t_0002", reason: "verification-contradicted" },
+    ],
+    unstructured_claim_refs: ["claim_t_0001"],
+    unprofiled_fact_claim_refs: [],
+  });
+
+  const inactiveAudience = buildBrandContext(
+    minimalInput({ claims, truthAnalysis: analysis, audience: [{ claim_ref: "claim_t_0002" }] }),
+    registry(),
+    store
+  );
+  assert.equal(inactiveAudience.ok, false);
+  if (!inactiveAudience.ok) {
+    assert.equal(inactiveAudience.error.kind, "reference-violation");
+    assert.match(inactiveAudience.error.message, /inactive lineage head/);
+  }
+
+  const inactiveMarket = buildBrandContext(
+    minimalInput({
+      claims,
+      truthAnalysis: analysis,
+      market: { locales: ["en"], default_locale_claim_ref: "claim_t_0002" },
+    }),
+    registry(),
+    store
+  );
+  assert.equal(inactiveMarket.ok, false);
+  if (!inactiveMarket.ok) {
+    assert.equal(inactiveMarket.error.kind, "reference-violation");
+    assert.match(inactiveMarket.error.message, /inactive lineage head/);
+  }
+});
+
 test("a cross-brand or contract-invalid truth analysis is rejected", () => {
   const store = contentStore();
   const crossBrand = buildBrandContext(

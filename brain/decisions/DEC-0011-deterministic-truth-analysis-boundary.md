@@ -131,3 +131,29 @@ contradiction detection.
 supersedes: null (complements DEC-0009/DEC-0010: adds the deterministic
 truth-analysis boundary behind the same zero-provider posture)
 superseded_by: null
+
+## Correction note (appended 2026-07-18, Phase 1B.2.1 — original text above is unchanged)
+
+The Phase 1B.2 implementation of this decision deliberately kept claims
+with `verification_status: "contradicted"` active in analysis, on the
+reasoning that surfacing an unresolved-looking conflict was conservative
+and hiding it would be an undisclosed filtering heuristic. That judgment
+was incorrect. It prevented contradiction closure: after a human resolves a
+conflict and the losing claim becomes `contradicted`, re-derived analysis
+kept including the loser and re-created the same contradiction — the
+resolution loop could never converge. It also conflicts with the domain
+model's resolution semantics, under which the losing claim *becomes*
+`contradicted` precisely so the same conflict is never re-litigated
+(docs/DOMAIN_MODEL.md Contradiction lifecycle; docs/PROVENANCE_AND_CONFIDENCE.md §6).
+
+DEC-0012 corrects this: contradicted claims are retained for audit but are
+inactive as current truth — they create no active contradictions and
+satisfy no required slots — and current truth is derived from a validated
+lineage projection over the complete claim revision set
+(`src/understand/project-active-claims.ts`), never from caller omission.
+Exclusion is no longer an undisclosed heuristic: the truth-analysis
+artifact (contracts 1.5.0) lists every excluded claim explicitly with its
+reason. Everything else in this record stands: the structured-fact-slot
+boundary, exact type-sensitive comparison, profile-relative gaps, the
+prohibition on prose interpretation, and the rule that the analyzer never
+selects which conflicting claim is true.

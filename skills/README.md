@@ -31,7 +31,17 @@ semantic contradiction detection over prose) remains prohibited under
 DEC-0009. The implemented Tier-0 `analyze-structured-truth` service is not
 that capability: it compares explicit structured fact slots with exact
 type-sensitive equality only, and lists prose-only claims as unstructured
-rather than interpreting them (DEC-0011).
+rather than interpreting them (DEC-0011). Since Phase 1B.2.1 (DEC-0012) it
+analyzes effective lineage heads only: contradicted claims are retained but
+inactive as current truth, current truth is a validated projection over the
+complete immutable claim revision set (never caller omission), and the
+lineage rules live in one place — `src/understand/project-active-claims.ts`.
+
+Authoritative human contradiction resolution is NOT implemented: applying a
+resolution (creating the losing claim's `contradicted` revision) requires
+the authenticated human-gate mechanism (OPEN_QUESTIONS Q-009). A
+schema-valid decision or approval artifact proves shape, not that a human
+acted, and no skill may treat it as authentication evidence (DEC-0012).
 
 Quarantine release remains fail-closed: it requires both a formally named
 independent reviewer and a ratified authenticated approval mechanism, neither

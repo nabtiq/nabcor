@@ -57,11 +57,44 @@ instead of invented claim refs — see fixture `P02`).
 
 ## Versioning
 
-Artifact `schema_version` for all contracts: **1.4.0** (was 1.3.0). The version is
+Artifact `schema_version` for all contracts: **1.5.0** (was 1.4.0). The version is
 globally synchronized across all contracts; examples, fixtures, and
 runtime-generated artifacts carry it consistently.
 
-**Migration implications (1.3.0 → 1.4.0):** the `claim` and `brand-context`
+**Migration implications (1.4.0 → 1.5.0):** the `truth-analysis` and
+`brand-context` contracts changed meaning (DEC-0012, Phase 1B.2.1):
+
+- `truth-analysis` gains three **required** lineage-projection collections:
+  `effective_claim_refs` (validated lineage heads active as current truth —
+  the only claims contradiction detection, slot satisfaction, and the
+  unstructured/unprofiled listings see), `superseded_claim_refs`
+  (historical revisions superseded by another analyzed claim; audit-only),
+  and `inactive_head_claims` (heads retained for audit but inactive, each
+  `{claim_ref, reason}` with the closed reason enum
+  `verification-contradicted` / `verification-rejected` /
+  `verification-expired` / `lifecycle-rejected`). Lifecycle `superseded` is
+  deliberately not a reason: a superseded head whose successor is missing
+  from the complete input set fails closed at projection instead of
+  appearing in the artifact.
+- `analyzed_claim_refs` keeps its meaning — the exact, deterministically
+  sorted claim references the analysis covered — now explicitly defined as
+  the COMPLETE validated input revision set. New semantic checks enforce
+  that the three new collections partition it exactly (disjoint, complete)
+  and that contradictions, gaps, and the unstructured/unprofiled listings
+  reference effective claims only. Contradicted claims are retained but
+  inactive: they are visible in `inactive_head_claims`, never in
+  contradictions or slot support (DEC-0012 — the Phase 1B.2 behavior that
+  kept them active is corrected, not preserved).
+- `brand-context.claim_refs` changes meaning: it now carries the
+  analysis's effective claim references only. Superseded and inactive
+  revisions stay auditable through `truth_analysis_ref`, never as package
+  claims; compiler references to non-effective claims fail closed.
+- No real production artifacts existed at 1.4.0, so no real-artifact
+  migration was performed — examples, fixtures, and synthetic runtime
+  fixtures were re-issued at 1.5.0 in the same change. The deterministic
+  analyzer version moved `analyze-structured-truth-1.0.0` → `-1.1.0`.
+
+**Historical — migration implications (1.3.0 → 1.4.0):** the `claim` and `brand-context`
 contracts changed meaning, and two truth-layer contracts were added (DEC-0011,
 Phase 1B.2):
 
@@ -195,8 +228,9 @@ Two distinguishable layers, both required green (non-zero exit otherwise):
   blocking-consistency (INV-EVAL-001) · inference-verification-needs-human
   (INV-FACT-002) · cost-mode-consistency (INV-OBS-001) · combination-membership and
   js-disabled-presence (INV-AR-001/INV-PE-001) · factual-slots-claim-backed
-  (INV-FACT-001) · unique-sorted-fact-keys, deterministic-ordering, and
-  refs-within-analyzed (DEC-0011). Negative fixtures with
+  (INV-FACT-001) · unique-sorted-fact-keys and deterministic-ordering
+  (DEC-0011) · lineage-partition and refs-within-effective
+  (DEC-0011/DEC-0012). Negative fixtures with
   `expect_fail_at: "semantic"` must pass the schema layer and fail here.
 
 The command prints: schemas compiled, positive cases passed, negative cases correctly

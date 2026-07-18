@@ -307,7 +307,7 @@ test("a required slot with only unconfirmed or inference support produces an unv
   assert.deepEqual(gaps[0]!["claim_refs"], ["claim_a", "claim_b"]);
 });
 
-test("rejected, expired, and superseded claims neither satisfy required slots nor create contradictions", () => {
+test("rejected, expired, and lifecycle-rejected heads neither satisfy required slots nor create contradictions", () => {
   const result = analyze([
     structuredClaim("claim_a", "identity.primary_name", "Old Name", {
       verification_status: "rejected",
@@ -315,8 +315,8 @@ test("rejected, expired, and superseded claims neither satisfy required slots no
     structuredClaim("claim_b", "identity.primary_name", "Stale Name", {
       verification_status: "expired",
     }),
-    structuredClaim("claim_c", "identity.primary_name", "Superseded Name", {
-      lifecycle_status: "superseded",
+    structuredClaim("claim_c", "identity.primary_name", "Struck Name", {
+      lifecycle_status: "rejected",
     }),
   ]);
   assert.ok(result.ok, JSON.stringify(result));
@@ -324,11 +324,142 @@ test("rejected, expired, and superseded claims neither satisfy required slots no
   assert.deepEqual(
     result.value["open_contradictions"],
     [],
-    "three distinct values, all retired — no active contradiction"
+    "three distinct values, all inactive — no active contradiction"
   );
   const gaps = result.value["gaps"] as Record<string, unknown>[];
   assert.equal(gaps.length, 1);
-  assert.equal(gaps[0]!["kind"], "missing", "retired claims do not satisfy the slot");
+  assert.equal(gaps[0]!["kind"], "missing", "inactive heads do not satisfy the slot");
+  assert.deepEqual(result.value["inactive_head_claims"], [
+    { claim_ref: "claim_a", reason: "verification-rejected" },
+    { claim_ref: "claim_b", reason: "verification-expired" },
+    { claim_ref: "claim_c", reason: "lifecycle-rejected" },
+  ]);
+});
+
+test("a lifecycle-superseded claim whose successor is missing from the complete set fails closed (DEC-0012)", () => {
+  const result = analyze([
+    structuredClaim("claim_a", "identity.primary_name", "Superseded Name", {
+      lifecycle_status: "superseded",
+    }),
+  ]);
+  assert.equal(result.ok, false, "a hidden successor must not project");
+  if (!result.ok) {
+    assert.equal(result.error.kind, "lineage-violation");
+    assert.match(result.error.message, /successor is missing/);
+  }
+});
+
+// ---- resolution-safe lifecycle (DEC-0012) ----------------------------------
+// These tests reproduce the Phase 1B.2 defect: `contradicted` claims stayed
+// active, so a human resolution could never close a contradiction — the loser
+// kept re-creating the same conflict on every re-analysis.
+
+test("a contradicted claim does not create an active contradiction (DEC-0012)", () => {
+  const result = analyze([
+    structuredClaim("claim_a", "identity.primary_name", "New Name"),
+    structuredClaim("claim_b", "identity.primary_name", "Old Name", {
+      verification_status: "contradicted",
+      resolution_decision_ref: "dec_brand_0001",
+    }),
+  ]);
+  assert.ok(result.ok, JSON.stringify(result));
+  if (!result.ok) return;
+  assert.deepEqual(
+    result.value["open_contradictions"],
+    [],
+    "a resolved-against claim must not re-create the contradiction it lost"
+  );
+  assert.deepEqual(result.value["gaps"], [], "the verified winner satisfies the slot");
+});
+
+test("a standalone contradicted head does not satisfy a required slot and remains in the audit set (DEC-0012)", () => {
+  const result = analyze([
+    structuredClaim("claim_a", "identity.primary_name", "Disputed Name", {
+      verification_status: "contradicted",
+    }),
+  ]);
+  assert.ok(result.ok, JSON.stringify(result));
+  if (!result.ok) return;
+  const gaps = result.value["gaps"] as Record<string, unknown>[];
+  assert.equal(gaps.length, 1);
+  assert.equal(
+    gaps[0]!["kind"],
+    "missing",
+    "a contradicted claim is retained for audit but is not support — the slot is missing, not unverified"
+  );
+  assert.deepEqual(
+    result.value["analyzed_claim_refs"],
+    ["claim_a"],
+    "the contradicted claim stays visible in the audit/input set"
+  );
+});
+
+test("a superseding contradicted revision closes the resolution loop: no conflict between the historical loser and current truth (DEC-0012)", () => {
+  // Claim A (verified, Old Name) lost against Claim B (verified, New Name);
+  // the resolution created revision C superseding A with status contradicted.
+  // Neither historical A nor inactive head C may conflict with B.
+  const result = analyze([
+    structuredClaim("claim_a", "identity.primary_name", "Old Name"),
+    structuredClaim("claim_b", "identity.primary_name", "New Name", {
+      source_ref: "source:src_t_0001#page=2",
+    }),
+    structuredClaim("claim_c", "identity.primary_name", "Old Name", {
+      supersedes: "claim_a",
+      lifecycle_status: "revised",
+      verification_status: "contradicted",
+      resolution_decision_ref: "dec_brand_0001",
+    }),
+  ]);
+  assert.ok(result.ok, JSON.stringify(result));
+  if (!result.ok) return;
+  assert.deepEqual(
+    result.value["open_contradictions"],
+    [],
+    "re-analysis after a resolution must not resurrect the resolved contradiction"
+  );
+  assert.deepEqual(result.value["gaps"], [], "the effective verified claim satisfies the slot");
+});
+
+test("the analysis records the lineage partition explicitly: every input ref stays visible for audit (DEC-0012)", () => {
+  const result = analyze([
+    structuredClaim("claim_a", "identity.primary_name", "Old Name"),
+    structuredClaim("claim_b", "identity.primary_name", "New Name", {
+      source_ref: "source:src_t_0001#page=2",
+    }),
+    structuredClaim("claim_c", "identity.primary_name", "Old Name", {
+      supersedes: "claim_a",
+      lifecycle_status: "revised",
+      verification_status: "contradicted",
+      resolution_decision_ref: "dec_brand_0001",
+    }),
+  ]);
+  assert.ok(result.ok, JSON.stringify(result));
+  if (!result.ok) return;
+  assert.deepEqual(result.value["analyzed_claim_refs"], ["claim_a", "claim_b", "claim_c"]);
+  assert.deepEqual(result.value["effective_claim_refs"], ["claim_b"]);
+  assert.deepEqual(result.value["superseded_claim_refs"], ["claim_a"]);
+  assert.deepEqual(result.value["inactive_head_claims"], [
+    { claim_ref: "claim_c", reason: "verification-contradicted" },
+  ]);
+});
+
+test("a superseded historical claim does not create a contradiction with its successor (DEC-0012)", () => {
+  const result = analyze([
+    structuredClaim("claim_a", "identity.primary_name", "Old Name"),
+    structuredClaim("claim_b", "identity.primary_name", "New Name", {
+      supersedes: "claim_a",
+      lifecycle_status: "revised",
+    }),
+  ]);
+  assert.ok(result.ok, JSON.stringify(result));
+  if (!result.ok) return;
+  assert.deepEqual(
+    result.value["open_contradictions"],
+    [],
+    "a revision differing from its own predecessor is history, not conflict"
+  );
+  assert.deepEqual(result.value["gaps"], []);
+  assert.deepEqual(result.value["effective_claim_refs"], ["claim_b"]);
 });
 
 // ---- explicit limitation: unstructured and unprofiled claims ---------------

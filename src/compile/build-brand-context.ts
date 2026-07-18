@@ -13,6 +13,15 @@
 // contradiction/gap arrays, so analysis results can be neither injected,
 // omitted, nor independently rewritten.
 //
+// The package compiles EFFECTIVE current claims only (DEC-0012): its
+// claim_refs are the analysis's effective_claim_refs (validated lineage heads
+// active as current truth), and every identity, audience, and market
+// reference must resolve to an effective claim — a reference to a superseded,
+// contradicted, rejected, or expired claim fails closed. The complete claim
+// revision set (including historical revisions) is still supplied, coverage-
+// checked against the analysis, and provenance-verified; no stored claim is
+// deleted or mutated to achieve this.
+//
 // Claim provenance is canonical (DEC-0006, DEC-0007): a source_ref names a
 // supplied source ARTIFACT (`source:<artifact_id>[#codepoints=a-b|#page=n]`),
 // never a filename, so two sources sharing a filename can never satisfy each
@@ -30,6 +39,7 @@ import type { ContractRegistry } from "../kernel/contract-registry.js";
 import type { FileContentStore } from "../kernel/content-store.js";
 import { type Result, err, ok } from "../kernel/result.js";
 import { codePointLength, parseSourceRef } from "../kernel/source-ref.js";
+import { projectActiveClaims } from "../understand/project-active-claims.js";
 
 export interface IdentityInput {
   names: { value: string; lang?: string; claim_ref: string }[];
@@ -132,6 +142,54 @@ export function buildBrandContext(
       return err({
         kind: "reference-violation",
         message: `claim '${id}' was supplied to the compiler but is not covered by truth analysis '${String(analysis["artifact_id"])}'; re-run the analyzer over the full claim set`,
+      });
+    }
+  }
+
+  // 1c. Effective current truth comes from the analysis's validated lineage
+  //     projection (DEC-0012): the package compiles effective claims only, and
+  //     a reference to a superseded or inactive claim fails closed below. The
+  //     truth-analysis semantic layer guarantees these collections partition
+  //     analyzed_claim_refs exactly.
+  const effectiveRefs = new Set((analysis["effective_claim_refs"] as string[]) ?? []);
+  const supersededRefs = new Set((analysis["superseded_claim_refs"] as string[]) ?? []);
+  const inactiveReasonByRef = new Map(
+    ((analysis["inactive_head_claims"] as { claim_ref: string; reason: string }[]) ?? []).map(
+      (c) => [c.claim_ref, c.reason]
+    )
+  );
+
+  // 1d. The declared partition must agree with the projection re-derived from
+  //     the supplied complete claim set (DEC-0012): internal self-consistency
+  //     alone would let a fabricated or stale analysis promote a contradicted,
+  //     rejected, expired, or superseded claim back into effective truth.
+  //     projectActiveClaims stays the single lineage implementation — this is
+  //     agreement checking against it, never a second copy of its rules.
+  const projected = projectActiveClaims(
+    { workspace: input.workspace, brandRef: input.brandRef, claims: input.claims },
+    registry
+  );
+  if (!projected.ok) return projected;
+  const projection = projected.value;
+  const declaredStateOf = (id: string): string =>
+    effectiveRefs.has(id)
+      ? "effective"
+      : supersededRefs.has(id)
+        ? "superseded"
+        : `inactive (${inactiveReasonByRef.get(id) ?? "unlisted"})`;
+  const projectedStates = new Map<string, string>();
+  for (const id of projection.effectiveClaimRefs) projectedStates.set(id, "effective");
+  for (const id of projection.supersededClaimRefs) projectedStates.set(id, "superseded");
+  for (const c of projection.inactiveHeadClaims) {
+    projectedStates.set(c.claim_ref, `inactive (${c.reason})`);
+  }
+  for (const id of projection.inputClaimRefs) {
+    const declared = declaredStateOf(id);
+    const derived = projectedStates.get(id)!;
+    if (declared !== derived) {
+      return err({
+        kind: "reference-violation",
+        message: `truth analysis '${String(analysis["artifact_id"])}' declares claim '${id}' as ${declared}, but the lineage projection over the supplied claim revision set derives ${derived}; the analysis does not match the claims and is rejected (DEC-0012)`,
       });
     }
   }
@@ -244,12 +302,24 @@ export function buildBrandContext(
     // not-yet-content-verified: no bytes exist to check in this phase.
   }
 
-  // 5. Every reference in identity, audience, and contradictions must resolve.
+  // 5. Every reference in identity, audience, and contradictions must resolve
+  //    to an EFFECTIVE claim (DEC-0012): a supplied-but-superseded or
+  //    supplied-but-inactive claim is audit history, not current truth, and a
+  //    package field resting on it fails closed rather than compiling.
   const requireClaim = (ref: string, where: string): Result<null> => {
     if (!claimIds.has(ref)) {
       return err({
         kind: "reference-violation",
         message: `${where} references claim '${ref}', which was not supplied`,
+      });
+    }
+    if (!effectiveRefs.has(ref)) {
+      const state = supersededRefs.has(ref)
+        ? "superseded by a later revision"
+        : `an inactive lineage head (${inactiveReasonByRef.get(ref) ?? "inactive"})`;
+      return err({
+        kind: "reference-violation",
+        message: `${where} references claim '${ref}', which is ${state} in truth analysis '${String(analysis["artifact_id"])}'; only effective current claims may back package fields (DEC-0012)`,
       });
     }
     return ok(null);
@@ -309,12 +379,18 @@ export function buildBrandContext(
 
   // 6. Provisional whenever the package rests on open assumptions or anything
   //    not human/fragment-verified (PROVENANCE §10) — derived, never asserted.
+  //    Only EFFECTIVE claims count (DEC-0012): a superseded or inactive
+  //    historical revision is not something the package rests on.
   const provisional =
     assumptions.some((a) => a["status"] === "open") ||
-    claims.some((c) => c["verification_status"] !== "verified");
+    claims.some(
+      (c) =>
+        effectiveRefs.has(String(c["artifact_id"])) &&
+        c["verification_status"] !== "verified"
+    );
 
   const artifact: Record<string, unknown> = {
-    schema_version: "1.4.0",
+    schema_version: "1.5.0",
     artifact_id: input.artifactId,
     brand_ref: input.brandRef,
     created_at: input.createdAt,
@@ -332,7 +408,10 @@ export function buildBrandContext(
       ...(input.identity.existing_palette ? { existing_palette: input.identity.existing_palette } : {}),
       ...(input.identity.marks ? { marks: input.identity.marks } : {}),
     },
-    claim_refs: claims.map((c) => String(c["artifact_id"])),
+    // Effective current claims only (DEC-0012): superseded and inactive
+    // revisions stay auditable through the referenced truth analysis, never
+    // through the compiled package.
+    claim_refs: [...effectiveRefs].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)),
     assumption_refs: assumptions.map((a) => String(a["artifact_id"])),
     // The compiled package records which analysis produced its contradiction
     // and gap results (DEC-0011 single-authoritative-input rule).

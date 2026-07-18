@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://nabcor.nabtiq.com/contracts/truth-analysis.schema.json",
   "title": "Truth Analysis",
-  "description": "Derived result of deterministic structured-truth analysis (DEC-0011): open contradictions and gaps computed by Tier-0 code over explicitly structured fact slots, relative to one versioned truth profile. No model, provider, or network field exists; contradictions are open until a human decision resolves them — the analyzer never selects a winner; claims without structured fact metadata are listed explicitly, never parsed by keyword or silently ignored.",
+  "description": "Derived result of deterministic structured-truth analysis (DEC-0011, DEC-0012): open contradictions and gaps computed by Tier-0 code over explicitly structured fact slots, relative to one versioned truth profile and one validated lineage projection of the complete claim revision set. Current truth is derived from lineage heads, never from caller omission: the complete input set is recorded, effective claims are the only claims analyzed, superseded historical revisions and inactive heads (contradicted/rejected/expired/lifecycle-rejected) are listed explicitly for audit. No model, provider, or network field exists; contradictions are open until a human decision resolves them — the analyzer never selects a winner; claims without structured fact metadata are listed explicitly, never parsed by keyword or silently ignored.",
   "allOf": [
     {
       "$ref": "artifact-envelope.schema.json#/definitions/envelope"
@@ -14,6 +14,9 @@
         "truth_profile_ref",
         "analyzer_version",
         "analyzed_claim_refs",
+        "effective_claim_refs",
+        "superseded_claim_refs",
+        "inactive_head_claims",
         "open_contradictions",
         "gaps",
         "unstructured_claim_refs",
@@ -37,15 +40,59 @@
         "analyzed_claim_refs": {
           "type": "array",
           "uniqueItems": true,
-          "description": "exact claim artifact_ids analyzed, deterministically sorted (semantic layer); duplicates are rejected",
+          "description": "the COMPLETE validated input claim revision set this analysis covered, deterministically sorted (semantic layer); duplicates are rejected. Exactly partitioned by effective_claim_refs, superseded_claim_refs, and inactive_head_claims (semantic layer, DEC-0012)",
           "items": {
             "type": "string",
             "minLength": 1
           }
         },
+        "effective_claim_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "description": "validated lineage heads active as current truth (DEC-0012) — the only claims contradiction detection, slot satisfaction, and the unstructured/unprofiled listings see; deterministically sorted (semantic layer)",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "superseded_claim_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "description": "historical revisions superseded by another analyzed claim (DEC-0012); retained for audit, excluded from current truth; deterministically sorted (semantic layer)",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "inactive_head_claims": {
+          "type": "array",
+          "description": "lineage heads retained for audit but inactive as current truth (DEC-0012), with a closed-enum reason; sorted by claim_ref (semantic layer). lifecycle 'superseded' is deliberately not a reason: a superseded head whose successor is missing from the complete set fails closed at projection instead of appearing here",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim_ref",
+              "reason"
+            ],
+            "properties": {
+              "claim_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason": {
+                "enum": [
+                  "verification-contradicted",
+                  "verification-rejected",
+                  "verification-expired",
+                  "lifecycle-rejected"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
         "open_contradictions": {
           "type": "array",
-          "description": "one entry per single-cardinality fact slot holding two or more distinct normalized values; sorted by fact_key (semantic layer)",
+          "description": "one entry per single-cardinality fact slot holding two or more distinct normalized values across EFFECTIVE claims; sorted by fact_key (semantic layer)",
           "items": {
             "type": "object",
             "required": [
@@ -102,7 +149,7 @@
         },
         "gaps": {
           "type": "array",
-          "description": "missing or unverified required slots relative to the truth profile; sorted by fact_key (semantic layer)",
+          "description": "missing or unverified required slots relative to the truth profile, evaluated over EFFECTIVE claims only — an inactive head satisfies nothing (DEC-0012); sorted by fact_key (semantic layer)",
           "items": {
             "type": "object",
             "required": [
@@ -140,7 +187,7 @@
               "claim_refs": {
                 "type": "array",
                 "uniqueItems": true,
-                "description": "relevant unconfirmed claim references for unverified gaps; empty for missing gaps",
+                "description": "relevant unconfirmed effective claim references for unverified gaps; empty for missing gaps",
                 "items": {
                   "type": "string",
                   "minLength": 1
@@ -153,7 +200,7 @@
         "unstructured_claim_refs": {
           "type": "array",
           "uniqueItems": true,
-          "description": "claims that could not participate because they lack structured fact metadata; listed explicitly, never keyword-parsed, text-compared, or silently ignored",
+          "description": "EFFECTIVE claims that could not participate because they lack structured fact metadata; listed explicitly, never keyword-parsed, text-compared, or silently ignored",
           "items": {
             "type": "string",
             "minLength": 1
@@ -162,7 +209,7 @@
         "unprofiled_fact_claim_refs": {
           "type": "array",
           "uniqueItems": true,
-          "description": "structured claims whose fact_key has no slot in the referenced truth profile; they were not contradiction- or gap-analyzed (the profile is workflow-scoped, not a universal ontology)",
+          "description": "EFFECTIVE structured claims whose fact_key has no slot in the referenced truth profile; they were not contradiction- or gap-analyzed (the profile is workflow-scoped, not a universal ontology)",
           "items": {
             "type": "string",
             "minLength": 1
@@ -173,19 +220,36 @@
   ],
   "examples": [
     {
-      "schema_version": "1.4.0",
+      "schema_version": "1.5.0",
       "artifact_id": "ta_0001",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "deterministic",
       "lifecycle_status": "generated",
       "truth_profile_ref": "tp_0001",
-      "analyzer_version": "analyze-structured-truth-1.0.0",
+      "analyzer_version": "analyze-structured-truth-1.1.0",
       "analyzed_claim_refs": [
         "claim_001",
         "claim_002",
         "claim_003",
+        "claim_004",
+        "claim_005",
+        "claim_006"
+      ],
+      "effective_claim_refs": [
+        "claim_001",
+        "claim_002",
+        "claim_003",
         "claim_004"
+      ],
+      "superseded_claim_refs": [
+        "claim_005"
+      ],
+      "inactive_head_claims": [
+        {
+          "claim_ref": "claim_006",
+          "reason": "verification-contradicted"
+        }
       ],
       "open_contradictions": [
         {
@@ -231,13 +295,16 @@
       "created_at",
       "creator_type",
       "derived_from_runs",
+      "effective_claim_refs",
       "gaps",
+      "inactive_head_claims",
       "lifecycle_status",
       "open_contradictions",
       "project_ref",
       "provisional",
       "schema_version",
       "superseded_by",
+      "superseded_claim_refs",
       "supersedes",
       "truth_profile_ref",
       "unprofiled_fact_claim_refs",

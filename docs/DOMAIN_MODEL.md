@@ -121,6 +121,13 @@ immutable per version; a revision creates a new version linked by supersession
   copy generation, G4 validation; contradicted claims pair via Contradiction.
 - **Lifecycle:** extracted/proposed → (verified | unconfirmed) → possibly contradicted /
   expired / superseded. Human confirmation moves inference → verified (INV-HUM-001(3)).
+  Claim artifacts are immutable per version: a revision is a new artifact whose
+  `supersedes` names the previous version (INV-VER-001). Current truth is derived
+  from validated lineage heads by the active-claim projection
+  (`src/understand/project-active-claims.ts`, DEC-0012) — never from a caller
+  omitting revisions. A `contradicted`, `rejected`, or `expired` head is retained
+  for audit but inactive as current truth: it creates no active contradictions and
+  satisfies no required truth-profile slots.
 - **Class:** canonical. Contract: `contracts/claim.schema.json`.
 
 ### Assumption
@@ -139,11 +146,18 @@ immutable per version; a revision creates a new version linked by supersession
 - **Required:** the conflicting claim refs, description, status
   (`open | resolved | accepted-both`), resolution decision ref when resolved.
 - **Lifecycle:** detected → surfaced → resolved (via Decision) — losing claim becomes
-  `contradicted`, never deleted.
+  `contradicted`, never deleted. A contradicted claim is thereafter inactive as
+  current truth (DEC-0012): re-derived analysis does not resurrect the resolved
+  conflict, and the claim stays queryable in the analysis's inactive listing.
 - **Class:** canonical (stored as claim relationships + a decision on resolution).
 - Detection today is the deterministic Tier-0 structured layer only
   (DEC-0011): explicit fact slots compared exactly, status fixed to `open`.
   Semantic detection over prose remains prohibited (DEC-0009).
+- **Authoritative resolution is unimplemented.** Applying a resolution —
+  creating the losing claim's `contradicted` revision from a decision —
+  requires an authenticated human-gate mechanism that does not exist
+  (Q-009): a shape-valid Decision artifact is not evidence that a human
+  acted, and no runtime path may treat it as such (DEC-0012).
 
 ### Truth Profile
 - **Purpose:** the versioned declaration of the fact slots one workflow or Brand
@@ -160,18 +174,23 @@ immutable per version; a revision creates a new version linked by supersession
 - **Class:** canonical. Contract: `contracts/truth-profile.schema.json`.
 
 ### Truth Analysis
-- **Purpose:** the deterministic analyzer's result over one claim set and one
-  truth profile (DEC-0011): open contradictions (exact type-sensitive
-  distinct-value groups on single-cardinality slots), gaps
-  (`missing | unverified`, profile-relative), and the explicit listings of
-  unstructured and unprofiled claims. The single authoritative input for a
-  Brand Context Package's contradictions and gaps (`truth_analysis_ref`).
+- **Purpose:** the deterministic analyzer's result over one COMPLETE claim
+  revision set and one truth profile (DEC-0011, DEC-0012): the validated
+  lineage partition (effective heads, superseded history, inactive heads
+  with closed-enum reasons), open contradictions (exact type-sensitive
+  distinct-value groups on single-cardinality slots, effective claims
+  only), gaps (`missing | unverified`, profile-relative, effective claims
+  only), and the explicit listings of effective unstructured and unprofiled
+  claims. The single authoritative input for a Brand Context Package's
+  contradictions, gaps, and effective claim references
+  (`truth_analysis_ref`).
 - **Required:** envelope, `brand_ref`, truth-profile ref, analyzer version,
-  exact analyzed claim refs, contradictions (status fixed `open`), gaps,
+  complete analyzed claim refs plus the exact effective/superseded/inactive
+  partition, contradictions (status fixed `open`), gaps,
   unstructured/unprofiled claim listings.
-- **Relationships:** derived from Claims + one Truth Profile; consumed by the
-  brand-context compiler; contradictions resolve downstream via Decisions
-  (INV-HUM-001(3)).
+- **Relationships:** derived from Claims + one Truth Profile through the
+  active-claim projection; consumed by the brand-context compiler;
+  contradictions resolve downstream via Decisions (INV-HUM-001(3)).
 - **Class:** derived (recomputable; persisted because the compiler consumes
   it). Contract: `contracts/truth-analysis.schema.json`.
 

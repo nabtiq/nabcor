@@ -26,7 +26,7 @@ function defaultFixtures(): Map<string, unknown> {
         statement: `Synthetic assumption carrying ${FIXTURE_MARKER} and ${CREDENTIAL_SHAPED}`,
       }),
     ],
-    ["assumption-broken", { schema_version: "1.4.0", artifact_id: "asm_broken" }],
+    ["assumption-broken", { schema_version: "1.5.0", artifact_id: "asm_broken" }],
   ]);
 }
 
@@ -59,7 +59,7 @@ function env(
 
 function validRequest(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.4.0",
+    schema_version: "1.5.0",
     request_id: "req_t_0001",
     run_id: "run_t_0001",
     session_id: "sess_t",
@@ -75,7 +75,7 @@ function validRequest(overrides: Record<string, unknown> = {}): Record<string, u
     scenario_id: "assumption-basic",
     context_items: [{ artifact_id: "src_t_0001", reason: "synthetic source under test", required: true }],
     token_budget: {
-      schema_version: "1.4.0",
+      schema_version: "1.5.0",
       budget_id: "budget_t_0001",
       scope: "skill",
       scope_ref: "gateway-selftest",
@@ -140,7 +140,7 @@ test("missing, malformed, and out-of-policy policy documents fail closed at cons
 
 function activePolicyContent(): Record<string, unknown> {
   return {
-    schema_version: "1.4.0",
+    schema_version: "1.5.0",
     policy_id: "gateway-policy-0001",
     decision_ref: "DEC-0009",
     allowed_adapters: ["fake"],

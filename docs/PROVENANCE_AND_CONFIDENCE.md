@@ -84,6 +84,19 @@ extracted/proposed
 Transitions that require a human: `unconfirmed → verified` for inference-class claims
 (INV-HUM-001(3)); any contradiction resolution. Deterministic transitions: expiry.
 
+Claim artifacts are immutable per version (INV-VER-001): a transition that
+changes a stored claim's state is recorded as a NEW revision superseding
+the old one — never an in-place edit. Current truth is derived from
+validated lineage heads (the active-claim projection, DEC-0012), and a
+`contradicted`, `rejected`, or `expired` head is retained for audit but
+inactive: it creates no active contradictions and satisfies no required
+slots. Omission is not resolution — the projection requires the complete
+revision set and fails closed on hidden or dangling lineage. Applying a
+contradiction resolution (creating the losing claim's `contradicted`
+revision) requires the authenticated human-gate mechanism (Q-009), which
+does not yet exist: a shape-valid approval object proves shape, not that a
+human acted.
+
 ## 5. Confidence rules
 
 - Confidence is a 0–1 float **with a stated basis** — source quality, corroboration
@@ -116,6 +129,13 @@ Each detected contradiction is surfaced to a human with status fixed `open`;
 resolution is a decision record — never an analyzer output; the losing claim
 moves to `contradicted` and stays queryable (so the same conflict is never
 re-litigated — the BC-001 Josour/Nosour (transliterated) lesson, FAIL-04).
+Contradicted claims are inactive as current truth (DEC-0012): analysis runs
+over the effective lineage heads only, so a resolved conflict stays closed
+on re-analysis while the loser remains visible in the analysis's inactive
+listing. Applying a resolution — actually creating that `contradicted`
+revision from a decision — is not yet implemented: it requires the
+authenticated human-gate mechanism (Q-009), because a schema-valid decision
+or approval artifact is not evidence that a human acted.
 Publication-critical facts (names, contact, domains) with open contradictions
 **block** publication surfaces (G4/G5).
 
