@@ -13,6 +13,7 @@ export type ApprovalDenialReason =
   | "role-not-authorized-for-gate"
   | "gate-not-allowed"
   | "policy-mismatch"
+  | "target-digest-mismatch"
   | "self-review-mismatch"
   | "approval-not-yet-valid"
   | "approval-expired"
