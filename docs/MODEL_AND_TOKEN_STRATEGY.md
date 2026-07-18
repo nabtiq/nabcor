@@ -34,6 +34,16 @@ requirements; the API-billed preference in §6 applies to that future decision.
 A provider may be operationally familiar without being approved for this
 product or for client material.
 
+**Human-gate verification never touches the gateway.** Authenticated
+approval evidence (DEC-0014, `src/authority/`) is Tier-0 deterministic
+code: offline Ed25519 verification with Node.js built-in crypto, zero
+tokens, zero spend, no adapter, no network, no model-run record — it is an
+authorization boundary, not a model capability, and it consumes no budget.
+Approving "real client data to a model provider" is one of its gates, but
+that gate is frozen (independent review required, no reviewer enrolled) and
+its release would additionally require the DEC-0009-superseding provider
+decision.
+
 ## 2. Model tiers
 
 Tiers name **capability classes**, not models. Model ids live in gateway config only.

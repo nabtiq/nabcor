@@ -6,21 +6,24 @@
 
 ## Current phase
 
-Phase 1B.2.2 — store-authoritative claim snapshots (DEC-0013) on top of the
-Phase 1B.2.1 resolution-safe claim lifecycle (DEC-0012), the Phase 1B.2
-deterministic structured-truth analysis, the Phase 1B.1 offline gateway
-kernel, and the Phase 1A truth kernel. The clean foundation baseline
-(`0.1.0`) remains the historical boundary (`FOUNDATION_BASELINE.md`).
-Phase 1 is not complete.
+Phase 1B.3A — offline Ed25519 authenticated human-gate foundation
+(DEC-0014) on top of the Phase 1B.2.2 store-authoritative claim snapshots
+(DEC-0013), the Phase 1B.2.1 resolution-safe claim lifecycle (DEC-0012),
+the Phase 1B.2 deterministic structured-truth analysis, the Phase 1B.1
+offline gateway kernel, and the Phase 1A truth kernel. The clean foundation
+baseline (`0.1.0`) remains the historical boundary
+(`FOUNDATION_BASELINE.md`). Phase 1 is not complete.
 
 ## Current objective
 
-Deliver Phase 1B.2.2: canonical claim membership derived from Artifact
-Store snapshots (never a caller-supplied array), analyses digest-bound to
-the exact claims loaded, and compilation failing closed on stale analyses —
-then obtain the Product Owner's ratification of the authenticated
-human-gate mechanism (Q-009) so fact resolution can safely apply claim
-revisions. Model-backed work stays prohibited by the zero-provider policy
+Deliver Phase 1B.3A: ratify Q-009 Option A (DEC-0014), correct the
+artifact-address read-boundary gap, and land machine-verifiable,
+replay-protected human approval evidence (contracts 1.7.0, `src/authority/`,
+offline key CLI) — WITHOUT applying any business action. The follow-on
+objective is real Product Owner key enrollment (reviewed registry revision)
+and, after that, the fact-resolution application step that composes an
+authorized approval with claim-revision creation and DEC-0013 snapshot
+staleness. Model-backed work stays prohibited by the zero-provider policy
 (DEC-0009) — a policy boundary, not an open question.
 
 ## Ratified decisions
@@ -71,6 +74,17 @@ revisions. Model-backed work stays prohibited by the zero-provider policy
   analysis/compilation APIs reject caller-supplied claim arrays at
   runtime; compilation reconciles the snapshot against the live store and
   fails closed on stale analyses; DEC-0012 lineage semantics unchanged.
+  (Its read-boundary address-integrity gap is corrected by an append-only
+  note; see DEC-0014.)
+- DEC-0014 — Q-009 Option A: offline Ed25519 authenticated human-gate
+  evidence. Runtime human authority requires cryptographic evidence
+  verified against the committed trusted policy and versioned public-key
+  registry; the signed payload is canonical, domain-separated, and closed;
+  a valid signature is never sufficient without policy authorization and
+  atomic single-use nonce consumption; key lifecycle fails closed; legacy
+  envelope approvals stay non-authoritative; authenticated approval applies
+  no business action; the four DEC-0008 independent-review gates stay
+  frozen; contracts 1.7.0.
 
 ## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006 and Phase 1A.2 / DEC-0007)
 
@@ -189,15 +203,43 @@ revisions. Model-backed work stays prohibited by the zero-provider policy
 - No new runtime dependency (Node.js built-in crypto only); no provider,
   model, network, or Fake Adapter involvement.
 
+## Implemented (Phase 1B.3A, DEC-0014)
+
+- Artifact-address integrity at the read boundary: `FileArtifactStore.get`
+  and `FileRunRecordStore.get` fail with a typed `artifact-address-mismatch`
+  when a stored file's internal identity differs from its canonical
+  filename address; snapshot capture inherits the check and fails
+  immediately (DEC-0013 append-only clarification).
+- Authenticated human-gate foundation (`src/authority/`, contracts
+  1.6.0 → 1.7.0): trusted committed human-gate policy + versioned
+  public-key authority registry (empty — zero enrolled authorities),
+  domain-separated canonical signed payload (`approval-payload-sha256-1.0.0`)
+  covering identity/role/gate/target-digest/verdict/self_review/requester/
+  nonce/validity/key/policy, offline Ed25519 verification with Node.js
+  built-in crypto (no new dependency), fail-closed key lifecycle
+  (unknown/not-yet-valid/expired/revoked), authenticated `self_review`
+  recomputation (DEC-0008), target existence + recomputed content digest at
+  the exact canonical address, and atomic single-use nonce consumption
+  through immutable namespace-isolated receipts (exactly one concurrent
+  consumption succeeds — proven with a multi-process race test).
+- Offline key-enrollment CLI (`src/cli/keygen.ts`): exclusive-create
+  owner-only private key refused inside the repository, symlink refusal,
+  public registry-entry candidate output, zero private-material leakage.
+- Verification is evidence only: no fact resolution applied, no quarantine
+  read, no publishing, no provider enabled, no gateway/Fake Adapter
+  involvement.
+
 ## Blocked / not implemented
 
-- Authoritative human contradiction resolution: the resolution-safe
-  lifecycle exists (DEC-0012), but applying a resolution — creating the
-  losing claim's `contradicted` revision with `resolution_decision_ref` —
-  is BLOCKED on the authenticated human-gate mechanism (Q-009). A
-  schema-valid Decision or Approval artifact proves shape, not that a
-  human acted, and the approval contract has no machine-readable
-  `self_review` field (DEC-0008 requires `self_review: true`).
+- Real Product Owner key enrollment: the active authority registry contains
+  zero authorities, so runtime authorization is operationally unavailable.
+  Enrollment is a reviewed registry revision (+ policy version pin)
+  prepared with the offline key CLI and ratified by a decision record.
+- Human contradiction-resolution APPLICATION: the authenticated evidence
+  mechanism exists (DEC-0014), but creating the losing claim's
+  `contradicted` revision with `resolution_decision_ref` from an authorized
+  approval — composed with DEC-0013 snapshot staleness — remains
+  unimplemented follow-on work.
 - Provider adapters, real model calls, provider-backed extraction, and
   semantic contradiction detection: prohibited by the ratified zero-provider
   policy (DEC-0009, zero spend); enabling any provider requires a new
@@ -216,15 +258,20 @@ revisions. Model-backed work stays prohibited by the zero-provider policy
 
 ## Immediate next actions
 
-1. Product Owner ratifies an option for Q-009 (authenticated human-gate
-   mechanism; Option A — offline Ed25519 approval evidence — is
-   recommended). Fact resolution cannot apply claim revisions before that.
-2. Keep `npm run validate` green on every change.
+1. Product Owner enrolls a real Ed25519 public key: generate offline with
+   `node dist/src/cli/keygen.js`, propose the registry revision + policy
+   pin, ratify with a decision record. Runtime approvals cannot verify
+   before that.
+2. Design the fact-resolution application step (authorized approval →
+   losing claim's `contradicted` revision, composed with DEC-0013
+   snapshot staleness) as the next phase proposal.
+3. Keep `npm run validate` green on every change.
 
 ## Definition of done for the current objective
 
-Phase 1B.2.2 merged with validation green; NOW, ROADMAP, RISKS, and
-OPEN_QUESTIONS consistent with DEC-0008..DEC-0013; canonical claim
-membership store-derived and snapshot-bound with stale compilation failing
-closed; no claim of implemented human resolution, authentication, or
-semantic detection anywhere; EXP-0001 still unexecuted and empty.
+Phase 1B.3A merged with validation green; NOW, ROADMAP, RISKS,
+OPEN_QUESTIONS, and the decision index consistent with DEC-0008..DEC-0014;
+Q-009 closed in the answer log; the address-integrity regression and the
+adversarial human-gate suite green; no claim anywhere of enrolled real
+keys, applied fact resolution, released quarantine, or semantic detection;
+EXP-0001 still unexecuted and empty.

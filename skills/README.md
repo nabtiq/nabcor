@@ -42,12 +42,23 @@ namespace into a digest-bound claim snapshot, caller-supplied claim arrays
 are rejected at runtime, and compilation reconciles the snapshot against
 the live store — stale analyses fail closed and require re-analysis.
 
-Authoritative human contradiction resolution is NOT implemented: applying a
-resolution (creating the losing claim's `contradicted` revision) requires
-the authenticated human-gate mechanism (OPEN_QUESTIONS Q-009). A
-schema-valid decision or approval artifact proves shape, not that a human
-acted, and no skill may treat it as authentication evidence (DEC-0012).
+Authoritative human contradiction resolution is NOT implemented as an
+applied action. The authenticated human-gate MECHANISM now exists —
+DEC-0014 (Phase 1B.3A) closed Q-009 with offline Ed25519 approval
+evidence: signed canonical payloads verified against the committed trusted
+policy and authority registry with atomic single-use nonce consumption
+(`src/authority/`). A schema-valid decision or approval artifact still
+proves shape, not that a human acted, and no skill may treat unsigned
+metadata as authentication evidence (DEC-0012). Three limits bound the
+mechanism today: the active registry has zero enrolled authorities (no
+runtime approval can verify until a real Product Owner key is enrolled by
+a reviewed registry revision); a verified approval is evidence, not an
+action (creating the losing claim's `contradicted` revision remains
+unimplemented); and a valid signature is never sufficient without policy
+authorization and nonce consumption.
 
-Quarantine release remains fail-closed: it requires both a formally named
-independent reviewer and a ratified authenticated approval mechanism, neither
-of which exists (DEC-0007, DEC-0008).
+Quarantine release remains fail-closed: it is a DEC-0008 independent-review
+gate, frozen in the active human-gate policy (`independent_reviewer_named:
+false`, pinned at the schema layer) because no independent reviewer is
+formally named or enrolled — a Product Owner self-signature can never
+satisfy it (DEC-0007, DEC-0008, DEC-0014).
