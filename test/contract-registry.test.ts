@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { registry, repoRoot, validClaim } from "./helpers.js";
@@ -20,6 +21,50 @@ test("existing positive and negative contract fixtures still behave correctly", 
   });
   assert.equal(run.status, 0, `validate.mjs failed:\n${run.stdout}\n${run.stderr}`);
   assert.match(run.stdout, /All layers green/);
+});
+
+test("the runtime registry mirror agrees with validate.mjs on every fixture of a mirrored type", () => {
+  // The semantic checks live in TWO places by design — contracts/validate.mjs
+  // (offline fixture validation) and src/kernel/contract-registry.ts (the
+  // runtime boundary) — and must change together. This parity test runs every
+  // contract fixture of a runtime-mirrored type through the TypeScript
+  // registry, so a future edit to one mirror without the other fails CI
+  // instead of drifting silently (DEC-0013 review finding).
+  const mirrored = new Set(["claim", "source", "truth-profile", "truth-analysis", "claim-snapshot"]);
+  const typeOf = (schemaFile: string): string => schemaFile.replace(/\.schema\.json$/, "");
+  const r = registry();
+  let checked = 0;
+
+  const positives = JSON.parse(
+    readFileSync(join(repoRoot, "contracts", "fixtures", "positive.json"), "utf8")
+  ) as { id: string; schema: string; data: unknown }[];
+  for (const fx of positives) {
+    if (!mirrored.has(typeOf(fx.schema))) continue;
+    const result = r.validate(typeOf(fx.schema), fx.data);
+    assert.ok(result.ok, `positive ${fx.id} must pass the runtime mirror: ${JSON.stringify(result)}`);
+    checked++;
+  }
+
+  const negatives = JSON.parse(
+    readFileSync(join(repoRoot, "contracts", "fixtures", "negative.json"), "utf8")
+  ) as { id: string; schema: string; expect_fail_at: "schema" | "semantic"; data: unknown }[];
+  for (const fx of negatives) {
+    if (!mirrored.has(typeOf(fx.schema))) continue;
+    const result = r.validate(typeOf(fx.schema), fx.data);
+    assert.equal(result.ok, false, `negative ${fx.id} must fail the runtime mirror`);
+    if (!result.ok && result.error.kind === "validation-failed") {
+      const layer = /semantic validation$/.test(result.error.message) ? "semantic" : "schema";
+      assert.equal(
+        layer,
+        fx.expect_fail_at,
+        `negative ${fx.id} must fail at the ${fx.expect_fail_at} layer in the runtime mirror`
+      );
+    } else {
+      assert.fail(`negative ${fx.id}: expected validation-failed, got ${JSON.stringify(result)}`);
+    }
+    checked++;
+  }
+  assert.ok(checked >= 25, `expected the mirror parity sweep to cover many fixtures, got ${checked}`);
 });
 
 test("unknown artifact fields are rejected with structured errors", () => {
