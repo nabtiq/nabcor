@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.7.0",
+  "policy_id": "hgp-nabcor-1",
+  "policy_version": 1,
+  "decision_ref": "DEC-0014",
+  "signature_algorithm": "ed25519",
+  "payload_type": "nabcor-human-gate-approval",
+  "payload_version": "1.0.0",
+  "canonicalization_algorithm": "approval-payload-sha256-1.0.0",
+  "domain_separator": "nabcor-human-gate-approval-v1",
+  "authority_registry_ref": "areg-nabcor",
+  "authority_registry_version": 1,
+  "independent_reviewer_named": false,
+  "allowed_gates": [
+    "fact-resolution-approval",
+    "quarantine-release",
+    "client-facing-publishing",
+    "blocking-evaluation-gate-change",
+    "real-client-data-provider-approval"
+  ],
+  "gate_requirements": {
+    "fact-resolution-approval": {
+      "required_role": "product-owner",
+      "independent_review_required": false
+    },
+    "quarantine-release": {
+      "required_role": "reviewer",
+      "independent_review_required": true
+    },
+    "client-facing-publishing": {
+      "required_role": "reviewer",
+      "independent_review_required": true
+    },
+    "blocking-evaluation-gate-change": {
+      "required_role": "evaluation-owner",
+      "independent_review_required": true
+    },
+    "real-client-data-provider-approval": {
+      "required_role": "product-owner",
+      "independent_review_required": true
+    }
+  },
+  "max_approval_ttl_seconds": 86400,
+  "clock_skew_seconds": 300,
+  "replay_policy": "single-use-nonce",
+  "default_deny": true
+}

@@ -1,6 +1,26 @@
 // Typed results for every runtime boundary: operations return failures as data,
 // never silently degraded artifacts (AGENTS.md rule; docs/AGENT_AND_SKILL_ARCHITECTURE.md §5).
 
+// Closed reasons an approval fails authorization (DEC-0014). Every denial is
+// one of these — free-text reasons would leak into consumers as semantics.
+export type ApprovalDenialReason =
+  | "unknown-key"
+  | "key-not-yet-valid"
+  | "key-expired"
+  | "key-revoked"
+  | "subject-mismatch"
+  | "role-not-held"
+  | "role-not-authorized-for-gate"
+  | "gate-not-allowed"
+  | "policy-mismatch"
+  | "target-digest-mismatch"
+  | "self-review-mismatch"
+  | "approval-not-yet-valid"
+  | "approval-expired"
+  | "ttl-exceeded"
+  | "payload-oversized"
+  | "signature-invalid";
+
 export interface ValidationIssue {
   artifactType: string;
   instancePath: string;
@@ -25,6 +45,16 @@ export type KernelFailure =
   // analysis/snapshot no longer matches the canonical store.
   | { kind: "snapshot-unstable"; message: string }
   | { kind: "stale-analysis"; message: string }
+  // Artifact-address integrity (DEC-0013 clarification, Phase 1B.3A): the
+  // stored file's internal identity must equal the canonical address it was
+  // requested from; a mismatch is tampering or misplacement, never data.
+  | { kind: "artifact-address-mismatch"; artifactId: string; storedArtifactId: string; message: string }
+  // Authenticated human-gate evidence (DEC-0014). Verification failures are
+  // typed and closed; they never carry key material or signed payload bodies.
+  | { kind: "authority-config-invalid"; message: string }
+  | { kind: "approval-unauthorized"; reason: ApprovalDenialReason; message: string }
+  | { kind: "approval-replay"; receiptId: string; message: string }
+  | { kind: "independent-review-frozen"; gate: string; message: string }
   // Gateway boundary failures (DEC-0009/DEC-0010). Every rejection crossing the
   // gateway is one of these typed values — raw exceptions never cross it.
   | { kind: "invalid-request"; issues: ValidationIssue[]; message: string }

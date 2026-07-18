@@ -18,10 +18,19 @@ Authority rank 4 (below decisions, above current state) — see `AGENTS.md`.
 - Execution layer: `model-run`, `token-budget`, `context-manifest`,
   `validation-matrix`, `deployment-readiness`, `gateway-policy`,
   `gateway-request`.
+- Human-gate authority layer (DEC-0014): `human-gate-policy`,
+  `authority-registry`, `approval-evidence`, `approval-receipt`.
 - `gateway-policy.active.json` — the committed active gateway policy document
   (DEC-0009). Not a schema: a validated instance, checked in CI against
   `gateway-policy.schema.json`; the runtime refuses to construct a gateway
   from an invalid or missing policy.
+- `human-gate-policy.active.json`, `authority-registry.active.json` — the
+  committed active human-gate trust roots (DEC-0014), validated in CI
+  including their mutual id/version binding. The runtime loads them through
+  a fixed trusted boundary; approval evidence can never select its own
+  policy, registry, or key. The active registry currently contains ZERO
+  enrolled authorities: no runtime approval can verify until a real key is
+  enrolled through a reviewed registry revision.
 - `fixtures/positive.json`, `fixtures/negative.json` — validation fixtures (below).
 
 Execution-layer records are operational records, not creative artifacts — they carry
@@ -58,11 +67,58 @@ instead of invented claim refs — see fixture `P02`).
 
 ## Versioning
 
-Artifact `schema_version` for all contracts: **1.6.0** (was 1.5.0). The version is
+Artifact `schema_version` for all contracts: **1.7.0** (was 1.6.0). The version is
 globally synchronized across all contracts; examples, fixtures, and
 runtime-generated artifacts carry it consistently.
 
-**Migration implications (1.5.0 → 1.6.0):** one contract was added and the
+**Migration implications (1.6.0 → 1.7.0):** four standalone contracts were
+added for the authenticated human-gate foundation (DEC-0014, Phase 1B.3A);
+no existing contract changed meaning:
+
+- `human-gate-policy` (new): the committed, CI-validated active policy that
+  pins the ratified posture as schema constants — Ed25519 only, the
+  versioned canonical payload algorithm (`approval-payload-sha256-1.0.0`)
+  and domain separator, single-use-nonce replay policy, default deny,
+  `independent_reviewer_named: false` (unfreezing the DEC-0008
+  independent-review gates is a superseding decision plus a contract
+  migration, never a config flip), per-gate role requirements, maximum
+  approval TTL, and clock-skew allowance. Semantic layer:
+  `gate-requirements-cover-allowed-gates` and
+  `independent-review-gates-pinned`.
+- `authority-registry` (new): versioned non-secret public-key registry with
+  explicit lineage (`supersedes_registry_version` must be exactly
+  version − 1, or null for version 1). Each entry binds `key_id` to key
+  material ('k' + sha256 over the SPKI DER bytes — recomputed by the
+  semantic layer, which also requires the SPKI to decode as a REAL Ed25519
+  key), carries roles from the closed DEC-0008 enum, validity windows, and
+  status with mandatory revocation metadata. Private keys never appear in
+  any contract. An empty `authorities` array is valid and is the committed
+  state: nothing can verify until enrollment.
+- `approval-evidence` (new): the signed approval. The `payload` block is
+  the EXACT signed content — strictly versioned, domain-separated, closed
+  to unknown fields — covering approver identity, role, gate, the target
+  artifact's address and content digest, verdict, `self_review`, requester,
+  nonce, validity window, key ID, and policy binding. Semantic layer:
+  `payload-digest-consistency` (recomputed over the domain-separated
+  canonical bytes), `expires-after-issued`, and `self-review-consistency`
+  (`self_review` must equal `requester_id === approver_id` — DEC-0008).
+  Contract validity proves shape only; authorization additionally requires
+  the runtime verifier's policy/registry/target/signature/replay checks.
+- `approval-receipt` (new): the immutable consumption record. `receipt_id`
+  is deterministically derived over the full consumption scope ('r' +
+  sha256 over the canonical JSON of
+  `{brand_ref, key_id, nonce, policy_ref, workspace}`, algorithm
+  `approval-receipt-id-sha256-1.0.0`; semantic layer recomputes). Nonce
+  single-use is scoped per (policy, key, workspace, brand) — the namespace
+  fields are signature-covered, so one signed approval maps to exactly one
+  consumable identity and a second consumption of it collides with its
+  receipt. `verification_result` is pinned to `authorized`: denials never
+  persist receipts.
+- No real production artifacts existed at 1.6.0, so no real-artifact
+  migration was performed — examples, fixtures, and synthetic runtime
+  fixtures were re-issued at 1.7.0 in the same change.
+
+**Historical — migration implications (1.5.0 → 1.6.0):** one contract was added and the
 `truth-analysis` contract changed meaning (DEC-0013, Phase 1B.2.2):
 
 - `claim-snapshot` (new, canonical): the store-authoritative snapshot of
@@ -252,7 +308,9 @@ Two distinguishable layers, both required green (non-zero exit otherwise):
 - **Schema layer** (Ajv, draft-07 — an explicit development dependency): every schema
   compiles · `$id`s unique · every `examples[]` entry
   and `fixtures/positive.json` case validates · the committed
-  `gateway-policy.active.json` document validates as a positive instance ·
+  `gateway-policy.active.json`, `human-gate-policy.active.json`, and
+  `authority-registry.active.json` documents validate as positive instances
+  (including the policy → registry id/version binding) ·
   every `fixtures/negative.json` case
   with `expect_fail_at: "schema"` is rejected.
 - **Semantic layer** — deterministic cross-field checks draft-07 cannot express
@@ -264,7 +322,13 @@ Two distinguishable layers, both required green (non-zero exit otherwise):
   (INV-FACT-001) · unique-sorted-fact-keys and deterministic-ordering
   (DEC-0011) · lineage-partition and refs-within-effective
   (DEC-0011/DEC-0012) · sorted-unique-claim-refs and
-  aggregate-digest-consistency (DEC-0013). Negative fixtures with
+  aggregate-digest-consistency (DEC-0013) ·
+  gate-requirements-cover-allowed-gates, independent-review-gates-pinned,
+  unique-key-ids, key-id-binds-spki-ed25519, validity-window-ordered,
+  revocation-metadata-consistency, registry-lineage,
+  payload-digest-consistency, expires-after-issued,
+  self-review-consistency, and receipt-id-consistency (DEC-0008/DEC-0014).
+  Negative fixtures with
   `expect_fail_at: "semantic"` must pass the schema layer and fail here.
 
 The command prints: schemas compiled, positive cases passed, negative cases correctly

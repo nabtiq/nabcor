@@ -54,10 +54,19 @@ canonical claim membership now comes from Artifact Store snapshots
 (contracts 1.5.0 → 1.6.0) — strict fail-closed enumeration, digest-bound
 analyses, runtime rejection of caller claim arrays, and stale-analysis
 protection in compilation — so a caller subset can no longer hide an
-independent conflicting lineage. Authoritative human contradiction
-resolution remains unimplemented: applying a resolution requires the
-authenticated human-gate mechanism (Q-009), because a shape-valid approval
-proves nothing about who acted. This is deterministic infrastructure only —
+independent conflicting lineage. The Phase 1B.3A increment (DEC-0014)
+closed Q-009 with Option A — offline Ed25519 authenticated human-gate
+evidence: a trusted committed policy and versioned public-key registry
+(contracts 1.6.0 → 1.7.0), a domain-separated canonical signed payload
+bound to the target artifact's exact address and content digest, built-in
+crypto verification, fail-closed key lifecycle, authenticated
+`self_review`, atomic single-use nonce receipts, an offline key-enrollment
+CLI, and the read-boundary address-integrity correction. The mechanism
+carries no operational authority yet: the active registry has zero
+enrolled authorities, legacy approval metadata stays non-authoritative,
+the four DEC-0008 independent-review gates stay frozen, and applying a
+fact resolution from an authorized approval remains unimplemented
+follow-on work. This is deterministic infrastructure only —
 not Phase 1 completion: no provider-backed or natural-language extraction
 exists, no semantic contradiction detection exists, EXP-0001 has not run
 and has no results, and no measured model costs exist. Model-backed work is

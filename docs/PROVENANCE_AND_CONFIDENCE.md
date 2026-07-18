@@ -137,9 +137,14 @@ Contradicted claims are inactive as current truth (DEC-0012): analysis runs
 over the effective lineage heads only, so a resolved conflict stays closed
 on re-analysis while the loser remains visible in the analysis's inactive
 listing. Applying a resolution — actually creating that `contradicted`
-revision from a decision — is not yet implemented: it requires the
-authenticated human-gate mechanism (Q-009), because a schema-valid decision
-or approval artifact is not evidence that a human acted.
+revision from a decision — is not yet implemented. The authenticated
+human-gate mechanism it requires now exists (DEC-0014 closed Q-009: signed
+Ed25519 approval evidence verified against the trusted policy and
+registry, with atomic single-use nonce consumption), but no real authority
+key is enrolled yet and the application step itself — composing an
+authorized approval with claim-revision creation and DEC-0013 snapshot
+staleness — is deferred follow-on work. A schema-valid decision or
+approval artifact remains non-evidence that a human acted.
 Publication-critical facts (names, contact, domains) with open contradictions
 **block** publication surfaces (G4/G5).
 
@@ -158,6 +163,13 @@ A confirmation records: user, timestamp, claim version, and what they saw (the
 statement + its evidence). Confirmations are approvals in the domain-model sense and
 appear on the claim's envelope. Bulk "confirm all" is prohibited in UX — confirmation
 is per-claim for publication-critical classes.
+
+Envelope confirmations are audit metadata, not runtime authority. Where a
+confirmation must carry AUTHORITY — gating an action the runtime performs —
+it takes the DEC-0014 form: signed approval evidence over the exact claim
+version's content digest, verified against the active human-gate policy and
+authority registry and consumed exactly once. The digest binding means a
+confirmation of one claim revision never silently covers a later revision.
 
 ## 9. How generated content references claims
 

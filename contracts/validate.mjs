@@ -11,7 +11,7 @@
 //   names the invariant it enforces. Runs on all schema-valid instances; negative
 //   fixtures with expect_fail_at:"semantic" must pass schema and fail semantics.
 // Exit: 0 only when every layer is fully green.
-import { createHash } from "node:crypto";
+import { createHash, createPublicKey } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,7 +54,184 @@ const canonicalJson = (v) =>
 const claimSetDigest = (pairs) =>
   `sha256:${createHash("sha256").update(canonicalJson(pairs), "utf8").digest("hex")}`;
 
+// Authenticated human-gate evidence (DEC-0014) — mirrored from
+// src/authority/approval-payload.ts (the two must change together).
+// Signed/digested bytes: UTF-8 of domain_separator + "\n" + canonical JSON.
+const APPROVAL_DOMAIN = "nabcor-human-gate-approval-v1";
+const approvalPayloadDigest = (payload) =>
+  `sha256:${createHash("sha256")
+    .update(`${APPROVAL_DOMAIN}\n${canonicalJson(payload)}`, "utf8")
+    .digest("hex")}`;
+const receiptIdFor = (keyId, nonce, policyRef, workspace, brandRef) =>
+  `r${createHash("sha256")
+    .update(
+      canonicalJson({ brand_ref: brandRef, key_id: keyId, nonce, policy_ref: policyRef, workspace }),
+      "utf8"
+    )
+    .digest("hex")}`;
+// The four DEC-0008 gates that require a formally named independent reviewer.
+const INDEPENDENT_REVIEW_GATES = [
+  "quarantine-release",
+  "client-facing-publishing",
+  "blocking-evaluation-gate-change",
+  "real-client-data-provider-approval",
+];
+
 const SEMANTIC = {
+  "human-gate-policy.schema.json": [
+    {
+      invariant: "DEC-0014 gate-requirements-cover-allowed-gates",
+      check: (d) => {
+        const out = [];
+        const allowed = d.allowed_gates ?? [];
+        const keys = Object.keys(d.gate_requirements ?? {});
+        for (const g of allowed)
+          if (!keys.includes(g)) out.push(`allowed gate '${g}' has no gate_requirements entry`);
+        for (const k of keys)
+          if (!allowed.includes(k)) out.push(`gate_requirements entry '${k}' is not in allowed_gates`);
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0008/DEC-0014 independent-review-gates-pinned",
+      check: (d) => {
+        const out = [];
+        for (const g of INDEPENDENT_REVIEW_GATES) {
+          const req = (d.gate_requirements ?? {})[g];
+          if (req && req.independent_review_required !== true)
+            out.push(
+              `gate '${g}' must carry independent_review_required=true (DEC-0008 independent-review gate)`
+            );
+        }
+        return out;
+      },
+    },
+  ],
+  "authority-registry.schema.json": [
+    {
+      invariant: "DEC-0014 unique-key-ids",
+      check: (d) => {
+        const out = [];
+        const seen = new Set();
+        for (const a of d.authorities ?? []) {
+          if (seen.has(a.key_id)) out.push(`duplicate key_id '${a.key_id}' in authorities`);
+          seen.add(a.key_id);
+        }
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0014 key-id-binds-spki-ed25519",
+      check: (d) => {
+        const out = [];
+        for (const a of d.authorities ?? []) {
+          const der = Buffer.from(a.public_key_spki_b64, "base64");
+          if (der.toString("base64") !== a.public_key_spki_b64) {
+            out.push(`authority '${a.key_id}': public_key_spki_b64 is not canonical base64`);
+            continue;
+          }
+          let keyType = null;
+          try {
+            keyType = createPublicKey({ key: der, format: "der", type: "spki" }).asymmetricKeyType;
+          } catch {
+            out.push(`authority '${a.key_id}': public_key_spki_b64 does not decode as a valid SPKI public key`);
+            continue;
+          }
+          if (keyType !== "ed25519") {
+            out.push(`authority '${a.key_id}': key type '${keyType}' is not ed25519`);
+            continue;
+          }
+          const recomputed = `k${createHash("sha256").update(der).digest("hex")}`;
+          if (a.key_id !== recomputed)
+            out.push(`authority key_id '${a.key_id}' does not match the sha256 of its SPKI bytes ('${recomputed}')`);
+        }
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0014 validity-window-ordered",
+      check: (d) =>
+        (d.authorities ?? [])
+          .filter(
+            (a) => a.valid_until !== null && Date.parse(a.valid_until) <= Date.parse(a.valid_from)
+          )
+          .map((a) => `authority '${a.key_id}': valid_until must be after valid_from`),
+    },
+    {
+      invariant: "DEC-0014 revocation-metadata-consistency",
+      check: (d) => {
+        const out = [];
+        for (const a of d.authorities ?? []) {
+          if (a.status === "revoked" && (!a.revoked_at || !a.revocation_reason))
+            out.push(`revoked authority '${a.key_id}' must carry revoked_at and revocation_reason`);
+          if (a.status === "active" && (a.revoked_at || a.revocation_reason))
+            out.push(`active authority '${a.key_id}' must not carry revocation metadata`);
+        }
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0014 registry-lineage",
+      check: (d) => {
+        if (d.supersedes_registry_version === null)
+          return d.registry_version === 1
+            ? []
+            : [`registry_version ${d.registry_version} with null supersedes_registry_version (only version 1 may have no predecessor)`];
+        return d.supersedes_registry_version === d.registry_version - 1
+          ? []
+          : [
+              `supersedes_registry_version ${d.supersedes_registry_version} must be exactly registry_version - 1 (${d.registry_version - 1})`,
+            ];
+      },
+    },
+  ],
+  "approval-evidence.schema.json": [
+    {
+      invariant: "DEC-0014 payload-digest-consistency",
+      check: (d) => {
+        const recomputed = approvalPayloadDigest(d.payload ?? {});
+        return d.payload_digest === recomputed
+          ? []
+          : [
+              `payload_digest '${d.payload_digest}' does not match the recomputed domain-separated canonical digest '${recomputed}'`,
+            ];
+      },
+    },
+    {
+      invariant: "DEC-0014 expires-after-issued",
+      check: (d) => {
+        const p = d.payload ?? {};
+        return Date.parse(p.expires_at) > Date.parse(p.issued_at)
+          ? []
+          : [`expires_at '${p.expires_at}' must be after issued_at '${p.issued_at}'`];
+      },
+    },
+    {
+      invariant: "DEC-0008/DEC-0014 self-review-consistency",
+      check: (d) => {
+        const p = d.payload ?? {};
+        const computed = p.requester_id === p.approver_id;
+        return p.self_review === computed
+          ? []
+          : [
+              `self_review=${p.self_review} does not match the computed value ${computed} (requester_id ${computed ? "equals" : "differs from"} approver_id)`,
+            ];
+      },
+    },
+  ],
+  "approval-receipt.schema.json": [
+    {
+      invariant: "DEC-0014 receipt-id-consistency",
+      check: (d) => {
+        const recomputed = receiptIdFor(d.key_id, d.nonce, d.policy_ref, d.workspace, d.brand_ref);
+        return d.receipt_id === recomputed
+          ? []
+          : [
+              `receipt_id '${d.receipt_id}' does not match the recomputation '${recomputed}' over {brand_ref, key_id, nonce, policy_ref, workspace}`,
+            ];
+      },
+    },
+  ],
   "claim-snapshot.schema.json": [
     {
       invariant: "DEC-0013 sorted-unique-claim-refs",
@@ -360,6 +537,30 @@ for (const fx of positiveFixtures) runPositive(fx.schema, fx.data, `positive ${f
 // to construct a gateway from it (DEC-0009/DEC-0010 fail-closed rule).
 const activePolicy = JSON.parse(readFileSync(join(dir, "gateway-policy.active.json"), "utf8"));
 runPositive("gateway-policy.schema.json", activePolicy, "active gateway policy document");
+
+// The committed active human-gate policy and authority registry are the trusted
+// verification roots (DEC-0014): an invalid active document must fail CI because
+// the runtime refuses to construct a verifier from it. The active registry may
+// legitimately contain zero authorities — that state means no runtime approval
+// can verify until a real key is enrolled.
+const activeHumanGatePolicy = JSON.parse(
+  readFileSync(join(dir, "human-gate-policy.active.json"), "utf8")
+);
+runPositive("human-gate-policy.schema.json", activeHumanGatePolicy, "active human-gate policy document");
+const activeAuthorityRegistry = JSON.parse(
+  readFileSync(join(dir, "authority-registry.active.json"), "utf8")
+);
+runPositive("authority-registry.schema.json", activeAuthorityRegistry, "active authority registry document");
+if (activeHumanGatePolicy.authority_registry_ref !== activeAuthorityRegistry.registry_id) {
+  fail(
+    `active human-gate policy references registry '${activeHumanGatePolicy.authority_registry_ref}' but the committed active registry is '${activeAuthorityRegistry.registry_id}'`
+  );
+}
+if (activeHumanGatePolicy.authority_registry_version !== activeAuthorityRegistry.registry_version) {
+  fail(
+    `active human-gate policy pins registry version ${activeHumanGatePolicy.authority_registry_version} but the committed active registry is version ${activeAuthorityRegistry.registry_version}`
+  );
+}
 console.log(`positive cases passed: ${positivePassed}/${positiveTotal}`);
 
 // ---- negative fixtures ----------------------------------------------------

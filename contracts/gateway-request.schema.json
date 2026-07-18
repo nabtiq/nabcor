@@ -105,7 +105,7 @@
   },
   "examples": [
     {
-      "schema_version": "1.6.0",
+      "schema_version": "1.7.0",
       "request_id": "req_0001",
       "run_id": "run_0001",
       "session_id": "sess_0001",
@@ -127,7 +127,7 @@
         }
       ],
       "token_budget": {
-        "schema_version": "1.6.0",
+        "schema_version": "1.7.0",
         "budget_id": "budget_offline_0001",
         "scope": "skill",
         "scope_ref": "gateway-selftest",

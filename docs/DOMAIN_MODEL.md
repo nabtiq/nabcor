@@ -153,11 +153,15 @@ immutable per version; a revision creates a new version linked by supersession
 - Detection today is the deterministic Tier-0 structured layer only
   (DEC-0011): explicit fact slots compared exactly, status fixed to `open`.
   Semantic detection over prose remains prohibited (DEC-0009).
-- **Authoritative resolution is unimplemented.** Applying a resolution —
-  creating the losing claim's `contradicted` revision from a decision —
-  requires an authenticated human-gate mechanism that does not exist
-  (Q-009): a shape-valid Decision artifact is not evidence that a human
-  acted, and no runtime path may treat it as such (DEC-0012).
+- **Authoritative resolution is unimplemented as an applied action.** The
+  authenticated human-gate mechanism now exists (DEC-0014 closed Q-009:
+  offline Ed25519 approval evidence, policy-authorized and
+  replay-consumed), but applying a resolution — creating the losing claim's
+  `contradicted` revision from an authorized approval — remains
+  unimplemented follow-on work, and no runtime approval can verify until a
+  real key is enrolled. A shape-valid Decision artifact is still not
+  evidence that a human acted, and no runtime path may treat it as such
+  (DEC-0012).
 
 ### Claim Snapshot
 - **Purpose:** the store-authoritative record of the COMPLETE canonical
@@ -386,6 +390,18 @@ immutable per version; a revision creates a new version linked by supersession
   reason. The unit INV-HUM-001 audits.
 - **Class:** canonical (recorded on artifact envelopes and decision records;
   `accepted_by` + approvals list).
+- **Authority (DEC-0014):** two forms exist and only one carries runtime
+  authority. Inline envelope `approvals` entries are unauthenticated audit
+  metadata. Authoritative runtime approval is SIGNED approval evidence
+  (`contracts/approval-evidence.schema.json`): an Ed25519 signature over a
+  domain-separated canonical payload binding approver identity, role, gate,
+  the target artifact's exact address and content digest, verdict,
+  authenticated `self_review` (DEC-0008), requester, nonce, validity
+  window, key ID, and policy version — verified against the committed
+  trusted human-gate policy and authority registry, and consumed atomically
+  exactly once through an immutable receipt
+  (`contracts/approval-receipt.schema.json`). A verified approval is
+  evidence a human decided; it applies no business action by itself.
 
 ### Publication
 - **Purpose:** the release of an artifact to the world: publication reference, target,

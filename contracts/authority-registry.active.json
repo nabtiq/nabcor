@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.7.0",
+  "registry_id": "areg-nabcor",
+  "registry_version": 1,
+  "supersedes_registry_version": null,
+  "created_at": "2026-07-19T00:00:00Z",
+  "decision_ref": "DEC-0014",
+  "authorities": []
+}

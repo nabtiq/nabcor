@@ -44,7 +44,14 @@ conflict (§Hierarchy rule).
 15. Never change a schema silently: bump `schema_version`, note migration implications,
     update fixtures.
 16. Never auto-approve, auto-publish, or bypass a human gate (INV-HUM-001/002,
-    INV-PUB-001).
+    INV-PUB-001). Runtime human authority is CRYPTOGRAPHIC (DEC-0014): only
+    signed approval evidence verified against the active human-gate policy
+    and authority registry — with atomic nonce consumption — proves a human
+    acted. Inline envelope `approvals` metadata is unauthenticated audit
+    data with no runtime authority, and a valid signature alone (without
+    policy authorization and replay consumption) authorizes nothing. Never
+    commit, log, or fixture private key material (INV-SEC-001); test keys
+    are generated ephemerally in memory or temp directories.
 17. Never erase prior decisions, learnings, or contradicted claims — supersede them.
     Claim artifacts are immutable per version: a state change is a new revision
     linked by `supersedes`; a contradicted claim stays auditable but is inactive

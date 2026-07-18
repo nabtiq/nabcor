@@ -7,10 +7,11 @@
 kernel (DEC-0004/DEC-0005), the Phase 1B.1 offline gateway kernel
 (DEC-0009/DEC-0010), the Phase 1B.2 deterministic structured-truth
 analysis (DEC-0011), the Phase 1B.2.1 resolution-safe claim lifecycle
-correction (DEC-0012), and the Phase 1B.2.2 store-authoritative claim
-snapshots (DEC-0013). No provider-backed extraction, no model calls, no
-authoritative human contradiction resolution, and no full vertical slice
-exist yet; Phase 1 is not complete.
+correction (DEC-0012), the Phase 1B.2.2 store-authoritative claim
+snapshots (DEC-0013), and the Phase 1B.3A offline Ed25519 authenticated
+human-gate foundation (DEC-0014). No provider-backed extraction, no model
+calls, no applied human contradiction resolution, and no full vertical
+slice exist yet; Phase 1 is not complete.
 
 ## What NABCor is
 
@@ -278,25 +279,56 @@ No provider SDK and no framework exist.
   `cost {mode: "free-tier", usd: 0, allocation: "none"}`, and are excluded
   from model-quality and product-quality evidence (they never populate
   EXP-0001).
+- **Authenticated human-gate foundation (Tier 0, Phase 1B.3A, DEC-0014)** —
+  machine-verifiable evidence that an authorized human approved or rejected
+  one exact artifact action, closing Q-009 with Option A. A committed
+  trusted human-gate policy and versioned public-key authority registry
+  (contracts 1.7.0: `human-gate-policy`, `authority-registry`,
+  `approval-evidence`, `approval-receipt`) pin Ed25519 signatures over a
+  domain-separated canonical payload (`approval-payload-sha256-1.0.0`)
+  covering identity, role, gate, the target artifact's exact address and
+  recomputed content digest, verdict, authenticated `self_review`
+  (DEC-0008), requester, nonce, validity window, key ID, and policy
+  binding. Verification (`src/authority/`) is offline Node.js built-in
+  crypto only — no new dependency — and fails closed at every layer: a
+  valid signature is never sufficient without policy authorization AND
+  atomic single-use nonce consumption through immutable, namespace-isolated
+  receipts (exactly one concurrent consumption can succeed). Legacy
+  envelope `approvals` entries remain unauthenticated audit metadata with
+  no runtime authority. The read boundary now also proves address
+  integrity: `store.get` rejects any artifact whose internal `artifact_id`
+  differs from its canonical filename (typed `artifact-address-mismatch`).
+  An offline operator CLI (`node dist/src/cli/keygen.js`) prepares key
+  enrollment (owner-only private key outside the repository, public
+  registry-entry candidate); the committed active registry contains ZERO
+  enrolled authorities, so runtime authorization is operationally
+  unavailable until a real Product Owner key is enrolled by a reviewed,
+  ratified registry revision. Authenticated approval applies no business
+  action: fact-resolution application, quarantine release, and publishing
+  remain unimplemented, and the four DEC-0008 independent-review gates stay
+  frozen — a Product Owner self-signature can never satisfy one.
 - **Synthetic CLI example** — `node dist/src/cli/run-example.js --out <dir>` runs the
   full deterministic path on English-only synthetic fixtures. No network, no model
   calls, no client data.
 
 What does **not** exist yet: model calls of any kind, provider adapters,
 provider-backed extraction, natural-language fact extraction, semantic
-contradiction detection, authoritative human contradiction resolution
-(applying a resolution requires the authenticated human-gate mechanism —
-Q-009 — because a shape-valid approval object proves shape, not that a
-human acted), creative territories, channel specs, or the full
-vertical slice. Q-002 is closed as **"no provider approved"** (DEC-0009):
+contradiction detection, APPLIED human contradiction resolution, creative
+territories, channel specs, or the full vertical slice. Q-009 is closed by
+DEC-0014 (offline Ed25519 approval evidence), so the authentication
+MECHANISM exists — but no real Product Owner key is enrolled (the active
+registry is empty), so no runtime approval can currently verify, and even a
+verified approval applies no business action: creating a losing claim's
+`contradicted` revision from an authorized resolution remains unimplemented
+follow-on work. Q-002 is closed as **"no provider approved"** (DEC-0009):
 model-backed work is prohibited by ratified policy — with external/model spend
 capped at zero — rather than blocked on an open question, and enabling any
 provider requires a new ratified decision meeting DEC-0009's requirements.
 Only the offline gateway kernel and the Fake Adapter are validated; the
 gateway as a whole is **not** production-ready for model work. Gate roles are
 named (DEC-0008), but its four independent-review gates stay unapprovable
-until an independent reviewer is formally named. EXP-0001 has not run and has
-no results.
+until an independent reviewer is formally named and enrolled; quarantined
+content remains unreadable. EXP-0001 has not run and has no results.
 
 ## Source-of-truth hierarchy
 
