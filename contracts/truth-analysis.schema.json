@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://nabcor.nabtiq.com/contracts/truth-analysis.schema.json",
   "title": "Truth Analysis",
-  "description": "Derived result of deterministic structured-truth analysis (DEC-0011, DEC-0012): open contradictions and gaps computed by Tier-0 code over explicitly structured fact slots, relative to one versioned truth profile and one validated lineage projection of the complete claim revision set. Current truth is derived from lineage heads, never from caller omission: the complete input set is recorded, effective claims are the only claims analyzed, superseded historical revisions and inactive heads (contradicted/rejected/expired/lifecycle-rejected) are listed explicitly for audit. No model, provider, or network field exists; contradictions are open until a human decision resolves them — the analyzer never selects a winner; claims without structured fact metadata are listed explicitly, never parsed by keyword or silently ignored.",
+  "description": "Derived result of deterministic structured-truth analysis (DEC-0011, DEC-0012, DEC-0013): open contradictions and gaps computed by Tier-0 code over explicitly structured fact slots, relative to one versioned truth profile and one validated lineage projection of the COMPLETE canonical claim set. Claim membership comes from a store-authoritative claim snapshot (claim_snapshot_ref + claim_set_digest), never from a caller-supplied array — a supplied subset is not evidence of completeness, and compilation reconciles the snapshot against the live store, failing closed on stale analyses. Current truth is derived from lineage heads, never from caller omission: the complete canonical set is recorded, effective claims are the only claims analyzed, superseded historical revisions and inactive heads (contradicted/rejected/expired/lifecycle-rejected) are listed explicitly for audit. No model, provider, or network field exists; contradictions are open until a human decision resolves them — the analyzer never selects a winner; claims without structured fact metadata are listed explicitly, never parsed by keyword or silently ignored.",
   "allOf": [
     {
       "$ref": "artifact-envelope.schema.json#/definitions/envelope"
@@ -12,6 +12,8 @@
       "required": [
         "brand_ref",
         "truth_profile_ref",
+        "claim_snapshot_ref",
+        "claim_set_digest",
         "analyzer_version",
         "analyzed_claim_refs",
         "effective_claim_refs",
@@ -31,6 +33,16 @@
           "type": "string",
           "minLength": 1,
           "description": "artifact_id of the truth profile this analysis is relative to; gaps exist only relative to it"
+        },
+        "claim_snapshot_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "artifact_id of the claim-snapshot this analysis was derived from (DEC-0013): canonical claim membership comes from Artifact Store enumeration, never a caller-supplied array; analyzed_claim_refs must equal the snapshot's claim references"
+        },
+        "claim_set_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "the referenced snapshot's aggregate claim-set digest, copied so the analysis is bound to the exact membership and contents it analyzed; compilation reconciles this against the live store and fails closed on any change (stale analysis)"
         },
         "analyzer_version": {
           "type": "string",
@@ -220,14 +232,16 @@
   ],
   "examples": [
     {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "artifact_id": "ta_0001",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "deterministic",
       "lifecycle_status": "generated",
       "truth_profile_ref": "tp_0001",
-      "analyzer_version": "analyze-structured-truth-1.1.0",
+      "claim_snapshot_ref": "snap_0001",
+      "claim_set_digest": "sha256:7f54a2ca382131c9d5f9be47d0b7bd68fad9bd08d844fbe396209c8ef23f7ae3",
+      "analyzer_version": "analyze-structured-truth-2.0.0",
       "analyzed_claim_refs": [
         "claim_001",
         "claim_002",
@@ -292,6 +306,8 @@
       "approvals",
       "artifact_id",
       "brand_ref",
+      "claim_set_digest",
+      "claim_snapshot_ref",
       "created_at",
       "creator_type",
       "derived_from_runs",

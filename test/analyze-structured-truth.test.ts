@@ -1,9 +1,10 @@
-// Deterministic structured-truth analysis (DEC-0011): fact-slot grouping,
-// exact type-sensitive comparison, profile-relative gaps, explicit
-// unstructured listing, stable output, and strict brand isolation — with no
-// gateway, adapter, model, or network involvement.
+// Deterministic structured-truth analysis (DEC-0011, DEC-0012, DEC-0013):
+// store-authoritative claim membership, fact-slot grouping, exact
+// type-sensitive comparison, profile-relative gaps, explicit unstructured
+// listing, stable output, and strict brand isolation — with no gateway,
+// adapter, model, or network involvement.
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { FileArtifactStore } from "../src/kernel/artifact-store.js";
@@ -40,23 +41,47 @@ function structuredClaim(
   });
 }
 
-function analyze(
-  claims: unknown[],
+function storeWith(claims: unknown[], prefix = "analysis"): FileArtifactStore {
+  const store = new FileArtifactStore(tempDir(prefix), registry());
+  for (const c of claims) {
+    const put = store.put(WS, BRAND, "claim", c);
+    assert.ok(put.ok, `test setup: claim put failed: ${JSON.stringify(put)}`);
+  }
+  return store;
+}
+
+function analyzeInStore(
+  store: FileArtifactStore,
   profileOverrides: Record<string, unknown> = {},
   inputOverrides: Partial<TruthAnalysisInput> = {}
 ) {
   return analyzeStructuredTruth(
     {
       artifactId: "ta_t_run",
+      snapshotArtifactId: "snap_t_run",
       workspace: WS,
       brandRef: BRAND,
       createdAt: NOW,
       truthProfile: validTruthProfile(profileOverrides),
-      claims,
       ...inputOverrides,
     },
+    store,
     registry()
   );
+}
+
+/**
+ * Store the claims, analyze the namespace, and return a Result whose value is
+ * the analysis artifact — the shape most assertions consume.
+ */
+function analyze(
+  claims: unknown[],
+  profileOverrides: Record<string, unknown> = {},
+  inputOverrides: Partial<TruthAnalysisInput> = {}
+): { ok: true; value: Record<string, unknown> } | { ok: false; error: { kind: string; message: string } } {
+  const result = analyzeInStore(storeWith(claims), profileOverrides, inputOverrides);
+  if (!result.ok) return result;
+  return { ok: true, value: result.value.analysis };
 }
 
 // ---- truth-profile contract ------------------------------------------------
@@ -158,6 +183,144 @@ test("preferences and hypotheses cannot carry structured fact metadata", () => {
       })
     );
     assert.equal(result.ok, false, `${classification} with fact metadata must be rejected`);
+  }
+});
+
+// ---- store-authoritative claim membership (DEC-0013) -----------------------
+// The Phase 1B.2.1 residual defect: lineage validation proved internal
+// consistency of the SUPPLIED claim array, but nothing proved the array
+// exhaustively covered the canonical store — omitting an entire independent
+// lineage silently hid its contradiction.
+
+test("canonical claim membership comes from the store: independent conflicting lineages are always both analyzed (DEC-0013)", () => {
+  const store = storeWith([
+    structuredClaim("claim_a", "identity.primary_name", "Name One"),
+    structuredClaim("claim_b", "identity.primary_name", "Name Two", {
+      source_ref: "source:src_t_0001#page=2",
+    }),
+  ]);
+  const result = analyzeInStore(store);
+  assert.ok(result.ok, JSON.stringify(result));
+  if (!result.ok) return;
+  assert.deepEqual(
+    result.value.analysis["analyzed_claim_refs"],
+    ["claim_a", "claim_b"],
+    "analysis must cover every canonical claim in the namespace"
+  );
+  assert.equal(
+    (result.value.analysis["open_contradictions"] as unknown[]).length,
+    1,
+    "the canonical conflict must be visible — omission must not imitate resolution"
+  );
+});
+
+test("the legacy caller-supplied claims array is explicitly rejected at runtime (DEC-0013)", () => {
+  const store = storeWith([structuredClaim("claim_a", "identity.primary_name", "Name One")]);
+  for (const legacyField of ["claims", "claim_refs"]) {
+    const result = analyzeStructuredTruth(
+      {
+        artifactId: "ta_t_legacy",
+        snapshotArtifactId: "snap_t_legacy",
+        workspace: WS,
+        brandRef: BRAND,
+        createdAt: NOW,
+        truthProfile: validTruthProfile(),
+        [legacyField]: [],
+      } as unknown as TruthAnalysisInput,
+      store,
+      registry()
+    );
+    assert.equal(result.ok, false, `'${legacyField}' must be rejected, not silently ignored`);
+    if (!result.ok) {
+      assert.equal(result.error.kind, "invalid-input");
+      assert.match(result.error.message, /Artifact Store snapshot/);
+    }
+  }
+});
+
+test("the analysis is bound to its snapshot: reference, digest, and membership agree (DEC-0013)", () => {
+  const store = storeWith([
+    structuredClaim("claim_a", "identity.primary_name", "Veritas Forensics"),
+    validClaim({ artifact_id: "claim_b", source_ref: "source:src_t_0001#page=2" }),
+  ]);
+  const result = analyzeInStore(store);
+  assert.ok(result.ok, JSON.stringify(result));
+  if (!result.ok) return;
+  const { analysis, snapshot } = result.value;
+  assert.equal(analysis["claim_snapshot_ref"], "snap_t_run");
+  assert.equal(analysis["claim_set_digest"], snapshot["claim_set_digest"]);
+  assert.deepEqual(
+    analysis["analyzed_claim_refs"],
+    (snapshot["claims"] as { claim_ref: string }[]).map((p) => p.claim_ref),
+    "analyzed refs must equal the snapshot membership exactly"
+  );
+  assert.ok(registry().validate("claim-snapshot", snapshot).ok);
+});
+
+test("a zero-claim namespace is a valid snapshot: required slots become deterministic missing gaps (DEC-0013)", () => {
+  const store = new FileArtifactStore(tempDir("empty"), registry());
+  const result = analyzeInStore(store);
+  assert.ok(result.ok, JSON.stringify(result));
+  if (!result.ok) return;
+  const { analysis, snapshot } = result.value;
+  assert.deepEqual(snapshot["claims"], []);
+  assert.deepEqual(analysis["analyzed_claim_refs"], []);
+  const gaps = analysis["gaps"] as Record<string, unknown>[];
+  assert.equal(gaps.length, 1);
+  assert.equal(gaps[0]!["kind"], "missing");
+});
+
+test("a symlinked entry in the claim namespace fails the snapshot closed instead of disappearing (DEC-0013)", () => {
+  const root = tempDir("symlinked");
+  const store = new FileArtifactStore(root, registry());
+  assert.ok(store.put(WS, BRAND, "claim", validClaim()).ok);
+  symlinkSync(
+    join(root, WS, BRAND, "claim", "claim_t_0001.json"),
+    join(root, WS, BRAND, "claim", "claim_t_0002.json")
+  );
+  const result = analyzeInStore(store);
+  assert.equal(result.ok, false, "an entry strict enumeration cannot vouch for must fail the capture");
+  if (!result.ok) {
+    assert.equal(result.error.kind, "namespace-violation");
+    assert.match(result.error.message, /irregular entry/);
+  }
+});
+
+test("a claim file whose brand_ref disagrees with its namespace fails the snapshot closed", () => {
+  const root = tempDir("tampered-brand");
+  const store = new FileArtifactStore(root, registry());
+  mkdirSync(join(root, WS, BRAND, "claim"), { recursive: true });
+  writeFileSync(
+    join(root, WS, BRAND, "claim", "claim_t_0001.json"),
+    JSON.stringify(validClaim({ brand_ref: "brand_other" }))
+  );
+  const result = analyzeInStore(store);
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.error.kind, "namespace-violation");
+});
+
+test("membership changing during capture is rejected as snapshot-unstable (DEC-0013)", () => {
+  class RacingStore extends FileArtifactStore {
+    private enumerations = 0;
+    override listStrict(workspace: string, brand: string, type: string) {
+      const result = super.listStrict(workspace, brand, type);
+      this.enumerations += 1;
+      if (this.enumerations === 1 && result.ok) {
+        // Simulate a concurrent writer landing a claim between the first
+        // enumeration and the verification pass.
+        const put = super.put(workspace, brand, "claim", validClaim({ artifact_id: "claim_t_race" }));
+        if (!put.ok) throw new Error(JSON.stringify(put));
+      }
+      return result;
+    }
+  }
+  const store = new RacingStore(tempDir("racing"), registry());
+  assert.ok(store.put(WS, BRAND, "claim", validClaim()).ok);
+  const result = analyzeInStore(store);
+  assert.equal(result.ok, false, "a namespace that changed mid-capture must not produce a snapshot");
+  if (!result.ok) {
+    assert.equal(result.error.kind, "snapshot-unstable");
+    assert.match(result.error.message, /changed during snapshot capture/);
   }
 });
 
@@ -336,7 +499,7 @@ test("rejected, expired, and lifecycle-rejected heads neither satisfy required s
   ]);
 });
 
-test("a lifecycle-superseded claim whose successor is missing from the complete set fails closed (DEC-0012)", () => {
+test("a lifecycle-superseded claim whose successor is missing from the canonical set fails closed (DEC-0012)", () => {
   const result = analyze([
     structuredClaim("claim_a", "identity.primary_name", "Superseded Name", {
       lifecycle_status: "superseded",
@@ -350,9 +513,6 @@ test("a lifecycle-superseded claim whose successor is missing from the complete 
 });
 
 // ---- resolution-safe lifecycle (DEC-0012) ----------------------------------
-// These tests reproduce the Phase 1B.2 defect: `contradicted` claims stayed
-// active, so a human resolution could never close a contradiction — the loser
-// kept re-creating the same conflict on every re-analysis.
 
 test("a contradicted claim does not create an active contradiction (DEC-0012)", () => {
   const result = analyze([
@@ -390,7 +550,7 @@ test("a standalone contradicted head does not satisfy a required slot and remain
   assert.deepEqual(
     result.value["analyzed_claim_refs"],
     ["claim_a"],
-    "the contradicted claim stays visible in the audit/input set"
+    "the contradicted claim stays visible in the audit set"
   );
 });
 
@@ -420,7 +580,7 @@ test("a superseding contradicted revision closes the resolution loop: no conflic
   assert.deepEqual(result.value["gaps"], [], "the effective verified claim satisfies the slot");
 });
 
-test("the analysis records the lineage partition explicitly: every input ref stays visible for audit (DEC-0012)", () => {
+test("the analysis records the lineage partition explicitly: every canonical ref stays visible for audit (DEC-0012)", () => {
   const result = analyze([
     structuredClaim("claim_a", "identity.primary_name", "Old Name"),
     structuredClaim("claim_b", "identity.primary_name", "New Name", {
@@ -500,66 +660,61 @@ test("structured claims whose fact_key is not in the profile are listed as unpro
 
 // ---- isolation and input discipline ----------------------------------------
 
-test("cross-brand claims and cross-brand profiles are rejected", () => {
-  const crossBrandClaim = analyze([
-    structuredClaim("claim_a", "identity.primary_name", "X", { brand_ref: "brand_other" }),
-  ]);
-  assert.equal(crossBrandClaim.ok, false);
-  if (!crossBrandClaim.ok) assert.equal(crossBrandClaim.error.kind, "reference-violation");
-
-  const crossBrandProfile = analyze([], { brand_ref: "brand_other" });
-  assert.equal(crossBrandProfile.ok, false);
-  if (!crossBrandProfile.ok) assert.equal(crossBrandProfile.error.kind, "reference-violation");
-});
-
-test("duplicate claim artifact IDs are rejected", () => {
-  const result = analyze([
-    structuredClaim("claim_a", "identity.primary_name", "X"),
-    structuredClaim("claim_a", "identity.primary_name", "X"),
-  ]);
+test("cross-brand truth profiles are rejected", () => {
+  const result = analyze([], { brand_ref: "brand_other" });
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.equal(result.error.kind, "invalid-input");
-    assert.match(result.error.message, /duplicate claim artifact_id/);
-  }
+  if (!result.ok) assert.equal(result.error.kind, "reference-violation");
 });
 
 // ---- determinism and contract validity -------------------------------------
 
 test("analyzer output is stable, deterministically sorted, and byte-equivalent across repeated runs", () => {
-  const claims = () => [
+  const store = storeWith([
     structuredClaim("claim_z", "identity.primary_name", "B Name", {
       verification_status: "unconfirmed",
     }),
     structuredClaim("claim_a", "identity.primary_name", "A Name"),
     validClaim({ artifact_id: "claim_prose" }),
     structuredClaim("claim_m", "finance.revenue_band", "band-1"),
-  ];
-  const first = analyze(claims());
-  const second = analyze(claims());
+  ]);
+  const first = analyzeInStore(store);
+  const second = analyzeInStore(store);
   assert.ok(first.ok && second.ok, JSON.stringify(first));
   if (!first.ok || !second.ok) return;
   assert.equal(
-    JSON.stringify(first.value),
-    JSON.stringify(second.value),
-    "identical input must produce byte-equivalent analysis"
+    JSON.stringify(first.value.analysis),
+    JSON.stringify(second.value.analysis),
+    "identical store state plus an identical injected clock must produce a byte-equivalent analysis"
   );
-  assert.deepEqual(first.value["analyzed_claim_refs"], ["claim_a", "claim_m", "claim_prose", "claim_z"]);
-  const contradiction = (first.value["open_contradictions"] as Record<string, unknown>[])[0]!;
+  assert.equal(
+    JSON.stringify(first.value.snapshot),
+    JSON.stringify(second.value.snapshot),
+    "identical store state plus an identical injected clock must produce a byte-equivalent snapshot"
+  );
+  assert.deepEqual(first.value.analysis["analyzed_claim_refs"], [
+    "claim_a",
+    "claim_m",
+    "claim_prose",
+    "claim_z",
+  ]);
+  const contradiction = (first.value.analysis["open_contradictions"] as Record<string, unknown>[])[0]!;
   assert.deepEqual(contradiction["claim_refs"], ["claim_a", "claim_z"]);
-  assert.equal(first.value["analyzer_version"], ANALYZER_VERSION);
+  assert.equal(first.value.analysis["analyzer_version"], ANALYZER_VERSION);
 });
 
-test("the produced truth analysis validates against its contract and round-trips through the artifact store", () => {
-  const result = analyze([structuredClaim("claim_a", "identity.primary_name", "Veritas Forensics")]);
+test("the produced analysis and snapshot validate against their contracts and round-trip through the artifact store", () => {
+  const store = storeWith([structuredClaim("claim_a", "identity.primary_name", "Veritas Forensics")]);
+  const result = analyzeInStore(store);
   assert.ok(result.ok, JSON.stringify(result));
   if (!result.ok) return;
-  assert.ok(registry().validate("truth-analysis", result.value).ok);
-  const store = new FileArtifactStore(tempDir("truth-analysis"), registry());
-  const put = store.put(WS, BRAND, "truth-analysis", result.value);
-  assert.ok(put.ok, JSON.stringify(put));
-  const got = store.get(WS, BRAND, "truth-analysis", "ta_t_run");
-  assert.ok(got.ok);
+  assert.ok(registry().validate("truth-analysis", result.value.analysis).ok);
+  assert.ok(registry().validate("claim-snapshot", result.value.snapshot).ok);
+  const snapPut = store.put(WS, BRAND, "claim-snapshot", result.value.snapshot);
+  assert.ok(snapPut.ok, JSON.stringify(snapPut));
+  const anaPut = store.put(WS, BRAND, "truth-analysis", result.value.analysis);
+  assert.ok(anaPut.ok, JSON.stringify(anaPut));
+  assert.ok(store.get(WS, BRAND, "claim-snapshot", "snap_t_run").ok);
+  assert.ok(store.get(WS, BRAND, "truth-analysis", "ta_t_run").ok);
 });
 
 test("truth profiles and analyses are brand-isolated in the artifact store (INV-DATA-001)", () => {
@@ -587,12 +742,15 @@ test("truth profiles and analyses are brand-isolated in the artifact store (INV-
 // ---- provider and gateway independence -------------------------------------
 
 test("the Tier-0 analyzer imports nothing from the gateway and never touches the Fake Adapter", () => {
-  const body = readFileSync(
-    join(repoRoot, "src", "understand", "analyze-structured-truth.ts"),
-    "utf8"
-  );
-  for (const line of body.split("\n").filter((l) => l.trimStart().startsWith("import"))) {
-    assert.ok(!/gateway/.test(line), `gateway import found in analyzer: ${line}`);
+  for (const file of ["analyze-structured-truth.ts", "project-active-claims.ts"]) {
+    const body = readFileSync(join(repoRoot, "src", "understand", file), "utf8");
+    for (const line of body.split("\n").filter((l) => l.trimStart().startsWith("import"))) {
+      assert.ok(!/gateway/.test(line), `gateway import found in ${file}: ${line}`);
+    }
+  }
+  const snapshotBody = readFileSync(join(repoRoot, "src", "kernel", "claim-snapshot.ts"), "utf8");
+  for (const line of snapshotBody.split("\n").filter((l) => l.trimStart().startsWith("import"))) {
+    assert.ok(!/gateway/.test(line), `gateway import found in claim-snapshot.ts: ${line}`);
   }
 
   const fake = new FakeAdapter(new Map());

@@ -4,7 +4,7 @@
     "schema": "decision.schema.json",
     "description": "ratified decision carrying the required ratification approval passes schema + semantic",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "artifact_id": "DEC-9997-pos",
       "brand_ref": null,
       "created_at": "2026-07-17T12:00:00Z",
@@ -39,9 +39,9 @@
   {
     "id": "P02-factual-slot-with-confirm-note",
     "schema": "website-spec.schema.json",
-    "description": "factual slot with empty claim_refs but an explicit unresolved_fact_note (confirm-slot pattern) passes \u2014 schema pressure must not encourage fabrication",
+    "description": "factual slot with empty claim_refs but an explicit unresolved_fact_note (confirm-slot pattern) passes — schema pressure must not encourage fabrication",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "artifact_id": "wspec_p02",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -65,8 +65,8 @@
               "slot_id": "years",
               "role": "factual",
               "text": {
-                "ar": "[Arabic copy pending \u2014 years-in-operation confirm-slot]",
-                "en": "[X years in operation \u2014 confirm]"
+                "ar": "[Arabic copy pending — years-in-operation confirm-slot]",
+                "en": "[X years in operation — confirm]"
               },
               "claim_refs": [],
               "unresolved_fact_note": "years-in-operation not provided by client; confirm before publication"
@@ -83,7 +83,7 @@
     "schema": "model-run.schema.json",
     "description": "subscription-billed run with usd null and allocation none passes (cost modes never conflated)",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "run_id": "run_p03",
       "session_id": "s",
       "project_id": "p",
@@ -112,7 +112,7 @@
     "schema": "source.schema.json",
     "description": "captured prompt source with content-addressed reference, digest, byte size, media type, and clear safety state (DEC-0006)",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "artifact_id": "src_p04",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -143,7 +143,7 @@
     "schema": "source.schema.json",
     "description": "injection-flagged captured content correctly held in the quarantine namespace passes schema and semantic layers (INV-SEC-002)",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "artifact_id": "src_p05",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -175,7 +175,7 @@
     "schema": "claim.schema.json",
     "description": "canonical code-point fragment reference in correct order passes both layers (DEC-0006/DEC-0007)",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "artifact_id": "claim_p06",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -193,9 +193,9 @@
   {
     "id": "P07-unclassified-visual-explicit-null",
     "schema": "source.schema.json",
-    "description": "image source with explicitly unresolved (null) visual_classification passes \u2014 the honest state for an unclassified visual (INV-FACT-003)",
+    "description": "image source with explicitly unresolved (null) visual_classification passes — the honest state for an unclassified visual (INV-FACT-003)",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "artifact_id": "src_p07",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -220,9 +220,9 @@
   {
     "id": "P08-offline-fake-adapter-model-run",
     "schema": "model-run.schema.json",
-    "description": "Tier-0 offline Fake Adapter run record: provider 'offline', zero tokens in all four classes, cost {mode: free-tier, usd: 0, allocation: none} \u2014 truthful zero-spend accounting, excluded from model-quality evidence (DEC-0009/DEC-0010)",
+    "description": "Tier-0 offline Fake Adapter run record: provider 'offline', zero tokens in all four classes, cost {mode: free-tier, usd: 0, allocation: none} — truthful zero-spend accounting, excluded from model-quality evidence (DEC-0009/DEC-0010)",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "run_id": "run_p08",
       "session_id": "sess_p08",
       "project_id": "SLICE-001",
@@ -269,7 +269,7 @@
     "schema": "gateway-request.schema.json",
     "description": "provider-neutral gateway request with inline contract-validated token budget, context items with load reasons, and a deterministic scenario id (DEC-0010)",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "request_id": "req_p09",
       "run_id": "run_p09",
       "session_id": "sess_p09",
@@ -291,7 +291,7 @@
         }
       ],
       "token_budget": {
-        "schema_version": "1.5.0",
+        "schema_version": "1.6.0",
         "budget_id": "budget_p09",
         "scope": "skill",
         "scope_ref": "gateway-selftest",
@@ -303,7 +303,7 @@
         "max_iterations": 1,
         "escalation_budget": null,
         "hard_stop_output": 1000,
-        "basis": "offline deterministic fixture run \u2014 zero model tokens by construction (DEC-0009)"
+        "basis": "offline deterministic fixture run — zero model tokens by construction (DEC-0009)"
       },
       "max_output_tokens": 0
     }
@@ -313,7 +313,7 @@
     "schema": "claim.schema.json",
     "description": "an inference may carry structured fact metadata and remains an unconfirmed inference (a normalized value never upgrades verification status, DEC-0011)",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "agent",
@@ -336,7 +336,7 @@
     "schema": "truth-profile.schema.json",
     "description": "minimal single-slot truth profile with sorted unique fact keys",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "artifact_id": "tp_p11",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -361,7 +361,7 @@
     "schema": "truth-analysis.schema.json",
     "description": "truth analysis with an unverified gap citing effective unconfirmed claims, deterministic ordering, and explicit unstructured listing",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "artifact_id": "ta_p12",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -399,7 +399,9 @@
       ],
       "unprofiled_fact_claim_refs": [
         "claim_012"
-      ]
+      ],
+      "claim_snapshot_ref": "snap_p11",
+      "claim_set_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
     }
   },
   {
@@ -407,7 +409,7 @@
     "schema": "truth-analysis.schema.json",
     "description": "truth analysis after a resolution: a superseded historical revision and a contradicted inactive head are recorded for audit, effective truth carries no contradiction (DEC-0012)",
     "data": {
-      "schema_version": "1.5.0",
+      "schema_version": "1.6.0",
       "artifact_id": "ta_p13",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -437,7 +439,9 @@
       "unstructured_claim_refs": [],
       "unprofiled_fact_claim_refs": [
         "claim_021"
-      ]
+      ],
+      "claim_snapshot_ref": "snap_p11",
+      "claim_set_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
     }
   }
 ]

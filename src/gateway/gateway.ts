@@ -278,7 +278,7 @@ export class OfflineGateway implements ModelGateway {
     }
     const manifestId = `cm_${id.runId}`;
     const manifest = {
-      schema_version: "1.5.0",
+      schema_version: "1.6.0",
       manifest_id: manifestId,
       run_ref: id.runId,
       skill_id: id.skillId,
@@ -399,7 +399,7 @@ export class OfflineGateway implements ModelGateway {
     io: { artifactIdsIn: string[]; artifactIdsOut: string[] }
   ): Record<string, unknown> {
     return {
-      schema_version: "1.5.0",
+      schema_version: "1.6.0",
       run_id: id.runId,
       session_id: id.sessionId,
       project_id: id.projectId,

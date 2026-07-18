@@ -1,5 +1,5 @@
 // Tier-0 analyze-structured-truth: deterministic contradiction and gap analysis
-// over EXPLICITLY structured fact slots (DEC-0011, DEC-0012;
+// over EXPLICITLY structured fact slots (DEC-0011, DEC-0012, DEC-0013;
 // skills/analyze-structured-truth.skill.yaml).
 //
 // This is analysis of structured truth, not extraction: only claims carrying
@@ -12,43 +12,53 @@
 // status comes only from the profile. Contradictions stay open — deterministic
 // code never selects which conflicting claim is true (INV-HUM-001(3)).
 //
-// Current truth is a lineage projection, not the raw claim array (DEC-0012):
-// the analyzer receives the COMPLETE claim revision set, validates every
-// lineage through project-active-claims (the single implementation of lineage
-// rules — no second copy exists here), and analyzes EFFECTIVE claims only.
-// Superseded historical revisions and inactive heads (contradicted, rejected,
-// expired, lifecycle-rejected) are recorded explicitly for audit but create no
-// contradictions and satisfy no slots — a claim a human resolved against
-// stays queryable without re-litigating the conflict it lost.
+// Claim membership is STORE-AUTHORITATIVE (DEC-0013): the analyzer captures a
+// verified claim snapshot of the exact workspace/brand namespace from the
+// Artifact Store and analyzes that complete canonical set. A caller-supplied
+// claims array is never accepted — supplying a subset used to hide an entire
+// independent lineage (and its contradiction) without any dangling reference,
+// so the legacy `claims`/`claim_refs` fields are rejected at runtime, not
+// merely removed from the type. The produced analysis records the snapshot
+// reference and aggregate claim-set digest; compilation reconciles them
+// against the live store and fails closed when the canonical set has changed.
 //
-// Claims WITHOUT structured fact metadata are listed under
-// unstructured_claim_refs (effective claims only). They are never
-// keyword-parsed, text-compared, silently ignored, or converted into
-// assumptions: detecting semantic contradictions in unrestricted prose is out
-// of this capability's scope and remains prohibited pending a
-// provider-enablement decision (DEC-0009).
+// Current truth is a lineage projection over that canonical set (DEC-0012):
+// superseded historical revisions and inactive heads (contradicted, rejected,
+// expired, lifecycle-rejected) are recorded explicitly for audit but create no
+// contradictions and satisfy no slots. Claims WITHOUT structured fact
+// metadata are listed under unstructured_claim_refs (effective claims only) —
+// never keyword-parsed, text-compared, silently ignored, or converted into
+// assumptions (semantic prose interpretation stays prohibited, DEC-0009).
 //
 // No gateway, adapter, model, provider, or network involvement exists here —
 // the Fake Adapter is gateway test infrastructure and is never used to
 // simulate intelligence (DEC-0011).
+import type { FileArtifactStore } from "../kernel/artifact-store.js";
+import { captureClaimSnapshot } from "../kernel/claim-snapshot.js";
 import type { ContractRegistry } from "../kernel/contract-registry.js";
-import { type Result, err } from "../kernel/result.js";
+import { type Result, err, ok } from "../kernel/result.js";
 import { projectActiveClaims } from "./project-active-claims.js";
 
-export const ANALYZER_VERSION = "analyze-structured-truth-1.1.0";
+export const ANALYZER_VERSION = "analyze-structured-truth-2.0.0";
 
 export interface TruthAnalysisInput {
+  /** artifact_id for the produced truth-analysis artifact. */
   artifactId: string;
+  /** artifact_id for the captured claim-snapshot artifact. */
+  snapshotArtifactId: string;
   workspace: string;
   brandRef: string;
+  /** Injected clock — capture and analysis never read the system time. */
   createdAt: string;
   /** Contract-valid truth-profile artifact; stays unknown until validated. */
   truthProfile: unknown;
-  /**
-   * Contract-valid claim artifacts — the COMPLETE revision set of every
-   * lineage in scope (DEC-0012); stay unknown until validated.
-   */
-  claims: unknown[];
+}
+
+export interface TruthAnalysisOutput {
+  /** Contract-valid truth-analysis artifact (not yet persisted). */
+  analysis: Record<string, unknown>;
+  /** The claim-snapshot the analysis is bound to (not yet persisted). */
+  snapshot: Record<string, unknown>;
 }
 
 interface ProfileSlot {
@@ -66,17 +76,28 @@ const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0
 
 export function analyzeStructuredTruth(
   input: TruthAnalysisInput,
+  store: FileArtifactStore,
   registry: ContractRegistry
-): Result<Record<string, unknown>> {
+): Result<TruthAnalysisOutput> {
+  // 0. The legacy caller-supplied claim set is rejected at runtime (DEC-0013):
+  //    a subset with no dangling reference could silently omit an entire
+  //    independent lineage — omission is not resolution. This guards
+  //    JavaScript callers, not only the TypeScript surface.
+  for (const legacyField of ["claims", "claim_refs"]) {
+    if (legacyField in (input as unknown as Record<string, unknown>)) {
+      return err({
+        kind: "invalid-input",
+        message: `caller-supplied '${legacyField}' is rejected: canonical claim membership comes from the Artifact Store snapshot of ${input.workspace}/${input.brandRef}, never from a caller-selected array (DEC-0013)`,
+      });
+    }
+  }
+
   // 1. Boundary validation: the profile is contract-validated (schema +
-  //    semantic) before anything is read from it (INV-DET-001).
+  //    semantic) before anything is read from it (INV-DET-001), and it must
+  //    belong to the analysis brand (INV-DATA-001).
   const profileResult = registry.validate("truth-profile", input.truthProfile);
   if (!profileResult.ok) return profileResult;
   const profile = profileResult.value;
-
-  // 2. Brand isolation for the profile (INV-DATA-001); claim validation,
-  //    claim brand isolation, duplicate rejection, and every lineage rule
-  //    live in the projection — the analyzer holds no second implementation.
   if (profile["brand_ref"] !== input.brandRef) {
     return err({
       kind: "reference-violation",
@@ -84,12 +105,29 @@ export function analyzeStructuredTruth(
     });
   }
 
-  // 3. Lineage projection (DEC-0012): validate the complete revision set and
-  //    derive effective current truth from lineage heads. Cycles,
-  //    self-supersession, dangling references, ambiguous forks, and hidden
-  //    successors fail closed inside the projection.
+  // 2. Store-authoritative claim snapshot (DEC-0013): strict fail-closed
+  //    enumeration, per-claim contract validation, stable-capture check, and
+  //    digest binding all live in the capture — the analyzer holds no copy.
+  const captured = captureClaimSnapshot(
+    {
+      artifactId: input.snapshotArtifactId,
+      workspace: input.workspace,
+      brandRef: input.brandRef,
+      createdAt: input.createdAt,
+    },
+    store,
+    registry
+  );
+  if (!captured.ok) return captured;
+  const { snapshot, claims } = captured.value;
+
+  // 3. Lineage projection (DEC-0012): derive effective current truth from
+  //    lineage heads over the canonical set. Cycles, self-supersession,
+  //    dangling references, ambiguous forks, and hidden successors fail
+  //    closed inside the projection (defense in depth over store lineage
+  //    rules — tampered namespaces must not project).
   const projected = projectActiveClaims(
-    { workspace: input.workspace, brandRef: input.brandRef, claims: input.claims },
+    { workspace: input.workspace, brandRef: input.brandRef, claims },
     registry
   );
   if (!projected.ok) return projected;
@@ -162,7 +200,8 @@ export function analyzeStructuredTruth(
     // requirement. An open contradiction is surfaced as a contradiction, never
     // silently converted into a missing fact. Inactive heads (including
     // contradicted claims) supply nothing here — a slot whose only support
-    // lost a resolution is missing, not unverified (DEC-0012).
+    // lost a resolution is missing, not unverified (DEC-0012). A zero-claim
+    // namespace deterministically yields missing gaps for required slots.
     if (slot.requirement !== "required" || contradicted) continue;
     if (eligible.length === 0) {
       gaps.push({
@@ -188,17 +227,19 @@ export function analyzeStructuredTruth(
   // 6. Stable, deterministically sorted output. Slots are already sorted by
   //    fact_key (truth-profile semantic layer), so contradictions and gaps
   //    emerged sorted; the projection's collections are already code-unit
-  //    sorted; remaining claim-reference lists are sorted explicitly. The
-  //    complete input set stays recorded (audit); the effective, superseded,
-  //    and inactive-head partitions make lineage state explicit (DEC-0012).
+  //    sorted. The complete canonical set stays recorded (audit); the
+  //    snapshot reference and digest bind the analysis to the exact claims
+  //    loaded (DEC-0013).
   const artifact: Record<string, unknown> = {
-    schema_version: "1.5.0",
+    schema_version: "1.6.0",
     artifact_id: input.artifactId,
     brand_ref: input.brandRef,
     created_at: input.createdAt,
     creator_type: "deterministic",
     lifecycle_status: "generated",
     truth_profile_ref: String(profile["artifact_id"]),
+    claim_snapshot_ref: input.snapshotArtifactId,
+    claim_set_digest: String(snapshot["claim_set_digest"]),
     analyzer_version: ANALYZER_VERSION,
     analyzed_claim_refs: projection.inputClaimRefs,
     effective_claim_refs: projection.effectiveClaimRefs,
@@ -214,5 +255,7 @@ export function analyzeStructuredTruth(
   };
 
   // 7. The analysis itself is validated before it can be stored or returned.
-  return registry.validate("truth-analysis", artifact);
+  const validated = registry.validate("truth-analysis", artifact);
+  if (!validated.ok) return validated;
+  return ok({ analysis: validated.value, snapshot });
 }

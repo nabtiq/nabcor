@@ -11,6 +11,7 @@
 //   names the invariant it enforces. Runs on all schema-valid instances; negative
 //   fixtures with expect_fail_at:"semantic" must pass schema and fail semantics.
 // Exit: 0 only when every layer is fully green.
+import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,7 +39,51 @@ const fail = (msg) => { failures++; console.error("FAIL " + msg); };
 
 // ---- semantic layer -------------------------------------------------------
 // checker: (data) => array of violation strings (empty = pass)
+
+// Canonical JSON + aggregate digest, algorithm claim-set-sha256-1.0.0 —
+// mirrored from src/kernel/canonical-json.ts (the two must change together).
+const canonicalJson = (v) =>
+  Array.isArray(v)
+    ? `[${v.map(canonicalJson).join(",")}]`
+    : v !== null && typeof v === "object"
+      ? `{${Object.keys(v)
+          .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+          .map((k) => `${JSON.stringify(k)}:${canonicalJson(v[k])}`)
+          .join(",")}}`
+      : JSON.stringify(v);
+const claimSetDigest = (pairs) =>
+  `sha256:${createHash("sha256").update(canonicalJson(pairs), "utf8").digest("hex")}`;
+
 const SEMANTIC = {
+  "claim-snapshot.schema.json": [
+    {
+      invariant: "DEC-0013 sorted-unique-claim-refs",
+      check: (d) => {
+        const out = [];
+        const pairs = d.claims ?? [];
+        for (let i = 1; i < pairs.length; i++) {
+          const prev = pairs[i - 1].claim_ref;
+          const cur = pairs[i].claim_ref;
+          if (cur === prev) out.push(`duplicate claim_ref '${cur}' in snapshot claims`);
+          else if (cur < prev) out.push(`snapshot claims not deterministically sorted: '${cur}' follows '${prev}'`);
+        }
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0013 aggregate-digest-consistency",
+      check: (d) => {
+        const recomputed = claimSetDigest(
+          (d.claims ?? []).map((p) => ({ claim_ref: p.claim_ref, content_digest: p.content_digest }))
+        );
+        return d.claim_set_digest === recomputed
+          ? []
+          : [
+              `claim_set_digest '${d.claim_set_digest}' does not match the recomputed aggregate '${recomputed}' over the listed claim digests`,
+            ];
+      },
+    },
+  ],
   "decision.schema.json": [
     {
       invariant: "INV-HUM-001/INV-DEC-001 ratification-approval",

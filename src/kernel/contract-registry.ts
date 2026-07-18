@@ -15,6 +15,7 @@ import addFormatsModule from "ajv-formats";
 // both compile time and runtime.
 const Ajv = AjvModule.default;
 const addFormats = addFormatsModule.default;
+import { claimSetDigest } from "./canonical-json.js";
 import { type Result, type ValidationIssue, err, ok } from "./result.js";
 import { parseSourceRef } from "./source-ref.js";
 
@@ -26,6 +27,7 @@ export const SUPPORTED_ARTIFACT_TYPES = [
   "claim",
   "assumption",
   "brand-context",
+  "claim-snapshot",
   "truth-profile",
   "truth-analysis",
 ] as const;
@@ -97,6 +99,39 @@ const SEMANTIC_CHECKS: Record<string, SemanticCheck[]> = {
           else if (cur < prev) out.push(`slots not deterministically sorted: '${cur}' follows '${prev}'`);
         }
         return out;
+      },
+    },
+  ],
+  "claim-snapshot": [
+    {
+      invariant: "DEC-0013 sorted-unique-claim-refs",
+      check: (d) => {
+        const out: string[] = [];
+        const pairs = (d["claims"] ?? []) as { claim_ref: string }[];
+        for (let i = 1; i < pairs.length; i++) {
+          const prev = pairs[i - 1]!.claim_ref;
+          const cur = pairs[i]!.claim_ref;
+          if (cur === prev) out.push(`duplicate claim_ref '${cur}' in snapshot claims`);
+          else if (cur < prev) out.push(`snapshot claims not deterministically sorted: '${cur}' follows '${prev}'`);
+        }
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0013 aggregate-digest-consistency",
+      check: (d) => {
+        // The aggregate digest must equal the recomputation over the listed
+        // per-claim pairs (algorithm claim-set-sha256-1.0.0): a fabricated
+        // aggregate cannot claim to bind contents it does not bind.
+        const pairs = (d["claims"] ?? []) as { claim_ref: string; content_digest: string }[];
+        const recomputed = claimSetDigest(
+          pairs.map((p) => ({ claim_ref: p.claim_ref, content_digest: p.content_digest }))
+        );
+        return d["claim_set_digest"] === recomputed
+          ? []
+          : [
+              `claim_set_digest '${String(d["claim_set_digest"])}' does not match the recomputed aggregate '${recomputed}' over the listed claim digests`,
+            ];
       },
     },
   ],
