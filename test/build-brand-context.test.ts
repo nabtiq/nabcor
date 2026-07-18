@@ -683,6 +683,74 @@ test("identity references to superseded or inactive claims fail closed (DEC-0012
   }
 });
 
+test("a fabricated analysis cannot promote a contradicted claim back into effective truth (DEC-0012)", () => {
+  const store = contentStore();
+  const claims = [
+    validClaim(),
+    validClaim({
+      artifact_id: "claim_t_0002",
+      verification_status: "contradicted",
+      source_ref: "source:src_t_0001#page=2",
+    }),
+  ];
+  // Internally self-consistent partitions (disjoint, complete, sorted) that
+  // disagree with the actual claim data: the contradicted claim is declared
+  // effective. Semantic validation alone cannot catch this — the compiler's
+  // re-derived projection must.
+  const fabricated = truthAnalysisFor(claims, {
+    effective_claim_refs: ["claim_t_0001", "claim_t_0002"],
+    superseded_claim_refs: [],
+    inactive_head_claims: [],
+    unstructured_claim_refs: ["claim_t_0001", "claim_t_0002"],
+  });
+  assert.ok(
+    registry().validate("truth-analysis", fabricated).ok,
+    "the fixture must pass contract validation or this test proves nothing"
+  );
+  const result = buildBrandContext(
+    minimalInput({ claims, truthAnalysis: fabricated }),
+    registry(),
+    store
+  );
+  assert.equal(result.ok, false, "declared-effective must be checked against derived lineage state");
+  if (!result.ok) {
+    assert.equal(result.error.kind, "reference-violation");
+    assert.match(result.error.message, /does not match the claims/);
+    assert.match(result.error.message, /claim_t_0002/);
+  }
+});
+
+test("a fabricated analysis cannot hide a supersession and keep the predecessor effective (DEC-0012)", () => {
+  const store = contentStore();
+  const claims = [
+    validClaim(),
+    validClaim({
+      artifact_id: "claim_t_0002",
+      supersedes: "claim_t_0001",
+      lifecycle_status: "revised",
+      source_ref: "source:src_t_0001#page=2",
+    }),
+  ];
+  const fabricated = truthAnalysisFor(claims, {
+    effective_claim_refs: ["claim_t_0001", "claim_t_0002"],
+    superseded_claim_refs: [],
+    inactive_head_claims: [],
+    unstructured_claim_refs: ["claim_t_0001", "claim_t_0002"],
+  });
+  assert.ok(registry().validate("truth-analysis", fabricated).ok);
+  const result = buildBrandContext(
+    minimalInput({ claims, truthAnalysis: fabricated }),
+    registry(),
+    store
+  );
+  assert.equal(result.ok, false, "a superseded predecessor must not stay declared effective");
+  if (!result.ok) {
+    assert.equal(result.error.kind, "reference-violation");
+    assert.match(result.error.message, /claim_t_0001/);
+    assert.match(result.error.message, /superseded/);
+  }
+});
+
 test("audience and market references to inactive claims fail closed (DEC-0012)", () => {
   const store = contentStore();
   const claims = [

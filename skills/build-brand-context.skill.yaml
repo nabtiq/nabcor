@@ -36,6 +36,13 @@ deterministic_validations:
     rejected, or expired claim fails closed; historical revisions stay
     auditable through truth_analysis_ref, and no stored claim is mutated or
     deleted
+  - the analysis's declared lineage partition must AGREE with the projection
+    re-derived from the supplied complete claim set
+    (src/understand/project-active-claims.ts — the single lineage
+    implementation): a fabricated or stale analysis whose partitions are
+    internally consistent but disagree with the actual claim data (e.g. a
+    contradicted claim declared effective, or a hidden supersession) is
+    rejected with a typed failure (DEC-0012)
   - caller-supplied contradiction/gap arrays are rejected with a typed failure:
     analysis results cannot be injected, omitted, or independently rewritten,
     and the package records truth_analysis_ref (DEC-0011)

@@ -39,6 +39,7 @@ import type { ContractRegistry } from "../kernel/contract-registry.js";
 import type { FileContentStore } from "../kernel/content-store.js";
 import { type Result, err, ok } from "../kernel/result.js";
 import { codePointLength, parseSourceRef } from "../kernel/source-ref.js";
+import { projectActiveClaims } from "../understand/project-active-claims.js";
 
 export interface IdentityInput {
   names: { value: string; lang?: string; claim_ref: string }[];
@@ -157,6 +158,41 @@ export function buildBrandContext(
       (c) => [c.claim_ref, c.reason]
     )
   );
+
+  // 1d. The declared partition must agree with the projection re-derived from
+  //     the supplied complete claim set (DEC-0012): internal self-consistency
+  //     alone would let a fabricated or stale analysis promote a contradicted,
+  //     rejected, expired, or superseded claim back into effective truth.
+  //     projectActiveClaims stays the single lineage implementation — this is
+  //     agreement checking against it, never a second copy of its rules.
+  const projected = projectActiveClaims(
+    { workspace: input.workspace, brandRef: input.brandRef, claims: input.claims },
+    registry
+  );
+  if (!projected.ok) return projected;
+  const projection = projected.value;
+  const declaredStateOf = (id: string): string =>
+    effectiveRefs.has(id)
+      ? "effective"
+      : supersededRefs.has(id)
+        ? "superseded"
+        : `inactive (${inactiveReasonByRef.get(id) ?? "unlisted"})`;
+  const projectedStates = new Map<string, string>();
+  for (const id of projection.effectiveClaimRefs) projectedStates.set(id, "effective");
+  for (const id of projection.supersededClaimRefs) projectedStates.set(id, "superseded");
+  for (const c of projection.inactiveHeadClaims) {
+    projectedStates.set(c.claim_ref, `inactive (${c.reason})`);
+  }
+  for (const id of projection.inputClaimRefs) {
+    const declared = declaredStateOf(id);
+    const derived = projectedStates.get(id)!;
+    if (declared !== derived) {
+      return err({
+        kind: "reference-violation",
+        message: `truth analysis '${String(analysis["artifact_id"])}' declares claim '${id}' as ${declared}, but the lineage projection over the supplied claim revision set derives ${derived}; the analysis does not match the claims and is rejected (DEC-0012)`,
+      });
+    }
+  }
 
   // 2. One brand per package (INV-DATA-001).
   for (const artifact of [...sources, ...claims, ...assumptions]) {
