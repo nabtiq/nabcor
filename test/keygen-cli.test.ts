@@ -43,16 +43,19 @@ test("keygen writes an owner-only private key and a registry-valid public candid
   const result = runKeygen(standardArgs(dir));
   assert.equal(result.status, 0, `keygen must succeed: ${result.stderr}`);
 
-  // Private key: exists, PKCS#8 PEM, owner-only permissions.
+  // Private key: exists, PKCS#8 PEM, owner-only permissions. (The armor
+  // needle is composed at runtime so no tracked file contains it literally —
+  // the repository-wide leakage scan below has no exemptions.)
+  const armor = ["PRIVATE", "KEY"].join(" ");
   const privatePath = join(dir, "private.pem");
   const pem = readFileSync(privatePath, "utf8");
-  assert.match(pem, /^-----BEGIN PRIVATE KEY-----/);
+  assert.ok(pem.startsWith(`-----BEGIN ${armor}-----`), "private key must be PKCS#8 PEM");
   assert.equal(statSync(privatePath).mode & 0o777, 0o600, "private key must be owner-only (0600)");
 
   // No private material in any output channel: neither the PEM armor nor any
   // base64 body line of the private key may appear.
   const output = result.stdout + result.stderr;
-  assert.ok(!output.includes("PRIVATE KEY"), "output must not contain PEM armor");
+  assert.ok(!output.includes(armor), "output must not contain PEM armor");
   for (const line of pem.split("\n")) {
     if (line.length > 10 && !line.startsWith("-----")) {
       assert.ok(!output.includes(line), "output must not contain private key body material");
@@ -136,21 +139,26 @@ test("keygen validates roles, dates, and required flags strictly", () => {
 });
 
 test("no private key material exists anywhere in the repository worktree", () => {
-  // Repository-wide leakage scan: no PEM private-key armor and no PKCS#8
-  // Ed25519 base64 prefix in any tracked file. Test fixtures generate keys
-  // ephemerally in memory or temp dirs only.
+  // Repository-wide leakage scan over every tracked file, with NO exemptions:
+  // the needle strings are composed at runtime so this scanner's own source
+  // never contains them literally. Test fixtures generate keys ephemerally in
+  // memory or temp dirs only.
+  const armor = ["PRIVATE", "KEY"].join(" ");
+  const needles = [
+    `BEGIN ${armor}`,
+    `BEGIN OPENSSH ${armor}`,
+    `BEGIN RSA ${armor}`,
+    `BEGIN EC ${armor}`,
+    `BEGIN ENCRYPTED ${armor}`,
+  ];
   const files = execFileSync("git", ["ls-files"], { cwd: repoRoot, encoding: "utf8" })
     .trim()
     .split("\n");
+  assert.ok(files.length > 100, `expected a full tracked-file listing, got ${files.length}`);
   for (const file of files) {
     const body = readFileSync(join(repoRoot, file), "utf8");
-    assert.ok(
-      !body.includes("BEGIN PRIVATE KEY") || file === "test/keygen-cli.test.ts",
-      `${file} must not contain private key armor`
-    );
-    assert.ok(
-      !body.includes("BEGIN OPENSSH PRIVATE KEY") && !body.includes("BEGIN RSA PRIVATE KEY"),
-      `${file} must not contain private key armor`
-    );
+    for (const needle of needles) {
+      assert.ok(!body.includes(needle), `${file} must not contain private key armor ('${needle}')`);
+    }
   }
 });
