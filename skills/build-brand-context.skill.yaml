@@ -16,20 +16,30 @@ purpose: >
   src/compile/build-brand-context.ts.
 input_contract: >
   BrandContextInput (src/compile/build-brand-context.ts): source.schema.json[],
-  claim.schema.json[], assumption.schema.json[], one truth-analysis.schema.json
-  artifact (DEC-0011 — the only admissible source of contradictions and gaps),
-  identity structures matching brand-context.schema.json shapes, plus workspace
+  assumption.schema.json[], the artifact_id of a persisted
+  truth-analysis.schema.json artifact (DEC-0011/DEC-0013 — the analysis and
+  its claim snapshot load from the FileArtifactStore by reference; the only
+  admissible source of contradictions, gaps, and claim membership), identity
+  structures matching brand-context.schema.json shapes, plus workspace
   namespace and a FileContentStore for captured-fragment verification.
+  Caller-supplied claims arrays and inline analysis objects are rejected at
+  runtime.
 output_contract: brand-context.schema.json
 required_context: [workspace, brand_ref, supplied artifacts only — no Second Brain reads]
 tools: []  # no model call exists or is hidden inside the compiler
 model_capability: tier-0 (deterministic; the Tier-2 gap-narration extension is
   prohibited by DEC-0009 until a provider-enablement decision supersedes it)
 deterministic_validations:
-  - every supplied source/claim/assumption is contract-valid (schema + semantic)
-  - the truth-analysis artifact is contract-valid, belongs to the same brand,
-    and its analyzed claim set EXACTLY matches the supplied claims — a package
-    can neither drop analyzed claims nor smuggle in unanalyzed ones (DEC-0011)
+  - every supplied source/assumption is contract-valid (schema + semantic);
+    the analysis, snapshot, and claims load from the canonical store with
+    validation and brand-namespace checks on every read
+  - stale-analysis protection (DEC-0013): the analysis must be digest-bound
+    to its referenced snapshot, and the snapshot must reconcile exactly with
+    a fresh capture of the canonical claim namespace — a claim that
+    appeared, disappeared, or changed content since analysis fails
+    compilation closed with a typed stale-analysis failure (re-analysis
+    required); the analyzed claim set must EXACTLY match the canonical set
+    (DEC-0011)
   - the package compiles EFFECTIVE current claims only (DEC-0012): claim_refs
     are the analysis's effective_claim_refs (validated lineage heads), and an
     identity/audience/market reference to a superseded, contradicted,

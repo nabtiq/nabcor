@@ -159,6 +159,25 @@ immutable per version; a revision creates a new version linked by supersession
   (Q-009): a shape-valid Decision artifact is not evidence that a human
   acted, and no runtime path may treat it as such (DEC-0012).
 
+### Claim Snapshot
+- **Purpose:** the store-authoritative record of the COMPLETE canonical
+  claim set of one workspace/brand namespace at capture time (DEC-0013).
+  Canonical claim membership comes from Artifact Store enumeration — a
+  caller-supplied claims array is never evidence of completeness. Capture
+  is strict and fail-closed (irregular namespace entries fail rather than
+  disappear; membership changing mid-capture is rejected), and the
+  snapshot binds membership and validated contents through per-claim and
+  aggregate sha256 digests over versioned canonical JSON
+  (`claim-set-sha256-1.0.0`). A zero-claim namespace is a valid snapshot.
+- **Required:** envelope, `brand_ref`, `workspace`, `snapshot_algorithm`,
+  sorted `{claim_ref, content_digest}` pairs, `claim_set_digest`.
+- **Relationships:** captured from canonical Claims; referenced by Truth
+  Analyses (`claim_snapshot_ref` + copied `claim_set_digest`); reconciled
+  against the live store by the brand-context compiler, which fails closed
+  on stale analyses.
+- **Class:** derived (recomputable from the store; persisted because
+  analyses bind to it). Contract: `contracts/claim-snapshot.schema.json`.
+
 ### Truth Profile
 - **Purpose:** the versioned declaration of the fact slots one workflow or Brand
   Context Package expects (DEC-0011) — per slot: fact key, description,
@@ -174,23 +193,28 @@ immutable per version; a revision creates a new version linked by supersession
 - **Class:** canonical. Contract: `contracts/truth-profile.schema.json`.
 
 ### Truth Analysis
-- **Purpose:** the deterministic analyzer's result over one COMPLETE claim
-  revision set and one truth profile (DEC-0011, DEC-0012): the validated
-  lineage partition (effective heads, superseded history, inactive heads
-  with closed-enum reasons), open contradictions (exact type-sensitive
-  distinct-value groups on single-cardinality slots, effective claims
-  only), gaps (`missing | unverified`, profile-relative, effective claims
-  only), and the explicit listings of effective unstructured and unprofiled
-  claims. The single authoritative input for a Brand Context Package's
-  contradictions, gaps, and effective claim references
-  (`truth_analysis_ref`).
-- **Required:** envelope, `brand_ref`, truth-profile ref, analyzer version,
-  complete analyzed claim refs plus the exact effective/superseded/inactive
-  partition, contradictions (status fixed `open`), gaps,
-  unstructured/unprofiled claim listings.
-- **Relationships:** derived from Claims + one Truth Profile through the
-  active-claim projection; consumed by the brand-context compiler;
-  contradictions resolve downstream via Decisions (INV-HUM-001(3)).
+- **Purpose:** the deterministic analyzer's result over one canonical claim
+  snapshot and one truth profile (DEC-0011, DEC-0012, DEC-0013): the
+  validated lineage partition (effective heads, superseded history,
+  inactive heads with closed-enum reasons), open contradictions (exact
+  type-sensitive distinct-value groups on single-cardinality slots,
+  effective claims only), gaps (`missing | unverified`, profile-relative,
+  effective claims only), and the explicit listings of effective
+  unstructured and unprofiled claims. Claim membership comes from the
+  Artifact Store snapshot, never a caller array; the analysis records
+  `claim_snapshot_ref` and the aggregate `claim_set_digest`, so it is
+  bound to exactly the claims it analyzed. The single authoritative input
+  for a Brand Context Package's contradictions, gaps, and effective claim
+  references (`truth_analysis_ref`).
+- **Required:** envelope, `brand_ref`, truth-profile ref, claim-snapshot
+  ref + claim-set digest, analyzer version, complete canonical claim refs
+  plus the exact effective/superseded/inactive partition, contradictions
+  (status fixed `open`), gaps, unstructured/unprofiled claim listings.
+- **Relationships:** derived from a Claim Snapshot + one Truth Profile
+  through the active-claim projection; consumed by the brand-context
+  compiler, which reconciles the snapshot against the live store and
+  rejects stale analyses; contradictions resolve downstream via Decisions
+  (INV-HUM-001(3)).
 - **Class:** derived (recomputable; persisted because the compiler consumes
   it). Contract: `contracts/truth-analysis.schema.json`.
 
