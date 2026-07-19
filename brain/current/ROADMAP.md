@@ -94,9 +94,12 @@ personally-invoked CLI, and no contract changed. Phase 1B (the offline
 foundation) is COMPLETE. The Phase 1C.0 increment produced the
 provider-enablement decision packet: official-source research on three
 candidates, cost and threat models, secret and gate designs, and
-PROPOSED DEC-0018 with three options awaiting Product Owner
-ratification (Q-010) — no provider enabled, active policy unchanged and
-CI-guarded, EXP-0001 still unexecuted. The Phase 1C.0.1 correction
+DEC-0018, now RATIFIED as Option A (2026-07-19, verbatim statement in
+the decision record): Anthropic API, two pinned models, synthetic only,
+conservative ceilings — authorizing the Phase 1C.1 implementation phase
+only; no provider enabled yet, active policy unchanged and CI-guarded,
+EXP-0001 still unexecuted and separately gated. The Phase 1C.0.1
+correction
 re-verified all three providers, fixed the false Gemini no-ZDR claim
 and the ambiguous Anthropic retention framing (correction ledger), and
 recomputed the comparison with explicit weights and sensitivity

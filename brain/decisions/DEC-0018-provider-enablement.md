@@ -1,24 +1,54 @@
-# DEC-0018 — First provider enablement (PROPOSED — grants no authority)
+# DEC-0018 — First provider enablement (RATIFIED: Option A)
 
 decision_id: DEC-0018
-title: "Which provider, models, data classes, ceilings, retention posture, secrets design, and gates govern NABCor's first real-model enablement for synthetic EXP-0001 — three mutually exclusive options prepared for Product Owner ratification"
+title: "First provider enablement, Option A ratified: Anthropic API with exactly claude-haiku-4-5-20251001 and claude-sonnet-5, synthetic data only, conservative ceilings, no caching/batch/tools/storage/fallback/escalation — authorizing the Phase 1C.1 implementation phase only"
 date: 2026-07-19
-status: proposed
-proposed_by: "Phase 1C.0 research packet prepared under the Product Owner execution instruction of 2026-07-19"
-approved_by: null
-approved_at: null
+status: ratified
+proposed_by: "Phase 1C.0 research packet prepared under the Product Owner execution instruction of 2026-07-19; corrected by Phase 1C.0.1"
+approved_by: "Ibrahim Mohamed — product owner (GitHub @ibra2000sd); approval evidence: the verbatim ratification statement of 2026-07-19 recorded in the Ratification section below; self_review: true (DEC-0008)"
+approved_at: 2026-07-19
 
-## PROPOSED STATUS — READ FIRST
+## RATIFICATION — Option A (recorded verbatim)
 
-This record is **proposed** and **grants no authority**. No provider is
-enabled, no adapter exists, no credential exists, no network path exists,
-no spend is authorized, and EXP-0001 remains unexecuted. DEC-0009 (zero
-providers, Fake Adapter only, synthetic data only, zero external spend)
-remains the active ratified policy, and the active gateway policy is
-byte-guarded against drift (`scripts/validate-provider-packet.mjs`).
-Ratification requires the Product Owner's explicit statement selecting
-exactly one option (Q-010); nothing in this phase may be read as that
-approval, and no Product Owner approval is asserted here.
+The Product Owner ratified Option A on 2026-07-19 with the following
+statement, quoted verbatim as the approval evidence for this record:
+
+> I, Ibrahim Mohamed (@ibra2000sd), Product Owner of NABCor, ratify
+> DEC-0018 Option A as corrected by Phase 1C.0.1 and as written in
+> docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md at commit
+> bbca93a4ca0b9dbc7df8de5c9d799721b467e3c9 of the nabtiq/nabcor
+> repository, with self_review: true under DEC-0008.
+>
+> This ratification authorizes only the Phase 1C.1 provider-enablement
+> implementation phase under every safety posture, ceiling, gate, and
+> exclusion recorded in the corrected packet and DEC-0018.
+>
+> It does not itself enable Anthropic, execute EXP-0001, authorize a paid
+> model request, permit real client data, permit provider-side storage,
+> enable tools or fallback providers, release quarantined content, permit
+> publishing, or unfreeze any independent-review gate.
+>
+> The authorized implementation scope is limited to:
+> - Anthropic API;
+> - claude-haiku-4-5-20251001 and claude-sonnet-5 only;
+> - synthetic data only;
+> - USD 1.00 per request, USD 25 per run, USD 40 per day, and USD 60 per
+>   month;
+> - caching, Batch, tools, provider-side memory/storage, fallback
+>   providers, and automatic escalation disabled;
+> - mocked transport tests before any paid smoke call;
+> - a separately authenticated approval before EXP-0001 execution.
+
+**Effect of ratification.** This record now authorizes exactly the
+Phase 1C.1 implementation phase within the quoted scope — nothing more.
+Until that phase merges its consciously-reviewed active-policy revision
+(referencing DEC-0018 and embedding the signed policy-candidate digest,
+packet §9), the DEC-0009 zero-provider posture remains OPERATIONALLY
+ACTIVE: the committed active gateway policy is unchanged and stays
+byte-guarded (`scripts/validate-provider-packet.mjs`), no credential
+exists, no network path exists, and EXP-0001 remains unexecuted and
+additionally gated on its own future authenticated approval. Q-010 is
+closed by this ratification.
 
 ## Context
 

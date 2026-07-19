@@ -19,10 +19,13 @@ exist yet; Phase 1 is not complete. Phase 1C.0 produced the
 provider-enablement decision packet
 ([`docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md`](docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md),
 [`docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md`](docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md))
-and PROPOSED DEC-0018 — three options awaiting Product Owner
-ratification (Q-010). **No provider is enabled**; DEC-0009 remains the
-active policy, CI-guarded against drift, and EXP-0001 remains
-unexecuted.
+and DEC-0018, ratified as **Option A** on 2026-07-19 (Anthropic API,
+`claude-haiku-4-5-20251001` + `claude-sonnet-5`, synthetic data only,
+conservative ceilings) — authorizing the Phase 1C.1 implementation
+phase only. **No provider is enabled yet**: DEC-0009's zero-provider
+posture remains operationally active and CI-guarded until Phase 1C.1's
+reviewed policy revision merges, and EXP-0001 remains unexecuted and
+separately gated.
 
 ## What NABCor is
 

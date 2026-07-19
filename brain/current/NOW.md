@@ -6,8 +6,10 @@
 
 ## Current phase
 
-Phase 1C.0.1 — evidence correction of the provider-enablement decision
-packet (DEC-0018 remains PROPOSED), on top of Phase 1C.0
+DEC-0018 RATIFIED (Option A, 2026-07-19) — awaiting the Phase 1C.1
+implementation phase. Ratification followed Phase 1C.0.1's evidence
+correction of the provider-enablement decision packet, on top of Phase
+1C.0
 on top of the complete Phase 1B offline foundation: the Phase 1B.5 safe
 operator CLI (DEC-0017), the Phase 1B.4 authenticated fact-resolution
 application (DEC-0016), the Phase 1B.3B real Product Owner key
@@ -22,19 +24,20 @@ complete.
 
 ## Current objective
 
-Phase 1C.0 delivered the evidence base for the first provider-enablement
-decision WITHOUT enabling anything: official-source research on three
-first-party candidates (Anthropic API, OpenAI API, Google Gemini
-Developer API; all sources accessed 2026-07-19), a 29-row comparison
-matrix with per-fact verification tags, a reproducible EXP-0001 cost
-model with six scenarios and conservative ceilings, a 24-threat model
-with an emergency-disable path, secret-management and approval-gate
-designs, and PROPOSED DEC-0018 with three mutually exclusive options.
-The Product Owner must ratify exactly one option (Q-010). DEC-0009
-remains active; the active gateway policy is byte-guarded against drift
-(scripts/validate-provider-packet.mjs); no provider, credential,
-network path, or spend exists; EXP-0001 remains unexecuted. The Phase
-1B offline foundation is complete; Phase 1 is NOT complete.
+The Product Owner ratified DEC-0018 **Option A** on 2026-07-19 (verbatim
+statement recorded in the decision record, pinned to packet commit
+bbca93a4): Anthropic API with exactly `claude-haiku-4-5-20251001` and
+`claude-sonnet-5`, synthetic data only, ceilings $1/request, $25/run,
+$40/day, $60/month; caching, Batch, tools, provider-side storage,
+fallback providers, and automatic escalation disabled; mocked transport
+tests before any paid smoke call; a separately authenticated approval
+before EXP-0001 execution. **Ratification authorizes the Phase 1C.1
+implementation phase ONLY** — it is not yet begun, and until its
+consciously-reviewed active-policy revision merges, the DEC-0009
+zero-provider posture remains operationally active: the active gateway
+policy is unchanged and CI-guarded, no credential or network path
+exists, no spend is possible, and EXP-0001 remains unexecuted. Q-010 is
+closed.
 
 ## Ratified decisions
 
@@ -113,6 +116,13 @@ network path, or spend exists; EXP-0001 remains unexecuted. The Phase
   winner or any stored claim, rolls forward to a fresh snapshot and
   analysis, and is idempotent and crash-recoverable from the immutable
   receipt under a single-host/single-writer boundary; contracts 1.8.0.
+- DEC-0018 — first provider enablement, Option A ratified (2026-07-19):
+  Anthropic API with exactly claude-haiku-4-5-20251001 and
+  claude-sonnet-5, synthetic only, ceilings $1/$25/$40/$60, all
+  optional surfaces disabled; authorizes the Phase 1C.1 implementation
+  phase only; DEC-0009's posture stays operationally active until that
+  phase's reviewed policy revision merges; EXP-0001 additionally gated
+  on a separate authenticated approval.
 - DEC-0017 — safe operator CLI: one thin orchestration boundary
   (`nabcor`) over the canonical services with zero duplicated domain
   logic; read-only/dry-run commands mutate nothing; mutations require
@@ -437,11 +447,14 @@ network path, or spend exists; EXP-0001 remains unexecuted. The Phase
 
 ## Immediate next actions
 
-1. Product Owner: ratify one DEC-0018 option (Q-010) using the
-   statement in the decision packet — nothing proceeds until then.
-2. If ratified A or B: the provider-adapter implementation phase
-   (policy-contract migration, signed candidate digest binding, secret
-   provisioning, threat-model gates) as its own delivered phase.
+1. Execute Phase 1C.1 (provider-enablement implementation) under the
+   ratified DEC-0018 Option A scope: policy-contract migration with the
+   signed provider-policy-candidate digest binding (packet §9), the
+   raw-HTTPS Anthropic adapter behind the gateway with mocked-transport
+   tests, secret provisioning per packet §8, every HIGH-threat
+   implementation gate from the threat model (including T07a's
+   taxonomy), ceilings enforced pre-invocation — awaiting the Product
+   Owner's Phase 1C.1 execution instruction.
 3. Rotate the enrolled key by a new reviewed registry revision + decision
    before its 2027-07-19 expiry (or immediately on suspected compromise
    or private-key loss — RISK-KEY-01).
@@ -449,10 +462,11 @@ network path, or spend exists; EXP-0001 remains unexecuted. The Phase
 
 ## Definition of done for the current objective
 
-Phase 1C.0 merged with validation green; DEC-0018 indexed as PROPOSED
-with Q-010 open; the packet and threat model complete with dated
-official sources; the active gateway policy byte-identical to its
-DEC-0009 state (CI-guarded); no provider, adapter, SDK, credential,
-network runtime path, or spend introduced; NOW, ROADMAP, RISKS,
-OPEN_QUESTIONS, and the decision index consistent with
-DEC-0008..DEC-0018; EXP-0001 still unexecuted and empty.
+DEC-0018 recorded as ratified (Option A) with the verbatim approval
+evidence and validation green; Q-010 closed in the answer log; the
+decision index, NOW, ROADMAP, and README consistent; the CI guards
+consciously flipped from enforcing the proposed state to enforcing the
+ratified state; the active gateway policy still byte-identical to its
+DEC-0009 state (CI-guarded) with no provider, adapter, SDK, credential,
+network runtime path, or spend introduced; EXP-0001 still unexecuted
+and empty.
