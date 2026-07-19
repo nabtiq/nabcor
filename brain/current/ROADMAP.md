@@ -61,12 +61,20 @@ evidence: a trusted committed policy and versioned public-key registry
 bound to the target artifact's exact address and content digest, built-in
 crypto verification, fail-closed key lifecycle, authenticated
 `self_review`, atomic single-use nonce receipts, an offline key-enrollment
-CLI, and the read-boundary address-integrity correction. The mechanism
-carries no operational authority yet: the active registry has zero
-enrolled authorities, legacy approval metadata stays non-authoritative,
-the four DEC-0008 independent-review gates stay frozen, and applying a
-fact resolution from an authorized approval remains unimplemented
-follow-on work. This is deterministic infrastructure only —
+CLI, and the read-boundary address-integrity correction. The Phase 1B.3B
+increment (DEC-0015) activated that mechanism: the real Product Owner
+public key — ceremony-generated outside the repository and
+fingerprint-confirmed — is enrolled as the single least-privilege
+`product-owner` authority in registry v2, policy v2 pins registry v2, the
+policy-schema `decision_ref` const defect is corrected (contracts
+1.7.0 → 1.7.1, synchronized re-issue), and the offline signing CLI
+produces derived-identity evidence with fail-closed key-path handling.
+Ordinary `fact-resolution-approval` is now operationally available;
+legacy approval metadata stays non-authoritative, the four DEC-0008
+independent-review gates stay frozen, the private key never entered Git,
+CI, or agent context, and applying a fact resolution from an authorized
+approval remains unimplemented follow-on work. This is deterministic
+infrastructure only —
 not Phase 1 completion: no provider-backed or natural-language extraction
 exists, no semantic contradiction detection exists, EXP-0001 has not run
 and has no results, and no measured model costs exist. Model-backed work is
