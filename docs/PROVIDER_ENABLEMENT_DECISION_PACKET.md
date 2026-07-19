@@ -1,6 +1,11 @@
 # Provider Enablement Decision Packet
 
-**Status:** research packet for proposed DEC-0018 (Phase 1C.0).
+**Status:** research packet for proposed DEC-0018 (Phase 1C.0;
+corrected by Phase 1C.0.1 — see
+docs/PROVIDER_PACKET_CORRECTION_LEDGER_1C0_1.md for every corrected
+statement and its evidence; the recommendation was RECOMPUTED from the
+corrected evidence via the weighted model in §5b, not defended in
+advance).
 **No provider is enabled.** DEC-0009 (zero-provider offline policy) remains
 the active, ratified posture; the active gateway policy is unchanged and
 CI-guarded (`scripts/validate-provider-packet.mjs`). This packet grants no
@@ -126,20 +131,20 @@ CONTRACT. Sources by number in §12. Prices USD per million tokens.
 | 13 | Rate limits (new org) | Start tier: 1,000 RPM / 2M input TPM / 400k output TPM per candidate model; cache reads exempt from ITPM [V, A5] | Tiered by cumulative spend (Tier 1 at $5 paid); RPM/TPM/RPD headers [V, O11] | Tiered (T1 on billing link); per-model RPM/TPM/RPD in dashboard [V, G11] |
 | 14 | Timeout/retry guidance | 429 + retry-after; token-bucket; SDK default 2 retries [V, A5/A15] | SDK auto-retry 2x with backoff; 10-min default timeout [V, O18] | Standard Google API guidance; SDK GA [V, G18] |
 | 15 | Training on API data by default | NO — "may not train models on Customer Content" (Commercial Terms 2025-06-17); opt-in exceptions only [V, A7/A13] | NO — "not used to train ... unless you explicitly opt in" [V, O7] | Paid tier NO ("doesn't use your prompts ... to improve our products"); FREE TIER YES ("uses the content ... to improve") — tiers must never be mixed [V, G6] |
-| 16 | Abuse-monitoring retention | Flagged content up to 2 years; T&S scores up to 7 years; applies even under ZDR [V, A8] | Abuse logs up to 30 days ("unless longer ... required by law") [V, O7] | Exists; duration UNSPECIFIED in Developer API terms [V existence / U duration, G6] |
-| 17 | Default retention | Docs: conversation content "not retained by default" for standard Messages; Privacy Center: deleted within 30 days. Both official, tension unreconciled [V both / U reconciliation, A8/A12]. `claude-fable-5` REQUIRES 30-day retention and is ZDR-ineligible — excluded from candidacy [V, A8] | Responses API STORES response objects 30 days BY DEFAULT (`store` must be explicitly false); Chat Completions stores by default for new accounts; abuse logs separate [V, O7/O8] | Interactions API stores 55 days BY DEFAULT (paid; `store=false` available); optional project logs 7-55 days; abuse logging on top [V, G14/G13] |
-| 18 | Zero/configurable retention | ZDR exists, org-level [RC — "contact sales"]; Batch/Files excluded from ZDR [V, A8] | ZDR + Modified Abuse Monitoring exist [RC — sales + eligibility]; `store` forced false under ZDR [V, O7] | Developer API: no zero-retention offering [I from G6/G13/G14]; Vertex/GEAP: no default inference retention, 24h in-memory cache disable-able, abuse-monitoring exception on approval [V, G22] |
+| 16 | Abuse-monitoring retention | Flagged content up to 2 years (applies even under ZDR); T&S scores up to 7 years [V, A8/A12] | Abuse logs up to 30 days ("unless longer ... required by law") [V, O7] | Exists ("a limited period of time"); duration unpublished on terms AND the ZDR page [V existence / U duration, G6/G26]; ZDR-approved projects get logs SANITIZED before writing [V, G26] |
+| 17 | Default retention | CONSERVATIVE operative default: inputs/outputs automatically deleted from the backend within 30 days of receipt/generation, with listed exceptions (longer-lived services, agreed ZDR, Usage Policy enforcement, legal) [V, A12]; the docs page's "not retained by default" is feature-level language that itself defers to the commercial policy [V, A8] — corrected in ledger C4/C5: request-STATE statelessness is never a retention claim. `claude-fable-5` REQUIRES 30-day retention and is ZDR-ineligible — excluded from candidacy [V, A8] | Responses API STORES response objects 30 days BY DEFAULT (`store` must be explicitly false) [V, O8]; Chat Completions application-state retention "None, see below for exceptions" but the Chat `store` parameter default is UNKNOWN on reachable pages [V/U, O7]; abuse logs separate | Interactions API stores 55 days BY DEFAULT (paid; `store=false` available) [V, G14]; optional project logs 7-55 days [V, G13]; abuse logging on top with unpublished duration [U, G26] |
+| 18 | Zero/configurable retention | ZDR exists, org-level, NEGOTIATED-CONTRACT ("contact the Anthropic sales team"); Messages/caching/structured-outputs eligible (schema cached ≤24h "qualified"); Batch/Files/code-exec ineligible; flagged content retained up to 2 years EVEN under ZDR [V, A8] | ZDR + Modified Abuse Monitoring exist, PROJECT-APPROVAL via sales ("subject to prior approval ... and acceptance of additional requirements"), org- and project-level controls; `store` forced false under ZDR [V, O7] | **CORRECTED (ledger C1-C3):** the Developer API HAS a documented conditional ZDR: PROJECT-APPROVAL sanitizes abuse logs before writing ("zero identifiable user data") PLUS self-serve restrictions — `store=false`, no Search/Maps grounding, no retained Files, no explicit caching, no Live session resumption; implicit in-RAM caching (24h TTL) is explicitly ZDR-compatible; request MECHANISM undocumented [V conditions / U mechanism, G26]. Vertex/GEAP ZDR separately per approval [V, G22] |
 | 19 | Regional processing/residency | `inference_geo`: `global` or `us` only (1.1x for us); workspace geo us-only; NO EU option first-party [V, A6] | US/EU/UK/+7 regions; regional processing for US/EU/UAE; most regions gated on ZDR/Modified-Abuse approval [V/RC, O7] | Developer API: none ("any country ... facilities"); Vertex/GEAP: regional endpoints with in-region guarantee [V, G6/G15/G23] |
 | 20 | Subprocessors disclosure | List exists at trust.anthropic.com/subprocessors; content not machine-readable on access date [U content, A17] | List exists; pages returned HTTP 403 on access date [U content, O20] | Google Cloud subprocessor framework; Developer-API-specific list not found [U, G25] |
 | 21 | Security/compliance evidence | SOC 2 Type I+II, ISO 27001:2022, ISO 42001:2023, HIPAA-ready w/ partially self-serve BAA (commercial products incl. API) [V, A14] | SOC 2/3, ISO 27001/27017/27018/27701/42001, FedRAMP 20x, PCI (trust portal); BAA sales-gated [V portal / RC details, O19] | Developer API audit scope: NOT confirmed on any official page found [U, G25]; Vertex/GEAP inherits Google Cloud programs [V program-level / I service-scope, G25] |
 | 22 | Secret-management expectations | API keys console-created, expirable, org-scoped; Admin API can deactivate; Workload Identity Federation for keyless CI [V, A11] | Project-scoped keys; admin keys separate; audit-log API [V, O13] | Keys bound to Cloud project; IP/app restrictions; service-account-bound keys with leaked-key enforcement; Secret Manager recommended [V, G20] |
 | 23 | TS/Node integration | Official `@anthropic-ai/sdk` (Node 20+); raw HTTPS fully documented (cURL examples throughout) [V, A15] | Official `openai` (Node 20+); raw HTTPS + OpenAPI spec [V, O18] | Official `@google/genai` GA; REST documented; old SDK deprecated 2025-11-30 [V, G18] |
-| 24 | Provider-side storage/memory controls | Standard Messages stateless; Files/Batch/code-exec/Skills/MCP all opt-in per request [V, A8/A13] | NOT stateless by default: `store:false` required per request; Conversation objects persist until deleted [V, O8/O14] | NOT stateless by default: Interactions `store=true` default (55 days); Files auto-delete 48h; legacy generateContent statelessness recipe [V, G14/G19] |
-| 25 | Spend-cap controls | HARD self-serve monthly caps (Start tier $500 ceiling; self-set lower limit; usage pauses at cap) + per-workspace spend limits [V, A5] | Spend ALERTS + tier monthly usage limits; whether the self-set budget hard-stops is UNKNOWN (console page login-gated; official docs describe alerts) [V alerts / U hard-stop, O11] | HARD tier caps ("service is paused ... until the next billing cycle"; Tier 1 $250) + $10/10-min rate cap [V, G12] |
+| 24 | Provider-side storage/memory controls | No request-state storage on standard Messages (no store flag or conversation objects to manage — a state-semantics property, NOT a retention claim; see row 17); Files/Batch/code-exec/Skills/MCP all opt-in per request [V, A8/A13] | Responses NOT stateless by default: `store:false` required per request; Conversation objects persist until deleted; Chat `store` default UNKNOWN [V/U, O8/O7] | NOT stateless by default: Interactions `store=true` default (55 days); Files auto-delete 48h; legacy generateContent + the ZDR restriction bundle is the zero-footprint recipe [V, G14/G19/G26] |
+| 25 | Spend-cap controls | HARD self-serve monthly caps (Start tier $500 ceiling; self-set lower limit; "usage pauses until the next month") + per-workspace spend limits [V, A5] | Org/project monthly budgets are tied to 429 rejections on the official error-codes page ("Your monthly budget is set too low for your organization's usage ... You exceeded your current quota") — hard-stop INFERRED from official text; help-center confirmation unreachable (403); notification thresholds are a separate alerts-only mechanism [I hard-stop / V tiers+alerts, O11/O22] | HARD tier caps ("service is paused ... until the next billing cycle"; Tier 1 $250) + $10/10-min rate cap; caveat: batch/agent long-running work can overrun via ~10-min billing latency [V, G12] |
 | 26 | Deprecation/version-pinning risk | Low-medium: pinned snapshots, 60-day floor, published tentative retirement dates [V, A9] | Low: 6-month GA notice, dated snapshots [V, O15] | Medium-high: annual shutdowns, Pro tier currently preview-only, 2.5 family dies mid-experiment-window 2026-10-16 [V, G16] |
 | 27 | Expected EXP-0001 cost (expected case, §6) | ≈ $5.80 | ≈ $3.50 | ≈ $2.40 |
-| 28 | Unresolved legal/contract questions | Retention-doc reconciliation (row 17); subprocessor list content; SSO [RC]; ZDR [RC] | Hard-cap semantics; subprocessor content (403); enterprise-privacy page (403); org ID-verification requirement for 5.6 tier [I]; BAA/ZDR [RC] | Developer-API audit scope [U]; abuse-retention duration [U]; zero retention needs Vertex/GEAP + approval [RC] |
-| 29 | Overall fit for NABCor first enablement | STRONG: hard caps + stateless default + guaranteed schema on cheap tier + no-training default + pinned IDs + raw-HTTPS (zero new deps) all VERIFIED self-serve | MIXED: best price and deprecation notice, but storage-by-default, unverifiable hard cap, and several 403-blocked governance pages | MIXED: hard caps and cheap tiers, but schema adherence not guaranteed, stateful default, unproven Developer-API audit scope, fastest model churn |
+| 28 | Unresolved legal/contract questions | Subprocessor list content [U]; SSO [RC]; ZDR terms [RC] (the row-17 retention reconciliation is RESOLVED conservatively — ledger C4) | Help-center hard-cap confirmation (403) [U]; Chat `store` default [U]; subprocessor content (403) [U]; enterprise-privacy page (403) [U]; org ID-verification requirement [U — article 403 on re-check]; BAA/ZDR [PROJECT-APPROVAL/RC] | Developer-API audit scope [U]; abuse-retention duration [U]; ZDR request mechanism [U]; explicit-cache default TTL [U] |
+| 29 | Overall fit for NABCor first enablement (recomputed in §5b) | STRONG (4.22/5 baseline): hard caps, no request-state storage, guaranteed schema on cheap tier, no-training default, pinned IDs, raw HTTPS — all VERIFIED self-serve; conservative 30-day deletion default accepted for synthetic scope | MIXED (3.92/5): best GA deprecation notice and low price; budget hard-stop now INFERRED from official 429 wording (not fully verified); storage-by-default on Responses; several 403-blocked governance pages; WINS the cost-dominant sensitivity case | MIXED (3.25/5): verified hard tier caps and the strongest published conditional ZDR (corrected, ledger C1) — recorded as a real asset for FUTURE client-data decisions — but syntactic-only structured output, 55-day stateful default, unpublished abuse-log duration, and fastest model churn dominate for THIS workload |
 
 **Public defaults vs optional controls vs post-approval controls vs
 contract-only claims** (required separation): everything labeled [V] with
@@ -149,6 +154,67 @@ Google/Vertex abuse-monitoring exception. Contract-only ([RC]): all three
 providers' ZDR; Anthropic SSO and custom BAA; OpenAI BAA/Modified Abuse
 Monitoring; any subprocessor/security detail behind gated portals. The
 recommended Option A uses ONLY public self-serve capabilities.
+
+## 5b. Recomputed weighted comparison (Phase 1C.0.1)
+
+The recommendation below is DERIVED from this scoring, recomputed from
+the corrected evidence — not carried forward from the pre-correction
+packet. Scores are 0-5 per criterion; a −1 uncertainty penalty is
+applied inside a cell when its deciding fact is INFERRED or UNKNOWN
+(noted). Weighted result = Σ(weight × score) / 100. Evidence per cell is
+the matrix row cited.
+
+| Criterion (matrix row) | Weight | Anthropic | OpenAI | Google |
+|---|---|---|---|---|
+| Deterministic structured-output enforcement (4) | 14 | 5 (guaranteed constrained decoding incl. cheap tier) | 5 (guaranteed strict json_schema incl. nano) | 2 (syntactic-only; "always validate values") |
+| Spend hard-stop reliability (25) | 12 | 5 (verified pause-at-cap + self-set + workspace) | 3 (= 4 − 1: hard stop INFERRED from official 429 wording, help-center unreachable) | 4 (verified pause-at-cap; − batch-latency overrun caveat) |
+| Default retention posture (17) | 8 | 3 (30-day backend deletion default; 2y T&S flags) | 2 (Responses stores by default + 30d abuse logs; Chat default UNKNOWN) | 2 (= 3 − 1: 55-day stateful default; abuse duration UNKNOWN) |
+| Attainable ZDR (18) | 4 | 4 (org-level, Messages covered; 2y flag carve-out) | 4 (project/org controls, store forced false) | 4 (= 5 − 1: strongest published abuse-log sanitization, but request mechanism UNKNOWN) |
+| ZDR requirements burden (18) | 3 | 1 (negotiated contract) | 2 (prior approval + added requirements) | 3 (project approval + self-serve restriction bundle) |
+| Training posture (15) | 8 | 5 (no-training default, Commercial Terms) | 5 (no-training default) | 4 (paid no / FREE TIER TRAINS — tier-mixing hazard) |
+| Model stability/lifecycle (3, 26) | 8 | 3 (pinned; 60-day floor; Haiku floor 2026-10-15 schedule pressure) | 5 (≥6-month GA notice; no announced retirements) | 2 (annual churn; GA pro absent; 2.5 family dies 2026-10-16) |
+| Price — expected EXP-0001 (27, §6) | 10 | 2 (≈$5.80) | 4 (≈$3.50) | 5 (≈$2.40) |
+| Usage reconciliation/auditability (11, 12) | 6 | 5 (usage+cost admin API, request IDs, CSV) | 5 (usage/costs API, request IDs) | 4 (usageMetadata, responseId, dashboard) |
+| Secret & emergency-disable controls (22, 25) | 7 | 5 (expirable keys, admin deactivation, console revocation, caps backstop) | 4 (project keys, admin API; cap semantics partially inferred) | 4 (key restrictions, service-account keys, leaked-key enforcement) |
+| Raw HTTPS feasibility / zero new deps (23) | 6 | 5 (fully documented) | 5 (documented + OpenAPI spec) | 5 (REST reference documented) |
+| Operational complexity / misconfiguration surface (24, 15) | 8 | 5 (no store flag, no tier mixing, no context-tier price split) | 2 (store:false everywhere; long/short-context price scoping; ID-verification UNKNOWN) | 2 (store=false + free/paid split + ZDR bundle + legacy-vs-Interactions split) |
+| Synthetic EXP-0001 suitability (4, 27) | 6 | 5 (schema guarantee on the extraction tier — the experiment's failure mode) | 4 | 2 (validation-failure loops land on the metric EXP-0001 budgets) |
+| **Weighted result** | **100** | **4.22** | **3.92** | **3.25** |
+
+### Sensitivity analysis
+
+Method: the named criterion (or block) is re-weighted to 40 of 100 and
+all remaining weights are scaled proportionally to sum to 60.
+
+| Case (dominant weight 40) | Anthropic | OpenAI | Google | Leader |
+|---|---|---|---|---|
+| 1. Privacy/ZDR block (rows 17+18 criteria: default retention, attainable ZDR, ZDR burden) | 3.82 | 3.51 | 3.10 | Anthropic |
+| 2. Structured-output reliability | 4.46 | 4.25 | 2.87 | Anthropic |
+| 3. Cost | **3.48** | **3.95** | **3.83** | **OpenAI** |
+| 4. Spend hard-stop reliability | 4.47 | 3.63 | 3.49 | Anthropic |
+
+**The cost-dominant case flips the leader to OpenAI (with Google
+second). This is published, not hidden:** a Product Owner whose dominant
+criterion is price should ratify Option B. Anthropic leads the baseline
+and the other three cases because its weak criteria (price, ZDR burden,
+Haiku schedule pressure) carry less combined weight than its verified
+strengths (schema guarantee, hard caps, low misconfiguration surface).
+
+**Why Anthropic remains recommended despite Google's corrected ZDR:**
+ZDR-class criteria carry little weight in a SYNTHETIC-only phase (7 of
+100 combined) — nothing sensitive exists to retain — and even in the
+privacy-dominant sensitivity case Anthropic still leads because
+Google's 55-day stateful default, unpublished abuse-log duration, and
+syntactic-only structured output outweigh its (genuinely strongest)
+conditional abuse-log sanitization. Google's corrected ZDR is recorded
+as a material asset for the FUTURE real-client-data decision, where the
+privacy block would be re-weighted and the comparison re-run.
+**Why despite OpenAI's lower cost:** the ~$2.30 expected-case premium
+buys the two properties EXP-0001's integrity depends on most — a
+verified (not inferred) spend hard stop and guaranteed schema adherence
+with no storage-by-default footgun; at a $25 run ceiling the absolute
+premium is small, and Option B remains fully specified for a
+price-dominant ratification.
 
 ## 6. Cost model for EXP-0001 (estimates only)
 
@@ -319,16 +385,22 @@ phase work under the ratified option.
   only; ceilings per §6.4; caching and Batch OFF; tools omitted; no
   provider-side storage features; no fallback; console hard cap $60.
 - **Benefits:** every load-bearing control is VERIFIED and self-serve —
-  hard monthly spend caps and workspace spend limits (unique among the
-  three for verified hard self-set caps at the org level), stateless-by-
-  default Messages calls, GUARANTEED constrained-decoding structured
-  output on the cheap tier (EXP-0001 is structured extraction — schema
+  hard monthly spend caps and workspace spend limits (verified
+  pause-at-cap semantics), no request-state storage on standard
+  Messages calls (no store flag or conversation objects to manage — a
+  state-semantics property, distinct from the 30-day backend deletion
+  default in row 17), GUARANTEED constrained-decoding structured output
+  on the cheap tier (EXP-0001 is structured extraction — schema
   adherence failures are its most expensive noise source), no-training
   default under Commercial Terms, pinned model snapshots, request IDs +
   Usage/Cost API for reconciliation, and fully documented raw HTTPS so
   the adapter needs ZERO new runtime dependencies (Node built-in fetch),
   keeping the DEC-0006 dependency boundary intact. No contract, sales
   contact, or identity-verification process is needed for this scope.
+  Retention posture accepted knowingly for synthetic data: automatic
+  backend deletion within 30 days (exceptions listed in row 17); zero
+  retention would require a negotiated ZDR agreement (not pursued in
+  this scope).
 - **Costs:** expected EXP-0001 ≈ $5.80, ceiling $25/run, $60/month
   (estimates, §6). Mid-priced: ~1.7x OpenAI's expected-case estimate
   (≈$3.50) and ~2.4x Google's (≈$2.40) — an absolute premium of
@@ -370,13 +442,15 @@ phase work under the ratified option.
   strict structured outputs also guaranteed [V, O5].
 - **Added risks vs A:** storage-by-default on the recommended API — one
   missed `store:false` persists content 30 days provider-side (a
-  standing implementation foot-gun A does not have); whether the
-  self-set monthly budget HARD-stops spend is UNKNOWN (alerts are
-  verified; the tier ceiling is far above NABCor's scale, so the
-  effective hard cap may be much larger than $60); org
-  government-ID verification may be required for the 5.6 tier
-  [I, O21]; subprocessor and enterprise-privacy pages were unreachable
-  (403) during research, leaving governance questions open that
+  standing implementation foot-gun A does not have), and the Chat
+  Completions `store` default is UNKNOWN on reachable pages; the
+  self-set monthly budget hard stop is INFERRED from the official
+  error-codes page (429 tied to org/project budgets) but the
+  help-center confirmation remains unreachable — Option B's
+  implementation phase must verify it empirically before the first
+  paid request; org government-ID verification requirement is UNKNOWN
+  (article 403 on re-check); subprocessor and enterprise-privacy pages
+  were unreachable (403), leaving governance questions open that
   Anthropic's docs answered publicly.
 - **Reversibility:** high (same key-revocation logic).
 - **Work enabled / still prohibited:** as Option A.
@@ -405,21 +479,22 @@ phase work under the ratified option.
 
 ### Recommendation
 
-**Option A.** For a first enablement whose purpose is trustworthy
-evidence rather than cheapest tokens, the decisive properties are the
-ones that fail closed: verified hard spend caps, stateless-by-default
-transport, guaranteed schema adherence on the cheap tier, and zero new
-runtime dependencies. Anthropic is the only candidate where every one of
-those is VERIFIED as public self-serve capability today. The ~$2.30
-expected-case premium over Option B is small in absolute terms against
-EXP-0001's $25 run ceiling; Option B remains documented and viable if
-the Product Owner weighs price or deprecation-notice length higher. No
-dedicated Google option exists because on this evidence it is strictly
-dominated for THIS workload: structured output is not semantically
-guaranteed (row 4), the GA Pro successor is preview-only, and its model
-churn is the fastest of the three (rows 3, 26) — its prices and hard
-tier caps are otherwise competitive and it remains a documented
-candidate for future decisions.
+**Option A**, as the outcome of the recomputed weighted comparison
+(§5b): Anthropic leads the baseline (4.22 vs 3.92 vs 3.25) and three of
+the four sensitivity cases; OpenAI leads the cost-dominant case and a
+price-dominant Product Owner should ratify Option B. The decisive
+properties are the ones that fail closed: VERIFIED pause-at-cap spend
+limits, guaranteed schema adherence on the cheap extraction tier, no
+request-state storage surface, and zero new runtime dependencies —
+while the accepted costs are stated plainly: a ~$2.30 expected-case
+premium, a conservative 30-day backend deletion default (row 17), and
+Haiku 4.5's 2026-10-15 retirement floor. No dedicated Google option
+exists because on the corrected evidence it still scores lowest for
+THIS workload (§5b: syntactic-only structured output, 55-day stateful
+default, unpublished abuse-log duration, fastest churn) even though its
+corrected conditional ZDR (ledger C1) is the strongest published
+abuse-log posture of the three and is explicitly recorded as an asset
+for the future real-client-data decision.
 
 ### Product Owner ratification statement (copy verbatim; the option letter is the only edit)
 
@@ -474,6 +549,7 @@ supports (matrix row numbers from §5).
 - A15. TypeScript SDK — https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/typescript — Accessed 2026-07-19 — rows 14,23.
 - A16. Set up single sign-on — https://support.claude.com/en/articles/13132885-set-up-single-sign-on-sso — Accessed 2026-07-19 — row 28 [RC].
 - A17. Trust Center — https://trust.anthropic.com/ (and /subprocessors) — Accessed 2026-07-19 — rows 20,21; content not machine-readable, marked UNKNOWN.
+- A18. Covered Models — https://support.claude.com/en/articles/15425695 — Accessed 2026-07-19 (updated "over 2 weeks ago") — rows 17,18; Covered-Model 30-day retention wording (Phase 1C.0.1 re-verification).
 
 **OpenAI (O):**
 - O1. Models — https://developers.openai.com/api/docs/models (+ model cards gpt-5.6-luna, gpt-5.4-nano, gpt-5.4-mini) — Accessed 2026-07-19 — rows 2,3,6,7.
@@ -496,7 +572,8 @@ supports (matrix row numbers from §5).
 - O18. openai-node README — https://github.com/openai/openai-node — Accessed 2026-07-19 — rows 14,23.
 - O19. Trust portal — https://trust.openai.com — Accessed 2026-07-19 — row 21.
 - O20. Subprocessor list — https://openai.com/policies/sub-processor-list/ — Accessed 2026-07-19 — row 20; HTTP 403, content UNKNOWN.
-- O21. Org verification article — https://help.openai.com/en/articles/10910291 — Accessed 2026-07-19 — row 28; HTTP 403, requirement INFERRED from official search snippets.
+- O21. Org verification article — https://help.openai.com/en/articles/10910291 — Accessed 2026-07-19 (re-attempted in Phase 1C.0.1, still 403) — row 28; requirement now marked UNKNOWN.
+- O22. Error codes — https://developers.openai.com/api/docs/guides/error-codes — Accessed 2026-07-19 — row 25; 429 tied to org/project monthly budgets (hard-stop INFERRED). NOTE: platform.openai.com docs URLs 301-redirect to developers.openai.com (canonical domain).
 
 **Google (G):**
 - G1. Models — https://ai.google.dev/gemini-api/docs/models (+ cards gemini-3.5-flash, gemini-3.1-flash-lite, gemini-2.5-flash-lite) — Accessed 2026-07-19 — rows 2,3,6,7.
@@ -521,5 +598,7 @@ supports (matrix row numbers from §5).
 - G23. GEAP data residency — https://docs.cloud.google.com/gemini-enterprise-agent-platform/resources/data-residency — Accessed 2026-07-19 — row 19.
 - G24. GEAP ML locations — https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/general/locations — Accessed 2026-07-19 — row 19.
 - G25. Google Cloud SOC 2 / ISO 27001 — https://cloud.google.com/security/compliance/soc-2 and /iso-27001 — Accessed 2026-07-19 — rows 20,21.
+- G26. Zero data retention in the Gemini Developer API — https://ai.google.dev/gemini-api/docs/zdr — Accessed 2026-07-19 — last updated 2026-05-28 UTC — rows 16,17,18,24; the Phase 1C.0.1 correction's primary evidence (ledger C1-C3).
+- G27. Interactions API — https://ai.google.dev/gemini-api/docs/interactions — Accessed 2026-07-19 — last updated 2026-07-16 UTC — rows 17,24; store=true default and 55-day paid retention re-verified.
 
 **Repository sources:** brain/experiments/EXP-0001-prompt-to-brand-context.md (workload); docs/MODEL_AND_TOKEN_STRATEGY.md (tiers, budgets, API-billed preference); contracts/token-budget.schema.json (budget fields); brain/decisions/DEC-0009 (requirements this packet satisfies).
