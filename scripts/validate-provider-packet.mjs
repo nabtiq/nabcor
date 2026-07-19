@@ -113,6 +113,89 @@ for (const [name, body] of [
 if (!packet.includes("No provider is enabled")) {
   fail("the packet must state that no provider is enabled");
 }
+
+// ---- 4b. Evidence-discipline distinctions (Phase 1C.0.1 hardening) ----
+// These guards enforce the DISTINCTIONS the 1C.0.1 correction restored.
+// They deliberately do NOT freeze market facts (prices, model lists,
+// provider capabilities drift and CI cannot verify internet truth — every
+// external fact requires human re-verification at ratification time, see
+// RISK-DECAY-01); they only prevent the specific prohibited claim classes
+// from re-entering the canonical documents.
+const packetDocs = [
+  ["PROVIDER_ENABLEMENT_DECISION_PACKET.md", packet],
+  ["PROVIDER_ENABLEMENT_THREAT_MODEL.md", threatModel],
+  [
+    "PROVIDER_PACKET_CORRECTION_LEDGER_1C0_1.md",
+    read("docs/PROVIDER_PACKET_CORRECTION_LEDGER_1C0_1.md"),
+  ],
+];
+// Prohibited claim classes. Quoting a prohibited claim as a CORRECTED
+// error is legitimate, so lines that visibly mark the claim as corrected
+// or falsified are exempted.
+const isCorrectionContext = (line) =>
+  /corrected|CORRECTED|falsif|\bfalse\b|error|ledger|was wrong|prohibited|must not|never|validator|guard|fails on|fails if|equates/i.test(
+    line
+  );
+const prohibited = [
+  {
+    pattern: /Gemini[^.\n]{0,80}\bno (zero[- ]data[- ]retention|zero[- ]retention|ZDR)( offering| option| availability)?\b/i,
+    reason: "claiming the Gemini Developer API has no ZDR offering (falsified by ai.google.dev/gemini-api/docs/zdr)",
+  },
+  {
+    pattern: /store\s*=?\s*false[^.\n]{0,60}\b(is|provides|proves|achieves|equals|sufficient for)\b[^.\n]{0,40}\bZDR\b/i,
+    reason: "claiming store=false alone provides/proves Gemini ZDR",
+  },
+  {
+    pattern: /\bstateless\b[^.\n]{0,60}\b(zero|no)[- ](backend[- ])?retention\b/i,
+    reason: "equating stateless transport with zero retention",
+  },
+  {
+    pattern: /\b(zero|no)[- ]retention\b[^.\n]{0,60}\bstateless\b/i,
+    reason: "equating zero retention with stateless transport",
+  },
+  {
+    pattern: /Anthropic[^.\n]{0,80}\bzero retention by default\b/i,
+    reason: "claiming standard Anthropic Messages calls have zero retention by default",
+  },
+  {
+    pattern: /\b(not?[- ]train(ed|ing)?( on)?[^.\n]{0,40}\b(equals|means|implies|is the same as)\b[^.\n]{0,40}\b(not?[- ]retain|no retention))/i,
+    reason: "equating no-training with no-retention",
+  },
+  {
+    pattern: /DEC-0018[^.\n]{0,80}\b(grants|authorizes|enables)\b[^.\n]{0,60}\b(enablement|provider|authority)\b/i,
+    reason: "describing proposed DEC-0018 as granting enablement authority",
+    exemptNegation: true,
+  },
+];
+for (const [name, body] of packetDocs) {
+  const lines = body.split("\n");
+  for (const { pattern, reason, exemptNegation } of prohibited) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (!pattern.test(line)) continue;
+      // Correction context may start on the previous line (wrapped prose):
+      // a claim quoted as a corrected/prohibited error is legitimate.
+      const window = `${lines[i - 1] ?? ""} ${line}`;
+      if (isCorrectionContext(window)) continue;
+      if (exemptNegation && /\bno\b|\bnot\b|\bnothing\b|grants no/i.test(window)) continue;
+      fail(`${name}: prohibited claim class — ${reason}: "${line.trim().slice(0, 120)}"`);
+    }
+  }
+}
+// Required distinctions: the packet must keep the corrected taxonomy.
+for (const sentinel of [
+  "conditional", // Gemini ZDR is conditional
+  "ZDR_NOT_VERIFIED", // in the threat model gate
+  "within 30 days", // Anthropic conservative default
+]) {
+  const where = sentinel === "ZDR_NOT_VERIFIED" ? threatModel : packet;
+  if (!where.includes(sentinel)) {
+    fail(`required distinction sentinel missing: '${sentinel}'`);
+  }
+}
+if (!/store\s*=?\s*false/.test(packet) || !packet.includes("abuse-log")) {
+  fail("the packet must keep the store=false vs abuse-log-sanitization distinction (ledger C2)");
+}
 if (!packet.includes("All monetary values in this packet are ESTIMATES")) {
   fail("the packet must carry the estimates-only disclaimer sentinel");
 }

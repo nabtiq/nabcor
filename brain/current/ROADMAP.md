@@ -96,7 +96,12 @@ provider-enablement decision packet: official-source research on three
 candidates, cost and threat models, secret and gate designs, and
 PROPOSED DEC-0018 with three options awaiting Product Owner
 ratification (Q-010) — no provider enabled, active policy unchanged and
-CI-guarded, EXP-0001 still unexecuted.
+CI-guarded, EXP-0001 still unexecuted. The Phase 1C.0.1 correction
+re-verified all three providers, fixed the false Gemini no-ZDR claim
+and the ambiguous Anthropic retention framing (correction ledger), and
+recomputed the comparison with explicit weights and sensitivity
+analysis — recommendation unchanged except the published cost-dominant
+case, which favors OpenAI.
 This is deterministic
 infrastructure only —
 not Phase 1 completion: no provider-backed or natural-language extraction
