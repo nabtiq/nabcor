@@ -68,7 +68,7 @@ test("keygen writes an owner-only private key and a registry-valid public candid
   assert.equal(candidate["algorithm"], "ed25519");
   assert.deepEqual(candidate["roles"], ["product-owner", "reviewer"]);
   const registryDoc = {
-    schema_version: "1.7.1",
+    schema_version: "1.8.0",
     registry_id: "areg-candidate-test",
     registry_version: 1,
     supersedes_registry_version: null,

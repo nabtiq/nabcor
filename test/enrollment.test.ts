@@ -103,7 +103,7 @@ function v2Payload(targetDigest: string, overrides: Record<string, unknown> = {}
 
 function evidenceFor(payload: Record<string, unknown>, signer: EphemeralAuthority): Record<string, unknown> {
   return {
-    schema_version: "1.7.1",
+    schema_version: "1.8.0",
     evidence_id: "apev_e_0001",
     payload,
     payload_digest: approvalPayloadDigest(payload),
@@ -124,7 +124,7 @@ function equivalentScenario(): {
 } {
   const auth = ephemeralAuthority();
   const registryDocument = {
-    schema_version: "1.7.1",
+    schema_version: "1.8.0",
     registry_id: "areg-nabcor",
     registry_version: 2,
     supersedes_registry_version: 1,
@@ -219,7 +219,7 @@ test("the empty v1 registry, an unknown v3 registry, and a foreign registry cann
     [
       "the superseded empty v1 registry",
       {
-        schema_version: "1.7.1",
+        schema_version: "1.8.0",
         registry_id: "areg-nabcor",
         registry_version: 1,
         supersedes_registry_version: null,
@@ -231,7 +231,7 @@ test("the empty v1 registry, an unknown v3 registry, and a foreign registry cann
     [
       "an unknown v3 registry",
       {
-        schema_version: "1.7.1",
+        schema_version: "1.8.0",
         registry_id: "areg-nabcor",
         registry_version: 3,
         supersedes_registry_version: 2,
@@ -243,7 +243,7 @@ test("the empty v1 registry, an unknown v3 registry, and a foreign registry cann
     [
       "a foreign registry id",
       {
-        schema_version: "1.7.1",
+        schema_version: "1.8.0",
         registry_id: "areg-other",
         registry_version: 2,
         supersedes_registry_version: 1,
@@ -363,7 +363,7 @@ test("an expired and a revoked variant of the enrolled entry fail closed", () =>
   ];
   for (const [label, entry, reason] of variants) {
     const registryDocument = {
-      schema_version: "1.7.1",
+      schema_version: "1.8.0",
       registry_id: "areg-nabcor",
       registry_version: 2,
       supersedes_registry_version: 1,
