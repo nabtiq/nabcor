@@ -168,7 +168,7 @@ test("concurrent consumption of one nonce across processes produces exactly one 
   const s = approvalScenario();
   const nonce = testNonce();
   const receipt = {
-    schema_version: "1.7.0",
+    schema_version: "1.7.1",
     receipt_id: receiptIdFor(s.auth.keyId, nonce, POLICY_ID, WS, BRAND),
     receipt_algorithm: "approval-receipt-id-sha256-1.0.0",
     evidence_ref: "apev_race_0001",

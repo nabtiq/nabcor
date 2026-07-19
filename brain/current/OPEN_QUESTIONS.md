@@ -76,11 +76,13 @@ active section in the same commit.
   target artifact digest, verdict, `self_review`, requester, nonce, validity
   window, key ID, and policy binding, verification with Node.js built-in
   crypto, and atomic single-use nonce consumption through immutable
-  receipts. Closure is an architecture decision, not operational
-  availability: the active registry contains zero enrolled authorities, so
-  no runtime approval can verify until a real Product Owner public key is
-  enrolled through a reviewed registry revision. A valid signature is never
-  sufficient without policy authorization and nonce consumption; legacy
-  envelope approvals stay non-authoritative; the four DEC-0008
+  receipts. Closure was an architecture decision, not operational
+  availability: at closure the active registry contained zero enrolled
+  authorities. **Status update (2026-07-19, DEC-0015):** the real Product
+  Owner public key is now enrolled (registry v2, least-privilege
+  `product-owner` role, policy v2 pin), so ordinary
+  `fact-resolution-approval` is operationally available. A valid signature
+  is never sufficient without policy authorization and nonce consumption;
+  legacy envelope approvals stay non-authoritative; the four DEC-0008
   independent-review gates stay frozen (no independent reviewer is named);
   fact-resolution APPLICATION remains unimplemented.

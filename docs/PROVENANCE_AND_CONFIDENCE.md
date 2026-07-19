@@ -140,10 +140,11 @@ listing. Applying a resolution — actually creating that `contradicted`
 revision from a decision — is not yet implemented. The authenticated
 human-gate mechanism it requires now exists (DEC-0014 closed Q-009: signed
 Ed25519 approval evidence verified against the trusted policy and
-registry, with atomic single-use nonce consumption), but no real authority
-key is enrolled yet and the application step itself — composing an
-authorized approval with claim-revision creation and DEC-0013 snapshot
-staleness — is deferred follow-on work. A schema-valid decision or
+registry, with atomic single-use nonce consumption) and the real Product
+Owner key is enrolled (DEC-0015: registry v2 pinned by policy v2, so
+ordinary fact-resolution approval can verify), but the application step
+itself — composing an authorized approval with claim-revision creation and
+DEC-0013 snapshot staleness — is deferred follow-on work. A schema-valid decision or
 approval artifact remains non-evidence that a human acted.
 Publication-critical facts (names, contact, domains) with open contradictions
 **block** publication surfaces (G4/G5).

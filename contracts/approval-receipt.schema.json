@@ -126,7 +126,7 @@
   "additionalProperties": false,
   "examples": [
     {
-      "schema_version": "1.7.0",
+      "schema_version": "1.7.1",
       "receipt_id": "r1e9dd9ae6661f3b19549cac8e1365c4b840b2a9cc81ba53a93838cd0ba3edecb",
       "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
       "evidence_ref": "apev_0001",

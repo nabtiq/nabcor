@@ -51,7 +51,14 @@ conflict (§Hierarchy rule).
     data with no runtime authority, and a valid signature alone (without
     policy authorization and replay consumption) authorizes nothing. Never
     commit, log, or fixture private key material (INV-SEC-001); test keys
-    are generated ephemerally in memory or temp directories.
+    are generated ephemerally in memory or temp directories. One real
+    Product Owner PUBLIC key is enrolled (DEC-0015, registry v2,
+    least-privilege `product-owner` role); its private half lives outside
+    the repository under the Product Owner's sole control and must never be
+    requested, read, or handled by any agent. Operator signing goes through
+    `src/cli/sign-approval.ts` only (derived identity, fail-closed key-path
+    handling); rotation or revocation is a new reviewed registry revision
+    plus decision record, never an edit.
 17. Never erase prior decisions, learnings, or contradicted claims — supersede them.
     Claim artifacts are immutable per version: a state change is a new revision
     linked by `supersedes`; a contradicted claim stays auditable but is inactive

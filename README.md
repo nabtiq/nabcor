@@ -8,10 +8,12 @@ kernel (DEC-0004/DEC-0005), the Phase 1B.1 offline gateway kernel
 (DEC-0009/DEC-0010), the Phase 1B.2 deterministic structured-truth
 analysis (DEC-0011), the Phase 1B.2.1 resolution-safe claim lifecycle
 correction (DEC-0012), the Phase 1B.2.2 store-authoritative claim
-snapshots (DEC-0013), and the Phase 1B.3A offline Ed25519 authenticated
-human-gate foundation (DEC-0014). No provider-backed extraction, no model
-calls, no applied human contradiction resolution, and no full vertical
-slice exist yet; Phase 1 is not complete.
+snapshots (DEC-0013), the Phase 1B.3A offline Ed25519 authenticated
+human-gate foundation (DEC-0014), and the Phase 1B.3B real Product Owner
+key enrollment (DEC-0015: registry v2 + policy v2, contracts 1.7.1,
+ordinary fact-resolution approval operationally available). No
+provider-backed extraction, no model calls, no applied human contradiction
+resolution, and no full vertical slice exist yet; Phase 1 is not complete.
 
 ## What NABCor is
 
@@ -300,13 +302,32 @@ No provider SDK and no framework exist.
   differs from its canonical filename (typed `artifact-address-mismatch`).
   An offline operator CLI (`node dist/src/cli/keygen.js`) prepares key
   enrollment (owner-only private key outside the repository, public
-  registry-entry candidate); the committed active registry contains ZERO
-  enrolled authorities, so runtime authorization is operationally
-  unavailable until a real Product Owner key is enrolled by a reviewed,
-  ratified registry revision. Authenticated approval applies no business
+  registry-entry candidate). Authenticated approval applies no business
   action: fact-resolution application, quarantine release, and publishing
   remain unimplemented, and the four DEC-0008 independent-review gates stay
   frozen — a Product Owner self-signature can never satisfy one.
+- **Real Product Owner key enrollment (Phase 1B.3B, DEC-0015)** — the
+  committed active authority registry (v2) enrolls exactly ONE real
+  authority: the Product Owner's ceremony-generated, fingerprint-confirmed
+  Ed25519 public key (subject `ibrahim-mohamed`, role `product-owner`
+  only — least privilege, valid 2026-07-19 → 2027-07-19 with fail-closed
+  expiry), and the active human-gate policy (v2) pins registry v2
+  exactly. The key ceremony ran personally in the Product Owner's own
+  terminal; the private key never entered Git, CI, fixtures, logs, the
+  Artifact Store, or agent context, and automated tests use ephemeral
+  in-memory keys only. Ordinary `fact-resolution-approval` is now
+  operationally available; a superseded or unknown registry cannot be
+  substituted (the trusted boundary rejects any id/version the policy does
+  not pin), and rotation or revocation requires a new reviewed registry
+  revision plus decision record. A safe offline signing CLI
+  (`node dist/src/cli/sign-approval.js`) produces approval evidence with a
+  DERIVED identity — the key_id is recomputed from the operator's private
+  key and must be enrolled — refusing symlinked, in-repository, or
+  non-owner-only key paths and every independent-review gate; produced
+  evidence still applies no business action. The enrollment corrected one
+  genuine contract defect (1.7.0 → 1.7.1): the policy schema pinned
+  `decision_ref` const `DEC-0014`, which made the documented
+  policy-revision procedure itself schema-invalid.
 - **Synthetic CLI example** — `node dist/src/cli/run-example.js --out <dir>` runs the
   full deterministic path on English-only synthetic fixtures. No network, no model
   calls, no client data.
@@ -315,12 +336,12 @@ What does **not** exist yet: model calls of any kind, provider adapters,
 provider-backed extraction, natural-language fact extraction, semantic
 contradiction detection, APPLIED human contradiction resolution, creative
 territories, channel specs, or the full vertical slice. Q-009 is closed by
-DEC-0014 (offline Ed25519 approval evidence), so the authentication
-MECHANISM exists — but no real Product Owner key is enrolled (the active
-registry is empty), so no runtime approval can currently verify, and even a
-verified approval applies no business action: creating a losing claim's
-`contradicted` revision from an authorized resolution remains unimplemented
-follow-on work. Q-002 is closed as **"no provider approved"** (DEC-0009):
+DEC-0014 (offline Ed25519 approval evidence) and the mechanism is now
+operationally ACTIVE for ordinary fact-resolution approval (DEC-0015: one
+real Product Owner key enrolled, registry v2 pinned by policy v2) — but
+even a verified approval applies no business action: creating a losing
+claim's `contradicted` revision from an authorized resolution remains
+unimplemented follow-on work. Q-002 is closed as **"no provider approved"** (DEC-0009):
 model-backed work is prohibited by ratified policy — with external/model spend
 capped at zero — rather than blocked on an open question, and enabling any
 provider requires a new ratified decision meeting DEC-0009's requirements.

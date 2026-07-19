@@ -38,8 +38,9 @@
       "minimum": 1
     },
     "decision_ref": {
-      "const": "DEC-0014",
-      "description": "the ratified decision this policy encodes; a different policy requires a superseding decision and a new contract version"
+      "type": "string",
+      "pattern": "^DEC-[0-9]{4,}$",
+      "description": "the ratified decision authorizing this policy revision (matches authority-registry.decision_ref semantics). 1.7.0 pinned this to const DEC-0014, which made the documented revision procedure — a new policy_version ratified by a new decision — schema-invalid; 1.7.1 corrects that defect. The pinned posture constants (algorithm, canonicalization, replay, default deny, independent_reviewer_named) still encode DEC-0014 and still require a superseding decision plus a contract migration to change"
     },
     "signature_algorithm": {
       "const": "ed25519",
@@ -137,17 +138,17 @@
   "additionalProperties": false,
   "examples": [
     {
-      "schema_version": "1.7.0",
+      "schema_version": "1.7.1",
       "policy_id": "hgp-nabcor-1",
-      "policy_version": 1,
-      "decision_ref": "DEC-0014",
+      "policy_version": 2,
+      "decision_ref": "DEC-0015",
       "signature_algorithm": "ed25519",
       "payload_type": "nabcor-human-gate-approval",
       "payload_version": "1.0.0",
       "canonicalization_algorithm": "approval-payload-sha256-1.0.0",
       "domain_separator": "nabcor-human-gate-approval-v1",
       "authority_registry_ref": "areg-nabcor",
-      "authority_registry_version": 1,
+      "authority_registry_version": 2,
       "independent_reviewer_named": false,
       "allowed_gates": [
         "fact-resolution-approval",

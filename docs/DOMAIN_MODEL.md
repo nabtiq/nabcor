@@ -156,12 +156,13 @@ immutable per version; a revision creates a new version linked by supersession
 - **Authoritative resolution is unimplemented as an applied action.** The
   authenticated human-gate mechanism now exists (DEC-0014 closed Q-009:
   offline Ed25519 approval evidence, policy-authorized and
-  replay-consumed), but applying a resolution — creating the losing claim's
-  `contradicted` revision from an authorized approval — remains
-  unimplemented follow-on work, and no runtime approval can verify until a
-  real key is enrolled. A shape-valid Decision artifact is still not
-  evidence that a human acted, and no runtime path may treat it as such
-  (DEC-0012).
+  replay-consumed) and is operationally available for ordinary
+  fact-resolution approval (DEC-0015: the real Product Owner key is
+  enrolled in registry v2, pinned by policy v2). Applying a resolution —
+  creating the losing claim's `contradicted` revision from an authorized
+  approval — remains unimplemented follow-on work. A shape-valid Decision
+  artifact is still not evidence that a human acted, and no runtime path
+  may treat it as such (DEC-0012).
 
 ### Claim Snapshot
 - **Purpose:** the store-authoritative record of the COMPLETE canonical

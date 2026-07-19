@@ -28,9 +28,12 @@ Authority rank 4 (below decisions, above current state) — see `AGENTS.md`.
   committed active human-gate trust roots (DEC-0014), validated in CI
   including their mutual id/version binding. The runtime loads them through
   a fixed trusted boundary; approval evidence can never select its own
-  policy, registry, or key. The active registry currently contains ZERO
-  enrolled authorities: no runtime approval can verify until a real key is
-  enrolled through a reviewed registry revision.
+  policy, registry, or key. The active registry (version 2, DEC-0015)
+  enrolls exactly ONE authority: the real Product Owner public key
+  (subject `ibrahim-mohamed`, least-privilege `product-owner` role, valid
+  2026-07-19 → 2027-07-19), and the active policy (version 2) pins
+  registry version 2 exactly. Public keys are non-secret; the private half
+  lives outside the repository under the Product Owner's sole control.
 - `fixtures/positive.json`, `fixtures/negative.json` — validation fixtures (below).
 
 Execution-layer records are operational records, not creative artifacts — they carry
@@ -67,11 +70,33 @@ instead of invented claim refs — see fixture `P02`).
 
 ## Versioning
 
-Artifact `schema_version` for all contracts: **1.7.0** (was 1.6.0). The version is
+Artifact `schema_version` for all contracts: **1.7.1** (was 1.7.0). The version is
 globally synchronized across all contracts; examples, fixtures, and
 runtime-generated artifacts carry it consistently.
 
-**Migration implications (1.6.0 → 1.7.0):** four standalone contracts were
+**Migration implications (1.7.0 → 1.7.1):** one genuine schema defect was
+corrected during the Phase 1B.3B Product Owner key enrollment (DEC-0015);
+no other contract changed meaning:
+
+- `human-gate-policy` `decision_ref` was pinned as const `DEC-0014` at
+  1.7.0, which made the contract's own documented revision procedure — a
+  new `policy_version` (for example a registry re-pin after enrollment)
+  ratified by a new decision record — schema-invalid. 1.7.1 relaxes the
+  const to the `^DEC-[0-9]{4,}$` pattern the `authority-registry` contract
+  already uses, so every policy revision names the decision that ratified
+  it. Every 1.7.0-valid instance remains valid; the pinned posture
+  constants (Ed25519, canonicalization, replay policy, default deny,
+  `independent_reviewer_named: false`) are unchanged and still require a
+  superseding decision plus a contract migration to change. Regression
+  coverage: positive fixture P18 (a DEC-0015 policy revision) fails under
+  the 1.7.0 schema and passes under 1.7.1; negative fixture N86 proves
+  malformed decision references are still rejected.
+- No real production artifacts existed at 1.7.0, so no real-artifact
+  migration was performed — examples, fixtures, the committed active
+  documents, and synthetic runtime fixtures were re-issued at 1.7.1 in the
+  same change.
+
+**Historical — migration implications (1.6.0 → 1.7.0):** four standalone contracts were
 added for the authenticated human-gate foundation (DEC-0014, Phase 1B.3A);
 no existing contract changed meaning:
 
@@ -92,8 +117,9 @@ no existing contract changed meaning:
   semantic layer, which also requires the SPKI to decode as a REAL Ed25519
   key), carries roles from the closed DEC-0008 enum, validity windows, and
   status with mandatory revocation metadata. Private keys never appear in
-  any contract. An empty `authorities` array is valid and is the committed
-  state: nothing can verify until enrollment.
+  any contract. An empty `authorities` array is valid and was the
+  committed state at 1.7.0: nothing could verify until enrollment
+  (registry v2 enrolled the first real authority under DEC-0015).
 - `approval-evidence` (new): the signed approval. The `payload` block is
   the EXACT signed content — strictly versioned, domain-separated, closed
   to unknown fields — covering approver identity, role, gate, the target

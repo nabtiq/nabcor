@@ -6,25 +6,28 @@
 
 ## Current phase
 
-Phase 1B.3A — offline Ed25519 authenticated human-gate foundation
-(DEC-0014) on top of the Phase 1B.2.2 store-authoritative claim snapshots
-(DEC-0013), the Phase 1B.2.1 resolution-safe claim lifecycle (DEC-0012),
-the Phase 1B.2 deterministic structured-truth analysis, the Phase 1B.1
-offline gateway kernel, and the Phase 1A truth kernel. The clean foundation
-baseline (`0.1.0`) remains the historical boundary
-(`FOUNDATION_BASELINE.md`). Phase 1 is not complete.
+Phase 1B.3B — real Product Owner Ed25519 key enrollment (DEC-0015) on top
+of the Phase 1B.3A authenticated human-gate foundation (DEC-0014), the
+Phase 1B.2.2 store-authoritative claim snapshots (DEC-0013), the Phase
+1B.2.1 resolution-safe claim lifecycle (DEC-0012), the Phase 1B.2
+deterministic structured-truth analysis, the Phase 1B.1 offline gateway
+kernel, and the Phase 1A truth kernel. The clean foundation baseline
+(`0.1.0`) remains the historical boundary (`FOUNDATION_BASELINE.md`).
+Phase 1 is not complete.
 
 ## Current objective
 
-Deliver Phase 1B.3A: ratify Q-009 Option A (DEC-0014), correct the
-artifact-address read-boundary gap, and land machine-verifiable,
-replay-protected human approval evidence (contracts 1.7.0, `src/authority/`,
-offline key CLI) — WITHOUT applying any business action. The follow-on
-objective is real Product Owner key enrollment (reviewed registry revision)
-and, after that, the fact-resolution application step that composes an
-authorized approval with claim-revision creation and DEC-0013 snapshot
-staleness. Model-backed work stays prohibited by the zero-provider policy
-(DEC-0009) — a policy boundary, not an open question.
+Deliver Phase 1B.3B: enroll the confirmed real Product Owner public key
+(registry v2, least-privilege `product-owner` role only), pin it from
+human-gate policy v2, correct the policy-schema `decision_ref` defect
+(contracts 1.7.0 → 1.7.1), and provide the safe offline signing CLI —
+WITHOUT applying any business action. Ordinary `fact-resolution-approval`
+becomes operationally available; the four DEC-0008 independent-review
+gates stay frozen. The follow-on objective is the fact-resolution
+application step that composes an authorized approval with claim-revision
+creation and DEC-0013 snapshot staleness. Model-backed work stays
+prohibited by the zero-provider policy (DEC-0009) — a policy boundary, not
+an open question.
 
 ## Ratified decisions
 
@@ -85,6 +88,16 @@ staleness. Model-backed work stays prohibited by the zero-provider policy
   envelope approvals stay non-authoritative; authenticated approval applies
   no business action; the four DEC-0008 independent-review gates stay
   frozen; contracts 1.7.0.
+- DEC-0015 — real Product Owner Ed25519 public-key enrollment: authority
+  registry v2 enrolls exactly one least-privilege `product-owner` key
+  (subject `ibrahim-mohamed`, key_id
+  `k8cc9db703247760829dcb74819fbe07cd1dc24a2bf66ec7a02ed500391de8b1b`,
+  valid 2026-07-19 → 2027-07-19, expiry fails closed); policy v2 pins
+  registry v2; the private key never touched the repository, CI, or agent
+  context; ordinary fact-resolution approval is operationally available;
+  independent-review gates stay frozen; the policy-schema `decision_ref`
+  const defect is corrected (contracts 1.7.0 → 1.7.1); the offline signing
+  CLI (`src/cli/sign-approval.ts`) is the safe operator signing boundary.
 
 ## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006 and Phase 1A.2 / DEC-0007)
 
@@ -212,7 +225,8 @@ staleness. Model-backed work stays prohibited by the zero-provider policy
   immediately (DEC-0013 append-only clarification).
 - Authenticated human-gate foundation (`src/authority/`, contracts
   1.6.0 → 1.7.0): trusted committed human-gate policy + versioned
-  public-key authority registry (empty — zero enrolled authorities),
+  public-key authority registry (then empty — zero enrolled authorities;
+  registry v2 enrolled the first real authority under DEC-0015),
   domain-separated canonical signed payload (`approval-payload-sha256-1.0.0`)
   covering identity/role/gate/target-digest/verdict/self_review/requester/
   nonce/validity/key/policy, offline Ed25519 verification with Node.js
@@ -229,12 +243,39 @@ staleness. Model-backed work stays prohibited by the zero-provider policy
   read, no publishing, no provider enabled, no gateway/Fake Adapter
   involvement.
 
+## Implemented (Phase 1B.3B, DEC-0015)
+
+- Real Product Owner key enrollment: authority registry v2
+  (`contracts/authority-registry.active.json`) enrolls exactly one
+  authority — the ceremony-generated, fingerprint-confirmed public key of
+  Ibrahim Mohamed (@ibra2000sd), subject `ibrahim-mohamed`, role
+  `product-owner` only, valid 2026-07-19 → 2027-07-19. Human-gate policy
+  v2 pins registry v2. The key ceremony ran personally in the Product
+  Owner's own terminal; the implementation agent handled public material
+  only, and the private key lives outside Git, CI, fixtures, logs, the
+  Artifact Store, and agent context.
+- Contract defect correction (1.7.0 → 1.7.1, synchronized re-issue): the
+  human-gate-policy schema pinned `decision_ref` const `DEC-0014`, making
+  the documented policy-revision procedure schema-invalid; it is now the
+  same `^DEC-[0-9]{4,}$` pattern the registry contract uses. Regression
+  fixture P18 fails under the old schema and passes under the new one; no
+  other contract changed meaning.
+- Offline signing CLI (`src/cli/sign-approval.ts`): derived-identity
+  signing only (key_id recomputed from the private key and required to be
+  enrolled); refuses symlinked, in-repository, and non-owner-only keys;
+  refuses independent-review gates outright; cryptographically random
+  single-use nonce; exclusive-create output outside the repository; zero
+  private-material leakage; produced evidence applies no business action.
+- Enrollment guarantees proven by tests: registry/policy v2 mutual pin;
+  key_id recomputation from the committed SPKI; empty-v1/unknown-v3/
+  foreign-registry substitution failures; unknown-key, impostor-signature,
+  wrong-subject, wrong-role, expired, and revoked denials that consume
+  nothing; exactly-once consumption via an ephemeral equivalent
+  configuration; all four independent-review gates still structurally
+  unsatisfiable.
+
 ## Blocked / not implemented
 
-- Real Product Owner key enrollment: the active authority registry contains
-  zero authorities, so runtime authorization is operationally unavailable.
-  Enrollment is a reviewed registry revision (+ policy version pin)
-  prepared with the offline key CLI and ratified by a decision record.
 - Human contradiction-resolution APPLICATION: the authenticated evidence
   mechanism exists (DEC-0014), but creating the losing claim's
   `contradicted` revision with `resolution_decision_ref` from an authorized
@@ -258,20 +299,20 @@ staleness. Model-backed work stays prohibited by the zero-provider policy
 
 ## Immediate next actions
 
-1. Product Owner enrolls a real Ed25519 public key: generate offline with
-   `node dist/src/cli/keygen.js`, propose the registry revision + policy
-   pin, ratify with a decision record. Runtime approvals cannot verify
-   before that.
-2. Design the fact-resolution application step (authorized approval →
+1. Design the fact-resolution application step (authorized approval →
    losing claim's `contradicted` revision, composed with DEC-0013
    snapshot staleness) as the next phase proposal.
+2. Rotate the enrolled key by a new reviewed registry revision + decision
+   before its 2027-07-19 expiry (or immediately on suspected compromise
+   or private-key loss — RISK-KEY-01).
 3. Keep `npm run validate` green on every change.
 
 ## Definition of done for the current objective
 
-Phase 1B.3A merged with validation green; NOW, ROADMAP, RISKS,
-OPEN_QUESTIONS, and the decision index consistent with DEC-0008..DEC-0014;
-Q-009 closed in the answer log; the address-integrity regression and the
-adversarial human-gate suite green; no claim anywhere of enrolled real
-keys, applied fact resolution, released quarantine, or semantic detection;
-EXP-0001 still unexecuted and empty.
+Phase 1B.3B merged with validation green; NOW, ROADMAP, RISKS,
+OPEN_QUESTIONS, and the decision index consistent with DEC-0008..DEC-0015;
+the enrollment and signing-CLI suites green alongside the adversarial
+human-gate suite; exactly one least-privilege authority enrolled with no
+private material anywhere in the repository; no claim anywhere of applied
+fact resolution, released quarantine, unfrozen independent-review gates,
+or semantic detection; EXP-0001 still unexecuted and empty.
