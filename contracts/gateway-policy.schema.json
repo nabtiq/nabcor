@@ -122,7 +122,7 @@
   },
   "examples": [
     {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "policy_id": "gateway-policy-0002",
       "decision_ref": "DEC-0018",
       "allowed_adapters": ["anthropic", "fake"],

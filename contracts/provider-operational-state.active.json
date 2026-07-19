@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.9.0",
+  "schema_version": "1.10.0",
   "state_id": "pos-anthropic-0001",
   "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
   "provider": "anthropic",
@@ -11,7 +11,9 @@
   "console_spend_cap_configured": false,
   "smoke_call_completed": false,
   "exp_0001_executed": false,
-  "live_call_authorization_ref": null,
+  "live_call_request_ref": null,
+  "live_call_receipt_ref": null,
+  "reconciliation_ref": null,
   "decision_ref": "DEC-0019",
   "updated_at": "2026-07-19T19:30:28Z"
 }

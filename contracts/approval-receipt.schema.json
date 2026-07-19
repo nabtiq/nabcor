@@ -77,7 +77,8 @@
         "truth-profile",
         "truth-analysis",
         "fact-resolution-decision",
-        "provider-policy-candidate"
+        "provider-policy-candidate",
+        "live-provider-call-request"
       ]
     },
     "target_artifact_digest": {
@@ -130,7 +131,7 @@
   "additionalProperties": false,
   "examples": [
     {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "receipt_id": "r1e9dd9ae6661f3b19549cac8e1365c4b840b2a9cc81ba53a93838cd0ba3edecb",
       "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
       "evidence_ref": "apev_0001",

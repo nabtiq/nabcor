@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.9.0",
+  "schema_version": "1.10.0",
   "evidence_id": "apev-0185ba8e5a86202d",
   "payload": {
     "payload_type": "nabcor-human-gate-approval",

@@ -28,7 +28,7 @@ const RESPONSE_MARKER = "SYNTHETIC-RESPONSE-MARKER-81440";
 
 function gatewayRequest(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.9.0",
+    schema_version: "1.10.0",
     request_id: "req_gi_0001",
     run_id: "run_gi_0001",
     session_id: "sess_gi",
@@ -44,7 +44,7 @@ function gatewayRequest(overrides: Record<string, unknown> = {}): Record<string,
     scenario_id: "assumption-basic",
     context_items: [{ artifact_id: "src_t_0001", reason: "synthetic source under test", required: false }],
     token_budget: {
-      schema_version: "1.9.0",
+      schema_version: "1.10.0",
       budget_id: "budget_gi_0001",
       scope: "skill",
       scope_ref: "gateway-anthropic-test",

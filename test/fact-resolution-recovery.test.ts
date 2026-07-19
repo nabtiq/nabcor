@@ -75,7 +75,7 @@ function expectedSuccessor(op: Operation, losingRef: string): Record<string, unk
   assert.ok(predecessor.ok);
   const successor: Record<string, unknown> = { ...predecessor.value };
   delete successor["superseded_by"];
-  successor["schema_version"] = "1.9.0";
+  successor["schema_version"] = "1.10.0";
   successor["artifact_id"] = successorIdFor(op.applicationId, losingRef);
   successor["supersedes"] = losingRef;
   successor["verification_status"] = "contradicted";

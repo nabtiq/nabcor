@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/provider-smoke-echo.schema.json",
+  "title": "Provider smoke echo",
+  "description": "The trivial structured-output contract for the ONE Anthropic smoke request (DEC-0020). It is deliberately minimal and constrained-decoding compatible (object with additionalProperties:false, no length/numeric constraints, only const/enum): the smoke call asks the model to return exactly this shape so the ceremony verifies the live transport, structured-output mechanism, and accounting without any real task. It carries no truth authority — a smoke echo never becomes a claim.",
+  "type": "object",
+  "required": ["acknowledgement"],
+  "properties": {
+    "acknowledgement": {
+      "const": "nabcor-smoke-ok",
+      "description": "the fixed acknowledgement token the model is asked to return"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    { "acknowledgement": "nabcor-smoke-ok" }
+  ]
+}

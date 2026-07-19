@@ -400,7 +400,7 @@ export function applyFactResolution(
     const successorId = expectedSuccessors.get(loser.claim_ref)!;
     const successor: Record<string, unknown> = { ...predecessor.value };
     delete successor["superseded_by"];
-    successor["schema_version"] = "1.9.0";
+    successor["schema_version"] = "1.10.0";
     successor["artifact_id"] = successorId;
     successor["supersedes"] = loser.claim_ref;
     successor["verification_status"] = "contradicted";
@@ -465,7 +465,7 @@ export function applyFactResolution(
 
   // 8. Immutable application result — the exactly-once record.
   const application: Record<string, unknown> = {
-    schema_version: "1.9.0",
+    schema_version: "1.10.0",
     artifact_id: applicationId,
     brand_ref: brandRef,
     workspace,

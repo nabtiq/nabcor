@@ -1,0 +1,263 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/live-provider-call-request.schema.json",
+  "title": "Live provider call request",
+  "description": "The immutable, signable authorization target for EXACTLY ONE real provider request (DEC-0020). It carries the COMPLETE authorized action so the Product Owner signs one exact request, never a broad live-mode grant: the workspace/brand namespace, the exact provider-policy candidate and active gateway-policy references with digests, the provider and exact model, the synthetic fixture references with content digests, the expected output contract, the exact input and maximum output tokens, the USD 0.25 ceremony ceiling, exactly one attempt with retry and escalation disabled, the pinned endpoint and API version, every disabled optional surface, a short validity window, the request purpose, and a canonical request digest. request_digest is 'sha256:' + sha256 over the canonical JSON of this artifact WITHOUT the request_digest field (claim-set-sha256-1.0.0 serializer); the semantic layer recomputes it. The Product Owner signs the STORED artifact's full canonical content digest under the live-provider-call-approval gate; the approval is consumed exactly once. A proposed or unsigned request grants nothing; contract validity proves shape only.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "artifact_id",
+    "workspace",
+    "brand_ref",
+    "created_at",
+    "provider",
+    "model_id",
+    "provider_policy_candidate_ref",
+    "provider_policy_candidate_digest",
+    "gateway_policy_id",
+    "gateway_policy_digest",
+    "data_classification",
+    "synthetic_fixture_refs",
+    "expected_output_contract",
+    "max_input_tokens",
+    "max_output_tokens",
+    "max_usd",
+    "max_attempts",
+    "retry_enabled",
+    "max_escalations",
+    "api_endpoint",
+    "anthropic_api_version",
+    "caching_enabled",
+    "batch_enabled",
+    "tools_enabled",
+    "provider_storage_enabled",
+    "provider_memory_enabled",
+    "files_api_enabled",
+    "fallback_providers_enabled",
+    "automatic_escalation_enabled",
+    "streaming_enabled",
+    "exp_0001_authorized",
+    "valid_from",
+    "valid_until",
+    "purpose",
+    "decision_refs",
+    "request_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "artifact_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "workspace": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "brand_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provider": {
+      "const": "anthropic"
+    },
+    "model_id": {
+      "const": "claude-haiku-4-5-20251001",
+      "description": "the smoke ceremony authorizes the Haiku model only; Sonnet and every other ID are schema-invalid here"
+    },
+    "provider_policy_candidate_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "provider_policy_candidate_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "gateway_policy_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "gateway_policy_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "canonical content digest of the exact active gateway policy the call runs under"
+    },
+    "data_classification": {
+      "const": "synthetic"
+    },
+    "synthetic_fixture_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "fixture_id",
+          "content_digest"
+        ],
+        "properties": {
+          "fixture_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+          },
+          "content_digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "the exact synthetic input fixtures, each digest-pinned; sorted and unique by fixture_id (semantic layer)"
+    },
+    "expected_output_contract": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+      "description": "the trivial structured-output contract the response must validate against"
+    },
+    "max_input_tokens": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2000,
+      "description": "deliberately small input allowance for the ceremony (well below the 200k policy ceiling)"
+    },
+    "max_output_tokens": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 256,
+      "description": "deliberately small output allowance for the ceremony (well below the 32k policy ceiling)"
+    },
+    "max_usd": {
+      "const": 0.25,
+      "description": "the ceremony authorization ceiling; the worst-case projected cost must not exceed this and the standing USD 1.00 per-request ceiling still applies"
+    },
+    "max_attempts": {
+      "const": 1
+    },
+    "retry_enabled": {
+      "const": false
+    },
+    "max_escalations": {
+      "const": 0
+    },
+    "api_endpoint": {
+      "const": "https://api.anthropic.com/v1/messages"
+    },
+    "anthropic_api_version": {
+      "const": "2023-06-01"
+    },
+    "caching_enabled": {
+      "const": false
+    },
+    "batch_enabled": {
+      "const": false
+    },
+    "tools_enabled": {
+      "const": false
+    },
+    "provider_storage_enabled": {
+      "const": false
+    },
+    "provider_memory_enabled": {
+      "const": false
+    },
+    "files_api_enabled": {
+      "const": false
+    },
+    "fallback_providers_enabled": {
+      "const": false
+    },
+    "automatic_escalation_enabled": {
+      "const": false
+    },
+    "streaming_enabled": {
+      "const": false
+    },
+    "exp_0001_authorized": {
+      "const": false,
+      "description": "the smoke request never authorizes EXP-0001"
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "short authorization window; semantic layer requires valid_until after valid_from"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "decision_refs": {
+      "const": [
+        "DEC-0018",
+        "DEC-0019",
+        "DEC-0020"
+      ],
+      "description": "the ratifying enablement, implementation, and smoke decisions, sorted"
+    },
+    "request_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "sha256 over the canonical JSON of this request WITHOUT this field; recomputed by the semantic layer"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "schema_version": "1.10.0",
+      "artifact_id": "lpcr-example-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-20T00:00:00Z",
+      "provider": "anthropic",
+      "model_id": "claude-haiku-4-5-20251001",
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "gateway_policy_id": "gateway-policy-0002",
+      "gateway_policy_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "data_classification": "synthetic",
+      "synthetic_fixture_refs": [
+        {
+          "fixture_id": "smoke-prompt-0001",
+          "content_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      ],
+      "expected_output_contract": "provider-smoke-echo",
+      "max_input_tokens": 200,
+      "max_output_tokens": 64,
+      "max_usd": 0.25,
+      "max_attempts": 1,
+      "retry_enabled": false,
+      "max_escalations": 0,
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "streaming_enabled": false,
+      "exp_0001_authorized": false,
+      "valid_from": "2026-07-20T00:00:00Z",
+      "valid_until": "2026-07-20T02:00:00Z",
+      "purpose": "One synthetic Haiku smoke request to verify the live transport, accounting, and reconciliation before EXP-0001 (DEC-0020).",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019",
+        "DEC-0020"
+      ],
+      "request_digest": "sha256:0dec21ae35448d35cad164d0b6f61aa37c79e4224269c3ec884fbdadc0458987"
+    }
+  ]
+}

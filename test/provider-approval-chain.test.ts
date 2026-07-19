@@ -243,7 +243,7 @@ test("expired, wrong-gate, wrong-candidate, and rejected live-call evidence fail
 
 test("model output cannot mark an inference as verified fact (contract layer rejects it)", () => {
   const fabricated = {
-    schema_version: "1.9.0",
+    schema_version: "1.10.0",
     artifact_id: "claim_fab_01",
     brand_ref: BRAND,
     created_at: NOW,
@@ -266,7 +266,7 @@ test("cross-brand model output fails the record-store namespace boundary", async
   const { tempDir } = await import("./helpers.js");
   const store = new FileRunRecordStore(tempDir("cross-brand"), registry());
   const record = {
-    schema_version: "1.9.0",
+    schema_version: "1.10.0",
     run_id: "run_x",
     session_id: "s",
     project_id: "p",

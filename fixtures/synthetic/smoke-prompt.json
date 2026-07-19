@@ -1,0 +1,6 @@
+{
+  "fixture_id": "smoke-prompt-0001",
+  "data_classification": "synthetic",
+  "prompt": "This is a synthetic connectivity smoke test for NABCor. It carries no real client or brand data. Respond by returning exactly the structured output requested: an object whose only field is \"acknowledgement\" with the constant value \"nabcor-smoke-ok\". Do not add any other field, commentary, or text.",
+  "expected_acknowledgement": "nabcor-smoke-ok"
+}

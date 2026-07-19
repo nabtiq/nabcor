@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.9.0",
+  "schema_version": "1.10.0",
   "receipt_id": "rdabf718125365b1cc3c1da4a53532bc0ddcaaefc10359a3a65019fa097a95dff",
   "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
   "evidence_ref": "apev-0185ba8e5a86202d",

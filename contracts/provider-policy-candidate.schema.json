@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://nabcor.nabtiq.com/contracts/provider-policy-candidate.schema.json",
   "title": "Provider policy candidate",
-  "description": "The immutable, signable provider-enablement policy candidate (DEC-0018 packet section 9; implemented by DEC-0019). This artifact carries the COMPLETE ratified provider configuration — provider, adapter, exact model allowlist with the pinned price table, exact API endpoint and protocol version, allowed data classes, retention and training posture, every USD/token/attempt/escalation ceiling, every disabled optional surface, the live-invocation and EXP-0001 stances, the canonical secret-boundary identifiers, and the policy validity window — so the Product Owner signs exactly one exact configuration, never a summary. Every ratified value is a schema constant: a candidate carrying any other value is contract-invalid. candidate_digest is 'sha256:' + sha256 over the canonical JSON of the candidate WITHOUT the candidate_digest field (code-unit-sorted keys, no whitespace; claim-set-sha256-1.0.0 serializer); the semantic layer recomputes it. Signing target: the Product Owner signs the stored artifact's full canonical content digest (which includes candidate_digest) under the provider-enablement-approval gate; the active gateway policy must embed that same content digest. A proposed or unsigned candidate grants nothing; contract validity proves shape only.",
+  "description": "The immutable, signable provider-enablement policy candidate (DEC-0018 packet section 9; implemented by DEC-0019). This artifact carries the COMPLETE ratified provider configuration \u2014 provider, adapter, exact model allowlist with the pinned price table, exact API endpoint and protocol version, allowed data classes, retention and training posture, every USD/token/attempt/escalation ceiling, every disabled optional surface, the live-invocation and EXP-0001 stances, the canonical secret-boundary identifiers, and the policy validity window \u2014 so the Product Owner signs exactly one exact configuration, never a summary. Every ratified value is a schema constant: a candidate carrying any other value is contract-invalid. candidate_digest is 'sha256:' + sha256 over the canonical JSON of the candidate WITHOUT the candidate_digest field (code-unit-sorted keys, no whitespace; claim-set-sha256-1.0.0 serializer); the semantic layer recomputes it. Signing target: the Product Owner signs the stored artifact's full canonical content digest (which includes candidate_digest) under the provider-enablement-approval gate; the active gateway policy must embed that same content digest. A proposed or unsigned candidate grants nothing; contract validity proves shape only.",
   "type": "object",
   "required": [
     "schema_version",
@@ -87,7 +87,7 @@
           "output_usd_per_mtok": 15
         }
       ],
-      "description": "exact ratified model IDs sorted by model_id, each with its capability tier and the pinned conservative price table (Sonnet 5 at the post-intro rate deliberately — packet section 6.1); cost reservation and settlement use exactly these prices"
+      "description": "exact ratified model IDs sorted by model_id, each with its capability tier and the pinned conservative price table (Sonnet 5 at the post-intro rate deliberately \u2014 packet section 6.1); cost reservation and settlement use exactly these prices"
     },
     "pricing_version": {
       "const": "anthropic-official-2026-07-19-post-intro",
@@ -102,7 +102,9 @@
       "description": "pinned anthropic-version header value; a policy-controlled constant, never a caller input"
     },
     "allowed_data_classes": {
-      "const": ["synthetic"]
+      "const": [
+        "synthetic"
+      ]
     },
     "retention_posture": {
       "const": "STANDARD_UP_TO_30_DAYS",
@@ -189,16 +191,19 @@
     "valid_until": {
       "type": "string",
       "format": "date-time",
-      "description": "policy validity window end; semantic layer requires valid_until after valid_from. The active window ends at Haiku 4.5's tentative retirement floor — running past it requires a re-ratified candidate."
+      "description": "policy validity window end; semantic layer requires valid_until after valid_from. The active window ends at Haiku 4.5's tentative retirement floor \u2014 running past it requires a re-ratified candidate."
     },
     "decision_refs": {
-      "const": ["DEC-0018", "DEC-0019"],
+      "const": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
       "description": "the ratifying enablement decision and the implementation decision, sorted"
     },
     "candidate_digest": {
       "type": "string",
       "pattern": "^sha256:[0-9a-f]{64}$",
-      "description": "sha256 over the canonical JSON of this candidate WITHOUT this field; recomputed by the semantic layer — a tampered candidate is contract-invalid"
+      "description": "sha256 over the canonical JSON of this candidate WITHOUT this field; recomputed by the semantic layer \u2014 a tampered candidate is contract-invalid"
     }
   },
   "examples": [
@@ -227,7 +232,9 @@
       "pricing_version": "anthropic-official-2026-07-19-post-intro",
       "api_endpoint": "https://api.anthropic.com/v1/messages",
       "anthropic_api_version": "2023-06-01",
-      "allowed_data_classes": ["synthetic"],
+      "allowed_data_classes": [
+        "synthetic"
+      ],
       "retention_posture": "STANDARD_UP_TO_30_DAYS",
       "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
       "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
@@ -253,7 +260,10 @@
       "keychain_account": "nabcor",
       "valid_from": "2026-07-19T00:00:00Z",
       "valid_until": "2026-10-15T00:00:00Z",
-      "decision_refs": ["DEC-0018", "DEC-0019"],
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
       "candidate_digest": "sha256:29523c8616d8d89af3d3c168f5208b1fd069a1f798934fdea95a3f12140c1a9a"
     }
   ],
