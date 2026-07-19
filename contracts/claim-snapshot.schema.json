@@ -65,7 +65,7 @@
   ],
   "examples": [
     {
-      "schema_version": "1.7.0",
+      "schema_version": "1.7.1",
       "artifact_id": "snap_0001",
       "brand_ref": "brand_example",
       "workspace": "ws_example",
