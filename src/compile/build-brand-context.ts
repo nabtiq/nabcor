@@ -454,7 +454,7 @@ export function buildBrandContext(
     );
 
   const artifact: Record<string, unknown> = {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     artifact_id: input.artifactId,
     brand_ref: input.brandRef,
     created_at: input.createdAt,

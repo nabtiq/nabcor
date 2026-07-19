@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/provider-operational-state.schema.json",
+  "title": "Provider operational state",
+  "description": "The committed, CI-validated active readiness document for the configured provider (DEC-0019). It makes the CONFIGURED_BUT_LIVE_DISABLED state machine-enforceable: every live-relevant flag is pinned false as a schema constant in this phase, so no committed document, configuration edit, or runtime flag can enable a live provider call — enabling live invocation requires a future conscious contract migration (new schema version, new decision record, secret-provisioning ceremony, and a separately signed smoke-call approval), never a document edit. The runtime Anthropic adapter loads this document through a fixed path and fails closed unless live_invocation_enabled is true, which is schema-impossible here. The document is digest-bound to the signed provider-policy-candidate so a substituted candidate breaks the binding.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "state_id",
+    "operational_state",
+    "provider",
+    "adapter_id",
+    "provider_policy_candidate_ref",
+    "provider_policy_candidate_digest",
+    "live_invocation_enabled",
+    "credential_provisioned",
+    "console_spend_cap_configured",
+    "smoke_call_completed",
+    "exp_0001_executed",
+    "live_call_authorization_ref",
+    "decision_ref",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "state_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "operational_state": {
+      "const": "CONFIGURED_BUT_LIVE_DISABLED",
+      "description": "the adapter, contracts, and signed policy exist and are active; no credential is provisioned, no live or paid call has occurred, and live invocation fails closed"
+    },
+    "provider": {
+      "const": "anthropic"
+    },
+    "adapter_id": {
+      "const": "anthropic"
+    },
+    "provider_policy_candidate_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "provider_policy_candidate_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "must equal the active gateway policy's embedded candidate digest (CI verifies)"
+    },
+    "live_invocation_enabled": {
+      "const": false,
+      "description": "pinned false: live provider invocation is disabled in this contract version; a true value is schema-invalid"
+    },
+    "credential_provisioned": {
+      "const": false,
+      "description": "pinned false: no real Anthropic credential exists in NABCor; provisioning is a later personal ceremony"
+    },
+    "console_spend_cap_configured": {
+      "const": false,
+      "description": "pinned false: the provider-console USD 60 hard cap belongs to the later operational ceremony and is NOT claimed configured"
+    },
+    "smoke_call_completed": {
+      "const": false
+    },
+    "exp_0001_executed": {
+      "const": false
+    },
+    "live_call_authorization_ref": {
+      "const": null,
+      "description": "pinned null: no live-call authorization exists; a future smoke-call phase records its consumed approval evidence reference here under a migrated contract"
+    },
+    "decision_ref": {
+      "type": "string",
+      "pattern": "^DEC-\\d{4}$"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "examples": [
+    {
+      "schema_version": "1.9.0",
+      "state_id": "pos-anthropic-0001",
+      "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "provider_policy_candidate_ref": "ppc-example-0001",
+      "provider_policy_candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "live_invocation_enabled": false,
+      "credential_provisioned": false,
+      "console_spend_cap_configured": false,
+      "smoke_call_completed": false,
+      "exp_0001_executed": false,
+      "live_call_authorization_ref": null,
+      "decision_ref": "DEC-0019",
+      "updated_at": "2026-07-19T21:00:00Z"
+    }
+  ],
+  "additionalProperties": false
+}

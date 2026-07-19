@@ -172,7 +172,7 @@
   ],
   "examples": [
     {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "fra99be386202dae82aa6ddf0b2def3472985240bfdc1b6aaf3eb63bec8b4622b78",
       "brand_ref": "brand_example",
       "workspace": "ws_example",

@@ -26,11 +26,18 @@ speculative specs):
   a thin orchestration boundary that adds no capability and no authority
   beyond these services.
 
-Their model-assisted extensions (catalog Tiers 1–2) remain unimplemented and
-**prohibited by the ratified zero-provider policy** (DEC-0009; Q-001 and
-Q-002 are both closed — Q-002 as "no provider approved"). This is a policy
-boundary, not an unanswered question: enabling any provider requires a new
-ratified provider-enablement decision meeting DEC-0009's nine requirements.
+Their model-assisted extensions (catalog Tiers 1–2) remain unimplemented as
+skills. Since Phase 1C.1 (DEC-0018 Option A / DEC-0019) the runtime carries
+a configured Anthropic adapter behind the gateway — but the operational
+state is CONFIGURED_BUT_LIVE_DISABLED: no credential exists, no provider
+call or spend has occurred, live invocation fails closed behind the
+committed operational state and a missing separately-signed live-call
+approval, and CI is mock-transport only. No skill spec may name a provider
+or model ID (INV-PROV-001 unchanged): skills declare tiers, and the exact
+model allowlist lives in the signed provider-policy candidate and the
+gateway policy only. Model-assisted skill execution stays blocked until
+the secret-provisioning and smoke-call ceremonies complete under their own
+authorizations.
 
 In particular, the catalog's `detect-contradictions` capability (Tier 2,
 semantic contradiction detection over prose) remains prohibited under

@@ -2,42 +2,42 @@
 
 > Current state only. Git contains history; `brain/archive/` contains retired context.
 
-**Updated:** 2026-07-19
+**Updated:** 2026-07-20
 
 ## Current phase
 
-DEC-0018 RATIFIED (Option A, 2026-07-19) — awaiting the Phase 1C.1
-implementation phase. Ratification followed Phase 1C.0.1's evidence
-correction of the provider-enablement decision packet, on top of Phase
-1C.0
-on top of the complete Phase 1B offline foundation: the Phase 1B.5 safe
+Phase 1C.1 delivered (DEC-0019): the ratified DEC-0018 Option A
+enablement is implemented as **CONFIGURED_BUT_LIVE_DISABLED**. The
+Anthropic raw-HTTPS adapter, the signed provider-policy candidate, the
+migrated contracts (1.9.0), the budget ledger, and the secret boundary
+all exist and are test-proven with mocked transport only — and live
+invocation remains disabled: no credential exists in NABCor, no provider
+call or spend has occurred, and EXP-0001 is unexecuted. This sits on top
+of the complete Phase 1B offline foundation: the Phase 1B.5 safe
 operator CLI (DEC-0017), the Phase 1B.4 authenticated fact-resolution
 application (DEC-0016), the Phase 1B.3B real Product Owner key
-enrollment (DEC-0015), the
-Phase 1B.3A authenticated human-gate foundation (DEC-0014), the Phase
-1B.2.2 store-authoritative claim snapshots (DEC-0013), the Phase 1B.2.1
-resolution-safe claim lifecycle (DEC-0012), the Phase 1B.2 deterministic
-structured-truth analysis, the Phase 1B.1 offline gateway kernel, and the
-Phase 1A truth kernel. The clean foundation baseline (`0.1.0`) remains
-the historical boundary (`FOUNDATION_BASELINE.md`). Phase 1 is not
-complete.
+enrollment (DEC-0015), the Phase 1B.3A authenticated human-gate
+foundation (DEC-0014), the Phase 1B.2.2 store-authoritative claim
+snapshots (DEC-0013), the Phase 1B.2.1 resolution-safe claim lifecycle
+(DEC-0012), the Phase 1B.2 deterministic structured-truth analysis, the
+Phase 1B.1 offline gateway kernel, and the Phase 1A truth kernel. The
+clean foundation baseline (`0.1.0`) remains the historical boundary
+(`FOUNDATION_BASELINE.md`). Phase 1 is not complete.
 
 ## Current objective
 
-The Product Owner ratified DEC-0018 **Option A** on 2026-07-19 (verbatim
-statement recorded in the decision record, pinned to packet commit
-bbca93a4): Anthropic API with exactly `claude-haiku-4-5-20251001` and
-`claude-sonnet-5`, synthetic data only, ceilings $1/request, $25/run,
-$40/day, $60/month; caching, Batch, tools, provider-side storage,
-fallback providers, and automatic escalation disabled; mocked transport
-tests before any paid smoke call; a separately authenticated approval
-before EXP-0001 execution. **Ratification authorizes the Phase 1C.1
-implementation phase ONLY** — it is not yet begun, and until its
-consciously-reviewed active-policy revision merges, the DEC-0009
-zero-provider posture remains operationally active: the active gateway
-policy is unchanged and CI-guarded, no credential or network path
-exists, no spend is possible, and EXP-0001 remains unexecuted. Q-010 is
-closed.
+Reach EXP-0001 execution through the remaining OPERATIONAL ceremonies —
+none of which is code: (1) the personal Anthropic account/API-key
+ceremony and macOS Keychain provisioning under the policy-bound
+identifiers (`nabcor-anthropic-api-key` / `nabcor`); (2) the
+provider-console USD 60 hard monthly cap; (3) a separately signed
+minimal smoke-call approval at the `live-provider-call-approval` gate
+plus the reconciliation drill; (4) a separately signed EXP-0001
+execution approval. Until those complete and a future phase consciously
+migrates the operational-state contract, every live gate stays
+fail-closed: the committed provider-operational-state pins live
+invocation, credential provisioning, the console cap, the smoke call,
+and EXP-0001 execution all false as schema constants. Q-010 is closed.
 
 ## Ratified decisions
 
@@ -130,6 +130,17 @@ closed.
   (operator-error guard, never authentication); losers always
   re-derived; no private-key surface; application accepts public
   evidence only; stable exit codes; no operator-receipt contract.
+- DEC-0019 — Anthropic provider implementation (Phase 1C.1):
+  CONFIGURED_BUT_LIVE_DISABLED. Product Owner-signed provider-policy
+  candidate cryptographically bound to the active gateway policy with a
+  CI-verified candidate -> evidence -> authority -> decision -> policy
+  chain; one raw-HTTPS Anthropic adapter behind the provider-neutral
+  gateway (pinned endpoint, narrow injected transport, fail-closed live
+  gates in test-proven order); conservative pre-invocation budget
+  enforcement; macOS-Keychain-only secret boundary with no provisioned
+  credential; mock-only tests and CI; live invocation, the smoke call,
+  and EXP-0001 each behind separate future authenticated approvals;
+  contracts 1.9.0.
 
 ## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006 and Phase 1A.2 / DEC-0007)
 
@@ -426,12 +437,61 @@ closed.
   credential-shaped values, carries dated sources, estimates-only cost
   language, and matrix-backed model IDs.
 
+## Implemented (Phase 1C.1, DEC-0019)
+
+- Contracts 1.9.0 (synchronized): new strict `provider-policy-candidate`
+  (the complete signed enablement configuration with self-integrity
+  digest) and `provider-operational-state` (CONFIGURED_BUT_LIVE_DISABLED
+  pinned as schema constants); `gateway-policy` migrated from the
+  DEC-0009 zero-provider constants to the DEC-0018 constants with the
+  mandatory signed-candidate digest binding; `human-gate-policy` v3 adds
+  the `provider-enablement-approval` and `live-provider-call-approval`
+  product-owner gates (independent-review gates unchanged and frozen);
+  `model-run` gains optional truthful provider-accounting fields.
+- Signed-policy chain: the Product Owner personally signed the exact
+  committed candidate's canonical content digest; the public evidence
+  and consumption receipt are committed, and
+  `scripts/validate-provider-chain.mjs` (in `npm run validate` and CI)
+  re-verifies the complete chain including the Ed25519 signature on
+  every run. Replay protection was proven by a live second-consumption
+  attempt.
+- Anthropic adapter (`src/gateway/adapters/anthropic.ts`) behind the
+  provider-neutral gateway: fixed fail-closed gate order (request
+  validation -> live-invocation state -> live-call authorization check
+  -> atomic budget reservation -> authorization consumption -> secret
+  resolution -> bounded transport), exact pinned models resolved from
+  tiers, bounded request bodies, at most two total attempts with
+  retry-after respected, every response untrusted until content-type/
+  size/JSON/model/usage/content-block/contract validation passes, and
+  full redaction (no bodies, headers, or credential-shaped values in
+  any failure, record, or output).
+- Transport separation: a narrow injected transport interface with no
+  URL and no header surface; the production raw-HTTPS transport
+  (`fetch-transport.ts`, Node built-in fetch, endpoint pinned) is the
+  ONLY file in the repository with network capability (grep-gated) and
+  is unreachable from every committed configuration.
+- Budget ledger (`budget-ledger.ts`): integer-cent conservative
+  reservations under an exclusive single-writer lock, per-request/run/
+  UTC-day/UTC-month ceilings, idempotent crash-safe settlement that
+  never releases more than provably unused, deterministic rollovers via
+  the injected clock.
+- Secret boundary (`secret.ts`): macOS Keychain only, policy-bound
+  service/account identifiers from the signed candidate, resolution only
+  after all non-secret gates, fail-closed on non-macOS/missing entry,
+  zero secret-shaped diagnostics; no credential provisioned.
+- Mock-only test suites: policy-chain, adapter transport behavior,
+  budget arithmetic and ceilings, authorization ordering (zero secret
+  lookups / zero transport behind every failed gate), live-disabled
+  structural proofs, leakage scans, and gateway integration records.
+
 ## Blocked / not implemented
 
-- Provider adapters, real model calls, provider-backed extraction, and
-  semantic contradiction detection: prohibited by the ratified zero-provider
-  policy (DEC-0009, zero spend); enabling any provider requires a new
-  ratified decision meeting DEC-0009's nine requirements.
+- Live provider invocation, the paid smoke call, and any provider spend:
+  disabled fail-closed (DEC-0019). The committed operational state pins
+  live invocation off as a schema constant; no credential exists in
+  NABCor; the remaining path is operational (key ceremony, Keychain
+  provisioning, console cap, separately signed smoke-call approval), not
+  code.
 - Natural-language fact extraction (prose → structured claims) does not
   exist in any form; the deterministic analyzer only consumes fact metadata
   made explicit upstream.
@@ -447,14 +507,18 @@ closed.
 
 ## Immediate next actions
 
-1. Execute Phase 1C.1 (provider-enablement implementation) under the
-   ratified DEC-0018 Option A scope: policy-contract migration with the
-   signed provider-policy-candidate digest binding (packet §9), the
-   raw-HTTPS Anthropic adapter behind the gateway with mocked-transport
-   tests, secret provisioning per packet §8, every HIGH-threat
-   implementation gate from the threat model (including T07a's
-   taxonomy), ceilings enforced pre-invocation — awaiting the Product
-   Owner's Phase 1C.1 execution instruction.
+1. Run the personal operational ceremonies, in order and each under its
+   own authorization: the Anthropic account/API-key ceremony with macOS
+   Keychain provisioning (`security add-generic-password -s
+   nabcor-anthropic-api-key -a nabcor -w <KEY-ENTERED-INTERACTIVELY>`,
+   run personally, never by an agent); the provider-console USD 60 hard
+   monthly cap; then a future phase that consciously migrates the
+   operational-state contract, executes one separately signed minimal
+   smoke call, and completes the reconciliation drill.
+2. After a green smoke-call reconciliation, prepare the separately
+   signed EXP-0001 execution approval and run EXP-0001 before Haiku
+   4.5's tentative retirement floor (2026-10-15; the candidate validity
+   window ends there too — RISK-DECAY-01).
 3. Rotate the enrolled key by a new reviewed registry revision + decision
    before its 2027-07-19 expiry (or immediately on suspected compromise
    or private-key loss — RISK-KEY-01).
@@ -462,11 +526,13 @@ closed.
 
 ## Definition of done for the current objective
 
-DEC-0018 recorded as ratified (Option A) with the verbatim approval
-evidence and validation green; Q-010 closed in the answer log; the
-decision index, NOW, ROADMAP, and README consistent; the CI guards
-consciously flipped from enforcing the proposed state to enforcing the
-ratified state; the active gateway policy still byte-identical to its
-DEC-0009 state (CI-guarded) with no provider, adapter, SDK, credential,
-network runtime path, or spend introduced; EXP-0001 still unexecuted
-and empty.
+The smoke-call phase (not this one) is done when: the operational-state
+contract is consciously migrated under a new decision; the credential is
+provisioned personally into the policy-bound Keychain identifiers; the
+console cap is verified configured; exactly one minimal paid smoke call
+runs under a consumed `live-provider-call-approval`; the run record
+reconciles against the provider usage export within tolerance; and
+`npm run validate` stays green. Phase 1C.1 itself is done: contracts
+1.9.0, the signed chain CI-verified, the adapter and enforcement layers
+merged test-proven, live invocation still disabled, no credential, no
+spend, EXP-0001 empty.

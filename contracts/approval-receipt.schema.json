@@ -76,7 +76,8 @@
         "claim-snapshot",
         "truth-profile",
         "truth-analysis",
-        "fact-resolution-decision"
+        "fact-resolution-decision",
+        "provider-policy-candidate"
       ]
     },
     "target_artifact_digest": {
@@ -89,7 +90,9 @@
         "quarantine-release",
         "client-facing-publishing",
         "blocking-evaluation-gate-change",
-        "real-client-data-provider-approval"
+        "real-client-data-provider-approval",
+        "provider-enablement-approval",
+        "live-provider-call-approval"
       ]
     },
     "verdict": {
@@ -127,7 +130,7 @@
   "additionalProperties": false,
   "examples": [
     {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "receipt_id": "r1e9dd9ae6661f3b19549cac8e1365c4b840b2a9cc81ba53a93838cd0ba3edecb",
       "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
       "evidence_ref": "apev_0001",

@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.8.0",
+  "schema_version": "1.9.0",
   "policy_id": "hgp-nabcor-1",
-  "policy_version": 2,
-  "decision_ref": "DEC-0015",
+  "policy_version": 3,
+  "decision_ref": "DEC-0019",
   "signature_algorithm": "ed25519",
   "payload_type": "nabcor-human-gate-approval",
   "payload_version": "1.0.0",
@@ -16,7 +16,9 @@
     "quarantine-release",
     "client-facing-publishing",
     "blocking-evaluation-gate-change",
-    "real-client-data-provider-approval"
+    "real-client-data-provider-approval",
+    "provider-enablement-approval",
+    "live-provider-call-approval"
   ],
   "gate_requirements": {
     "fact-resolution-approval": {
@@ -38,6 +40,14 @@
     "real-client-data-provider-approval": {
       "required_role": "product-owner",
       "independent_review_required": true
+    },
+    "provider-enablement-approval": {
+      "required_role": "product-owner",
+      "independent_review_required": false
+    },
+    "live-provider-call-approval": {
+      "required_role": "product-owner",
+      "independent_review_required": false
     }
   },
   "max_approval_ttl_seconds": 86400,

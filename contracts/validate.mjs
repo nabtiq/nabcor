@@ -93,6 +93,16 @@ const afterSnapshotIdFor = (applicationRef) =>
   `fsn${resolutionHash({ application_ref: applicationRef, role: "after-snapshot" })}`;
 const afterAnalysisIdFor = (applicationRef) =>
   `fan${resolutionHash({ application_ref: applicationRef, role: "after-analysis" })}`;
+// Provider-policy candidate self-integrity (DEC-0019) — mirrored from
+// src/kernel/contract-registry.ts (the two must change together): the
+// candidate_digest is sha256 over the canonical JSON of the candidate WITHOUT
+// the candidate_digest field.
+const candidateSelfDigest = (d) => {
+  const { candidate_digest, ...rest } = d;
+  return `sha256:${createHash("sha256").update(canonicalJson(rest), "utf8").digest("hex")}`;
+};
+const contentDigestOf = (d) =>
+  `sha256:${createHash("sha256").update(canonicalJson(d), "utf8").digest("hex")}`;
 // The four DEC-0008 gates that require a formally named independent reviewer.
 const INDEPENDENT_REVIEW_GATES = [
   "quarantine-release",
@@ -102,6 +112,38 @@ const INDEPENDENT_REVIEW_GATES = [
 ];
 
 const SEMANTIC = {
+  "provider-policy-candidate.schema.json": [
+    {
+      invariant: "DEC-0019 candidate-digest-consistency",
+      check: (d) => {
+        const recomputed = candidateSelfDigest(d);
+        return d.candidate_digest === recomputed
+          ? []
+          : [
+              `candidate_digest '${d.candidate_digest}' does not match the recomputed canonical digest '${recomputed}' over the candidate without its digest field`,
+            ];
+      },
+    },
+    {
+      invariant: "DEC-0019 validity-window-ordered",
+      check: (d) =>
+        Date.parse(d.valid_until) > Date.parse(d.valid_from)
+          ? []
+          : [`valid_until '${d.valid_until}' must be after valid_from '${d.valid_from}'`],
+    },
+    {
+      invariant: "DEC-0019 sorted-unique-model-allowlist",
+      check: (d) => {
+        const out = [];
+        const ids = (d.allowed_models ?? []).map((m) => m.model_id);
+        for (let i = 1; i < ids.length; i++) {
+          if (!(ids[i] > ids[i - 1]))
+            out.push(`allowed_models not strictly sorted by model_id: '${ids[i]}' follows '${ids[i - 1]}'`);
+        }
+        return out;
+      },
+    },
+  ],
   "human-gate-policy.schema.json": [
     {
       invariant: "DEC-0014 gate-requirements-cover-allowed-gates",
@@ -675,6 +717,21 @@ const activeAuthorityRegistry = JSON.parse(
   readFileSync(join(dir, "authority-registry.active.json"), "utf8")
 );
 runPositive("authority-registry.schema.json", activeAuthorityRegistry, "active authority registry document");
+// The committed provider-policy candidate and provider operational state are
+// validated instances (DEC-0019): the runtime adapter refuses to construct
+// from invalid documents, so an invalid committed document must fail CI.
+const activeCandidate = JSON.parse(
+  readFileSync(join(dir, "provider-policy-candidate.active.json"), "utf8")
+);
+runPositive("provider-policy-candidate.schema.json", activeCandidate, "active provider-policy candidate document");
+const activeOperationalState = JSON.parse(
+  readFileSync(join(dir, "provider-operational-state.active.json"), "utf8")
+);
+runPositive(
+  "provider-operational-state.schema.json",
+  activeOperationalState,
+  "active provider operational state document"
+);
 if (activeHumanGatePolicy.authority_registry_ref !== activeAuthorityRegistry.registry_id) {
   fail(
     `active human-gate policy references registry '${activeHumanGatePolicy.authority_registry_ref}' but the committed active registry is '${activeAuthorityRegistry.registry_id}'`

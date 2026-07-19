@@ -5,6 +5,30 @@ provider is enabled; DEC-0009 remains the active policy. This document
 authorizes nothing — it is the threat analysis a future implementation
 phase must satisfy before any provider adapter exists.
 
+**Implementation status (appended 2026-07-20, Phase 1C.1 — historical
+text below is unchanged).** Phase 1C.1 (DEC-0019) implemented and
+test-proved the HIGH-threat implementation gates that precede any live
+call: T01/T02 (Keychain-only boundary, zero-persistence key handling,
+redaction with adversarial credential-shaped leakage tests — no
+credential provisioned), T03 (fixed-path policy trio with CI-verified
+digest binding; no environment or caller override), T09 (response-model
+validation against the signed allowlist, tested against mocked
+mismatches), T13 (size caps, JSON/content-type/usage validation,
+bounded retry, no partial artifacts), T14/T15 (hard two-attempt cap,
+per-attempt atomic reservations, four USD ceilings enforced
+pre-invocation, single-writer ledger), T16 (timeout paths settle
+conservatively at the full reservation; records stay truthful), T19
+(zero new runtime dependencies — Node built-in fetch only), T20
+(one-adapter allowlist; grep gate confines network capability to the
+single pinned transport module), T21 (no body content in any record,
+error, or output — leakage-tested). The E1 layered disable path exists
+in its repository/runtime layers (schema-pinned live-disabled state,
+missing secret, missing approval, exhausted budget, policy mismatch —
+each independently fail-closed); its EXTERNAL layers (console key
+revocation, console spend cap) are documented future controls and are
+NOT claimed configured. T04's workspace-allowlist and the T18
+reconciliation drill belong to the future smoke-call phase.
+
 **Scope:** threats introduced by connecting NABCor's gateway to one real
 LLM provider for synthetic-data EXP-0001 execution only. The offline
 kernel's existing threat surfaces (store tampering, approval forgery,

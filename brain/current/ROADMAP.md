@@ -104,15 +104,27 @@ re-verified all three providers, fixed the false Gemini no-ZDR claim
 and the ambiguous Anthropic retention framing (correction ledger), and
 recomputed the comparison with explicit weights and sensitivity
 analysis — recommendation unchanged except the published cost-dominant and
-lifecycle-dominant cases, which favor OpenAI.
-This is deterministic
-infrastructure only —
-not Phase 1 completion: no provider-backed or natural-language extraction
-exists, no semantic contradiction detection exists, EXP-0001 has not run
-and has no results, and no measured model costs exist. Model-backed work is
-prohibited until a provider-enablement decision supersedes DEC-0009 (gate
-roles are named in DEC-0008, but quarantine release still requires an
-independent reviewer and an authenticated gate mechanism).
+lifecycle-dominant cases, which favor OpenAI. The Phase 1C.1 increment
+(DEC-0019) implemented the ratified enablement as
+CONFIGURED_BUT_LIVE_DISABLED: contracts 1.9.0 with the strict
+provider-policy-candidate and provider-operational-state contracts and
+the migrated gateway policy; the Product Owner-signed candidate with a
+CI-verified candidate -> evidence -> authority -> decision -> policy
+chain; the raw-HTTPS Anthropic adapter behind the provider-neutral
+gateway (pinned endpoint, narrow injected transport, fail-closed live
+gates in test-proven order); conservative pre-invocation budget
+enforcement; and the macOS-Keychain secret boundary with no provisioned
+credential. Live invocation, the paid smoke call, and EXP-0001 each stay
+behind separate future authorizations; no provider or network call has
+occurred and no money has been spent.
+This is still not Phase 1 completion: no live provider-backed or
+natural-language extraction exists, no semantic contradiction detection
+exists, EXP-0001 has not run and has no results, and no measured model
+costs exist. The remaining path to EXP-0001 is operational — the key
+ceremony, Keychain provisioning, console cap, a consciously migrated
+operational-state contract, and the separately signed smoke-call and
+EXP-0001 approvals (gate roles are named in DEC-0008, but quarantine
+release still requires an independent reviewer).
 
 **Exit evidence (still required):** EXP-0001 passes on synthetic/adversarial fixtures;
 seeded fabrication and prompt injection are blocked in the model-backed path; run and

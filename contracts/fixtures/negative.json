@@ -5,7 +5,7 @@
     "expect_fail_at": "schema",
     "description": "missing required envelope field created_at",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "claim_n01",
       "creator_type": "agent",
       "lifecycle_status": "generated",
@@ -22,7 +22,7 @@
     "expect_fail_at": "schema",
     "description": "misspelled top-level field 'modee' rejected by propertyNames",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "bctx_n02",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -49,7 +49,7 @@
     "expect_fail_at": "schema",
     "description": "unknown nested field 'resale_use' inside closed rights object",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "src_n03",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -94,7 +94,7 @@
     "expect_fail_at": "schema",
     "description": "lifecycle_status 'draft' is not a lifecycle state",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "brief_n05",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -115,7 +115,7 @@
     "expect_fail_at": "schema",
     "description": "approval verdict 'maybe' not in enum",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "vw_n06",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -165,7 +165,7 @@
     "expect_fail_at": "semantic",
     "description": "status ratified but no approvals entry with gate=ratification (INV-HUM-001 / INV-DEC-001)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "DEC-9998-neg",
       "brand_ref": null,
       "created_at": "2026-07-17T12:00:00Z",
@@ -194,7 +194,7 @@
     "expect_fail_at": "schema",
     "description": "rights.commercial_use 'sure' not in enum",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "src_n08",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -221,7 +221,7 @@
     "expect_fail_at": "schema",
     "description": "rights omits default-deny training_use (INV-DATA-002 required field)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "src_n09",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -247,7 +247,7 @@
     "expect_fail_at": "schema",
     "description": "classification 'opinion' not in enum",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "claim_n10",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -266,7 +266,7 @@
     "expect_fail_at": "semantic",
     "description": "numeric score supplied with rubric_ref null (INV-EVAL-001)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "eval_n11",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -302,7 +302,7 @@
     "expect_fail_at": "semantic",
     "description": "overall_verdict pass while a blocking evaluation failed (INV-EVAL-001)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "eval_n12",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -338,7 +338,7 @@
     "expect_fail_at": "schema",
     "description": "negative output_tokens",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "run_id": "run_n13",
       "session_id": "s",
       "project_id": "p",
@@ -367,7 +367,7 @@
     "expect_fail_at": "schema",
     "description": "missing brand_id attribution field (INV-OBS-001)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "run_id": "run_n14",
       "session_id": "s",
       "project_id": "p",
@@ -395,7 +395,7 @@
     "expect_fail_at": "semantic",
     "description": "required combination references theme 'dark' not declared in dimensions (INV-AR-001/INV-PE-001)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "matrix_id": "vm_n15",
       "brand_ref": "b",
       "dimensions": {
@@ -435,7 +435,7 @@
     "expect_fail_at": "schema",
     "description": "deliberate typo overall_verdit rejected (propertyNames) and overall_verdict missing (required)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "eval_n16",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -471,7 +471,7 @@
     "expect_fail_at": "semantic",
     "description": "factual copy slot with no claim_refs and no unresolved_fact_note (INV-FACT-001)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "wspec_n17",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -513,7 +513,7 @@
     "expect_fail_at": "semantic",
     "description": "inference claim marked verified without verified_by human (INV-FACT-002)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "claim_n18",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -535,7 +535,7 @@
     "expect_fail_at": "schema",
     "description": "capture.status=captured without content_ref/sha256/bytes/safety (DEC-0006: captured content must be auditable)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "src_n19",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -562,7 +562,7 @@
     "expect_fail_at": "schema",
     "description": "capture.sha256 is not a 64-char lowercase hex digest",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "src_n20",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -594,7 +594,7 @@
     "expect_fail_at": "semantic",
     "description": "injection-flagged captured content stored in the clear namespace — a flag is not a quarantine (INV-SEC-002)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "src_n21",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -627,7 +627,7 @@
     "expect_fail_at": "schema",
     "description": "factual claim citing a mutable filename locator instead of a canonical source artifact reference (DEC-0006)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "claim_n22",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -648,7 +648,7 @@
     "expect_fail_at": "semantic",
     "description": "code-point fragment with start >= end (INV-FACT-001 fragment bounds)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "claim_n23",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -669,7 +669,7 @@
     "expect_fail_at": "schema",
     "description": "image source omitting visual_classification entirely — documentary status must never come from a silent default (INV-FACT-003); explicit null is the honest unresolved state",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "src_n24",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -696,7 +696,7 @@
     "expect_fail_at": "schema",
     "description": "the retired UTF-16-ambiguous #chars= locator form is rejected at the schema layer, never silently migrated (DEC-0007): re-issue against the original captured content with #codepoints= offsets",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "claim_n25",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -717,7 +717,7 @@
     "expect_fail_at": "schema",
     "description": "a policy allowlisting a real-provider adapter is schema-invalid: DEC-0009 pins allowed_adapters to exactly ['fake']; enabling a provider requires a superseding decision and a new contract version",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "policy_id": "gateway-policy-n26",
       "decision_ref": "DEC-0009",
       "allowed_adapters": [
@@ -740,7 +740,7 @@
     "expect_fail_at": "schema",
     "description": "a policy with a nonzero per-run spend ceiling is schema-invalid (DEC-0009: zero external/model spend)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "policy_id": "gateway-policy-n27",
       "decision_ref": "DEC-0009",
       "allowed_adapters": [
@@ -763,7 +763,7 @@
     "expect_fail_at": "schema",
     "description": "a policy enabling external network access is schema-invalid (DEC-0009: the gateway has no network path)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "policy_id": "gateway-policy-n28",
       "decision_ref": "DEC-0009",
       "allowed_adapters": [
@@ -786,7 +786,7 @@
     "expect_fail_at": "schema",
     "description": "unknown policy property rejected (strict closure)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "policy_id": "gateway-policy-n29",
       "decision_ref": "DEC-0009",
       "allowed_adapters": [
@@ -810,7 +810,7 @@
     "expect_fail_at": "schema",
     "description": "unknown top-level request property rejected (strict closure)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "request_id": "req_n30",
       "run_id": "run_n30",
       "session_id": "s",
@@ -826,7 +826,7 @@
       "scenario_id": "assumption-basic",
       "context_items": [],
       "token_budget": {
-        "schema_version": "1.8.0",
+        "schema_version": "1.9.0",
         "budget_id": "budget_n30",
         "scope": "skill",
         "output_budget": 1000,
@@ -843,7 +843,7 @@
     "expect_fail_at": "schema",
     "description": "inline token budget missing required output_budget is rejected through the cross-schema reference — the budget is validated, not trusted",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "request_id": "req_n31",
       "run_id": "run_n31",
       "session_id": "s",
@@ -859,7 +859,7 @@
       "scenario_id": "assumption-basic",
       "context_items": [],
       "token_budget": {
-        "schema_version": "1.8.0",
+        "schema_version": "1.9.0",
         "budget_id": "budget_n31",
         "scope": "skill",
         "max_tool_calls": 1,
@@ -874,7 +874,7 @@
     "expect_fail_at": "schema",
     "description": "fact_key without normalized_value violates the both-or-neither rule (DEC-0011)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "agent",
@@ -896,7 +896,7 @@
     "expect_fail_at": "schema",
     "description": "normalized_value without fact_key violates the both-or-neither rule (DEC-0011)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "agent",
@@ -919,7 +919,7 @@
     "expect_fail_at": "schema",
     "description": "structured fact metadata without normalization_basis: normalization must be disclosed (DEC-0011)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "agent",
@@ -942,7 +942,7 @@
     "expect_fail_at": "schema",
     "description": "object normalized values are rejected in this phase (scalar only, DEC-0011)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "agent",
@@ -968,7 +968,7 @@
     "expect_fail_at": "schema",
     "description": "array normalized values are rejected in this phase (scalar only, DEC-0011)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "agent",
@@ -994,7 +994,7 @@
     "expect_fail_at": "schema",
     "description": "fact_key must be a dotted lowercase machine-readable path with at least two segments",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "agent",
@@ -1018,7 +1018,7 @@
     "expect_fail_at": "schema",
     "description": "preferences must not silently participate as facts: fact metadata is rejected on preference claims (DEC-0011)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "agent",
@@ -1042,7 +1042,7 @@
     "expect_fail_at": "schema",
     "description": "unknown top-level field on a truth profile is rejected (strict closure)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "tp_n39",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1069,7 +1069,7 @@
     "expect_fail_at": "schema",
     "description": "unknown slot field is rejected (strict closure)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "tp_n40",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1096,7 +1096,7 @@
     "expect_fail_at": "semantic",
     "description": "duplicate fact keys are rejected (DEC-0011 unique-sorted-fact-keys)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "tp_n41",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1131,7 +1131,7 @@
     "expect_fail_at": "semantic",
     "description": "slots not sorted by fact_key are rejected (deterministic ordering, DEC-0011)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "tp_n42",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1166,7 +1166,7 @@
     "expect_fail_at": "schema",
     "description": "unknown top-level field on a truth analysis is rejected (strict closure; no model/provider fields exist)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n43",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1199,7 +1199,7 @@
     "expect_fail_at": "semantic",
     "description": "a contradiction referencing a claim outside analyzed_claim_refs is rejected (DEC-0011 refs-within-analyzed)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n44",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1246,7 +1246,7 @@
     "expect_fail_at": "semantic",
     "description": "analyzed_claim_refs out of deterministic sort order are rejected (DEC-0011 deterministic-ordering)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n45",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1278,7 +1278,7 @@
     "expect_fail_at": "schema",
     "description": "a contradiction must involve at least two distinct normalized values",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n46",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1324,7 +1324,7 @@
     "expect_fail_at": "schema",
     "description": "a Brand Context Package without truth_analysis_ref is rejected: contradictions and gaps have exactly one authoritative input (DEC-0011)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "bctx_n47",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1352,7 +1352,7 @@
     "expect_fail_at": "schema",
     "description": "contradiction status is fixed to open in this phase: the analyzer never resolves conflicts",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n48",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1399,7 +1399,7 @@
     "expect_fail_at": "semantic",
     "description": "a claim listed as both effective and superseded is rejected: the lineage partitions must be disjoint (DEC-0012 lineage-partition)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n49",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1433,7 +1433,7 @@
     "expect_fail_at": "semantic",
     "description": "an analyzed claim missing from every lineage partition is rejected: no claim may silently drop out of the projection (DEC-0012 lineage-partition)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n50",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1464,7 +1464,7 @@
     "expect_fail_at": "semantic",
     "description": "an effective claim reference outside the analyzed input set is rejected (DEC-0012 lineage-partition)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n51",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1495,7 +1495,7 @@
     "expect_fail_at": "semantic",
     "description": "a contradiction citing a superseded (non-effective) claim is rejected: only effective current truth participates (DEC-0011/DEC-0012 refs-within-effective)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n52",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1545,7 +1545,7 @@
     "expect_fail_at": "semantic",
     "description": "the unstructured listing citing an inactive head is rejected: the explicit listings cover effective claims only (DEC-0011/DEC-0012 refs-within-effective)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n53",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1583,7 +1583,7 @@
     "expect_fail_at": "schema",
     "description": "an inactive head reason outside the closed enum is rejected; lifecycle-superseded is deliberately not a reason — a superseded head without its successor fails closed at projection",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n54",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1619,7 +1619,7 @@
     "expect_fail_at": "semantic",
     "description": "effective_claim_refs out of deterministic sort order are rejected (DEC-0011 deterministic-ordering)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n55",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -1651,7 +1651,7 @@
     "expect_fail_at": "semantic",
     "description": "snapshot claim references out of deterministic code-unit order are rejected (DEC-0013 sorted-unique-claim-refs)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "snap_n56",
       "brand_ref": "brand_example",
       "workspace": "ws_example",
@@ -1678,7 +1678,7 @@
     "expect_fail_at": "semantic",
     "description": "a duplicate claim reference in a snapshot is rejected: each canonical claim appears exactly once (DEC-0013 sorted-unique-claim-refs)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "snap_n57",
       "brand_ref": "brand_example",
       "workspace": "ws_example",
@@ -1705,7 +1705,7 @@
     "expect_fail_at": "semantic",
     "description": "an aggregate digest that does not recompute from the listed per-claim digests is rejected: a fabricated aggregate cannot claim to bind contents it does not bind (DEC-0013 aggregate-digest-consistency)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "snap_n58",
       "brand_ref": "brand_example",
       "workspace": "ws_example",
@@ -1728,7 +1728,7 @@
     "expect_fail_at": "schema",
     "description": "a content digest outside the sha256:<64 hex> syntax is rejected at the schema layer",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "snap_n59",
       "brand_ref": "brand_example",
       "workspace": "ws_example",
@@ -1751,7 +1751,7 @@
     "expect_fail_at": "schema",
     "description": "unknown top-level fields on a claim snapshot are rejected (strict closure; no provider or model fields exist)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "snap_n60",
       "brand_ref": "brand_example",
       "workspace": "ws_example",
@@ -1770,7 +1770,7 @@
     "expect_fail_at": "schema",
     "description": "a truth analysis without its claim-snapshot binding is rejected: analysis is snapshot-bound (DEC-0013)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n61",
       "brand_ref": "brand_example",
       "created_at": "2026-07-19T12:00:00Z",
@@ -1794,7 +1794,7 @@
     "expect_fail_at": "schema",
     "description": "a claim_set_digest outside the sha256:<64 hex> syntax is rejected at the schema layer (DEC-0013)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "ta_n62",
       "brand_ref": "brand_example",
       "created_at": "2026-07-19T12:00:00Z",
@@ -1820,7 +1820,7 @@
     "expect_fail_at": "schema",
     "description": "an unknown field inside the signed payload is rejected — the payload is closed; smuggled fields cannot ride along even with a consistent digest",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -1860,7 +1860,7 @@
     "expect_fail_at": "schema",
     "description": "signature algorithm substitution is rejected at the schema layer (ed25519 is a const)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -1899,7 +1899,7 @@
     "expect_fail_at": "schema",
     "description": "a malformed signature encoding (not 64-byte base64) is rejected at the schema layer",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -1938,7 +1938,7 @@
     "expect_fail_at": "schema",
     "description": "a malformed replay nonce is rejected at the schema layer",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -1977,7 +1977,7 @@
     "expect_fail_at": "schema",
     "description": "the signed self_review declaration is required (DEC-0008); evidence without it is invalid",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -2015,7 +2015,7 @@
     "expect_fail_at": "semantic",
     "description": "a payload altered after digesting fails the domain-separated digest recomputation",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -2054,7 +2054,7 @@
     "expect_fail_at": "semantic",
     "description": "requester_id equals approver_id but self_review=false: the DEC-0008 self-review disclosure is missing",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -2093,7 +2093,7 @@
     "expect_fail_at": "semantic",
     "description": "requester_id differs from approver_id while self_review=true: the declaration does not match the computed value",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -2132,7 +2132,7 @@
     "expect_fail_at": "semantic",
     "description": "expires_at must be strictly after issued_at",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -2171,7 +2171,7 @@
     "expect_fail_at": "semantic",
     "description": "duplicate key_id entries are rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "registry_id": "areg-example",
       "registry_version": 1,
       "supersedes_registry_version": null,
@@ -2213,7 +2213,7 @@
     "expect_fail_at": "semantic",
     "description": "a key_id that does not equal the sha256 of the SPKI bytes is rejected — identity is bound to key material",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "registry_id": "areg-example",
       "registry_version": 1,
       "supersedes_registry_version": null,
@@ -2242,7 +2242,7 @@
     "expect_fail_at": "semantic",
     "description": "a non-Ed25519 public key (EC P-256 SPKI) is rejected even with a consistent key_id",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "registry_id": "areg-example",
       "registry_version": 1,
       "supersedes_registry_version": null,
@@ -2271,7 +2271,7 @@
     "expect_fail_at": "semantic",
     "description": "base64 that does not decode to a valid SPKI structure is rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "registry_id": "areg-example",
       "registry_version": 1,
       "supersedes_registry_version": null,
@@ -2300,7 +2300,7 @@
     "expect_fail_at": "semantic",
     "description": "a revoked authority must carry revoked_at and revocation_reason",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "registry_id": "areg-example",
       "registry_version": 1,
       "supersedes_registry_version": null,
@@ -2329,7 +2329,7 @@
     "expect_fail_at": "semantic",
     "description": "valid_until at or before valid_from is rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "registry_id": "areg-example",
       "registry_version": 1,
       "supersedes_registry_version": null,
@@ -2358,7 +2358,7 @@
     "expect_fail_at": "semantic",
     "description": "registry lineage must be contiguous: supersedes_registry_version is exactly registry_version - 1",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "registry_id": "areg-example",
       "registry_version": 3,
       "supersedes_registry_version": 1,
@@ -2387,7 +2387,7 @@
     "expect_fail_at": "schema",
     "description": "an unknown role is rejected at the schema layer — the role enum is closed",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "registry_id": "areg-example",
       "registry_version": 1,
       "supersedes_registry_version": null,
@@ -2416,7 +2416,7 @@
     "expect_fail_at": "schema",
     "description": "independent_reviewer_named is pinned false at 1.7.0: naming a reviewer requires a superseding decision and a contract migration, not a config flip",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "policy_id": "hgp-nabcor-1",
       "policy_version": 1,
       "decision_ref": "DEC-0014",
@@ -2469,7 +2469,7 @@
     "expect_fail_at": "semantic",
     "description": "a DEC-0008 independent-review gate with independent_review_required=false is rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "policy_id": "hgp-nabcor-1",
       "policy_version": 1,
       "decision_ref": "DEC-0014",
@@ -2522,7 +2522,7 @@
     "expect_fail_at": "semantic",
     "description": "every allowed gate must carry an explicit gate_requirements entry — no gate is implicitly authorized",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "policy_id": "hgp-nabcor-1",
       "policy_version": 1,
       "decision_ref": "DEC-0014",
@@ -2571,7 +2571,7 @@
     "expect_fail_at": "schema",
     "description": "an unknown gate id is rejected at the schema layer — the gate enum is closed",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "policy_id": "hgp-nabcor-1",
       "policy_version": 1,
       "decision_ref": "DEC-0014",
@@ -2625,7 +2625,7 @@
     "expect_fail_at": "semantic",
     "description": "a receipt whose receipt_id does not equal the deterministic recomputation over {key_id, nonce, policy_ref} is rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "receipt_id": "r05af360d0b2b70d27914d02fbebf232ac0ee2e3e46c92d3534f18f8b413c411b",
       "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
       "evidence_ref": "apev_0001",
@@ -2653,7 +2653,7 @@
     "expect_fail_at": "schema",
     "description": "verification_result is pinned to 'authorized': denials never persist receipts",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "receipt_id": "r1e9dd9ae6661f3b19549cac8e1365c4b840b2a9cc81ba53a93838cd0ba3edecb",
       "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
       "evidence_ref": "apev_0001",
@@ -2681,7 +2681,7 @@
     "expect_fail_at": "schema",
     "description": "decision_ref must match the DEC-NNNN decision-record pattern; the 1.7.1 relaxation from const DEC-0014 to a pattern still rejects malformed references",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "policy_id": "hgp-nabcor-1",
       "policy_version": 2,
       "decision_ref": "DEC-15",
@@ -2734,7 +2734,7 @@
     "expect_fail_at": "schema",
     "description": "unknown top-level fields are rejected (strict closure)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -2788,7 +2788,7 @@
     "expect_fail_at": "schema",
     "description": "losing_claims is required: a decision cannot authorize a winner without naming every loser",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -2831,7 +2831,7 @@
     "expect_fail_at": "schema",
     "description": "a contradiction needs at least two participating claims",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -2880,7 +2880,7 @@
     "expect_fail_at": "schema",
     "description": "the contradiction fingerprint must match the versioned 'c'+sha256 pattern",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -2933,7 +2933,7 @@
     "expect_fail_at": "semantic",
     "description": "a fabricated fingerprint that does not recompute over the recorded contradiction is rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -2986,7 +2986,7 @@
     "expect_fail_at": "semantic",
     "description": "winner substitution: a winning claim outside the recorded contradiction is rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3039,7 +3039,7 @@
     "expect_fail_at": "semantic",
     "description": "partial resolution: a participant that is neither winner nor loser is rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3088,7 +3088,7 @@
     "expect_fail_at": "semantic",
     "description": "the winner listed among the losers breaks the disjoint partition",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3145,7 +3145,7 @@
     "expect_fail_at": "semantic",
     "description": "a losing claim outside the recorded contradiction is rejected (loser injection)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3202,7 +3202,7 @@
     "expect_fail_at": "semantic",
     "description": "losing_claims must be strictly sorted by claim_ref in code-unit order",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3255,7 +3255,7 @@
     "expect_fail_at": "semantic",
     "description": "contradiction claim_refs must be strictly sorted (reordered references are rejected)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3308,7 +3308,7 @@
     "expect_fail_at": "schema",
     "description": "unknown top-level fields are rejected (strict closure)",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "fra82bcbadd9527fafaabafd73b41fecfed005fcfb7441331444b872252fd13caa5",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3356,7 +3356,7 @@
     "expect_fail_at": "schema",
     "description": "status is pinned to 'applied': partial or failed attempts never persist a result",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "fra82bcbadd9527fafaabafd73b41fecfed005fcfb7441331444b872252fd13caa5",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3403,7 +3403,7 @@
     "expect_fail_at": "semantic",
     "description": "an application identity that does not recompute over {decision_digest, receipt_ref} is rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "fra0000000000000000000000000000000000000000000000000000000000000000",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3450,7 +3450,7 @@
     "expect_fail_at": "semantic",
     "description": "a successor identity that does not recompute over {application_ref, losing_claim_ref} is rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "fra82bcbadd9527fafaabafd73b41fecfed005fcfb7441331444b872252fd13caa5",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3497,7 +3497,7 @@
     "expect_fail_at": "semantic",
     "description": "after-snapshot/after-analysis identities that do not recompute are rejected",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "fra82bcbadd9527fafaabafd73b41fecfed005fcfb7441331444b872252fd13caa5",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3544,7 +3544,7 @@
     "expect_fail_at": "semantic",
     "description": "created_losing_revisions must be strictly sorted by losing_claim_ref",
     "data": {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "artifact_id": "fra82bcbadd9527fafaabafd73b41fecfed005fcfb7441331444b872252fd13caa5",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -3583,6 +3583,1530 @@
       "after_claim_set_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
       "status": "applied",
       "consumed_at": "2026-07-19T12:05:00Z"
+    }
+  },
+  {
+    "id": "N104-ppc-wrong-provider",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "a candidate naming any provider other than anthropic is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "openai",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:1c8a9467bcb10c8ab7d7109dc22ef531ffe065af6838118504dceb02595cd614"
+    }
+  },
+  {
+    "id": "N105-ppc-model-alias",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "a model alias in place of the exact ratified dated ID is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:0a43010ae9c8a42a2737062249671b81313fa5ca881aa855c4318be7f621f300"
+    }
+  },
+  {
+    "id": "N106-ppc-wrong-endpoint",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "any endpoint other than the pinned production endpoint is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.evil.example/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:df481adcb9c155022a013638498f4949de1ab419efb282f8b1f75eade39df842"
+    }
+  },
+  {
+    "id": "N107-ppc-wrong-api-version",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "an unpinned protocol version is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2024-01-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:71f2b5453d5223f458f8c38b1f967f5240291cd3bcb0bdb092dd5b70900f90a1"
+    }
+  },
+  {
+    "id": "N108-ppc-nonsynthetic-data",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "any data class beyond synthetic is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic",
+        "real-client"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:29cd2510ace3400dfad69a3ebc24d223cd4c97bc9378f6309ca2ae74b2946317"
+    }
+  },
+  {
+    "id": "N109-ppc-raised-ceiling",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "a raised monthly USD ceiling is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 100,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:5fce6e35023dbb89d2d4fed69fd5e8d128ae5bf2f875ad4a0069f51cde679540"
+    }
+  },
+  {
+    "id": "N110-ppc-caching-enabled",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "enabling caching is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": true,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:50b892a8e0092040a3ae4015ef84cb7ff242b3a03b7c2dbbb69b87f6d3db0e26"
+    }
+  },
+  {
+    "id": "N111-ppc-batch-enabled",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "enabling Batch is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": true,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:69ab09b477e61c45a76028131f01c8b439758ce41fa60f2b153aef1d457495a7"
+    }
+  },
+  {
+    "id": "N112-ppc-tools-enabled",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "enabling tools is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": true,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:0509726e6e0bc8917ed8936abe48eef6ede5d304894d10e1c7cdaf6e58571f4c"
+    }
+  },
+  {
+    "id": "N113-ppc-storage-enabled",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "enabling provider-side storage is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": true,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:650b55aa71967fda1c9948e2ccbaf55ffb9bd31228e2e44718a53d092f15acf1"
+    }
+  },
+  {
+    "id": "N114-ppc-fallback-enabled",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "enabling fallback providers is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": true,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:33f0b025e09e8f96c3f6d2de783b491564b78dc8022b86482857bd7f7325aff4"
+    }
+  },
+  {
+    "id": "N115-ppc-escalation-enabled",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "enabling automatic escalation is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": true,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:81cabf06aef869fd4492d2a20b19d431d54ca1ec54c84932a46d41ec8600a64b"
+    }
+  },
+  {
+    "id": "N116-ppc-live-enabled",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "enabling live invocation in the candidate is schema-invalid in this contract version",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": true,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:12e07236efe897062f04f927d7031b6bc60b4a8d6643719432a32042970aed06"
+    }
+  },
+  {
+    "id": "N117-ppc-exp0001-enabled",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "enabling EXP-0001 execution is schema-invalid in this contract version",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": true,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:04a82ecfd08cec86b8d5429417d9131b6362888c9a2c2b09a3cca83a01bc6a21"
+    }
+  },
+  {
+    "id": "N118-ppc-extra-attempts",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "raising the attempt cap is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 3,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:5e5e656dba572457adfb0158e9b3f5bf76013e4a8a56119a1df8aad10eba7f03"
+    }
+  },
+  {
+    "id": "N119-ppc-nonzero-escalations",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "a nonzero escalation count is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 1,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:2cbd7591a540ee98f2cd82d4f1c281c0d56710db205dc454a209345cf1b3e59c"
+    }
+  },
+  {
+    "id": "N120-ppc-unknown-field",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "an unknown field on the candidate is rejected (strict closure)",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:c96b0b9076ac2a920e92efecc54ce7b16a2a12029bcf2d4e47c18e1ac0edccdc",
+      "extra_grant": "publishing"
+    }
+  },
+  {
+    "id": "N121-ppc-digest-tamper",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "semantic",
+    "description": "a schema-valid candidate whose self-integrity digest does not recompute is semantic-invalid (tamper evidence)",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  {
+    "id": "N122-ppc-inverted-validity-window",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "semantic",
+    "description": "valid_until at or before valid_from is semantic-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-10-15T00:00:00Z",
+      "valid_until": "2026-07-19T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:2adf7c2405bf7405ad4c76e62b37fdbacc6f9b92d01e3a8d86eea8cdab1570b6"
+    }
+  },
+  {
+    "id": "N123-pos-live-enabled",
+    "schema": "provider-operational-state.schema.json",
+    "expect_fail_at": "schema",
+    "description": "an operational state claiming live invocation enabled is schema-invalid in this contract version",
+    "data": {
+      "schema_version": "1.9.0",
+      "state_id": "pos-anthropic-0001",
+      "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "live_invocation_enabled": true,
+      "credential_provisioned": false,
+      "console_spend_cap_configured": false,
+      "smoke_call_completed": false,
+      "exp_0001_executed": false,
+      "live_call_authorization_ref": null,
+      "decision_ref": "DEC-0019",
+      "updated_at": "2026-07-19T19:30:28Z"
+    }
+  },
+  {
+    "id": "N124-pos-credential-provisioned",
+    "schema": "provider-operational-state.schema.json",
+    "expect_fail_at": "schema",
+    "description": "an operational state claiming a provisioned credential is schema-invalid in this contract version",
+    "data": {
+      "schema_version": "1.9.0",
+      "state_id": "pos-anthropic-0001",
+      "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "live_invocation_enabled": false,
+      "credential_provisioned": true,
+      "console_spend_cap_configured": false,
+      "smoke_call_completed": false,
+      "exp_0001_executed": false,
+      "live_call_authorization_ref": null,
+      "decision_ref": "DEC-0019",
+      "updated_at": "2026-07-19T19:30:28Z"
+    }
+  },
+  {
+    "id": "N125-gw-legacy-zero-provider-shape",
+    "schema": "gateway-policy.schema.json",
+    "expect_fail_at": "schema",
+    "description": "the legacy DEC-0009 zero-provider policy shape no longer validates (the migration is conscious and total)",
+    "data": {
+      "schema_version": "1.9.0",
+      "policy_id": "gateway-policy-0001",
+      "decision_ref": "DEC-0009",
+      "allowed_adapters": [
+        "fake"
+      ],
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "external_network_allowed": false,
+      "real_client_data_allowed": false,
+      "api_credentials_permitted": false,
+      "max_external_spend_usd_per_run": 0,
+      "max_external_spend_usd_per_month": 0,
+      "required_execution_tier": 0
+    }
+  },
+  {
+    "id": "N126-gw-missing-candidate-binding",
+    "schema": "gateway-policy.schema.json",
+    "expect_fail_at": "schema",
+    "description": "an active policy without the signed-candidate digest binding is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "policy_id": "gateway-policy-0002",
+      "decision_ref": "DEC-0018",
+      "allowed_adapters": [
+        "anthropic",
+        "fake"
+      ],
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "allowed_execution_tiers": [
+        0,
+        1,
+        2
+      ],
+      "model_allowlist": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2
+        }
+      ],
+      "external_network_allowed": true,
+      "real_client_data_allowed": false,
+      "api_credentials_permitted": true,
+      "max_external_spend_usd_per_request": 1,
+      "max_external_spend_usd_per_run": 25,
+      "max_external_spend_usd_per_day": 40,
+      "max_external_spend_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_enablement_evidence_ref": "apev-pending0000",
+      "provider_enablement_receipt_ref": "r0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  {
+    "id": "N127-gw-extra-adapter",
+    "schema": "gateway-policy.schema.json",
+    "expect_fail_at": "schema",
+    "description": "an adapter allowlist beyond [anthropic, fake] is schema-invalid (no fallback providers)",
+    "data": {
+      "schema_version": "1.9.0",
+      "policy_id": "gateway-policy-0002",
+      "decision_ref": "DEC-0018",
+      "allowed_adapters": [
+        "anthropic",
+        "fake",
+        "openai"
+      ],
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "allowed_execution_tiers": [
+        0,
+        1,
+        2
+      ],
+      "model_allowlist": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2
+        }
+      ],
+      "external_network_allowed": true,
+      "real_client_data_allowed": false,
+      "api_credentials_permitted": true,
+      "max_external_spend_usd_per_request": 1,
+      "max_external_spend_usd_per_run": 25,
+      "max_external_spend_usd_per_day": 40,
+      "max_external_spend_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "provider_enablement_evidence_ref": "apev-pending0000",
+      "provider_enablement_receipt_ref": "r0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  {
+    "id": "N128-hgp-provider-gate-wrong-shape",
+    "schema": "human-gate-policy.schema.json",
+    "expect_fail_at": "semantic",
+    "description": "an allowed provider-enablement gate without a gate_requirements entry fails the coverage invariant",
+    "data": {
+      "schema_version": "1.9.0",
+      "policy_id": "hgp-nabcor-1",
+      "policy_version": 3,
+      "decision_ref": "DEC-0019",
+      "signature_algorithm": "ed25519",
+      "payload_type": "nabcor-human-gate-approval",
+      "payload_version": "1.0.0",
+      "canonicalization_algorithm": "approval-payload-sha256-1.0.0",
+      "domain_separator": "nabcor-human-gate-approval-v1",
+      "authority_registry_ref": "areg-nabcor",
+      "authority_registry_version": 2,
+      "independent_reviewer_named": false,
+      "allowed_gates": [
+        "fact-resolution-approval",
+        "quarantine-release",
+        "client-facing-publishing",
+        "blocking-evaluation-gate-change",
+        "real-client-data-provider-approval",
+        "provider-enablement-approval",
+        "live-provider-call-approval"
+      ],
+      "gate_requirements": {
+        "fact-resolution-approval": {
+          "required_role": "product-owner",
+          "independent_review_required": false
+        },
+        "quarantine-release": {
+          "required_role": "reviewer",
+          "independent_review_required": true
+        },
+        "client-facing-publishing": {
+          "required_role": "reviewer",
+          "independent_review_required": true
+        },
+        "blocking-evaluation-gate-change": {
+          "required_role": "evaluation-owner",
+          "independent_review_required": true
+        },
+        "real-client-data-provider-approval": {
+          "required_role": "product-owner",
+          "independent_review_required": true
+        },
+        "live-provider-call-approval": {
+          "required_role": "product-owner",
+          "independent_review_required": false
+        }
+      },
+      "max_approval_ttl_seconds": 86400,
+      "clock_skew_seconds": 300,
+      "replay_policy": "single-use-nonce",
+      "default_deny": true
+    }
+  },
+  {
+    "id": "N129-model-run-bad-retention-status",
+    "schema": "model-run.schema.json",
+    "expect_fail_at": "schema",
+    "description": "a fabricated retention status (e.g. a ZDR claim) is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "run_id": "run_prov_0001",
+      "session_id": "sess_p",
+      "project_id": "proj_p",
+      "workspace_id": "ws_test",
+      "brand_id": "brand_test",
+      "workflow_id": "wf_p",
+      "skill_id": "gateway-anthropic-test",
+      "attribution_confidence": "confirmed",
+      "artifact_ids_in": [
+        "src_p_0001"
+      ],
+      "artifact_ids_out": [
+        "asm_p_0001"
+      ],
+      "context_manifest_ref": "cm_run_prov_0001",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5-20251001",
+      "model_tier": 1,
+      "prompt_version": null,
+      "started_at": "2026-07-19T12:00:00Z",
+      "latency_ms": null,
+      "input_tokens": 1200,
+      "output_tokens": 800,
+      "cached_tokens": 0,
+      "cache_creation_tokens": 0,
+      "reasoning_tokens": null,
+      "cost": {
+        "mode": "api",
+        "usd": 0.01,
+        "allocation": "measured"
+      },
+      "tool_calls": 1,
+      "retry_count": 0,
+      "failure_type": null,
+      "media": null,
+      "human_review": "none",
+      "accepted": null,
+      "rejected_reason": null,
+      "superseded_by": null,
+      "provider_request_id": "req_synthetic_0001",
+      "requested_model": "claude-haiku-4-5-20251001",
+      "returned_model": "claude-haiku-4-5-20251001",
+      "attempt": 1,
+      "reserved_usd": 0.36,
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "budget_remaining_usd": {
+        "run": 24.99,
+        "day": 39.99,
+        "month": 59.99
+      },
+      "output_contract": "assumption",
+      "data_classification": "synthetic",
+      "retention_status": "ZERO_DATA_RETENTION",
+      "live_authorization_ref": null
     }
   }
 ]

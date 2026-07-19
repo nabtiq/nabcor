@@ -24,9 +24,6 @@ semantics.
 
 ## Deferred questions
 
-- Which provider enablement (provider, models, data classes, retention/training
-  policy, regulatory constraints, secret management, spend ceilings, approval
-  gates) first supersedes the DEC-0009 zero-provider policy?
 - What is the first production channel adapter?
 - When does file-based retrieval stop being sufficient?
 - What is the productization boundary between internal Nabtiq tooling and an external
@@ -77,7 +74,11 @@ active section in the same commit.
   paid smoke call, and a separately authenticated approval before
   EXP-0001. Ratification authorizes the Phase 1C.1 IMPLEMENTATION phase
   only; DEC-0009's zero-provider posture stays operationally active
-  until that phase's reviewed active-policy revision merges.
+  until that phase's reviewed active-policy revision merges. (Phase
+  1C.1/DEC-0019 later implemented that phase: the deferred
+  which-provider question is fully answered, and the runtime state is
+  CONFIGURED_BUT_LIVE_DISABLED — live invocation, the smoke call, and
+  EXP-0001 each still need their own separately signed authorizations.)
 - **Q-009 — Authoritative runtime human decisions (authenticated human-gate
   mechanism)** · 2026-07-19 · closed by DEC-0014 ratifying **Option A —
   offline Ed25519 approval evidence**: a committed trusted human-gate policy

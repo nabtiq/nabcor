@@ -4,10 +4,11 @@
 // INV-TOK-001/002, INV-OBS-001). The Fake Adapter invocation counter is the
 // proof that rejected requests never reach it.
 import assert from "node:assert/strict";
-import { readdirSync, writeFileSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { FakeAdapter, type GatewayAdapter } from "../src/gateway/adapter.js";
+import { ok as okResult } from "../src/kernel/result.js";
 import { OfflineGateway } from "../src/gateway/gateway.js";
 import { FileRunRecordStore } from "../src/gateway/record-store.js";
 import { BRAND, NOW, WS, contractsDir, registry, tempDir, validAssumption } from "./helpers.js";
@@ -26,7 +27,7 @@ function defaultFixtures(): Map<string, unknown> {
         statement: `Synthetic assumption carrying ${FIXTURE_MARKER} and ${CREDENTIAL_SHAPED}`,
       }),
     ],
-    ["assumption-broken", { schema_version: "1.8.0", artifact_id: "asm_broken" }],
+    ["assumption-broken", { schema_version: "1.9.0", artifact_id: "asm_broken" }],
   ]);
 }
 
@@ -59,7 +60,7 @@ function env(
 
 function validRequest(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     request_id: "req_t_0001",
     run_id: "run_t_0001",
     session_id: "sess_t",
@@ -75,7 +76,7 @@ function validRequest(overrides: Record<string, unknown> = {}): Record<string, u
     scenario_id: "assumption-basic",
     context_items: [{ artifact_id: "src_t_0001", reason: "synthetic source under test", required: true }],
     token_budget: {
-      schema_version: "1.8.0",
+      schema_version: "1.9.0",
       budget_id: "budget_t_0001",
       scope: "skill",
       scope_ref: "gateway-selftest",
@@ -99,12 +100,12 @@ function budgetWith(overrides: Record<string, unknown>): Record<string, unknown>
   return { ...base, ...overrides };
 }
 
-test("the committed active gateway policy validates and constructs a gateway", () => {
+test("the committed active gateway policy validates and constructs a gateway", async () => {
   const { gw } = env();
   assert.ok(gw instanceof OfflineGateway);
 });
 
-test("missing, malformed, and out-of-policy policy documents fail closed at construction", () => {
+test("missing, malformed, and out-of-policy policy documents fail closed at construction", async () => {
   const records = new FileRunRecordStore(tempDir("gateway-policy"), registry());
   const baseDeps = {
     registry: registry(),
@@ -126,7 +127,7 @@ test("missing, malformed, and out-of-policy policy documents fail closed at cons
   if (!rejectedUnknown.ok) assert.equal(rejectedUnknown.error.kind, "invalid-policy");
 
   const nonzero = join(dir, "nonzero-spend.json");
-  writeFileSync(nonzero, JSON.stringify({ ...active, max_external_spend_usd_per_run: 5 }), "utf8");
+  writeFileSync(nonzero, JSON.stringify({ ...active, max_external_spend_usd_per_run: 26 }), "utf8");
   const rejectedSpend = OfflineGateway.create({ ...baseDeps, policyPath: nonzero });
   assert.equal(rejectedSpend.ok, false);
   if (!rejectedSpend.ok) assert.equal(rejectedSpend.error.kind, "invalid-policy");
@@ -139,28 +140,18 @@ test("missing, malformed, and out-of-policy policy documents fail closed at cons
 });
 
 function activePolicyContent(): Record<string, unknown> {
-  return {
-    schema_version: "1.8.0",
-    policy_id: "gateway-policy-0001",
-    decision_ref: "DEC-0009",
-    allowed_adapters: ["fake"],
-    allowed_data_classes: ["synthetic"],
-    external_network_allowed: false,
-    real_client_data_allowed: false,
-    api_credentials_permitted: false,
-    max_external_spend_usd_per_run: 0,
-    max_external_spend_usd_per_month: 0,
-    required_execution_tier: 0,
-  };
+  return JSON.parse(
+    readFileSync(join(contractsDir, "gateway-policy.active.json"), "utf8")
+  ) as Record<string, unknown>;
 }
 
-test("construction refuses adapters the policy does not allow", () => {
+test("construction refuses adapters the policy does not allow", async () => {
   const rogue: GatewayAdapter = {
-    adapterId: "anthropic",
-    provider: "anthropic",
+    adapterId: "openai",
+    provider: "openai",
     modelLabel: "some-model",
-    executionTier: 0,
-    invoke: () => ({ ok: true, value: {} }),
+    executionTiers: [0],
+    invoke: () => ({ outcome: okResult<unknown>({}), accounting: null }),
   };
   const records = new FileRunRecordStore(tempDir("gateway-rogue"), registry());
   const created = OfflineGateway.create({
@@ -175,11 +166,35 @@ test("construction refuses adapters the policy does not allow", () => {
   if (!created.ok) assert.equal(created.error.kind, "adapter-not-approved");
 });
 
-test("requests naming real-provider adapter identifiers are rejected before invocation", () => {
+test("construction refuses adapters declaring tiers the policy does not allow", async () => {
+  const overTiered: GatewayAdapter = {
+    adapterId: "fake",
+    provider: "offline",
+    modelLabel: "some-label",
+    executionTiers: [0, 3],
+    invoke: () => ({ outcome: okResult<unknown>({}), accounting: null }),
+  };
+  const records = new FileRunRecordStore(tempDir("gateway-tier"), registry());
+  const created = OfflineGateway.create({
+    registry: registry(),
+    recordStore: records,
+    adapters: [overTiered],
+    policyPath: ACTIVE_POLICY_PATH,
+    clock: () => NOW,
+    contextResolver: () => true,
+  });
+  assert.equal(created.ok, false);
+  if (!created.ok) assert.equal(created.error.kind, "tier-not-permitted");
+});
+
+test("requests naming non-allowlisted or unregistered provider adapters are rejected before invocation", async () => {
   const { gw, adapter, records } = env();
   let n = 0;
+  // 'anthropic' is policy-allowed but NOT registered in this offline test
+  // environment; 'openai'/'google-vertex'/'aws-bedrock' are not allowlisted at
+  // all. Every one fails closed before any adapter work.
   for (const adapterId of ["anthropic", "openai", "google-vertex", "aws-bedrock"]) {
-    const result = gw.invoke(validRequest({ adapter_id: adapterId, run_id: `run_prov_${++n}` }));
+    const result = await gw.invoke(validRequest({ adapter_id: adapterId, run_id: `run_prov_${++n}` }));
     assert.equal(result.ok, false);
     if (!result.ok) assert.equal(result.error.kind, "adapter-not-approved");
   }
@@ -193,33 +208,38 @@ test("requests naming real-provider adapter identifiers are rejected before invo
   }
 });
 
-test("non-synthetic data classifications are rejected before invocation", () => {
+test("non-synthetic data classifications are rejected before invocation", async () => {
   const { gw, adapter } = env();
   let n = 0;
   for (const dataClass of ["real-client", "mixed", "unknown"]) {
-    const result = gw.invoke(validRequest({ data_classification: dataClass, run_id: `run_dc_${++n}` }));
+    const result = await gw.invoke(validRequest({ data_classification: dataClass, run_id: `run_dc_${++n}` }));
     assert.equal(result.ok, false);
     if (!result.ok) assert.equal(result.error.kind, "data-class-not-permitted");
   }
   assert.equal(adapter.invocationCount, 0);
 });
 
-test("tiers other than the policy-required tier are rejected before invocation", () => {
+test("tiers the policy or the adapter does not serve are rejected before invocation", async () => {
   const { gw, adapter } = env();
-  const result = gw.invoke(validRequest({ requested_tier: 2, run_id: "run_tier_1" }));
-  assert.equal(result.ok, false);
-  if (!result.ok) assert.equal(result.error.kind, "tier-not-permitted");
+  // Tier 3 is outside the policy's allowed set entirely.
+  const outsidePolicy = await gw.invoke(validRequest({ requested_tier: 3, run_id: "run_tier_1" }));
+  assert.equal(outsidePolicy.ok, false);
+  if (!outsidePolicy.ok) assert.equal(outsidePolicy.error.kind, "tier-not-permitted");
+  // Tier 2 is policy-allowed (anthropic) but the fake adapter serves tier 0 only.
+  const outsideAdapter = await gw.invoke(validRequest({ requested_tier: 2, run_id: "run_tier_2" }));
+  assert.equal(outsideAdapter.ok, false);
+  if (!outsideAdapter.ok) assert.equal(outsideAdapter.error.kind, "tier-not-permitted");
   assert.equal(adapter.invocationCount, 0);
 });
 
-test("budget breaches occur before invocation: hard stop, fallback stop, and tool-call floor", () => {
+test("budget breaches occur before invocation: hard stop, fallback stop, and tool-call floor", async () => {
   const { gw, adapter, records } = env();
-  const overHardStop = gw.invoke(validRequest({ max_output_tokens: 2000, run_id: "run_bud_1" }));
+  const overHardStop = await gw.invoke(validRequest({ max_output_tokens: 2000, run_id: "run_bud_1" }));
   assert.equal(overHardStop.ok, false);
   if (!overHardStop.ok) assert.equal(overHardStop.error.kind, "budget-exceeded");
 
   // With hard_stop_output null, output_budget is the applicable stop.
-  const overFallback = gw.invoke(
+  const overFallback = await gw.invoke(
     validRequest({
       run_id: "run_bud_2",
       max_output_tokens: 1500,
@@ -229,7 +249,7 @@ test("budget breaches occur before invocation: hard stop, fallback stop, and too
   assert.equal(overFallback.ok, false);
   if (!overFallback.ok) assert.equal(overFallback.error.kind, "budget-exceeded");
 
-  const zeroCalls = gw.invoke(
+  const zeroCalls = await gw.invoke(
     validRequest({ run_id: "run_bud_3", token_budget: budgetWith({ max_tool_calls: 0 }) })
   );
   assert.equal(zeroCalls.ok, false);
@@ -241,9 +261,9 @@ test("budget breaches occur before invocation: hard stop, fallback stop, and too
   if (record.ok) assert.equal(record.value["failure_type"], "loop_budget");
 });
 
-test("missing required context prevents invocation and the manifest records the retrieval failure", () => {
+test("missing required context prevents invocation and the manifest records the retrieval failure", async () => {
   const { gw, adapter, records } = env({ available: new Set<string>() });
-  const result = gw.invoke(validRequest({ run_id: "run_ctx_1" }));
+  const result = await gw.invoke(validRequest({ run_id: "run_ctx_1" }));
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.error.kind, "missing-context");
   assert.equal(adapter.invocationCount, 0);
@@ -264,9 +284,9 @@ test("missing required context prevents invocation and the manifest records the 
   }
 });
 
-test("missing optional context is recorded as a retrieval failure without blocking", () => {
+test("missing optional context is recorded as a retrieval failure without blocking", async () => {
   const { gw, records } = env({ available: new Set<string>() });
-  const result = gw.invoke(
+  const result = await gw.invoke(
     validRequest({
       run_id: "run_ctx_2",
       context_items: [{ artifact_id: "src_t_0001", reason: "optional enrichment", required: false }],
@@ -281,23 +301,23 @@ test("missing optional context is recorded as a retrieval failure without blocki
   }
 });
 
-test("a known scenario returns the exact validated artifact, deterministically across runs and stores", () => {
+test("a known scenario returns the exact validated artifact, deterministically across runs and stores", async () => {
   const expected = defaultFixtures().get("assumption-basic");
   const first = env();
-  const a = first.gw.invoke(validRequest({ run_id: "run_det_1" }));
+  const a = await first.gw.invoke(validRequest({ run_id: "run_det_1" }));
   assert.ok(a.ok);
   if (a.ok) {
     assert.deepEqual(a.value.artifact, expected);
     assert.equal(a.value.manifestId, "cm_run_det_1");
   }
   // Same gateway, second run: identical output.
-  const b = first.gw.invoke(validRequest({ run_id: "run_det_2" }));
+  const b = await first.gw.invoke(validRequest({ run_id: "run_det_2" }));
   assert.ok(b.ok);
   if (a.ok && b.ok) assert.deepEqual(b.value.artifact, a.value.artifact);
 
   // Fresh gateway + fresh store, injected clock: records are byte-identical.
   const second = env();
-  const c = second.gw.invoke(validRequest({ run_id: "run_det_1" }));
+  const c = await second.gw.invoke(validRequest({ run_id: "run_det_1" }));
   assert.ok(c.ok);
   const r1 = first.records.get(WS, BRAND, "model-run", "run_det_1");
   const r2 = second.records.get(WS, BRAND, "model-run", "run_det_1");
@@ -309,9 +329,9 @@ test("a known scenario returns the exact validated artifact, deterministically a
   if (m1.ok && m2.ok) assert.deepEqual(m1.value, m2.value);
 });
 
-test("unknown scenarios are rejected by the adapter and recorded as tool errors", () => {
+test("unknown scenarios are rejected by the adapter and recorded as tool errors", async () => {
   const { gw, adapter, records } = env();
-  const result = gw.invoke(validRequest({ scenario_id: "no-such-scenario", run_id: "run_scn_1" }));
+  const result = await gw.invoke(validRequest({ scenario_id: "no-such-scenario", run_id: "run_scn_1" }));
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.error.kind, "scenario-not-found");
   assert.equal(adapter.invocationCount, 1, "the adapter was reached exactly once and refused");
@@ -320,9 +340,9 @@ test("unknown scenarios are rejected by the adapter and recorded as tool errors"
   if (record.ok) assert.equal(record.value["failure_type"], "tool_error");
 });
 
-test("schema-invalid adapter output is rejected, never returned, and never retried", () => {
+test("schema-invalid adapter output is rejected, never returned, and never retried", async () => {
   const { gw, adapter, records } = env();
-  const result = gw.invoke(validRequest({ scenario_id: "assumption-broken", run_id: "run_bad_1" }));
+  const result = await gw.invoke(validRequest({ scenario_id: "assumption-broken", run_id: "run_bad_1" }));
   assert.equal(result.ok, false);
   if (!result.ok) {
     assert.equal(result.error.kind, "output-validation-failed");
@@ -337,17 +357,17 @@ test("schema-invalid adapter output is rejected, never returned, and never retri
   }
 });
 
-test("unknown output contracts are rejected before invocation", () => {
+test("unknown output contracts are rejected before invocation", async () => {
   const { gw, adapter } = env();
-  const result = gw.invoke(validRequest({ output_contract: "no-such-contract", run_id: "run_oc_1" }));
+  const result = await gw.invoke(validRequest({ output_contract: "no-such-contract", run_id: "run_oc_1" }));
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.error.kind, "output-validation-failed");
   assert.equal(adapter.invocationCount, 0);
 });
 
-test("success run records are truthful: zero tokens, zero cost, tier 0, offline identity", () => {
+test("success run records are truthful: zero tokens, zero cost, tier 0, offline identity", async () => {
   const { gw, records } = env();
-  const result = gw.invoke(validRequest({ run_id: "run_ok_1" }));
+  const result = await gw.invoke(validRequest({ run_id: "run_ok_1" }));
   assert.ok(result.ok);
   const record = records.get(WS, BRAND, "model-run", "run_ok_1");
   assert.ok(record.ok, "the success record must validate against the model-run contract on read");
@@ -371,9 +391,9 @@ test("success run records are truthful: zero tokens, zero cost, tier 0, offline 
   assert.deepEqual(r["artifact_ids_out"], ["asm_t_0001"]);
 });
 
-test("the context manifest records exactly what was loaded and why", () => {
+test("the context manifest records exactly what was loaded and why", async () => {
   const { gw, records } = env();
-  assert.ok(gw.invoke(validRequest({ run_id: "run_mf_1" })).ok);
+  assert.ok((await gw.invoke(validRequest({ run_id: "run_mf_1" }))).ok);
   const manifest = records.get(WS, BRAND, "context-manifest", "cm_run_mf_1");
   assert.ok(manifest.ok);
   if (!manifest.ok) return;
@@ -386,9 +406,9 @@ test("the context manifest records exactly what was loaded and why", () => {
   assert.deepEqual(manifest.value["retrieval_failures"], []);
 });
 
-test("fixture content and credential-shaped values never leak into operational records", () => {
+test("fixture content and credential-shaped values never leak into operational records", async () => {
   const { gw, records } = env();
-  assert.ok(gw.invoke(validRequest({ run_id: "run_leak_1" })).ok);
+  assert.ok((await gw.invoke(validRequest({ run_id: "run_leak_1" }))).ok);
   const record = records.get(WS, BRAND, "model-run", "run_leak_1");
   const manifest = records.get(WS, BRAND, "context-manifest", "cm_run_leak_1");
   assert.ok(record.ok && manifest.ok);
@@ -399,7 +419,7 @@ test("fixture content and credential-shaped values never leak into operational r
   }
 });
 
-test("requests failing boundary validation produce no records at all (documented record boundary)", () => {
+test("requests failing boundary validation produce no records at all (documented record boundary)", async () => {
   const { gw, adapter, root } = env();
   for (const bad of [
     {},
@@ -408,7 +428,7 @@ test("requests failing boundary validation produce no records at all (documented
     validRequest({ data_classification: "confidential" }),
     validRequest({ token_budget: budgetWith({ output_budget: undefined }) }),
   ]) {
-    const result = gw.invoke(bad);
+    const result = await gw.invoke(bad);
     assert.equal(result.ok, false);
     if (!result.ok) assert.equal(result.error.kind, "invalid-request");
   }

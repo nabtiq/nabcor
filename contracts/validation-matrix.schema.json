@@ -111,7 +111,7 @@
   },
   "examples": [
     {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "matrix_id": "vm_0001",
       "brand_ref": "brand_example",
       "dimensions": {

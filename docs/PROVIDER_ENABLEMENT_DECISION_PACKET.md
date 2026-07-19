@@ -1,11 +1,23 @@
 # Provider Enablement Decision Packet
 
-**Status:** research packet for proposed DEC-0018 (Phase 1C.0;
-corrected by Phase 1C.0.1 — see
-docs/PROVIDER_PACKET_CORRECTION_LEDGER_1C0_1.md for every corrected
-statement and its evidence; the recommendation was RECOMPUTED from the
-corrected evidence via the weighted model in §5b, not defended in
-advance).
+**Status:** research packet for DEC-0018 (Phase 1C.0; corrected by Phase
+1C.0.1 — see docs/PROVIDER_PACKET_CORRECTION_LEDGER_1C0_1.md for every
+corrected statement and its evidence; the recommendation was RECOMPUTED
+from the corrected evidence via the weighted model in §5b, not defended
+in advance).
+
+**Status note (appended 2026-07-20, Phase 1C.1 — historical text below is
+unchanged).** DEC-0018 was ratified as Option A on 2026-07-19 and Phase
+1C.1 (DEC-0019) implemented it: the §9 gate design now exists as the
+`provider-policy-candidate` contract, the `provider-enablement-approval`
+gate, the Product Owner-signed committed candidate, and the CI-verified
+policy chain; the §6.4 ceilings are enforced pre-invocation; the §8
+Keychain design is implemented WITHOUT provisioning any credential. The
+resulting state is CONFIGURED_BUT_LIVE_DISABLED: live invocation stays
+disabled pending the secret ceremony and a separately signed smoke-call
+approval, no provider call or spend has occurred, and EXP-0001 remains
+unexecuted. The historical "no provider is enabled" language below
+described the Phase 1C.0 posture and is retained unedited.
 **No provider is enabled.** DEC-0009 (zero-provider offline policy) remains
 the active, ratified posture; the active gateway policy is unchanged and
 CI-guarded (`scripts/validate-provider-packet.mjs`). This packet grants no

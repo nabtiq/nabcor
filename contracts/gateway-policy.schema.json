@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://nabcor.nabtiq.com/contracts/gateway-policy.schema.json",
   "title": "Gateway Policy",
-  "description": "Machine-readable gateway execution policy (DEC-0009, INV-PROV-001). The ratified zero-provider values are pinned as constants: a policy naming any other adapter, data class, tier, network capability, credential permission, or nonzero spend is schema-invalid. Relaxing any pinned value requires a superseding decision and a new contract version — never a document edit.",
+  "description": "Machine-readable gateway execution policy (DEC-0018 Option A as implemented by DEC-0019; supersedes the DEC-0009 zero-provider constants through the documented contract-migration procedure). The ratified provider-enablement values are pinned as constants: exactly one external provider adapter (anthropic) plus the deterministic offline fake adapter, synthetic data only, the exact ratified model allowlist and USD/token/attempt ceilings, and a mandatory cryptographic binding to the Product Owner-signed provider-policy-candidate (the active policy must embed the signed candidate's canonical content digest and the public approval evidence/receipt references, so any ceiling, model, or data-class drift breaks the binding). Live invocation is NOT granted by this policy: it additionally requires the committed provider-operational-state document (live_invocation_enabled is schema-pinned false in this phase), credential resolution through the approved secret boundary, and a separately authenticated, unconsumed live-call authorization. Relaxing any pinned value requires a superseding decision and a new contract version — never a document edit.",
   "type": "object",
   "required": [
     "schema_version",
@@ -10,12 +10,23 @@
     "decision_ref",
     "allowed_adapters",
     "allowed_data_classes",
+    "allowed_execution_tiers",
+    "model_allowlist",
     "external_network_allowed",
     "real_client_data_allowed",
     "api_credentials_permitted",
+    "max_external_spend_usd_per_request",
     "max_external_spend_usd_per_run",
+    "max_external_spend_usd_per_day",
     "max_external_spend_usd_per_month",
-    "required_execution_tier"
+    "max_input_tokens_per_request",
+    "max_output_tokens_per_request",
+    "max_attempts_per_request",
+    "max_escalations",
+    "provider_policy_candidate_ref",
+    "provider_policy_candidate_digest",
+    "provider_enablement_evidence_ref",
+    "provider_enablement_receipt_ref"
   ],
   "properties": {
     "schema_version": {
@@ -28,49 +39,114 @@
     "decision_ref": {
       "type": "string",
       "pattern": "^DEC-\\d{4}$",
-      "description": "the ratified decision this policy encodes"
+      "description": "the ratified enablement decision this policy encodes (DEC-0018 Option A; implementation record DEC-0019)"
     },
     "allowed_adapters": {
-      "const": ["fake"],
-      "description": "DEC-0009: the deterministic Fake Adapter is the only approved adapter"
+      "const": ["anthropic", "fake"],
+      "description": "DEC-0018/DEC-0019: the Anthropic raw-HTTPS adapter is the only configured external provider; the deterministic offline Fake Adapter remains for tests and offline runs. Sorted, unique."
     },
     "allowed_data_classes": {
       "const": ["synthetic"],
-      "description": "DEC-0009: synthetic data only; real client data is prohibited from every model path"
+      "description": "DEC-0018: synthetic data only; real client data is prohibited from every model path"
+    },
+    "allowed_execution_tiers": {
+      "const": [0, 1, 2],
+      "description": "tier 0 (deterministic, fake adapter) plus the two ratified model tiers: 1 (claude-haiku-4-5-20251001) and 2 (claude-sonnet-5). Sorted, unique."
+    },
+    "model_allowlist": {
+      "const": [
+        { "model_id": "claude-haiku-4-5-20251001", "tier": 1 },
+        { "model_id": "claude-sonnet-5", "tier": 2 }
+      ],
+      "description": "exact ratified model IDs, sorted by model_id; no aliases, no other IDs, no automatic escalation between them"
     },
     "external_network_allowed": {
-      "const": false
+      "const": true,
+      "description": "network capability exists ONLY inside the gateway Anthropic adapter's pinned raw-HTTPS transport; live invocation is additionally gated on the operational state, the secret boundary, and a signed live-call authorization, none of which exist in this phase"
     },
     "real_client_data_allowed": {
       "const": false
     },
     "api_credentials_permitted": {
-      "const": false
+      "const": true,
+      "description": "credentials may be resolved ONLY through the approved secret boundary (macOS Keychain, documented service/account); no credential is provisioned in this phase and none may appear in the repository, CI, configuration, or records"
+    },
+    "max_external_spend_usd_per_request": {
+      "const": 1
     },
     "max_external_spend_usd_per_run": {
-      "const": 0
+      "const": 25
+    },
+    "max_external_spend_usd_per_day": {
+      "const": 40,
+      "description": "UTC day"
     },
     "max_external_spend_usd_per_month": {
-      "const": 0
+      "const": 60,
+      "description": "UTC month; the provider-console hard cap at the same value is a later operational ceremony and is NOT claimed configured by this policy"
     },
-    "required_execution_tier": {
+    "max_input_tokens_per_request": {
+      "const": 200000
+    },
+    "max_output_tokens_per_request": {
+      "const": 32000
+    },
+    "max_attempts_per_request": {
+      "const": 2,
+      "description": "at most two total attempts (one bounded retry of explicitly classified transient failures); every attempt consumes its own budget reservation"
+    },
+    "max_escalations": {
       "const": 0,
-      "description": "Tier 0 — deterministic code, no model (docs/MODEL_AND_TOKEN_STRATEGY.md)"
+      "description": "zero automatic model escalation"
+    },
+    "provider_policy_candidate_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+      "description": "artifact_id of the committed provider-policy-candidate this policy activates"
+    },
+    "provider_policy_candidate_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "canonical content digest of the exact signed candidate (the digest the Product Owner approval evidence binds); CI recomputes it from the committed candidate and verifies the full candidate -> evidence -> authority -> decision -> active-policy chain"
+    },
+    "provider_enablement_evidence_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+      "description": "evidence_id of the committed public provider-enablement-approval evidence"
+    },
+    "provider_enablement_receipt_ref": {
+      "type": "string",
+      "pattern": "^r[0-9a-f]{64}$",
+      "description": "receipt_id of the committed public consumption receipt proving the approval was verified and its nonce consumed exactly once"
     }
   },
   "examples": [
     {
-      "schema_version": "1.8.0",
-      "policy_id": "gateway-policy-0001",
-      "decision_ref": "DEC-0009",
-      "allowed_adapters": ["fake"],
+      "schema_version": "1.9.0",
+      "policy_id": "gateway-policy-0002",
+      "decision_ref": "DEC-0018",
+      "allowed_adapters": ["anthropic", "fake"],
       "allowed_data_classes": ["synthetic"],
-      "external_network_allowed": false,
+      "allowed_execution_tiers": [0, 1, 2],
+      "model_allowlist": [
+        { "model_id": "claude-haiku-4-5-20251001", "tier": 1 },
+        { "model_id": "claude-sonnet-5", "tier": 2 }
+      ],
+      "external_network_allowed": true,
       "real_client_data_allowed": false,
-      "api_credentials_permitted": false,
-      "max_external_spend_usd_per_run": 0,
-      "max_external_spend_usd_per_month": 0,
-      "required_execution_tier": 0
+      "api_credentials_permitted": true,
+      "max_external_spend_usd_per_request": 1,
+      "max_external_spend_usd_per_run": 25,
+      "max_external_spend_usd_per_day": 40,
+      "max_external_spend_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provider_enablement_evidence_ref": "apev-example0001",
+      "provider_enablement_receipt_ref": "raaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     }
   ],
   "additionalProperties": false

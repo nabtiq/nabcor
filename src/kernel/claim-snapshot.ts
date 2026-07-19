@@ -74,7 +74,7 @@ export function captureClaimSnapshot(
   }
 
   const snapshot: Record<string, unknown> = {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     artifact_id: input.artifactId,
     brand_ref: input.brandRef,
     workspace: input.workspace,
