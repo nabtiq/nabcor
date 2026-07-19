@@ -170,7 +170,7 @@ function signingSetup(): SigningSetup {
     join(configDir, "authority-registry.active.json"),
     JSON.stringify(
       {
-        schema_version: "1.8.0",
+        schema_version: "1.9.0",
         registry_id: "areg-nabcor",
         registry_version: 2,
         supersedes_registry_version: 1,
@@ -301,12 +301,15 @@ test("--json emits exactly one parseable object for success and failure, with th
 // ---------------------------------------------------------------------------
 // Status
 // ---------------------------------------------------------------------------
-test("status reports the zero-provider posture, public authority metadata, and frozen gates — without key bytes", () => {
+test("status reports the configured-but-live-disabled provider posture, public authority metadata, and frozen gates — without key bytes", () => {
   const human = run(["status"]);
   assert.equal(human.status, 0);
-  assert.match(human.stdout, /zero-provider policy \(DEC-0009\)/);
-  assert.match(human.stdout, /adapters \["fake"\]/);
+  assert.match(human.stdout, /live invocation DISABLED/);
+  assert.match(human.stdout, /no credential exists in NABCor/);
+  assert.match(human.stdout, /CONFIGURED_BUT_LIVE_DISABLED/);
+  assert.match(human.stdout, /adapters \["anthropic","fake"\]/);
   assert.match(human.stdout, /data classes \["synthetic"\]/);
+  assert.match(human.stdout, /EXP-0001 executed false/);
   assert.match(human.stdout, /frozen \(no independent reviewer/);
   assert.match(human.stdout, /k8cc9db703247760829dcb74819fbe07cd1dc24a2bf66ec7a02ed500391de8b1b/);
 
@@ -390,7 +393,7 @@ test("analyze refuses cross-brand profiles and malformed stored profiles with re
   // A planted, contract-invalid profile fails closed at the store boundary.
   writeFileSync(
     join(s.storeRoot, WS, BRAND, "truth-profile", "tp-broken.json"),
-    JSON.stringify({ schema_version: "1.8.0", artifact_id: "tp-broken" }) + "\n",
+    JSON.stringify({ schema_version: "1.9.0", artifact_id: "tp-broken" }) + "\n",
     "utf8"
   );
   const malformed = run([
@@ -679,7 +682,7 @@ test("wrong-target, unenrolled-key, expired, and cross-namespace evidence all fa
     expires_at: new Date(Date.now() + 3_600_000).toISOString().replace(/\.\d{3}Z$/, "Z"),
   };
   const wrongTargetEvidence = {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     evidence_id: "apev-cli-wrongtarget",
     payload: payloadBase,
     payload_digest: approvalPayloadDigest(payloadBase),
@@ -702,7 +705,7 @@ test("wrong-target, unenrolled-key, expired, and cross-namespace evidence all fa
     expires_at: "2026-01-01T01:00:00Z",
   };
   const expiredEvidence = {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     evidence_id: "apev-cli-expired",
     payload: expiredPayload,
     payload_digest: approvalPayloadDigest(expiredPayload),
@@ -771,7 +774,7 @@ test("an interrupted application resumes through the CLI, and a same-nonce repla
   const foreignPayload = { ...payload, reason: "a different signed reason" };
   const pem = readFileSync(setup.privateKeyPath, "utf8");
   const foreignEvidence = {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     evidence_id: "apev-cli-foreign",
     payload: foreignPayload,
     payload_digest: approvalPayloadDigest(foreignPayload),
@@ -919,7 +922,7 @@ test("apply names its trust root and flags a non-default override; JSON success 
   const evidencePath = sign(s, setup, "frd-cli-1", "approved", "trustroot.json");
   const applied = run(applyArgs(s, evidencePath, decisionDigest, setup.configDir));
   assert.equal(applied.status, 0);
-  assert.match(applied.stdout, /Trust root: hgp-nabcor-1 v2 \/ areg-nabcor v2/);
+  assert.match(applied.stdout, /Trust root: hgp-nabcor-1 v3 \/ areg-nabcor v2/);
   assert.match(applied.stdout, /NON-DEFAULT --trusted-config-dir in effect/);
   const replayJson = runJson(applyArgs(s, evidencePath, decisionDigest, setup.configDir));
   assert.equal(replayJson.body["trusted_config"], "override");

@@ -24,7 +24,7 @@ import {
   contradictionFingerprint,
   successorIdFor,
 } from "../resolve/resolution-ids.js";
-import { claimSetDigest } from "./canonical-json.js";
+import { claimSetDigest, contentDigest } from "./canonical-json.js";
 import { type Result, type ValidationIssue, err, ok } from "./result.js";
 import { parseSourceRef } from "./source-ref.js";
 
@@ -41,6 +41,7 @@ export const SUPPORTED_ARTIFACT_TYPES = [
   "truth-analysis",
   "fact-resolution-decision",
   "fact-resolution-application",
+  "provider-policy-candidate",
 ] as const;
 export type SupportedArtifactType = (typeof SUPPORTED_ARTIFACT_TYPES)[number];
 
@@ -80,9 +81,56 @@ interface AuthorityRecord {
   revocation_reason?: string;
 }
 
+// Provider-policy candidate self-integrity (DEC-0019) — mirrored in
+// contracts/validate.mjs (the two must change together): candidate_digest is
+// sha256 over the canonical JSON of the candidate WITHOUT the digest field.
+export function candidateSelfDigest(candidate: Record<string, unknown>): string {
+  const rest: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(candidate)) {
+    if (k !== "candidate_digest") rest[k] = v;
+  }
+  return contentDigest(rest);
+}
+
 // Deterministic cross-field checks the schemas cannot express, mirrored from
 // contracts/validate.mjs for the types this kernel exchanges at runtime.
 const SEMANTIC_CHECKS: Record<string, SemanticCheck[]> = {
+  "provider-policy-candidate": [
+    {
+      invariant: "DEC-0019 candidate-digest-consistency",
+      check: (d) => {
+        const recomputed = candidateSelfDigest(d);
+        return d["candidate_digest"] === recomputed
+          ? []
+          : [
+              `candidate_digest '${String(d["candidate_digest"])}' does not match the recomputed canonical digest '${recomputed}' over the candidate without its digest field`,
+            ];
+      },
+    },
+    {
+      invariant: "DEC-0019 validity-window-ordered",
+      check: (d) =>
+        Date.parse(String(d["valid_until"])) > Date.parse(String(d["valid_from"]))
+          ? []
+          : [
+              `valid_until '${String(d["valid_until"])}' must be after valid_from '${String(d["valid_from"])}'`,
+            ],
+    },
+    {
+      invariant: "DEC-0019 sorted-unique-model-allowlist",
+      check: (d) => {
+        const out: string[] = [];
+        const ids = ((d["allowed_models"] ?? []) as { model_id: string }[]).map((m) => m.model_id);
+        for (let i = 1; i < ids.length; i++) {
+          if (!(ids[i]! > ids[i - 1]!))
+            out.push(
+              `allowed_models not strictly sorted by model_id: '${ids[i]}' follows '${ids[i - 1]}'`
+            );
+        }
+        return out;
+      },
+    },
+  ],
   "human-gate-policy": [
     {
       invariant: "DEC-0014 gate-requirements-cover-allowed-gates",

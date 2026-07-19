@@ -22,6 +22,10 @@ Authority rank 4 (below decisions, above current state) — see `AGENTS.md`.
 - Execution layer: `model-run`, `token-budget`, `context-manifest`,
   `validation-matrix`, `deployment-readiness`, `gateway-policy`,
   `gateway-request`.
+- Provider-enablement layer (DEC-0018/DEC-0019): `provider-policy-candidate`
+  (the immutable signed enablement configuration),
+  `provider-operational-state` (the committed live-disabled readiness
+  document).
 - Human-gate authority layer (DEC-0014): `human-gate-policy`,
   `authority-registry`, `approval-evidence`, `approval-receipt`.
 - `gateway-policy.active.json` — the committed active gateway policy document
@@ -38,6 +42,17 @@ Authority rank 4 (below decisions, above current state) — see `AGENTS.md`.
   2026-07-19 → 2027-07-19), and the active policy (version 2) pins
   registry version 2 exactly. Public keys are non-secret; the private half
   lives outside the repository under the Product Owner's sole control.
+- `provider-policy-candidate.active.json`,
+  `provider-operational-state.active.json` — the committed provider
+  documents (DEC-0019): the exact candidate the Product Owner signed and
+  the CONFIGURED_BUT_LIVE_DISABLED operational state, both CI-validated
+  with their digest binding to the active gateway policy.
+- `provider-enablement-approval.evidence.json`,
+  `provider-enablement-approval.receipt.json` — the committed PUBLIC
+  approval evidence (signed payload + Ed25519 signature, no private
+  material) and its consumption receipt; CI re-verifies the signature and
+  the full policy chain on every run
+  (`scripts/validate-provider-chain.mjs`).
 - `fixtures/positive.json`, `fixtures/negative.json` — validation fixtures (below).
 
 Execution-layer records are operational records, not creative artifacts — they carry
@@ -74,11 +89,76 @@ instead of invented claim refs — see fixture `P02`).
 
 ## Versioning
 
-Artifact `schema_version` for all contracts: **1.8.0** (was 1.7.1). The version is
+Artifact `schema_version` for all contracts: **1.9.0** (was 1.8.0). The version is
 globally synchronized across all contracts; examples, fixtures, and
 runtime-generated artifacts carry it consistently.
 
-**Migration implications (1.7.1 → 1.8.0):** two contracts were added and two
+**Migration implications (1.8.0 → 1.9.0):** two contracts were added, the
+gateway policy changed meaning fundamentally, and three contracts changed
+meaning minimally for the Anthropic provider implementation (DEC-0018
+Option A / DEC-0019, Phase 1C.1); no other contract changed meaning:
+
+- `provider-policy-candidate` (new): the immutable, signable provider
+  configuration — provider/adapter identity, the exact model allowlist
+  with the pinned price table, the pinned endpoint and protocol version,
+  data classes, the conservative retention/training postures, all USD and
+  token ceilings, the attempt/escalation caps, every disabled optional
+  surface (caching, Batch, tools, provider storage/memory, Files,
+  fallback, automatic escalation), the live-invocation and EXP-0001
+  stances (both pinned false), the policy-bound Keychain identifiers, and
+  the validity window — every ratified value a schema constant. Semantic
+  layer: `candidate-digest-consistency` (candidate_digest is sha256 over
+  the canonical JSON of the candidate WITHOUT that field — recomputed),
+  `validity-window-ordered`, and `sorted-unique-model-allowlist`. The
+  Product Owner signs the STORED artifact's full canonical content digest
+  under the `provider-enablement-approval` gate; contract validity proves
+  shape only, and a proposed or unsigned candidate grants nothing.
+- `provider-operational-state` (new): the committed active readiness
+  document making CONFIGURED_BUT_LIVE_DISABLED machine-enforceable —
+  `live_invocation_enabled`, `credential_provisioned`,
+  `console_spend_cap_configured`, `smoke_call_completed`, and
+  `exp_0001_executed` are all pinned false as schema constants and
+  `live_call_authorization_ref` is pinned null; enabling any of them is a
+  future conscious contract migration plus its own ceremony, never an
+  edit. The document is digest-bound to the signed candidate.
+- `gateway-policy` changed meaning fundamentally (the conscious
+  DEC-0009-constant migration that Phase 1C.0's byte-guard demanded): the
+  zero-provider constants are replaced by the ratified DEC-0018 constants
+  (adapters exactly ["anthropic", "fake"]; tiers [0, 1, 2]; the exact
+  two-model allowlist; USD 1/25/40/60 request/run/day/month ceilings;
+  200k/32k token ceilings; 2 attempts; 0 escalations; network and
+  credential capability scoped to the adapter transport and secret
+  boundary), plus four REQUIRED binding fields: the candidate reference,
+  the signed candidate's canonical content digest, and the public
+  approval evidence/receipt references. CI
+  (`scripts/validate-provider-chain.mjs`) re-verifies the complete
+  candidate -> evidence -> authority -> decision -> active-policy chain
+  including the Ed25519 signature; `scripts/validate-provider-packet.mjs`
+  byte-pins the active policy and re-asserts the live-disabled state.
+- `human-gate-policy` gains two gates in its enums —
+  `provider-enablement-approval` and `live-provider-call-approval` (both
+  product-owner, no independent review) — and the active policy moves to
+  version 3 (decision_ref DEC-0019). The four DEC-0008 independent-review
+  gates are unchanged and stay frozen.
+- `approval-evidence` and `approval-receipt` changed meaning minimally:
+  their gate enums gain the two new gates and `target_artifact_type`
+  gains `provider-policy-candidate`. No other field changed.
+- `model-run` gains OPTIONAL truthful provider-accounting fields
+  (`provider_request_id`, `requested_model`, `returned_model`, `attempt`,
+  `reserved_usd`, `pricing_version`, `budget_remaining_usd`,
+  `output_contract`, `data_classification`, `retention_status` — enum
+  pinned to `STANDARD_UP_TO_30_DAYS`, no ZDR value exists —
+  `live_authorization_ref`). Existing records remain valid; provider runs
+  populate them.
+- No real production artifacts existed at 1.8.0, so no real-artifact
+  migration was performed — examples, fixtures, the committed active
+  documents, and synthetic runtime fixtures were re-issued at 1.9.0 in
+  the same change. The active authority registry keeps
+  `registry_version` 2 (only its `schema_version` label changed under the
+  synchronized re-issue); the active human-gate policy's move to
+  `policy_version` 3 IS a semantic revision, ratified by DEC-0019.
+
+**Historical — migration implications (1.7.1 → 1.8.0):** two contracts were added and two
 contracts changed meaning for the authenticated fact-resolution application
 (DEC-0016, Phase 1B.4); no other contract changed meaning:
 

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.9.0",
+  "state_id": "pos-anthropic-0001",
+  "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
+  "provider": "anthropic",
+  "adapter_id": "anthropic",
+  "provider_policy_candidate_ref": "ppc-anthropic-0001",
+  "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+  "live_invocation_enabled": false,
+  "credential_provisioned": false,
+  "console_spend_cap_configured": false,
+  "smoke_call_completed": false,
+  "exp_0001_executed": false,
+  "live_call_authorization_ref": null,
+  "decision_ref": "DEC-0019",
+  "updated_at": "2026-07-19T19:30:28Z"
+}

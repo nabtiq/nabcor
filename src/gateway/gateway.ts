@@ -1,11 +1,11 @@
-// Offline provider-neutral gateway kernel (DEC-0009, DEC-0010; INV-PROV-001,
-// INV-TOK-001/002, INV-OBS-001, INV-DET-001). Every capability invocation
-// crosses this boundary: the request is contract-validated, the ratified
-// gateway policy is enforced fail-closed before any adapter runs, the token
-// budget is checked before invocation, a context manifest is persisted before
-// the adapter call, adapter output is returned only after it validates against
-// the requested contract, and a truthful model-run record is written for every
-// outcome that passes request validation.
+// Provider-neutral gateway kernel (DEC-0009, DEC-0010, DEC-0018, DEC-0019;
+// INV-PROV-001, INV-TOK-001/002, INV-OBS-001, INV-DET-001). Every capability
+// invocation crosses this boundary: the request is contract-validated, the
+// ratified gateway policy is enforced fail-closed before any adapter runs, the
+// token budget is checked before invocation, a context manifest is persisted
+// before the adapter call, adapter output is returned only after it validates
+// against the requested contract, and a truthful model-run record is written
+// for every outcome that passes request validation.
 //
 // Record-creation boundary (documented precisely, per DEC-0010): a request that
 // fails gateway-request schema validation has no trustworthy identity, so it
@@ -14,15 +14,21 @@
 // record using the request's validated identity, with `failure_type` mapping:
 // policy rejections → "refusal" · budget breaches → "loop_budget" · missing
 // context and output-validation failures → "validation_failure" · unknown
-// scenario and adapter errors → "tool_error". Zero tokens and
-// {mode: "free-tier", usd: 0, allocation: "none"} are the truthful accounting
-// for an adapter that invokes no model and can spend nothing (DEC-0009);
-// `latency_ms` is null — never estimated. Deterministic validation failures
-// are never retried (`retry_count: 0`, single bounded invocation).
+// scenario and adapter errors → "tool_error" · provider transport failures →
+// the adapter's typed classification. Offline (fake-adapter) runs record zero
+// tokens and {mode: "free-tier", usd: 0, allocation: "none"} — the truthful
+// non-billed accounting (DEC-0009). Provider runs record the adapter's
+// ProviderAccounting truthfully: tokens are provider-reported or null (never
+// estimated), and cost.usd is the settled actual cost, or the full
+// conservative reservation when provider usage is unreported (timeout) — the
+// amount irrevocably charged against every ceiling. `latency_ms` is null —
+// never estimated. Deterministic validation failures are never retried by the
+// gateway (`retry_count` reflects the adapter's own bounded transient retries
+// only).
 import { readFileSync } from "node:fs";
 import type { ContractRegistry } from "../kernel/contract-registry.js";
 import { type KernelFailure, type Result, describeFailure, err, ok } from "../kernel/result.js";
-import type { AdapterInvocation, GatewayAdapter } from "./adapter.js";
+import type { AdapterInvocation, GatewayAdapter, ProviderAccounting } from "./adapter.js";
 import type { RunRecordStore } from "./record-store.js";
 
 // Version label recorded in every context manifest (contract field
@@ -54,10 +60,17 @@ export interface GatewayInvocationSuccess {
 }
 
 export interface ModelGateway {
-  invoke(request: unknown): Result<GatewayInvocationSuccess>;
+  invoke(request: unknown): Promise<Result<GatewayInvocationSuccess>>;
 }
 
-type FailureType = "refusal" | "loop_budget" | "validation_failure" | "tool_error";
+type FailureType =
+  | "refusal"
+  | "loop_budget"
+  | "validation_failure"
+  | "tool_error"
+  | "rate_limit"
+  | "provider_error"
+  | "outage";
 
 interface RequestIdentity {
   requestId: string;
@@ -78,6 +91,53 @@ interface RequestIdentity {
 
 const asString = (v: unknown): string => (typeof v === "string" ? v : String(v));
 
+/** Typed provider-adapter failure kinds that pass through the gateway unchanged. */
+const PROVIDER_FAILURE_KINDS = new Set([
+  "provider-policy-invalid",
+  "live-invocation-disabled",
+  "live-call-authorization-missing",
+  "live-call-authorization-invalid",
+  "credential-unavailable",
+  "model-not-allowed",
+  "provider-rate-limited",
+  "provider-timeout",
+  "provider-unavailable",
+  "provider-auth-failed",
+  "provider-request-rejected",
+  "provider-protocol-violation",
+  "budget-ledger-busy",
+  "budget-ledger-conflict",
+  "budget-exceeded",
+  "data-class-not-permitted",
+  "output-validation-failed",
+]);
+
+/** Map an adapter's typed transport failure to the model-run failure_type enum. */
+function providerFailureType(failure: KernelFailure): FailureType {
+  switch (failure.kind) {
+    case "provider-rate-limited":
+      return "rate_limit";
+    case "provider-timeout":
+    case "provider-unavailable":
+      return "outage";
+    case "output-validation-failed":
+      return "validation_failure";
+    case "budget-exceeded":
+      return "loop_budget";
+    case "scenario-not-found":
+      return "tool_error";
+    case "live-invocation-disabled":
+    case "live-call-authorization-missing":
+    case "live-call-authorization-invalid":
+    case "credential-unavailable":
+    case "data-class-not-permitted":
+    case "model-not-allowed":
+      return "refusal";
+    default:
+      return "provider_error";
+  }
+}
+
 export class OfflineGateway implements ModelGateway {
   readonly #registry: ContractRegistry;
   readonly #recordStore: RunRecordStore;
@@ -86,13 +146,13 @@ export class OfflineGateway implements ModelGateway {
   readonly #contextResolver: GatewayDependencies["contextResolver"];
   readonly #allowedAdapters: ReadonlySet<string>;
   readonly #allowedDataClasses: ReadonlySet<string>;
-  readonly #requiredTier: number;
+  readonly #allowedTiers: ReadonlySet<number>;
 
   private constructor(
     deps: GatewayDependencies,
     allowedAdapters: ReadonlySet<string>,
     allowedDataClasses: ReadonlySet<string>,
-    requiredTier: number
+    allowedTiers: ReadonlySet<number>
   ) {
     this.#registry = deps.registry;
     this.#recordStore = deps.recordStore;
@@ -101,14 +161,14 @@ export class OfflineGateway implements ModelGateway {
     this.#contextResolver = deps.contextResolver;
     this.#allowedAdapters = allowedAdapters;
     this.#allowedDataClasses = allowedDataClasses;
-    this.#requiredTier = requiredTier;
+    this.#allowedTiers = allowedTiers;
   }
 
   /**
    * Fail-closed construction: a missing, unreadable, unparseable, or
    * contract-invalid active policy means no gateway exists. Registering an
-   * adapter the policy does not allow, or whose tier the policy does not
-   * require, is refused here — before any request can be made.
+   * adapter the policy does not allow, or one serving a tier the policy does
+   * not allow, is refused here — before any request can be made.
    */
   static create(deps: GatewayDependencies): Result<OfflineGateway> {
     let raw: string;
@@ -139,7 +199,7 @@ export class OfflineGateway implements ModelGateway {
     const policy = validated.value;
     const allowedAdapters = new Set((policy["allowed_adapters"] as string[]).map(asString));
     const allowedDataClasses = new Set((policy["allowed_data_classes"] as string[]).map(asString));
-    const requiredTier = policy["required_execution_tier"] as number;
+    const allowedTiers = new Set(policy["allowed_execution_tiers"] as number[]);
     for (const adapter of deps.adapters) {
       if (!allowedAdapters.has(adapter.adapterId)) {
         return err({
@@ -148,18 +208,20 @@ export class OfflineGateway implements ModelGateway {
           message: `adapter '${adapter.adapterId}' is registered but not in the policy allowlist [${[...allowedAdapters].join(", ")}]; construction fails closed`,
         });
       }
-      if (adapter.executionTier !== requiredTier) {
-        return err({
-          kind: "tier-not-permitted",
-          requestedTier: adapter.executionTier,
-          message: `adapter '${adapter.adapterId}' declares tier ${adapter.executionTier} but the policy requires tier ${requiredTier}`,
-        });
+      for (const tier of adapter.executionTiers) {
+        if (!allowedTiers.has(tier)) {
+          return err({
+            kind: "tier-not-permitted",
+            requestedTier: tier,
+            message: `adapter '${adapter.adapterId}' declares tier ${tier} but the policy allows only [${[...allowedTiers].join(", ")}]`,
+          });
+        }
       }
     }
-    return ok(new OfflineGateway(deps, allowedAdapters, allowedDataClasses, requiredTier));
+    return ok(new OfflineGateway(deps, allowedAdapters, allowedDataClasses, allowedTiers));
   }
 
-  invoke(request: unknown): Result<GatewayInvocationSuccess> {
+  async invoke(request: unknown): Promise<Result<GatewayInvocationSuccess>> {
     // 1. Boundary validation: the request stays `unknown` until the contract
     //    accepts it. Failure here precedes all records (no trusted identity).
     const validated = this.#registry.validate("gateway-request", request);
@@ -198,13 +260,13 @@ export class OfflineGateway implements ModelGateway {
 
     // 2. Policy enforcement, fail-closed, before any adapter work. The strict
     //    request contract already rejects credential-bearing fields; these
-    //    checks reject real-provider adapters, disallowed data classes, and
+    //    checks reject non-allowlisted adapters, disallowed data classes, and
     //    non-permitted tiers.
     if (!this.#allowedAdapters.has(id.adapterId)) {
       return this.#reject(id, startedAt, null, 0, "refusal", {
         kind: "adapter-not-approved",
         adapterId: id.adapterId,
-        message: `adapter '${id.adapterId}' is not in the policy allowlist [${[...this.#allowedAdapters].join(", ")}] (DEC-0009: no external provider is approved)`,
+        message: `adapter '${id.adapterId}' is not in the policy allowlist [${[...this.#allowedAdapters].join(", ")}] (DEC-0018: anthropic is the only configured external provider)`,
       });
     }
     const adapter = this.#adapters.get(id.adapterId);
@@ -219,14 +281,21 @@ export class OfflineGateway implements ModelGateway {
       return this.#reject(id, startedAt, null, 0, "refusal", {
         kind: "data-class-not-permitted",
         dataClass: id.dataClassification,
-        message: `data classification '${id.dataClassification}' is not permitted [allowed: ${[...this.#allowedDataClasses].join(", ")}]; real client data is prohibited from every model path (DEC-0009)`,
+        message: `data classification '${id.dataClassification}' is not permitted [allowed: ${[...this.#allowedDataClasses].join(", ")}]; real client data is prohibited from every model path (DEC-0018)`,
       });
     }
-    if (id.requestedTier !== this.#requiredTier) {
+    if (!this.#allowedTiers.has(id.requestedTier)) {
       return this.#reject(id, startedAt, null, 0, "refusal", {
         kind: "tier-not-permitted",
         requestedTier: id.requestedTier,
-        message: `requested tier ${id.requestedTier} is not permitted; the active policy requires tier ${this.#requiredTier} (no model exists behind this gateway)`,
+        message: `requested tier ${id.requestedTier} is not permitted; the active policy allows tiers [${[...this.#allowedTiers].join(", ")}]`,
+      });
+    }
+    if (!adapter.executionTiers.includes(id.requestedTier as 0 | 1 | 2 | 3 | 4)) {
+      return this.#reject(id, startedAt, null, 0, "refusal", {
+        kind: "tier-not-permitted",
+        requestedTier: id.requestedTier,
+        message: `adapter '${id.adapterId}' does not serve tier ${id.requestedTier} (serves [${adapter.executionTiers.join(", ")}])`,
       });
     }
     if (this.#registry.schemaIdFor(id.outputContract) === undefined) {
@@ -278,7 +347,7 @@ export class OfflineGateway implements ModelGateway {
     }
     const manifestId = `cm_${id.runId}`;
     const manifest = {
-      schema_version: "1.8.0",
+      schema_version: "1.9.0",
       manifest_id: manifestId,
       run_ref: id.runId,
       skill_id: id.skillId,
@@ -304,50 +373,80 @@ export class OfflineGateway implements ModelGateway {
       });
     }
 
-    // 5. Single bounded adapter invocation. Adapter exceptions never cross the
-    //    gateway boundary raw.
+    // 5. Single bounded adapter invocation (the adapter's own bounded
+    //    transient retries live behind this call). Adapter exceptions never
+    //    cross the gateway boundary raw.
+    const freshInputBudget = budget["fresh_input_budget"];
+    const invocation: AdapterInvocation = {
+      scenarioId: id.scenarioId,
+      outputContract: id.outputContract,
+      requestedTier: id.requestedTier,
+      maxOutputTokens: id.maxOutputTokens,
+      maxInputTokens: typeof freshInputBudget === "number" ? freshInputBudget : null,
+      dataClassification: id.dataClassification,
+      runId: id.runId,
+      requestId: id.requestId,
+    };
     let outcome: Result<unknown>;
+    let accounting: ProviderAccounting | null = null;
     try {
-      const invocation: AdapterInvocation = {
-        scenarioId: id.scenarioId,
-        outputContract: id.outputContract,
-      };
-      outcome = adapter.invoke(invocation);
+      const adapterResult = await adapter.invoke(invocation);
+      outcome = adapterResult.outcome;
+      accounting = adapterResult.accounting;
     } catch (e) {
+      // Only the exception's class name crosses the boundary — a raw message
+      // from an injected dependency could carry arbitrary or sensitive content.
+      const errorName = e instanceof Error ? e.name : "unknown";
       return this.#reject(id, startedAt, manifestId, 1, "tool_error", {
         kind: "adapter-failure",
-        message: `adapter '${id.adapterId}' threw instead of returning a typed result: ${String(e)}`,
+        message: `adapter '${id.adapterId}' threw instead of returning a typed result (${errorName})`,
       });
     }
     if (!outcome.ok) {
-      const failure =
-        outcome.error.kind === "scenario-not-found"
-          ? outcome.error
-          : {
-              kind: "adapter-failure" as const,
-              message: `adapter '${id.adapterId}' failed: ${describeFailure(outcome.error)}`,
-            };
-      return this.#reject(id, startedAt, manifestId, 1, "tool_error", failure);
+      const passthrough =
+        outcome.error.kind === "scenario-not-found" ||
+        accounting !== null ||
+        PROVIDER_FAILURE_KINDS.has(outcome.error.kind);
+      const failure = passthrough
+        ? outcome.error
+        : {
+            kind: "adapter-failure" as const,
+            message: `adapter '${id.adapterId}' failed: ${describeFailure(outcome.error)}`,
+          };
+      const failureType =
+        accounting !== null || PROVIDER_FAILURE_KINDS.has(outcome.error.kind)
+          ? providerFailureType(outcome.error)
+          : "tool_error";
+      return this.#reject(id, startedAt, manifestId, 1, failureType, failure, adapter, accounting);
     }
 
     // 6. Structured-output validation: the artifact is returned only after the
     //    requested contract accepts it. Deterministic validation failures are
-    //    not retried.
+    //    not retried by the gateway.
     const artifact = this.#registry.validate(id.outputContract, outcome.value);
     if (!artifact.ok) {
       const issues = artifact.error.kind === "validation-failed" ? artifact.error.issues : [];
-      return this.#reject(id, startedAt, manifestId, 1, "validation_failure", {
-        kind: "output-validation-failed",
-        artifactType: id.outputContract,
-        issues,
-        message: `adapter output failed '${id.outputContract}' contract validation and is not returned`,
-      });
+      return this.#reject(
+        id,
+        startedAt,
+        manifestId,
+        1,
+        "validation_failure",
+        {
+          kind: "output-validation-failed",
+          artifactType: id.outputContract,
+          issues,
+          message: `adapter output failed '${id.outputContract}' contract validation and is not returned`,
+        },
+        adapter,
+        accounting
+      );
     }
 
     // 7. Truthful success record; the invocation only succeeds if the record
     //    persists (INV-OBS-001: every gateway call writes a model-run record).
     const outId = artifact.value["artifact_id"];
-    const runRecord = this.#buildRunRecord(id, startedAt, manifestId, 1, null, adapter, {
+    const runRecord = this.#buildRunRecord(id, startedAt, manifestId, 1, null, adapter, accounting, {
       artifactIdsOut: typeof outId === "string" ? [outId] : [],
       artifactIdsIn: loaded.map((l) => l.artifact_id),
     });
@@ -372,13 +471,24 @@ export class OfflineGateway implements ModelGateway {
     manifestId: string | null,
     toolCalls: number,
     failureType: FailureType,
-    failure: KernelFailure
+    failure: KernelFailure,
+    adapter?: GatewayAdapter,
+    accounting: ProviderAccounting | null = null
   ): Result<GatewayInvocationSuccess> {
-    const adapter = this.#adapters.get(id.adapterId);
-    const record = this.#buildRunRecord(id, startedAt, manifestId, toolCalls, failureType, adapter, {
-      artifactIdsOut: [],
-      artifactIdsIn: [],
-    });
+    const resolvedAdapter = adapter ?? this.#adapters.get(id.adapterId);
+    const record = this.#buildRunRecord(
+      id,
+      startedAt,
+      manifestId,
+      toolCalls,
+      failureType,
+      resolvedAdapter,
+      accounting,
+      {
+        artifactIdsOut: [],
+        artifactIdsIn: [],
+      }
+    );
     const put = this.#recordStore.put(id.workspaceId, id.brandId, "model-run", record);
     if (!put.ok) {
       return err({
@@ -396,10 +506,62 @@ export class OfflineGateway implements ModelGateway {
     toolCalls: number,
     failureType: FailureType | null,
     adapter: GatewayAdapter | undefined,
+    accounting: ProviderAccounting | null,
     io: { artifactIdsIn: string[]; artifactIdsOut: string[] }
   ): Record<string, unknown> {
+    if (accounting !== null) {
+      // Provider path: the adapter's truthful accounting governs. Unknown
+      // usage (timeout) records null tokens and charges the full conservative
+      // reservation — the amount irrevocably held against every ceiling.
+      const usd = accounting.actualUsd ?? accounting.reservedUsd;
+      return {
+        schema_version: "1.9.0",
+        run_id: id.runId,
+        session_id: id.sessionId,
+        project_id: id.projectId,
+        workspace_id: id.workspaceId,
+        brand_id: id.brandId,
+        workflow_id: id.workflowId,
+        skill_id: id.skillId,
+        attribution_confidence: "confirmed",
+        artifact_ids_in: io.artifactIdsIn,
+        artifact_ids_out: io.artifactIdsOut,
+        context_manifest_ref: manifestId,
+        provider: accounting.provider,
+        model: accounting.requestedModel,
+        model_tier: accounting.modelTier,
+        prompt_version: null,
+        started_at: startedAt,
+        latency_ms: null,
+        input_tokens: accounting.inputTokens,
+        output_tokens: accounting.outputTokens,
+        cached_tokens: accounting.cachedTokens,
+        cache_creation_tokens: accounting.cacheCreationTokens,
+        reasoning_tokens: null,
+        cost: { mode: "api", usd, allocation: "measured" },
+        tool_calls: toolCalls,
+        retry_count: accounting.retryCount,
+        failure_type: failureType,
+        media: null,
+        human_review: "none",
+        accepted: null,
+        rejected_reason: null,
+        superseded_by: null,
+        provider_request_id: accounting.providerRequestId,
+        requested_model: accounting.requestedModel,
+        returned_model: accounting.returnedModel,
+        attempt: accounting.attempt,
+        reserved_usd: accounting.reservedUsd,
+        pricing_version: accounting.pricingVersion,
+        budget_remaining_usd: accounting.budgetRemainingUsd,
+        output_contract: id.outputContract,
+        data_classification: id.dataClassification === "synthetic" ? "synthetic" : null,
+        retention_status: accounting.retentionStatus,
+        live_authorization_ref: accounting.liveAuthorizationRef,
+      };
+    }
     return {
-      schema_version: "1.8.0",
+      schema_version: "1.9.0",
       run_id: id.runId,
       session_id: id.sessionId,
       project_id: id.projectId,

@@ -249,11 +249,108 @@
         "string",
         "null"
       ]
+    },
+    "provider_request_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Za-z0-9_.-]{1,128}$",
+      "description": "provider-reported request identifier (request-id header) where available, bounded to a safe shape so an untrusted header can never inject arbitrary content into a record; never a NABCor artifact ID"
+    },
+    "requested_model": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "exact model ID sent to the provider (DEC-0019); null for offline runs"
+    },
+    "returned_model": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "model ID the provider response reported; a mismatch with requested_model is a typed failure (threat T09)"
+    },
+    "attempt": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "description": "attempt number this record's outcome came from (at most max_attempts_per_request)"
+    },
+    "reserved_usd": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "description": "conservative pre-invocation budget reservation for the recorded attempt(s)"
+    },
+    "pricing_version": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "the pinned price table used for reservation and settlement (provider-policy-candidate.pricing_version)"
+    },
+    "budget_remaining_usd": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "run": {
+          "type": "number"
+        },
+        "day": {
+          "type": "number"
+        },
+        "month": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "run",
+        "day",
+        "month"
+      ],
+      "additionalProperties": false,
+      "description": "remaining USD budget after settlement, per ceiling scope"
+    },
+    "output_contract": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "the NABCor contract the structured output was validated against"
+    },
+    "data_classification": {
+      "enum": [
+        "synthetic",
+        null
+      ],
+      "description": "data class of every input this run carried; only synthetic is permitted on any provider path (DEC-0018)"
+    },
+    "retention_status": {
+      "enum": [
+        "STANDARD_UP_TO_30_DAYS",
+        null
+      ],
+      "description": "provider retention posture in effect for this run (conservative official default; no ZDR claim)"
+    },
+    "live_authorization_ref": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "reference to the consumed live-call authorization when live invocation is eventually approved; null in this phase (live invocation disabled)"
     }
   },
   "examples": [
     {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "run_id": "run_0042",
       "session_id": "sess_001",
       "project_id": "SLICE-001",

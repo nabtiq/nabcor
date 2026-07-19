@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.9.0",
+  "artifact_id": "ppc-anthropic-0001",
+  "workspace": "ws_governance",
+  "brand_ref": "brand_nabcor",
+  "created_at": "2026-07-19T19:30:28Z",
+  "provider": "anthropic",
+  "adapter_id": "anthropic",
+  "allowed_models": [
+    {
+      "model_id": "claude-haiku-4-5-20251001",
+      "tier": 1,
+      "input_usd_per_mtok": 1,
+      "output_usd_per_mtok": 5
+    },
+    {
+      "model_id": "claude-sonnet-5",
+      "tier": 2,
+      "input_usd_per_mtok": 3,
+      "output_usd_per_mtok": 15
+    }
+  ],
+  "pricing_version": "anthropic-official-2026-07-19-post-intro",
+  "api_endpoint": "https://api.anthropic.com/v1/messages",
+  "anthropic_api_version": "2023-06-01",
+  "allowed_data_classes": [
+    "synthetic"
+  ],
+  "retention_posture": "STANDARD_UP_TO_30_DAYS",
+  "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+  "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+  "max_usd_per_request": 1,
+  "max_usd_per_run": 25,
+  "max_usd_per_day": 40,
+  "max_usd_per_month": 60,
+  "max_input_tokens_per_request": 200000,
+  "max_output_tokens_per_request": 32000,
+  "max_attempts_per_request": 2,
+  "max_escalations": 0,
+  "caching_enabled": false,
+  "batch_enabled": false,
+  "tools_enabled": false,
+  "provider_storage_enabled": false,
+  "provider_memory_enabled": false,
+  "files_api_enabled": false,
+  "fallback_providers_enabled": false,
+  "automatic_escalation_enabled": false,
+  "live_invocation_enabled": false,
+  "exp_0001_execution_enabled": false,
+  "keychain_service": "nabcor-anthropic-api-key",
+  "keychain_account": "nabcor",
+  "valid_from": "2026-07-19T00:00:00Z",
+  "valid_until": "2026-10-15T00:00:00Z",
+  "decision_refs": [
+    "DEC-0018",
+    "DEC-0019"
+  ],
+  "candidate_digest": "sha256:84212c8e0570deb3eb572c5d83d1274b874f7d24380d74a0a6bd8e75e0947e51"
+}

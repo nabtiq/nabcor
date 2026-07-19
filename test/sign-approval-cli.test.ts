@@ -76,7 +76,7 @@ function signingScenario(): SigningScenario {
 
   const configDir = tempDir("signcli-config");
   const registryDocument = {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     registry_id: "areg-nabcor",
     registry_version: 2,
     supersedes_registry_version: 1,
@@ -153,7 +153,7 @@ test("the signing CLI produces contract-valid evidence with a derived identity t
   assert.equal(payload["role"], "product-owner");
   assert.equal(payload["self_review"], true);
   assert.equal(payload["policy_ref"], "hgp-nabcor-1");
-  assert.equal(payload["policy_version"], 2);
+  assert.equal(payload["policy_version"], 3);
 
   // The evidence verifies and consumes exactly once against the same config.
   const loaded = loadTrustedAuthorityConfig(

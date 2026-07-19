@@ -3,14 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Evidence-aware AI Creative Operating System — deterministic truth kernel (Phase 1A), offline provider-neutral gateway kernel (Phase 1B.1), and deterministic structured-truth analysis (Phase 1B.2). Zero providers, zero model calls (DEC-0009).",
+  "description": "Evidence-aware AI Creative Operating System — deterministic truth kernel (Phase 1A), provider-neutral gateway kernel (Phase 1B.1), deterministic structured-truth analysis (Phase 1B.2), authenticated human gates (Phase 1B.3-1B.5), and the configured-but-live-disabled Anthropic provider implementation (Phase 1C.1, DEC-0018/DEC-0019). One provider configured, live invocation disabled; zero model calls, zero spend.",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "validate": "npm run validate:contracts && npm run validate:brain && npm run validate:repository && npm run validate:packet && npm run validate:language && npm run typecheck && npm run test:runtime",
+    "validate": "npm run validate:contracts && npm run validate:brain && npm run validate:repository && npm run validate:packet && npm run validate:chain && npm run validate:language && npm run typecheck && npm run test:runtime",
     "validate:packet": "node scripts/validate-provider-packet.mjs",
+    "validate:chain": "node scripts/validate-provider-chain.mjs",
     "validate:contracts": "node contracts/validate.mjs",
     "validate:brain": "node scripts/validate-brain.mjs",
     "validate:repository": "node scripts/validate-repository.mjs",

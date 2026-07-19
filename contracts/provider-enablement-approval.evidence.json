@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.9.0",
+  "evidence_id": "apev-0185ba8e5a86202d",
+  "payload": {
+    "payload_type": "nabcor-human-gate-approval",
+    "payload_version": "1.0.0",
+    "domain": "nabcor-human-gate-approval-v1",
+    "approval_id": "appr-a25503d55985b549",
+    "workspace": "ws_governance",
+    "brand_ref": "brand_nabcor",
+    "target_artifact_type": "provider-policy-candidate",
+    "target_artifact_ref": "ppc-anthropic-0001",
+    "target_artifact_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+    "gate": "provider-enablement-approval",
+    "verdict": "approved",
+    "reason": "Provider-enablement approval (DEC-0018 Option A / DEC-0019): I approve the exact provider-policy candidate ppc-anthropic-0001. This signature activates the configured-but-live-disabled policy binding only; it does not enable live invocation, provision any credential, configure any console cap, or authorize the smoke call or EXP-0001.",
+    "requester_id": "ibrahim-mohamed",
+    "approver_id": "ibrahim-mohamed",
+    "role": "product-owner",
+    "self_review": true,
+    "key_id": "k8cc9db703247760829dcb74819fbe07cd1dc24a2bf66ec7a02ed500391de8b1b",
+    "policy_ref": "hgp-nabcor-1",
+    "policy_version": 3,
+    "nonce": "a25503d55985b5490185ba8e5a86202d",
+    "issued_at": "2026-07-19T21:23:04Z",
+    "expires_at": "2026-07-19T22:23:04Z"
+  },
+  "payload_digest": "sha256:7a4d03e001672e3ed8bc0f5392e450958c5f4c49912a0bc5c8cb09f695c84cb5",
+  "signature": {
+    "algorithm": "ed25519",
+    "signature_b64": "wzpsZDZUSl3S0z11wGck1FpdaDjn48Rl79vV2gfYZKni1Vw81zWjpCQYvwGp9tvWarAA6d7pYU0zE8jOj2HOAw=="
+  }
+}

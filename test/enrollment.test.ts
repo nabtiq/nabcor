@@ -72,7 +72,7 @@ function committedDeps(): { deps: HumanGateVerifierDeps; targetDigest: string; r
   };
 }
 
-/** A payload bound to the committed policy v2, inside the enrolled validity window. */
+/** A payload bound to the committed active policy, inside the enrolled validity window. */
 function v2Payload(targetDigest: string, overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     payload_type: APPROVAL_PAYLOAD_TYPE,
@@ -93,7 +93,7 @@ function v2Payload(targetDigest: string, overrides: Record<string, unknown> = {}
     self_review: true,
     key_id: ENROLLED_KEY_ID,
     policy_ref: "hgp-nabcor-1",
-    policy_version: 2,
+    policy_version: 3,
     nonce: testNonce(),
     issued_at: "2026-07-20T11:30:00Z",
     expires_at: "2026-07-20T12:30:00Z",
@@ -103,7 +103,7 @@ function v2Payload(targetDigest: string, overrides: Record<string, unknown> = {}
 
 function evidenceFor(payload: Record<string, unknown>, signer: EphemeralAuthority): Record<string, unknown> {
   return {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     evidence_id: "apev_e_0001",
     payload,
     payload_digest: approvalPayloadDigest(payload),
@@ -124,7 +124,7 @@ function equivalentScenario(): {
 } {
   const auth = ephemeralAuthority();
   const registryDocument = {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     registry_id: "areg-nabcor",
     registry_version: 2,
     supersedes_registry_version: 1,
@@ -169,15 +169,15 @@ function equivalentScenario(): {
   };
 }
 
-test("committed registry v2 and policy v2 are contract-valid and pin each other exactly", () => {
+test("committed registry v2 and policy v3 are contract-valid and pin each other exactly", () => {
   const config = loadCommittedConfig();
   assert.equal(config.registry["registry_id"], "areg-nabcor");
   assert.equal(config.registry["registry_version"], 2);
   assert.equal(config.registry["supersedes_registry_version"], 1);
   assert.equal(config.registry["decision_ref"], "DEC-0015");
   assert.equal(config.policy["policy_id"], "hgp-nabcor-1");
-  assert.equal(config.policy["policy_version"], 2);
-  assert.equal(config.policy["decision_ref"], "DEC-0015");
+  assert.equal(config.policy["policy_version"], 3);
+  assert.equal(config.policy["decision_ref"], "DEC-0019");
   assert.equal(config.policy["authority_registry_ref"], "areg-nabcor");
   assert.equal(config.policy["authority_registry_version"], 2);
   assert.equal(config.policy["independent_reviewer_named"], false);
@@ -219,7 +219,7 @@ test("the empty v1 registry, an unknown v3 registry, and a foreign registry cann
     [
       "the superseded empty v1 registry",
       {
-        schema_version: "1.8.0",
+        schema_version: "1.9.0",
         registry_id: "areg-nabcor",
         registry_version: 1,
         supersedes_registry_version: null,
@@ -231,7 +231,7 @@ test("the empty v1 registry, an unknown v3 registry, and a foreign registry cann
     [
       "an unknown v3 registry",
       {
-        schema_version: "1.8.0",
+        schema_version: "1.9.0",
         registry_id: "areg-nabcor",
         registry_version: 3,
         supersedes_registry_version: 2,
@@ -243,7 +243,7 @@ test("the empty v1 registry, an unknown v3 registry, and a foreign registry cann
     [
       "a foreign registry id",
       {
-        schema_version: "1.8.0",
+        schema_version: "1.9.0",
         registry_id: "areg-other",
         registry_version: 2,
         supersedes_registry_version: 1,
@@ -363,7 +363,7 @@ test("an expired and a revoked variant of the enrolled entry fail closed", () =>
   ];
   for (const [label, entry, reason] of variants) {
     const registryDocument = {
-      schema_version: "1.8.0",
+      schema_version: "1.9.0",
       registry_id: "areg-nabcor",
       registry_version: 2,
       supersedes_registry_version: 1,

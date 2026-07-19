@@ -16,23 +16,32 @@ Product code and skills see: `invoke(skill_capability_request) → typed artifac
 They never see provider SDKs, model ids, or raw transcripts (INV-PROV-001; enforcement:
 grep gate — no provider SDK import outside the gateway).
 
-**Zero providers are approved (DEC-0009; Q-002 closed as "no provider
-approved").** The offline gateway kernel (DEC-0010, `src/gateway/`) implements
-the boundary today: a strict policy contract
+**One provider is configured and live-disabled (DEC-0018 Option A ratified;
+implemented by DEC-0019 as CONFIGURED_BUT_LIVE_DISABLED).** The gateway
+kernel (DEC-0010, `src/gateway/`, migrated by DEC-0019) implements the
+boundary: a strict policy contract
 (`contracts/gateway-policy.schema.json` + committed active policy) pins the
-fake adapter, synthetic data only, tier 0, no network, no credentials, and
-zero per-run/monthly external spend; requests are contract-validated; budgets
-are enforced before invocation; and every invocation that passes request
-validation writes a context manifest and a truthful `model-run` record. The
-deterministic Fake Adapter is test infrastructure, not a model: its Tier-0
-records carry zero tokens in all four classes and
-`cost {mode: "free-tier", usd: 0, allocation: "none"}` — the truthful
-non-billed accounting — and are **excluded from model-quality and
-product-quality evaluation** (they never populate EXP-0001). Enabling a real
-provider requires a new ratified decision meeting DEC-0009's nine
-requirements; the API-billed preference in §6 applies to that future decision.
-A provider may be operationally familiar without being approved for this
-product or for client material.
+ratified constants — exactly the `anthropic` and `fake` adapters, synthetic
+data only, tiers 0-2, the exact model allowlist
+(`claude-haiku-4-5-20251001` tier 1, `claude-sonnet-5` tier 2), USD
+1/25/40/60 request/run/UTC-day/UTC-month ceilings, 200k/32k token ceilings,
+two attempts, zero escalations — plus a mandatory cryptographic binding to
+the Product Owner-signed provider-policy candidate (CI re-verifies the
+complete candidate -> evidence -> authority -> decision -> policy chain).
+Requests are contract-validated; budgets are enforced before invocation
+(conservative integer-cent reservation from the pinned price table); a
+context manifest is persisted before every adapter call; and every
+invocation that passes request validation writes a truthful `model-run`
+record. **Live invocation is disabled fail-closed**: the committed
+provider-operational-state pins it off as a schema constant, no credential
+exists in NABCor, and a live call additionally requires a separately
+signed, unconsumed live-call approval — so no provider call or spend has
+occurred and CI is mock-transport only. The deterministic Fake Adapter
+remains test infrastructure, not a model: its Tier-0 records carry zero
+tokens and `cost {mode: "free-tier", usd: 0, allocation: "none"}` and are
+**excluded from model-quality and product-quality evaluation** (they never
+populate EXP-0001). Anthropic provider runs record `cost {mode: "api",
+allocation: "measured"}` from provider-reported usage — none exist yet.
 
 **Human-gate verification never touches the gateway.** Authenticated
 approval evidence (DEC-0014, `src/authority/`) is Tier-0 deterministic
@@ -111,13 +120,12 @@ Preference proposed for Phase 1: **API-billed keys, not subscription sessions**,
 cost is measured rather than estimated (BC-001's true allocation is unknowable).
 This preference feeds the future provider-enablement decision DEC-0009 point 9
 requires; Q-002 itself is closed as "no provider approved".
-**Status (Phase 1C.0):** that decision now exists as PROPOSED DEC-0018 —
-three options with official-source evidence, a reproducible EXP-0001
-cost model, threat model, secret design, and gate design
-(docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md,
-docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md). It grants no authority until
-the Product Owner ratifies one option (Q-010); the API-billed preference
-above is honored by all enablement options.
+**Status (Phase 1C.1):** DEC-0018 was ratified as Option A and DEC-0019
+implemented it. The API-billed preference above is honored: the
+configured Anthropic path is pay-as-you-go API-billed, so when live calls
+are eventually authorized, cost is measured from provider-reported usage
+against the pinned candidate price table — never estimated. No measured
+cost exists yet (live invocation disabled; no call, no spend).
 
 ## 7. Initial first-vertical-slice budget (hypothesis, stated assumptions)
 

@@ -251,6 +251,10 @@ function sectionOf(markdown: string, heading: string): string {
 function cmdStatus(args: ParsedArgs): void {
   const output: Output = { json: args.booleans.has("--json"), command: "status" };
   const gateway = readJsonFile(join(REPO_ROOT, "contracts", "gateway-policy.active.json"), "active gateway policy") as Record<string, unknown>;
+  const operationalState = readJsonFile(
+    join(REPO_ROOT, "contracts", "provider-operational-state.active.json"),
+    "provider operational state"
+  ) as Record<string, unknown>;
   const policy = readJsonFile(join(REPO_ROOT, "contracts", "human-gate-policy.active.json"), "active human-gate policy") as Record<string, unknown>;
   const authorityRegistry = readJsonFile(join(REPO_ROOT, "contracts", "authority-registry.active.json"), "active authority registry") as Record<string, unknown>;
   const nowMd = readFileSync(join(REPO_ROOT, "brain", "current", "NOW.md"), "utf8");
@@ -293,14 +297,28 @@ function cmdStatus(args: ParsedArgs): void {
       decision_ref: String(gateway["decision_ref"]),
       allowed_adapters: gateway["allowed_adapters"],
       allowed_data_classes: gateway["allowed_data_classes"],
+      model_allowlist: gateway["model_allowlist"],
       external_network_allowed: gateway["external_network_allowed"],
       real_client_data_allowed: gateway["real_client_data_allowed"],
       api_credentials_permitted: gateway["api_credentials_permitted"],
+      max_external_spend_usd_per_request: gateway["max_external_spend_usd_per_request"],
       max_external_spend_usd_per_run: gateway["max_external_spend_usd_per_run"],
+      max_external_spend_usd_per_day: gateway["max_external_spend_usd_per_day"],
       max_external_spend_usd_per_month: gateway["max_external_spend_usd_per_month"],
+      provider_policy_candidate_ref: gateway["provider_policy_candidate_ref"],
+      provider_policy_candidate_digest: gateway["provider_policy_candidate_digest"],
     },
-    provider_state:
-      "zero-provider policy (DEC-0009): deterministic Fake Adapter only, synthetic data only, no network, no credentials, zero external spend",
+    provider_operational_state: {
+      operational_state: String(operationalState["operational_state"]),
+      live_invocation_enabled: operationalState["live_invocation_enabled"],
+      credential_provisioned: operationalState["credential_provisioned"],
+      console_spend_cap_configured: operationalState["console_spend_cap_configured"],
+      smoke_call_completed: operationalState["smoke_call_completed"],
+      exp_0001_executed: operationalState["exp_0001_executed"],
+    },
+    // Derived from the committed operational-state document so this line can
+    // never drift from the machine-enforced state (RISK-LIVE-01).
+    provider_state: `Anthropic implementation configured (${String(operationalState["decision_ref"])}); state ${String(operationalState["operational_state"])} — live invocation ${operationalState["live_invocation_enabled"] === true ? "ENABLED" : "DISABLED"}, credential ${operationalState["credential_provisioned"] === true ? "provisioned" : "not provisioned (no credential exists in NABCor)"}, console cap ${operationalState["console_spend_cap_configured"] === true ? "configured" : "not configured by this repository"}, smoke call ${operationalState["smoke_call_completed"] === true ? "completed" : "not completed"}, EXP-0001 ${operationalState["exp_0001_executed"] === true ? "executed" : "unexecuted"}; synthetic data only, no provider call or spend has occurred`,
     human_gate_policy: {
       policy_id: String(policy["policy_id"]),
       policy_version: policy["policy_version"],
@@ -320,7 +338,8 @@ function cmdStatus(args: ParsedArgs): void {
     ``,
     `Contracts schema version: ${data.schema_version}`,
     `Provider state: ${data.provider_state}`,
-    `Gateway policy: ${String(gateway["policy_id"])} (${String(gateway["decision_ref"])}) — adapters ${JSON.stringify(gateway["allowed_adapters"])}, data classes ${JSON.stringify(gateway["allowed_data_classes"])}, network ${String(gateway["external_network_allowed"])}, credentials ${String(gateway["api_credentials_permitted"])}, spend caps ${String(gateway["max_external_spend_usd_per_run"])}/${String(gateway["max_external_spend_usd_per_month"])} USD`,
+    `Gateway policy: ${String(gateway["policy_id"])} (${String(gateway["decision_ref"])}) — adapters ${JSON.stringify(gateway["allowed_adapters"])}, data classes ${JSON.stringify(gateway["allowed_data_classes"])}, network ${String(gateway["external_network_allowed"])} (adapter transport only), credentials ${String(gateway["api_credentials_permitted"])} (secret boundary only; none provisioned), spend ceilings ${String(gateway["max_external_spend_usd_per_request"])}/${String(gateway["max_external_spend_usd_per_run"])}/${String(gateway["max_external_spend_usd_per_day"])}/${String(gateway["max_external_spend_usd_per_month"])} USD (request/run/day/month)`,
+    `Provider operational state: ${String(operationalState["operational_state"])} — live invocation ${operationalState["live_invocation_enabled"] === true ? "ENABLED" : "disabled"}, credential provisioned ${String(operationalState["credential_provisioned"])}, console cap configured ${String(operationalState["console_spend_cap_configured"])}, smoke call completed ${String(operationalState["smoke_call_completed"])}, EXP-0001 executed ${String(operationalState["exp_0001_executed"])}`,
     `Human-gate policy: ${String(policy["policy_id"])} v${String(policy["policy_version"])} pins registry ${String(policy["authority_registry_ref"])} v${String(policy["authority_registry_version"])} (${String(policy["decision_ref"])})`,
     `Enrolled authorities (public metadata only):`,
     ...authorities.map(

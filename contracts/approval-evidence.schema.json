@@ -78,7 +78,8 @@
             "claim-snapshot",
             "truth-profile",
             "truth-analysis",
-            "fact-resolution-decision"
+            "fact-resolution-decision",
+            "provider-policy-candidate"
           ]
         },
         "target_artifact_ref": {
@@ -97,7 +98,9 @@
             "quarantine-release",
             "client-facing-publishing",
             "blocking-evaluation-gate-change",
-            "real-client-data-provider-approval"
+            "real-client-data-provider-approval",
+            "provider-enablement-approval",
+            "live-provider-call-approval"
           ]
         },
         "verdict": {
@@ -186,7 +189,7 @@
   "additionalProperties": false,
   "examples": [
     {
-      "schema_version": "1.8.0",
+      "schema_version": "1.9.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",

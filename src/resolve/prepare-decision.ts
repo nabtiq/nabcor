@@ -271,7 +271,7 @@ export function prepareFactResolutionDecision(
   // 9. Build, validate, and persist the immutable decision artifact. Its
   //    canonical content digest is the signing target.
   const artifact: Record<string, unknown> = {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     artifact_id: input.decisionArtifactId,
     brand_ref: input.brandRef,
     workspace: input.workspace,

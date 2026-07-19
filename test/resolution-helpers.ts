@@ -225,7 +225,7 @@ export function decisionEvidence(
   };
   const signatureB64 = signApprovalPayload(payload, (signer ?? scenario.auth).privateKeyPem);
   return {
-    schema_version: "1.8.0",
+    schema_version: "1.9.0",
     evidence_id: "apev_r_0001",
     payload,
     payload_digest: approvalPayloadDigest(payload),

@@ -1,16 +1,17 @@
 #!/usr/bin/env node
-// Deterministic provider-decision-packet validation (Phase 1C.0/1C.0.1;
-// updated consciously at the DEC-0018 Option A ratification of 2026-07-19).
+// Deterministic provider-governance validation (Phase 1C.0/1C.0.1; updated
+// consciously by the Phase 1C.1 implementation merge under DEC-0018/DEC-0019).
 //
-// Guards the governance state between ratification and the Phase 1C.1
-// implementation merge:
+// Guards the CONFIGURED_BUT_LIVE_DISABLED governance state:
 //   1. DEC-0018 is RATIFIED (Option A) with recorded verbatim Product
 //      Owner approval evidence — regressing it to proposed, dropping the
 //      evidence, or mislabeling the index is a defect.
-//   2. The active gateway policy stays byte-identical to the DEC-0009
-//      posture (fake adapter, synthetic only, zero spend) and references
-//      a RATIFIED decision — ratification alone changes NO runtime state;
-//      only the Phase 1C.1 reviewed policy revision may update this pin.
+//   2. The active gateway policy stays byte-identical to its Phase 1C.1
+//      DEC-0018/DEC-0019 posture, DEC-0019 is ratified, and the committed
+//      provider operational state pins live invocation, credential
+//      provisioning, the console cap, the smoke call, and EXP-0001
+//      execution all OFF — enabling any of them is a new ratified phase
+//      that updates this guard consciously, never a drift.
 //   3. EXP-0001's Result section stays empty (its execution additionally
 //      requires a separate authenticated approval per the ratification).
 //   4. The packet documents estimates only, carries sourced pricing, and
@@ -18,6 +19,8 @@
 //   5. Model IDs named in the recommended option also appear in the
 //      comparison matrix (no recommendation-only model strings).
 //
+// The cryptographic candidate -> evidence -> authority -> decision ->
+// active-policy chain is verified by scripts/validate-provider-chain.mjs.
 // No network access. Runs in `npm run validate` and CI.
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -63,29 +66,54 @@ else if (!dec18Row.includes("ratified") || !dec18Row.includes("Option A")) {
   fail("the DEC-0018 index row must say ratified with Option A");
 }
 
-// ---- 2. Active gateway policy is frozen at the DEC-0009 posture ----
-// Byte-level guard: the Phase 1C.0 starting bytes of the active policy.
-// Changing the active policy is EXACTLY what a future ratified enablement
-// phase does consciously — it must update this hash in the same reviewed
-// change, never drift silently.
+// ---- 2. Active gateway policy is pinned at the DEC-0018/DEC-0019 posture ----
+// Byte-level guard, consciously updated by the Phase 1C.1 implementation
+// merge (the exact conscious update the Phase 1C.0 guard demanded): the
+// active policy now encodes the ratified DEC-0018 Option A enablement with
+// the signed provider-policy-candidate binding. Any later change — including
+// enabling live invocation — is a new ratified phase that updates this hash
+// in the same reviewed change, never a silent drift. The candidate/evidence/
+// receipt/decision chain itself is verified by scripts/validate-provider-chain.mjs.
 const EXPECTED_POLICY_SHA256 =
-  "b6974706e0e708d60d95240ad33f93bf3b3594beecc81b5989e4891b00d8ea87";
+  "2bac7a3eb13b255b8f14348bd44397696df0483e7bba6a3187a4e7f420525aa7";
 const policyRaw = read("contracts/gateway-policy.active.json");
 const policySha = createHash("sha256").update(policyRaw, "utf8").digest("hex");
 if (policySha !== EXPECTED_POLICY_SHA256) {
   fail(
-    `contracts/gateway-policy.active.json changed (sha256 ${policySha}); the active policy may only change in a ratified provider-enablement implementation phase that updates this guard consciously`
+    `contracts/gateway-policy.active.json changed (sha256 ${policySha}); the active policy may only change in a ratified provider-enablement phase that updates this guard consciously`
   );
 }
 const policy = JSON.parse(policyRaw);
-if (policy.decision_ref !== "DEC-0009") {
-  fail("the active gateway policy must reference DEC-0009 until an enablement decision is ratified");
+if (policy.decision_ref !== "DEC-0018") {
+  fail("the active gateway policy must reference the ratified enablement decision DEC-0018");
 }
-const referencedDecision = read(
-  "brain/decisions/DEC-0009-zero-provider-offline-policy.md"
-);
-if (!/^status: ratified$/m.test(referencedDecision)) {
+if (!/^status: ratified$/m.test(dec18)) {
   fail("the active policy's decision_ref must point at a RATIFIED decision");
+}
+const dec19 = read("brain/decisions/DEC-0019-anthropic-provider-implementation.md");
+if (!/^status: ratified$/m.test(dec19)) {
+  fail("DEC-0019 (the implementation decision) must be ratified");
+}
+// Live invocation stays disabled: the committed operational state must pin
+// every live-relevant flag false (the schema consts enforce this too; this
+// re-assertion keeps the proof visible even if the contract layer regresses).
+const operationalState = JSON.parse(read("contracts/provider-operational-state.active.json"));
+if (operationalState.operational_state !== "CONFIGURED_BUT_LIVE_DISABLED") {
+  fail("the provider operational state must be CONFIGURED_BUT_LIVE_DISABLED in this phase");
+}
+for (const flag of [
+  "live_invocation_enabled",
+  "credential_provisioned",
+  "console_spend_cap_configured",
+  "smoke_call_completed",
+  "exp_0001_executed",
+]) {
+  if (operationalState[flag] !== false) {
+    fail(`provider-operational-state.${flag} must be false (live invocation is disabled; no credential, cap, smoke call, or EXP-0001 execution exists)`);
+  }
+}
+if (operationalState.live_call_authorization_ref !== null) {
+  fail("no live-call authorization may exist in this phase");
 }
 
 // ---- 3. EXP-0001 must remain unexecuted ----

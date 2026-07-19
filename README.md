@@ -10,22 +10,23 @@ analysis (DEC-0011), the Phase 1B.2.1 resolution-safe claim lifecycle
 correction (DEC-0012), the Phase 1B.2.2 store-authoritative claim
 snapshots (DEC-0013), the Phase 1B.3A offline Ed25519 authenticated
 human-gate foundation (DEC-0014), the Phase 1B.3B real Product Owner
-key enrollment (DEC-0015), and the Phase 1B.4 authenticated
-fact-resolution application (DEC-0016: signed immutable decision
-artifacts, deterministic crash-recoverable application, contracts 1.8.0 —
-the deterministic contradiction-resolution loop is closed). No
-provider-backed extraction, no model calls, and no full vertical slice
-exist yet; Phase 1 is not complete. Phase 1C.0 produced the
-provider-enablement decision packet
+key enrollment (DEC-0015), the Phase 1B.4 authenticated
+fact-resolution application (DEC-0016), the Phase 1B.5 safe operator
+CLI (DEC-0017), and the Phase 1C.1 Anthropic provider implementation
+(DEC-0018 Option A / DEC-0019, contracts 1.9.0). The current
+operational state is **CONFIGURED_BUT_LIVE_DISABLED**: the raw-HTTPS
+Anthropic adapter, the Product Owner-signed provider-policy candidate
+(CI-verified candidate -> evidence -> authority -> decision -> policy
+chain), the budget ledger, and the macOS-Keychain secret boundary all
+exist and are mock-transport test-proven — and **live invocation is
+disabled fail-closed**: no real Anthropic credential exists anywhere in
+NABCor, no provider or network call has been made, no money has been
+spent, no provider-console cap has been configured by this repository,
+and EXP-0001 remains unexecuted behind its own separately signed future
+approval (as does the paid smoke call). Phase 1 is not complete. The
+evidence base is the Phase 1C.0/1C.0.1 decision packet
 ([`docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md`](docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md),
-[`docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md`](docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md))
-and DEC-0018, ratified as **Option A** on 2026-07-19 (Anthropic API,
-`claude-haiku-4-5-20251001` + `claude-sonnet-5`, synthetic data only,
-conservative ceilings) — authorizing the Phase 1C.1 implementation
-phase only. **No provider is enabled yet**: DEC-0009's zero-provider
-posture remains operationally active and CI-guarded until Phase 1C.1's
-reviewed policy revision merges, and EXP-0001 remains unexecuted and
-separately gated.
+[`docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md`](docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md)).
 
 ## What NABCor is
 
@@ -276,23 +277,43 @@ No provider SDK and no framework exist.
   quarantine stays fail-closed pending a ratified authenticated gate
   mechanism and a formally named independent reviewer (DEC-0007, DEC-0008).
   It is a compiler over structured truth, not a natural-language extractor.
-- **Offline gateway kernel** (`src/gateway/`, DEC-0009/DEC-0010) — a
-  provider-neutral invocation boundary, validated as infrastructure only. A
-  strict machine-readable policy contract (`contracts/gateway-policy.schema.json`
-  plus the committed, CI-validated active policy) pins the ratified
-  zero-provider posture: fake adapter only, synthetic data only, tier 0, no
-  network, no credentials, zero external spend per run and per month. A strict
+- **Provider-neutral gateway kernel** (`src/gateway/`, DEC-0009/DEC-0010,
+  migrated by DEC-0018/DEC-0019) — the single invocation boundary every
+  capability crosses. A strict machine-readable policy contract
+  (`contracts/gateway-policy.schema.json` plus the committed, CI-validated
+  active policy) pins the ratified DEC-0018 Option A posture as schema
+  constants: exactly the `anthropic` and `fake` adapters, synthetic data
+  only, tiers 0-2, the exact two-model allowlist, the USD 1/25/40/60
+  request/run/day/month ceilings, the 200k/32k token ceilings, two total
+  attempts, zero escalations, and a mandatory cryptographic binding to the
+  Product Owner-signed provider-policy candidate. A strict
   capability-request contract carries full attribution and an inline
   contract-validated token budget; budgets are enforced before invocation; a
   context manifest is persisted before every adapter call; adapter output is
   returned only after validating against the requested contract; and every
   invocation that passes request validation writes a truthful `model-run`
-  record to a dedicated immutable operational record store. The only adapter
-  is the **deterministic Fake Adapter** — test infrastructure, not a model:
-  its Tier-0 records carry zero tokens in all four classes and
-  `cost {mode: "free-tier", usd: 0, allocation: "none"}`, and are excluded
-  from model-quality and product-quality evidence (they never populate
-  EXP-0001).
+  record to a dedicated immutable operational record store. The
+  **deterministic Fake Adapter** remains test infrastructure, not a model
+  (zero tokens, `cost {mode: "free-tier", usd: 0, allocation: "none"}`,
+  never model-quality evidence).
+- **Anthropic adapter, CONFIGURED_BUT_LIVE_DISABLED**
+  (`src/gateway/adapters/`, DEC-0019) — one raw-HTTPS adapter over Node
+  built-in fetch (no SDK, zero new runtime dependencies). The production
+  endpoint `https://api.anthropic.com/v1/messages` is pinned inside the
+  single transport module — the only file in the repository with network
+  capability (grep-gated); the transport interface carries no URL and no
+  header map, so neither can be injected. Fail-closed gate order, each
+  test-proven to leave later gates untouched: request/model/data-class
+  validation -> live-invocation state (schema-pinned OFF in the committed
+  `provider-operational-state`) -> live-call authorization check ->
+  atomic conservative budget reservation (integer cents, pinned price
+  table, single-writer ledger) -> authorization consumption -> macOS
+  Keychain secret resolution (policy-bound identifiers; **no credential is
+  provisioned**) -> bounded transport (two attempts max, retry-after
+  respected, responses size-capped and untrusted until full validation).
+  Live invocation, the paid smoke call, and EXP-0001 each require their
+  own separate future authenticated approvals; nothing in this repository
+  can currently produce a live provider call.
 - **Authenticated human-gate foundation (Tier 0, Phase 1B.3A, DEC-0014)** —
   machine-verifiable evidence that an authorized human approved or rejected
   one exact artifact action, closing Q-009 with Option A. A committed
@@ -394,21 +415,24 @@ No provider SDK and no framework exist.
   full deterministic path on English-only synthetic fixtures. No network, no model
   calls, no client data.
 
-What does **not** exist yet: model calls of any kind, provider adapters,
-provider-backed extraction, natural-language fact extraction, semantic
-contradiction detection, creative territories, channel specs, or the full
-vertical slice. Q-009 is closed by DEC-0014 (offline Ed25519 approval
+What does **not** exist yet: live model calls of any kind (the Anthropic
+implementation is configured but live invocation is disabled fail-closed;
+no credential exists and no spend has occurred), provider-backed
+extraction, natural-language fact extraction, semantic contradiction
+detection, creative territories, channel specs, or the full vertical
+slice. Q-009 is closed by DEC-0014 (offline Ed25519 approval
 evidence), activated by DEC-0015 (one real Product Owner key enrolled,
-registry v2 pinned by policy v2), and since Phase 1B.4 (DEC-0016) a
+registry v2 pinned by policy v3), and since Phase 1B.4 (DEC-0016) a
 verified approval over a fact-resolution-decision artifact DOES apply one
 business action: the deterministic fact-resolution application. Nothing
 else applies from an approval — quarantine release, publishing, and every
-independent-review action stay frozen. Q-002 is closed as **"no provider approved"** (DEC-0009):
-model-backed work is prohibited by ratified policy — with external/model spend
-capped at zero — rather than blocked on an open question, and enabling any
-provider requires a new ratified decision meeting DEC-0009's requirements.
-Only the offline gateway kernel and the Fake Adapter are validated; the
-gateway as a whole is **not** production-ready for model work. Gate roles are
+independent-review action stay frozen. Q-002's answer has moved from
+DEC-0009's "no provider approved" to DEC-0018 Option A (ratified) as
+implemented by DEC-0019: exactly one provider (Anthropic) is configured
+behind the gateway under a signed policy candidate, and every live gate
+fails closed until the separate secret-provisioning ceremony and the
+separately signed smoke-call approval. All validation is mocked-transport
+only; the gateway is **not** live for model work. Gate roles are
 named (DEC-0008), but its four independent-review gates stay unapprovable
 until an independent reviewer is formally named and enrolled; quarantined
 content remains unreadable. EXP-0001 has not run and has no results.

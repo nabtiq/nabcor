@@ -1,0 +1,261 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/provider-policy-candidate.schema.json",
+  "title": "Provider policy candidate",
+  "description": "The immutable, signable provider-enablement policy candidate (DEC-0018 packet section 9; implemented by DEC-0019). This artifact carries the COMPLETE ratified provider configuration — provider, adapter, exact model allowlist with the pinned price table, exact API endpoint and protocol version, allowed data classes, retention and training posture, every USD/token/attempt/escalation ceiling, every disabled optional surface, the live-invocation and EXP-0001 stances, the canonical secret-boundary identifiers, and the policy validity window — so the Product Owner signs exactly one exact configuration, never a summary. Every ratified value is a schema constant: a candidate carrying any other value is contract-invalid. candidate_digest is 'sha256:' + sha256 over the canonical JSON of the candidate WITHOUT the candidate_digest field (code-unit-sorted keys, no whitespace; claim-set-sha256-1.0.0 serializer); the semantic layer recomputes it. Signing target: the Product Owner signs the stored artifact's full canonical content digest (which includes candidate_digest) under the provider-enablement-approval gate; the active gateway policy must embed that same content digest. A proposed or unsigned candidate grants nothing; contract validity proves shape only.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "artifact_id",
+    "workspace",
+    "brand_ref",
+    "created_at",
+    "provider",
+    "adapter_id",
+    "allowed_models",
+    "pricing_version",
+    "api_endpoint",
+    "anthropic_api_version",
+    "allowed_data_classes",
+    "retention_posture",
+    "retention_statement",
+    "training_posture",
+    "max_usd_per_request",
+    "max_usd_per_run",
+    "max_usd_per_day",
+    "max_usd_per_month",
+    "max_input_tokens_per_request",
+    "max_output_tokens_per_request",
+    "max_attempts_per_request",
+    "max_escalations",
+    "caching_enabled",
+    "batch_enabled",
+    "tools_enabled",
+    "provider_storage_enabled",
+    "provider_memory_enabled",
+    "files_api_enabled",
+    "fallback_providers_enabled",
+    "automatic_escalation_enabled",
+    "live_invocation_enabled",
+    "exp_0001_execution_enabled",
+    "keychain_service",
+    "keychain_account",
+    "valid_from",
+    "valid_until",
+    "decision_refs",
+    "candidate_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "artifact_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "workspace": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "brand_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provider": {
+      "const": "anthropic"
+    },
+    "adapter_id": {
+      "const": "anthropic"
+    },
+    "allowed_models": {
+      "const": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "description": "exact ratified model IDs sorted by model_id, each with its capability tier and the pinned conservative price table (Sonnet 5 at the post-intro rate deliberately — packet section 6.1); cost reservation and settlement use exactly these prices"
+    },
+    "pricing_version": {
+      "const": "anthropic-official-2026-07-19-post-intro",
+      "description": "identifies the pinned price table; recorded in every model-run record that uses it"
+    },
+    "api_endpoint": {
+      "const": "https://api.anthropic.com/v1/messages",
+      "description": "the ONLY production endpoint; a policy-controlled constant, never a caller input"
+    },
+    "anthropic_api_version": {
+      "const": "2023-06-01",
+      "description": "pinned anthropic-version header value; a policy-controlled constant, never a caller input"
+    },
+    "allowed_data_classes": {
+      "const": ["synthetic"]
+    },
+    "retention_posture": {
+      "const": "STANDARD_UP_TO_30_DAYS",
+      "description": "conservative official default: automatic backend deletion within 30 days of receipt/generation with documented exceptions; NO zero-data-retention claim is made or configured"
+    },
+    "retention_statement": {
+      "const": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "description": "the exact human-readable retention posture the Product Owner signs (ledger C4/C5 taxonomy: request-state statelessness is never rendered as a retention claim)"
+    },
+    "training_posture": {
+      "const": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "description": "Anthropic Commercial Terms: API content is not used for model training by default; no opt-in is granted"
+    },
+    "max_usd_per_request": {
+      "const": 1
+    },
+    "max_usd_per_run": {
+      "const": 25
+    },
+    "max_usd_per_day": {
+      "const": 40,
+      "description": "UTC day"
+    },
+    "max_usd_per_month": {
+      "const": 60,
+      "description": "UTC month"
+    },
+    "max_input_tokens_per_request": {
+      "const": 200000
+    },
+    "max_output_tokens_per_request": {
+      "const": 32000
+    },
+    "max_attempts_per_request": {
+      "const": 2
+    },
+    "max_escalations": {
+      "const": 0
+    },
+    "caching_enabled": {
+      "const": false
+    },
+    "batch_enabled": {
+      "const": false
+    },
+    "tools_enabled": {
+      "const": false
+    },
+    "provider_storage_enabled": {
+      "const": false
+    },
+    "provider_memory_enabled": {
+      "const": false
+    },
+    "files_api_enabled": {
+      "const": false
+    },
+    "fallback_providers_enabled": {
+      "const": false
+    },
+    "automatic_escalation_enabled": {
+      "const": false
+    },
+    "live_invocation_enabled": {
+      "const": false,
+      "description": "live invocation is DISABLED pending a later secret-provisioning ceremony and a separately authenticated smoke-call approval; this signature does not grant it"
+    },
+    "exp_0001_execution_enabled": {
+      "const": false,
+      "description": "EXP-0001 execution requires its own separate later signed approval; this signature does not grant it"
+    },
+    "keychain_service": {
+      "const": "nabcor-anthropic-api-key",
+      "description": "canonical macOS Keychain service identifier for the future credential; policy-bound so the secret boundary is not a configuration choice"
+    },
+    "keychain_account": {
+      "const": "nabcor",
+      "description": "canonical macOS Keychain account identifier for the future credential"
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "policy validity window end; semantic layer requires valid_until after valid_from. The active window ends at Haiku 4.5's tentative retirement floor — running past it requires a re-ratified candidate."
+    },
+    "decision_refs": {
+      "const": ["DEC-0018", "DEC-0019"],
+      "description": "the ratifying enablement decision and the implementation decision, sorted"
+    },
+    "candidate_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "sha256 over the canonical JSON of this candidate WITHOUT this field; recomputed by the semantic layer — a tampered candidate is contract-invalid"
+    }
+  },
+  "examples": [
+    {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-example-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T21:00:00Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": ["synthetic"],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": ["DEC-0018", "DEC-0019"],
+      "candidate_digest": "sha256:29523c8616d8d89af3d3c168f5208b1fd069a1f798934fdea95a3f12140c1a9a"
+    }
+  ],
+  "additionalProperties": false
+}

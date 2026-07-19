@@ -73,7 +73,25 @@ export type KernelFailure =
   | { kind: "scenario-not-found"; scenarioId: string; message: string }
   | { kind: "adapter-failure"; message: string }
   | { kind: "output-validation-failed"; artifactType: string; issues: ValidationIssue[]; message: string }
-  | { kind: "record-persistence-failure"; message: string };
+  | { kind: "record-persistence-failure"; message: string }
+  // Provider-adapter failures (DEC-0018/DEC-0019). Every provider-path
+  // rejection is typed and redacted: messages carry status codes, provider
+  // request IDs, and identifiers only — never credentials, headers, or
+  // request/response bodies.
+  | { kind: "provider-policy-invalid"; message: string }
+  | { kind: "live-invocation-disabled"; message: string }
+  | { kind: "live-call-authorization-missing"; message: string }
+  | { kind: "live-call-authorization-invalid"; message: string }
+  | { kind: "credential-unavailable"; message: string }
+  | { kind: "model-not-allowed"; requestedTier: number; message: string }
+  | { kind: "provider-rate-limited"; message: string }
+  | { kind: "provider-timeout"; message: string }
+  | { kind: "provider-unavailable"; message: string }
+  | { kind: "provider-auth-failed"; message: string }
+  | { kind: "provider-request-rejected"; message: string }
+  | { kind: "provider-protocol-violation"; message: string }
+  | { kind: "budget-ledger-busy"; message: string }
+  | { kind: "budget-ledger-conflict"; message: string };
 
 export type Result<T> = { ok: true; value: T } | { ok: false; error: KernelFailure };
 
