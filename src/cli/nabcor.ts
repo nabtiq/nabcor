@@ -42,7 +42,12 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FileApprovalReceiptStore } from "../authority/receipt-store.js";
 import { loadTrustedAuthorityConfig } from "../authority/authority.js";
-import { approvalPayloadDigest, receiptIdFor } from "../authority/approval-payload.js";
+import {
+  approvalPayloadDigest,
+  ed25519PublicKeyFromSpkiB64,
+  receiptIdFor,
+  verifyApprovalSignature,
+} from "../authority/approval-payload.js";
 import { FileArtifactStore } from "../kernel/artifact-store.js";
 import { captureClaimSnapshot } from "../kernel/claim-snapshot.js";
 import { contentDigest } from "../kernel/canonical-json.js";
@@ -108,9 +113,26 @@ interface Output {
   command: string;
 }
 
+/** Recursive redaction over every string value, keeping JSON structure valid. */
+function deepRedact(value: unknown): unknown {
+  if (typeof value === "string") {
+    const clean = redact(value);
+    return clean === value ? value : clean;
+  }
+  if (Array.isArray(value)) return value.map(deepRedact);
+  if (value !== null && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([k, v]) => [k, deepRedact(v)])
+    );
+  }
+  return value;
+}
+
 function emit(output: Output, human: string[], data: Record<string, unknown>): void {
   if (output.json) {
-    console.log(JSON.stringify({ ok: true, command: output.command, ...data }, null, 2));
+    console.log(
+      JSON.stringify(deepRedact({ ok: true, command: output.command, ...data }), null, 2)
+    );
   } else {
     for (const line of human) console.log(redact(line));
   }
@@ -383,6 +405,23 @@ function cmdTruthAnalyze(args: ParsedArgs): void {
   const analysisId = dryRun ? (args.flags.get("--analysis-id") ?? "dry-run-analysis") : required(args, "--analysis-id");
 
   const profile = must(store.get(workspace, brandRef, "truth-profile", profileRef));
+  // Clear guidance instead of a kernel lineage message: snapshots and
+  // analyses are immutable, and analyze always captures a FRESH snapshot,
+  // so an already-used id needs a new one, not reuse.
+  if (!dryRun) {
+    for (const [type, id] of [
+      ["claim-snapshot", snapshotId],
+      ["truth-analysis", analysisId],
+    ] as const) {
+      if (store.get(workspace, brandRef, type, id).ok) {
+        fail(
+          EXIT.conflict,
+          "artifact-exists",
+          `${type} '${id}' already exists in ${workspace}/${brandRef}; artifacts are immutable and 'truth analyze' always captures a fresh snapshot — choose new --snapshot-id/--analysis-id values`
+        );
+      }
+    }
+  }
   const analyzed = must(
     analyzeStructuredTruth(
       {
@@ -617,6 +656,12 @@ function cmdResolutionPrepare(args: ParsedArgs): void {
     target_artifact_type: "fact-resolution-decision",
     decision_ref: decisionId,
     decision_digest: prepared.decisionDigest,
+    ...(dryRun
+      ? {
+          decision_digest_note:
+            "preview only: a persisted decision's digest will differ through its creation timestamp",
+        }
+      : {}),
     fact_key: factKey,
     contradiction_fingerprint: String(prepared.decision["contradiction_fingerprint"]),
     winning_claim_ref: winner,
@@ -678,6 +723,12 @@ function cmdResolutionApply(args: ParsedArgs): void {
     registry
   );
   const trusted = must(config);
+  const trustOverride = args.flags.has("--trusted-config-dir");
+  const trustLine = `Trust root: ${String(trusted.policy["policy_id"])} v${String(trusted.policy["policy_version"])} / ${String(trusted.registry["registry_id"])} v${String(trusted.registry["registry_version"])}${
+    trustOverride
+      ? " — NON-DEFAULT --trusted-config-dir in effect; verify this override is intentional"
+      : " (repository default)"
+  }`;
   const applied = must(
     applyFactResolution(evidence, {
       contracts: registry,
@@ -695,6 +746,11 @@ function cmdResolutionApply(args: ParsedArgs): void {
   const data = {
     workspace,
     brand_ref: brandRef,
+    trusted_config: trustOverride ? "override" : "default",
+    policy_ref: String(trusted.policy["policy_id"]),
+    policy_version: trusted.policy["policy_version"],
+    registry_ref: String(trusted.registry["registry_id"]),
+    registry_version: trusted.registry["registry_version"],
     replayed: applied.replayed,
     application_ref: String(application["artifact_id"]),
     decision_ref: String(application["decision_ref"]),
@@ -716,6 +772,7 @@ function cmdResolutionApply(args: ParsedArgs): void {
       applied.replayed
         ? `Already applied — returning the stored immutable result (idempotent replay; nothing was created or consumed).`
         : `Resolution applied exactly once.`,
+      trustLine,
       `Application: fact-resolution-application/${data.application_ref}`,
       `Decision: fact-resolution-decision/${data.decision_ref} (${data.decision_digest})`,
       `Approval receipt: ${data.receipt_ref}`,
@@ -749,23 +806,55 @@ function cmdResolutionInspect(args: ParsedArgs): void {
   const decisionStale =
     String(current.snapshot["claim_set_digest"]) !== String(decision["claim_set_digest"]);
 
-  // Evidence classification is receipt- and store-derived ONLY. Unsigned
-  // metadata (including the evidence file itself) never proves anything: a
-  // consumed approval is proven by its immutable receipt, a completed
+  // Completion is ALWAYS store-derived, independent of any evidence file:
+  // an applied decision must never be reported as needing a fresh
+  // signature just because the supplied evidence is absent, foreign, or
+  // malformed. Unreadable application records are counted, never silently
+  // skipped.
+  let applicationRef: string | null = null;
+  let unreadableApplications = 0;
+  const listed = must(store.list(workspace, brandRef, "fact-resolution-application"));
+  for (const entry of listed) {
+    const application = store.get(workspace, brandRef, "fact-resolution-application", entry.artifactId);
+    if (!application.ok) {
+      unreadableApplications++;
+      continue;
+    }
+    if (application.value["decision_ref"] === decisionRef) applicationRef = entry.artifactId;
+  }
+
+  // Evidence classification is receipt-, registry-, and store-derived ONLY.
+  // Unsigned metadata (including the evidence file itself) never proves
+  // anything: a consumed approval is proven by its immutable receipt AND a
+  // signature that verifies against the enrolled key; a completed
   // application by its immutable record.
   let evidenceState = "no evidence supplied";
-  let applicationRef: string | null = null;
   const evidencePathArg = args.flags.get("--evidence");
   if (evidencePathArg) {
     const receiptsRootArg = args.flags.get("--receipts-root");
     if (!receiptsRootArg) fail(EXIT.usage, "usage", "--evidence requires --receipts-root to classify consumption");
     const receiptStore = new FileApprovalReceiptStore(resolve(receiptsRootArg), registry);
+    const configDir = args.flags.get("--trusted-config-dir")
+      ? resolve(args.flags.get("--trusted-config-dir")!)
+      : join(REPO_ROOT, "contracts");
+    const trusted = must(
+      loadTrustedAuthorityConfig(
+        join(configDir, "human-gate-policy.active.json"),
+        join(configDir, "authority-registry.active.json"),
+        registry
+      )
+    );
     const rawEvidence = readJsonFile(evidencePathArg, "approval evidence file");
     const validatedEvidence = registry.validate("approval-evidence", rawEvidence);
     if (!validatedEvidence.ok) {
       evidenceState = "malformed (contract-invalid; grants nothing)";
     } else {
       const payload = validatedEvidence.value["payload"] as Record<string, unknown>;
+      const authority = trusted.authorities.get(String(payload["key_id"]));
+      const publicKey = authority ? ed25519PublicKeyFromSpkiB64(authority.public_key_spki_b64) : null;
+      const signatureB64 = String(
+        (validatedEvidence.value["signature"] as Record<string, unknown>)["signature_b64"]
+      );
       if (
         payload["target_artifact_ref"] !== decisionRef ||
         payload["target_artifact_type"] !== "fact-resolution-decision" ||
@@ -775,6 +864,10 @@ function cmdResolutionInspect(args: ParsedArgs): void {
         evidenceState = "conflicted (evidence targets a different artifact or namespace)";
       } else if (payload["target_artifact_digest"] !== decisionDigest) {
         evidenceState = "conflicted (signed digest does not match the stored decision)";
+      } else if (!authority) {
+        evidenceState = "conflicted (signing key is not enrolled in the trusted registry)";
+      } else if (!publicKey || !verifyApprovalSignature(payload, signatureB64, publicKey)) {
+        evidenceState = "conflicted (signature does not verify against the enrolled key)";
       } else {
         const receiptId = receiptIdFor(
           String(payload["key_id"]),
@@ -792,25 +885,19 @@ function cmdResolutionInspect(args: ParsedArgs): void {
         } else if (receipt.value["verdict"] !== "approved") {
           evidenceState = "rejected (consumed; an authentic rejection applies nothing)";
         } else {
-          applicationRef = applicationIdFor(decisionDigest, receiptId);
-          const application = store.get(workspace, brandRef, "fact-resolution-application", applicationRef);
-          evidenceState = application.ok
-            ? "completed (immutable application record exists)"
-            : "recoverable (consumed but incomplete; retry 'resolution apply' with the same evidence)";
+          const derivedRef = applicationIdFor(decisionDigest, receiptId);
+          const application = store.get(workspace, brandRef, "fact-resolution-application", derivedRef);
+          if (application.ok) {
+            applicationRef = derivedRef;
+            evidenceState = "completed (immutable application record exists)";
+          } else {
+            evidenceState = "recoverable (consumed but incomplete; retry 'resolution apply' with the same evidence)";
+          }
         }
       }
     }
-  } else {
-    // Without evidence, completion is still provable from the store.
-    const listed = must(store.list(workspace, brandRef, "fact-resolution-application"));
-    for (const entry of listed) {
-      const application = store.get(workspace, brandRef, "fact-resolution-application", entry.artifactId);
-      if (application.ok && application.value["decision_ref"] === decisionRef) {
-        applicationRef = entry.artifactId;
-        evidenceState = "completed (immutable application record exists)";
-        break;
-      }
-    }
+  } else if (applicationRef) {
+    evidenceState = "completed (immutable application record exists)";
   }
 
   const losers = (decision["losing_claims"] as { claim_ref: string }[]).map((l) => l.claim_ref);
@@ -872,6 +959,15 @@ COMMON OPTIONS
   --dry-run                    Compute and display without persisting anything (snapshot/analyze/prepare).
   --confirm-digest sha256:...  Operator-error guard binding a mutation to the exact reviewed state.
                                It is NOT authentication — authentication is signed approval evidence.
+  --trusted-config-dir <dir>   (resolution apply/inspect) Override the trusted policy/registry
+                               directory. Default: this repository's committed contracts/ trust
+                               root. Overriding changes WHICH registry verifies evidence — use it
+                               only for isolated test/ceremony configurations you built yourself;
+                               apply output always names the trust root it used.
+
+OUTPUT CHANNELS
+  Human mode: results to stdout, errors to stderr. --json mode: one JSON object to
+  stdout for both success and failure (failure objects carry exit_code).
 
 WORKFLOW (synthetic example — three strictly separated stages)
   1. Prepare (operator, no key):
@@ -879,7 +975,7 @@ WORKFLOW (synthetic example — three strictly separated stages)
        --profile-ref tp-0001 --snapshot-id snap-0001 --analysis-id ta-0001 --confirm-digest sha256:<from --dry-run>
      nabcor truth inspect  --artifacts-root /ops/store --workspace ws-demo --brand-ref brand-demo --analysis-ref ta-0001
      nabcor resolution prepare --artifacts-root /ops/store --workspace ws-demo --brand-ref brand-demo \\
-       --analysis-ref ta-0001 --fact-key identity.primary_name --contradiction-fingerprint c<from inspect> \\
+       --analysis-ref ta-0001 --fact-key identity.primary_name --contradiction-fingerprint <fingerprint from inspect> \\
        --winner claim-0001 --requester-id op-demo --rationale "matches the registration certificate" \\
        --decision-id frd-0001 --confirm-digest sha256:<analysis digest from inspect>
   2. Sign (KEY OWNER personally; this CLI never reads a private key):
@@ -904,18 +1000,25 @@ BOUNDARIES
 // ---------------------------------------------------------------------------
 // dispatch
 // ---------------------------------------------------------------------------
-const COMMON = ["--json", "--dry-run", "--artifacts-root", "--workspace", "--brand-ref"];
+// --dry-run is registered ONLY on the commands that implement it: a flag
+// that is accepted but ignored on an irreversible command (apply consumes a
+// single-use nonce) would be the exact operator trap DEC-0017 prohibits.
+const COMMON = ["--json", "--artifacts-root", "--workspace", "--brand-ref"];
 const COMMANDS: Record<string, { flags: string[]; run: (args: ParsedArgs) => void }> = {
   status: { flags: ["--json"], run: cmdStatus },
-  "truth snapshot": { flags: [...COMMON, "--snapshot-id", "--confirm-digest"], run: cmdTruthSnapshot },
+  "truth snapshot": {
+    flags: [...COMMON, "--dry-run", "--snapshot-id", "--confirm-digest"],
+    run: cmdTruthSnapshot,
+  },
   "truth analyze": {
-    flags: [...COMMON, "--profile-ref", "--snapshot-id", "--analysis-id", "--confirm-digest"],
+    flags: [...COMMON, "--dry-run", "--profile-ref", "--snapshot-id", "--analysis-id", "--confirm-digest"],
     run: cmdTruthAnalyze,
   },
   "truth inspect": { flags: [...COMMON, "--analysis-ref"], run: cmdTruthInspect },
   "resolution prepare": {
     flags: [
       ...COMMON,
+      "--dry-run",
       "--analysis-ref",
       "--fact-key",
       "--contradiction-fingerprint",
@@ -932,7 +1035,7 @@ const COMMANDS: Record<string, { flags: string[]; run: (args: ParsedArgs) => voi
     run: cmdResolutionApply,
   },
   "resolution inspect": {
-    flags: [...COMMON, "--decision-ref", "--evidence", "--receipts-root"],
+    flags: [...COMMON, "--decision-ref", "--evidence", "--receipts-root", "--trusted-config-dir"],
     run: cmdResolutionInspect,
   },
 };
@@ -943,7 +1046,13 @@ function main(argv: string[]): void {
     return;
   }
   const twoWord = argv.length >= 2 ? `${argv[0]} ${argv[1]}` : "";
-  const command = COMMANDS[twoWord] ? twoWord : COMMANDS[argv[0]!] ? argv[0]! : null;
+  // Object.hasOwn: inherited object-prototype names (e.g. 'constructor')
+  // must be unknown commands, not internal errors.
+  const command = Object.hasOwn(COMMANDS, twoWord)
+    ? twoWord
+    : Object.hasOwn(COMMANDS, argv[0]!)
+      ? argv[0]!
+      : null;
   if (!command) {
     fail(EXIT.usage, "usage", `unknown command '${argv.join(" ")}' (see 'nabcor help')`);
   }

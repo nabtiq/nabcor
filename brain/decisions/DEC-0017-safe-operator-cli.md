@@ -72,6 +72,14 @@ carries `self_review: true` per DEC-0008.
    trusted policy/registry/verifier and applied through the existing
    crash-recoverable service. Retry after interruption and idempotent
    completed replay are the service's semantics, surfaced unchanged.
+   The trusted policy/registry directory defaults to the repository's
+   committed trust root; the documented `--trusted-config-dir` override
+   exists for isolated test and ceremony configurations (the same seam
+   the signing CLI has). Because the override selects WHICH registry
+   verifies evidence, `resolution apply` always names the trust root it
+   used in its output, and the override is prominently flagged as
+   non-default there — an operator handed a foreign runbook can see the
+   substitution.
 
 7. **Output is honest and closed.** Default output is human-readable
    English; `--json` emits one stable machine-readable object with no

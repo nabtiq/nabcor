@@ -258,7 +258,12 @@ test("help is English-only, documents the exit codes and separation of stages; u
   assert.match(help.stdout, /EXIT CODES/);
   assert.match(help.stdout, /personally|KEY OWNER/i);
   assert.match(help.stdout, /never reads a private key/);
-  assert.ok(!/[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/.test(help.stdout), "help must be English-only");
+  // Arabic-script ranges are expressed as escapes so this scanner never
+  // commits an Arabic-script character itself (repository language gate).
+  const arabicScript = new RegExp(
+    "[\\u0600-\\u06FF\\u0750-\\u077F\\u08A0-\\u08FF\\uFB50-\\uFDFF\\uFE70-\\uFEFF]"
+  );
+  assert.ok(!arabicScript.test(help.stdout), "help must be English-only");
   assert.ok(!/\[/.test(help.stdout), "no ANSI codes");
 
   assert.equal(run(["bogus"]).status, 2);
@@ -572,6 +577,7 @@ test("the full synthetic operator workflow: analyze, prepare, personally sign wi
     run([
       "resolution", "inspect", ...s.namespaceArgs,
       "--decision-ref", "frd-cli-1", "--evidence", evidencePath, "--receipts-root", s.receiptsRoot,
+      "--trusted-config-dir", setup.configDir,
     ])
   );
   assert.match(unconsumed.stdout, /not consumed/);
@@ -590,6 +596,7 @@ test("the full synthetic operator workflow: analyze, prepare, personally sign wi
     run([
       "resolution", "inspect", ...s.namespaceArgs,
       "--decision-ref", "frd-cli-1", "--evidence", evidencePath, "--receipts-root", s.receiptsRoot,
+      "--trusted-config-dir", setup.configDir,
     ])
   );
   assert.match(completed.stdout, /completed \(immutable application record exists\)/);
@@ -626,6 +633,7 @@ test("rejected evidence consumes but mutates no claim; the rejection is reported
   const inspect = run([
     "resolution", "inspect", ...s.namespaceArgs,
     "--decision-ref", "frd-cli-1", "--evidence", evidencePath, "--receipts-root", s.receiptsRoot,
+    "--trusted-config-dir", setup.configDir,
   ]);
   assert.match(inspect.stdout, /rejected \(consumed; an authentic rejection applies nothing\)/);
 });
@@ -750,6 +758,7 @@ test("an interrupted application resumes through the CLI, and a same-nonce repla
   const recoverable = run([
     "resolution", "inspect", ...s.namespaceArgs,
     "--decision-ref", "frd-cli-1", "--evidence", evidencePath, "--receipts-root", s.receiptsRoot,
+    "--trusted-config-dir", setup.configDir,
   ]);
   assert.match(recoverable.stdout, /recoverable \(consumed but incomplete/);
 
@@ -806,6 +815,129 @@ test("namespace traversal is refused and fake approval metadata on artifacts gra
   assert.equal(inspect.status, 0);
   assert.match(inspect.stdout, /Application: none found/);
   assert.ok(!/consumed|authorized|approved by/i.test(inspect.stdout.replace(/no evidence supplied/i, "")), "unsigned metadata never reads as authorization");
+});
+
+test("--dry-run is refused on commands that do not implement it — especially the irreversible apply", () => {
+  const s = cliScenario();
+  const { analysisDigest, fingerprint } = analyzed(s);
+  const decisionDigest = prepared(s, analysisDigest, fingerprint);
+  const setup = signingSetup();
+  const evidencePath = sign(s, setup, "frd-cli-1", "approved", "dryrun-guard.json");
+  const before = inventory(s.storeRoot);
+  const receiptsBefore = inventory(s.receiptsRoot);
+
+  const applyDry = run([...applyArgs(s, evidencePath, decisionDigest, setup.configDir), "--dry-run"]);
+  assert.equal(applyDry.status, 2, "apply must REFUSE --dry-run, never accept-and-ignore it");
+  assert.match(applyDry.stderr, /unknown option '--dry-run'/);
+  assert.deepEqual(inventory(s.storeRoot), before, "refused apply --dry-run mutates nothing");
+  assert.deepEqual(inventory(s.receiptsRoot), receiptsBefore, "refused apply --dry-run consumes nothing");
+
+  assert.equal(
+    run(["truth", "inspect", ...s.namespaceArgs, "--analysis-ref", "ta-cli-1", "--dry-run"]).status,
+    2,
+    "read-only commands refuse the flag too"
+  );
+  assert.equal(
+    run(["resolution", "inspect", ...s.namespaceArgs, "--decision-ref", "frd-cli-1", "--dry-run"]).status,
+    2
+  );
+});
+
+test("object-prototype names are unknown commands, and analyze dry-run creates zero files", () => {
+  for (const name of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+    const result = run([name]);
+    assert.equal(result.status, 2, `'${name}' must be an unknown command, not an internal error`);
+    assert.match(result.stderr, /unknown command/);
+  }
+  const s = cliScenario();
+  const before = inventory(s.storeRoot);
+  const dry = run(["truth", "analyze", ...s.namespaceArgs, "--profile-ref", "tp_t_0001", "--dry-run"]);
+  assert.equal(dry.status, 0);
+  assert.deepEqual(inventory(s.storeRoot), before, "analyze dry-run creates zero files");
+});
+
+test("an applied decision is reported completed even when inspected with foreign or absent evidence", () => {
+  const s = cliScenario();
+  const { analysisDigest, fingerprint } = analyzed(s);
+  const decisionDigest = prepared(s, analysisDigest, fingerprint);
+  const setup = signingSetup();
+  const evidenceA = sign(s, setup, "frd-cli-1", "approved", "evidence-a.json");
+  const applied = run(applyArgs(s, evidenceA, decisionDigest, setup.configDir));
+  assert.equal(applied.status, 0, applied.stderr);
+
+  // A second validly-signed but never-consumed evidence for the same
+  // decision must not hide the completed application or demand a re-sign.
+  const evidenceB = sign(s, setup, "frd-cli-1", "approved", "evidence-b.json");
+  const inspected = run([
+    "resolution", "inspect", ...s.namespaceArgs,
+    "--decision-ref", "frd-cli-1", "--evidence", evidenceB, "--receipts-root", s.receiptsRoot,
+    "--trusted-config-dir", setup.configDir,
+  ]);
+  assert.equal(inspected.status, 0);
+  assert.match(inspected.stdout, /Application: fact-resolution-application\//, "completed application is always surfaced");
+  assert.match(inspected.stdout, /stale \(expected/, "no re-sign advice for an applied decision");
+  assert.match(inspected.stdout, /not consumed/, "the unconsumed evidence is classified independently");
+});
+
+test("a forged signature on a consumed payload is reported conflicted, never recoverable or completed", () => {
+  const s = cliScenario();
+  const { analysisDigest, fingerprint } = analyzed(s);
+  const decisionDigest = prepared(s, analysisDigest, fingerprint);
+  const setup = signingSetup();
+  const evidencePath = sign(s, setup, "frd-cli-1", "approved", "to-forge.json");
+  const applied = run(applyArgs(s, evidencePath, decisionDigest, setup.configDir));
+  assert.equal(applied.status, 0);
+
+  const evidence = JSON.parse(readFileSync(evidencePath, "utf8")) as {
+    signature: { algorithm: string; signature_b64: string };
+  };
+  const forged = {
+    ...evidence,
+    signature: {
+      algorithm: "ed25519",
+      signature_b64:
+        (evidence.signature.signature_b64.startsWith("A") ? "B" : "A") +
+        evidence.signature.signature_b64.slice(1),
+    },
+  };
+  const forgedPath = join(setup.evidenceDir, "forged.json");
+  writeFileSync(forgedPath, JSON.stringify(forged, null, 2) + "\n", "utf8");
+  const inspected = run([
+    "resolution", "inspect", ...s.namespaceArgs,
+    "--decision-ref", "frd-cli-1", "--evidence", forgedPath, "--receipts-root", s.receiptsRoot,
+    "--trusted-config-dir", setup.configDir,
+  ]);
+  assert.equal(inspected.status, 0);
+  assert.match(inspected.stdout, /conflicted \(signature does not verify against the enrolled key\)/);
+});
+
+test("apply names its trust root and flags a non-default override; JSON success output is redacted", () => {
+  const s = cliScenario();
+  const { analysisDigest, fingerprint } = analyzed(s);
+  const decisionDigest = prepared(s, analysisDigest, fingerprint);
+  const setup = signingSetup();
+  const evidencePath = sign(s, setup, "frd-cli-1", "approved", "trustroot.json");
+  const applied = run(applyArgs(s, evidencePath, decisionDigest, setup.configDir));
+  assert.equal(applied.status, 0);
+  assert.match(applied.stdout, /Trust root: hgp-nabcor-1 v2 \/ areg-nabcor v2/);
+  assert.match(applied.stdout, /NON-DEFAULT --trusted-config-dir in effect/);
+  const replayJson = runJson(applyArgs(s, evidencePath, decisionDigest, setup.configDir));
+  assert.equal(replayJson.body["trusted_config"], "override");
+
+  // JSON success output passes through redaction: a claim whose normalized
+  // value is credential-shaped (armor text composed at runtime so it is
+  // never committed) must be redacted in --json mode too.
+  const armorValue = ["-----BEGIN", "PRIVATE", "KEY-----abc"].join(" ");
+  const s2 = cliScenario([
+    factClaim("claim-armor-a", armorValue, { artifact_id: "claim-armor-a" }),
+    factClaim("claim-armor-b", "Plain Value", { artifact_id: "claim-armor-b" }),
+  ]);
+  const dry = run(["truth", "analyze", ...s2.namespaceArgs, "--profile-ref", "tp_t_0001", "--dry-run", "--json"]);
+  assert.equal(dry.status, 0);
+  assert.ok(!dry.stdout.includes(["PRIVATE", "KEY"].join(" ")), "credential-shaped values are redacted in JSON");
+  assert.match(dry.stdout, /\[redacted\]/);
+  const parsed = JSON.parse(dry.stdout) as Record<string, unknown>;
+  assert.equal(parsed["ok"], true, "redaction keeps the JSON valid");
 });
 
 test("the nabcor CLI reads no environment variables and has no private-key surface", () => {

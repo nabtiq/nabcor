@@ -430,7 +430,7 @@ node dist/src/cli/nabcor.js truth inspect \
 node dist/src/cli/nabcor.js resolution prepare \
   --artifacts-root /ops/store --workspace ws-demo --brand-ref brand-demo \
   --analysis-ref ta-0001 --fact-key identity.primary_name \
-  --contradiction-fingerprint c<fingerprint from step 3> --winner claim-0001 \
+  --contradiction-fingerprint <fingerprint printed by step 3> --winner claim-0001 \
   --requester-id op-demo --rationale "matches the registration certificate" \
   --decision-id frd-0001 --confirm-digest sha256:<analysis digest from step 3>
 
