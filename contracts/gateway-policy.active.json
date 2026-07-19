@@ -2,12 +2,27 @@
   "schema_version": "1.9.0",
   "policy_id": "gateway-policy-0002",
   "decision_ref": "DEC-0018",
-  "allowed_adapters": ["anthropic", "fake"],
-  "allowed_data_classes": ["synthetic"],
-  "allowed_execution_tiers": [0, 1, 2],
+  "allowed_adapters": [
+    "anthropic",
+    "fake"
+  ],
+  "allowed_data_classes": [
+    "synthetic"
+  ],
+  "allowed_execution_tiers": [
+    0,
+    1,
+    2
+  ],
   "model_allowlist": [
-    { "model_id": "claude-haiku-4-5-20251001", "tier": 1 },
-    { "model_id": "claude-sonnet-5", "tier": 2 }
+    {
+      "model_id": "claude-haiku-4-5-20251001",
+      "tier": 1
+    },
+    {
+      "model_id": "claude-sonnet-5",
+      "tier": 2
+    }
   ],
   "external_network_allowed": true,
   "real_client_data_allowed": false,
@@ -22,6 +37,6 @@
   "max_escalations": 0,
   "provider_policy_candidate_ref": "ppc-anthropic-0001",
   "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
-  "provider_enablement_evidence_ref": "apev-pending0000",
-  "provider_enablement_receipt_ref": "r0000000000000000000000000000000000000000000000000000000000000000"
+  "provider_enablement_evidence_ref": "apev-0185ba8e5a86202d",
+  "provider_enablement_receipt_ref": "rdabf718125365b1cc3c1da4a53532bc0ddcaaefc10359a3a65019fa097a95dff"
 }

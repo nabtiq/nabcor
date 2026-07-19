@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.9.0",
+  "receipt_id": "rdabf718125365b1cc3c1da4a53532bc0ddcaaefc10359a3a65019fa097a95dff",
+  "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
+  "evidence_ref": "apev-0185ba8e5a86202d",
+  "payload_digest": "sha256:7a4d03e001672e3ed8bc0f5392e450958c5f4c49912a0bc5c8cb09f695c84cb5",
+  "key_id": "k8cc9db703247760829dcb74819fbe07cd1dc24a2bf66ec7a02ed500391de8b1b",
+  "nonce": "a25503d55985b5490185ba8e5a86202d",
+  "workspace": "ws_governance",
+  "brand_ref": "brand_nabcor",
+  "target_artifact_ref": "ppc-anthropic-0001",
+  "target_artifact_type": "provider-policy-candidate",
+  "target_artifact_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+  "gate": "provider-enablement-approval",
+  "verdict": "approved",
+  "verification_result": "authorized",
+  "consumed_at": "2026-07-19T21:25:33Z",
+  "policy_ref": "hgp-nabcor-1",
+  "policy_version": 3,
+  "registry_ref": "areg-nabcor",
+  "registry_version": 2
+}

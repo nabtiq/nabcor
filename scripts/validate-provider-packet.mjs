@@ -75,7 +75,7 @@ else if (!dec18Row.includes("ratified") || !dec18Row.includes("Option A")) {
 // in the same reviewed change, never a silent drift. The candidate/evidence/
 // receipt/decision chain itself is verified by scripts/validate-provider-chain.mjs.
 const EXPECTED_POLICY_SHA256 =
-  "fca9108349b13e8ebaffd871de0be9a1d6c01b1deb6841268696f6404d420f78";
+  "2bac7a3eb13b255b8f14348bd44397696df0483e7bba6a3187a4e7f420525aa7";
 const policyRaw = read("contracts/gateway-policy.active.json");
 const policySha = createHash("sha256").update(policyRaw, "utf8").digest("hex");
 if (policySha !== EXPECTED_POLICY_SHA256) {
