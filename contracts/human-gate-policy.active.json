@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.7.1",
+  "schema_version": "1.8.0",
   "policy_id": "hgp-nabcor-1",
   "policy_version": 2,
   "decision_ref": "DEC-0015",

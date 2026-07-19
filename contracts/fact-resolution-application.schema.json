@@ -1,0 +1,250 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nabcor.nabtiq.com/contracts/fact-resolution-application.schema.json",
+  "title": "Fact-resolution application result",
+  "description": "Immutable record that one signed fact-resolution decision was applied exactly once (DEC-0016). Every identity is deterministic (algorithm fact-resolution-id-sha256-1.0.0, semantic layer recomputes): artifact_id is 'fra' + sha256 hex over the canonical JSON of {decision_digest, receipt_ref}; each losing successor is 'crs' + sha256 over {application_ref, losing_claim_ref}; the after-snapshot and after-analysis are 'fsn'/'fan' + sha256 over {application_ref, role}. Deterministic identities plus the receipt-sourced consumed_at timestamp make application idempotent and crash-recoverable: a retry of the same operation recomputes byte-identical artifacts, resumes only missing writes, refuses conflicting content, and a replay after completion returns this stored record without creating anything. The record binds the consumed approval (evidence reference, signed payload digest, receipt, key, policy, and registry), the before-state (the signed decision and its snapshot/analysis), the created losing-claim revisions, and the after-state (fresh snapshot and analysis in which the resolved contradiction is closed). Application creates immutable successor revisions only — no stored claim is ever overwritten, edited, deleted, or auto-upgraded; the winner is not mutated. Single-host/single-writer file atomicity only; no distributed-transaction claim is made.",
+  "allOf": [
+    {
+      "$ref": "artifact-envelope.schema.json#/definitions/envelope"
+    },
+    {
+      "type": "object",
+      "required": [
+        "brand_ref",
+        "workspace",
+        "application_algorithm",
+        "decision_ref",
+        "decision_digest",
+        "evidence_ref",
+        "payload_digest",
+        "receipt_ref",
+        "key_id",
+        "policy_ref",
+        "policy_version",
+        "registry_ref",
+        "registry_version",
+        "fact_key",
+        "contradiction_fingerprint",
+        "before_snapshot_ref",
+        "before_analysis_ref",
+        "created_losing_revisions",
+        "after_snapshot_ref",
+        "after_analysis_ref",
+        "after_claim_set_digest",
+        "status",
+        "consumed_at"
+      ],
+      "properties": {
+        "brand_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+        },
+        "workspace": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+        },
+        "application_algorithm": {
+          "const": "fact-resolution-id-sha256-1.0.0",
+          "description": "versioned derivation algorithm for the application, successor, and after-artifact identities; a future change is a new version, never a silent reinterpretation"
+        },
+        "decision_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+          "description": "artifact_id of the signed fact-resolution-decision this application executed"
+        },
+        "decision_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "canonical content digest of the stored decision; equals the signed target_artifact_digest of the consumed approval"
+        },
+        "evidence_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+          "description": "evidence_id of the consumed approval evidence (unauthenticated label; the cryptographic link is payload_digest)"
+        },
+        "payload_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "domain-separated canonical digest of the signed approval payload (approval-payload-sha256-1.0.0); matches the immutable receipt"
+        },
+        "receipt_ref": {
+          "type": "string",
+          "pattern": "^r[0-9a-f]{64}$",
+          "description": "receipt_id of the atomic single-use consumption this application executed under; the application identity is derived from it"
+        },
+        "key_id": {
+          "type": "string",
+          "pattern": "^k[0-9a-f]{64}$"
+        },
+        "policy_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+        },
+        "policy_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "registry_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+        },
+        "registry_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fact_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
+          "description": "copied from the decision for audit discoverability"
+        },
+        "contradiction_fingerprint": {
+          "type": "string",
+          "pattern": "^c[0-9a-f]{64}$",
+          "description": "copied from the decision for audit discoverability"
+        },
+        "before_snapshot_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+          "description": "the decision's claim_snapshot_ref: the pre-resolution snapshot, stale after application by construction (DEC-0013)"
+        },
+        "before_analysis_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+          "description": "the decision's truth_analysis_ref: the pre-resolution analysis, stale after application by construction"
+        },
+        "created_losing_revisions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "one entry per losing claim, sorted by losing_claim_ref in code-unit order (semantic layer); each successor supersedes the losing head, preserves its content, sets verification_status to contradicted, and records resolution_decision_ref",
+          "items": {
+            "type": "object",
+            "required": [
+              "losing_claim_ref",
+              "successor_claim_ref",
+              "successor_content_digest"
+            ],
+            "properties": {
+              "losing_claim_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "successor_claim_ref": {
+                "type": "string",
+                "pattern": "^crs[0-9a-f]{64}$",
+                "description": "deterministic successor identity (semantic layer recomputes over {application_ref, losing_claim_ref})"
+              },
+              "successor_content_digest": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "description": "canonical content digest of the created successor revision; recovery validates any existing successor against this expected content"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "after_snapshot_ref": {
+          "type": "string",
+          "pattern": "^fsn[0-9a-f]{64}$",
+          "description": "deterministic identity of the fresh post-resolution snapshot (semantic layer recomputes)"
+        },
+        "after_analysis_ref": {
+          "type": "string",
+          "pattern": "^fan[0-9a-f]{64}$",
+          "description": "deterministic identity of the fresh post-resolution analysis in which the resolved contradiction is closed (semantic layer recomputes)"
+        },
+        "after_claim_set_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "the fresh snapshot's aggregate claim-set digest: the canonical namespace state this application produced"
+        },
+        "status": {
+          "const": "applied",
+          "description": "pinned: only completed applications persist a result; failed or partial attempts persist nothing at this address and are resumed by retry"
+        },
+        "consumed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "the receipt's consumption timestamp; every artifact this application created carries it, so retries recompute byte-identical content"
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "schema_version": "1.8.0",
+      "artifact_id": "fra99be386202dae82aa6ddf0b2def3472985240bfdc1b6aaf3eb63bec8b4622b78",
+      "brand_ref": "brand_example",
+      "workspace": "ws_example",
+      "created_at": "2026-07-19T12:05:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "application_algorithm": "fact-resolution-id-sha256-1.0.0",
+      "decision_ref": "frd_0001",
+      "decision_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "evidence_ref": "apev_0002",
+      "payload_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+      "receipt_ref": "r1e9dd9ae6661f3b19549cac8e1365c4b840b2a9cc81ba53a93838cd0ba3edecb",
+      "key_id": "k307297211a27f90494c82db278dc854afa0fa87c35abd06c24f24ee2ef36666b",
+      "policy_ref": "hgp-nabcor-1",
+      "policy_version": 2,
+      "registry_ref": "areg-nabcor",
+      "registry_version": 2,
+      "fact_key": "identity.primary_name",
+      "contradiction_fingerprint": "c188ad4dd6717e0501d9e1b2c856a4c9acd4735c9ad66147f40fa885319c507e9",
+      "before_snapshot_ref": "snap_0001",
+      "before_analysis_ref": "ta_0001",
+      "created_losing_revisions": [
+        {
+          "losing_claim_ref": "claim_004",
+          "successor_claim_ref": "crsba33ebce14f275357803825de2a6d420adaeb2a9f6d46c55d8ac05abd8ddb482",
+          "successor_content_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+        }
+      ],
+      "after_snapshot_ref": "fsnf6c0fe275a48df203b08f76974dcdc67874bdb91bffa1cdc8e0ed7393fbd32b0",
+      "after_analysis_ref": "fan0235c3f777884e4cf39bec69fdbdb66f606633eec0e997e074aba1e39b6e25d8",
+      "after_claim_set_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "applied",
+      "consumed_at": "2026-07-19T12:05:00Z"
+    }
+  ],
+  "propertyNames": {
+    "enum": [
+      "after_analysis_ref",
+      "after_claim_set_digest",
+      "after_snapshot_ref",
+      "application_algorithm",
+      "approvals",
+      "artifact_id",
+      "before_analysis_ref",
+      "before_snapshot_ref",
+      "brand_ref",
+      "consumed_at",
+      "contradiction_fingerprint",
+      "created_at",
+      "created_losing_revisions",
+      "creator_type",
+      "decision_digest",
+      "decision_ref",
+      "derived_from_runs",
+      "evidence_ref",
+      "fact_key",
+      "key_id",
+      "lifecycle_status",
+      "payload_digest",
+      "policy_ref",
+      "policy_version",
+      "project_ref",
+      "provisional",
+      "receipt_ref",
+      "registry_ref",
+      "registry_version",
+      "schema_version",
+      "status",
+      "superseded_by",
+      "supersedes",
+      "validation_status",
+      "workspace"
+    ]
+  }
+}
