@@ -94,3 +94,18 @@ nonzero spend reopens this decision as a defect.
 
 supersedes: null
 superseded_by: null
+
+
+## Status note (appended 2026-07-19, DEC-0018 ratification — original text above is unchanged)
+
+The provider-enablement condition this record set — "enabling any
+provider requires a new ratified decision meeting DEC-0009's nine
+requirements" — is now met: DEC-0018 is ratified (Option A: Anthropic
+API, `claude-haiku-4-5-20251001` + `claude-sonnet-5`, synthetic data
+only, conservative ceilings). This does NOT retire this record's
+operational posture yet: the committed active gateway policy still
+references DEC-0009 and remains byte-guarded, and the zero-provider
+runtime state persists until the Phase 1C.1 implementation phase merges
+its consciously-reviewed active-policy revision under DEC-0018's
+authority. Until then, every restriction in this record remains in
+force.

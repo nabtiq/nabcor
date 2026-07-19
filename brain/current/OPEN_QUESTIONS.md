@@ -6,20 +6,7 @@ Unknowns stay visible until evidence or a ratified decision resolves them.
 
 ## Blocking before Phase 1
 
-- **Q-010 — Which DEC-0018 provider-enablement option does the Product
-  Owner ratify?** Phase 1C.0 prepared the evidence base: three mutually
-  exclusive options (A — recommended narrow Anthropic enablement with
-  `claude-haiku-4-5-20251001` + `claude-sonnet-5`, synthetic only,
-  conservative ceilings; B — cheapest OpenAI configuration with added
-  storage/cap risks; C — preserve DEC-0009) in
-  docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md with the ratification
-  statement the Product Owner can copy. Until ratified, DEC-0018 grants
-  no authority, DEC-0009 stays active, no provider is enabled, and
-  EXP-0001 (Phase 1's exit evidence) stays blocked. Sources were
-  accessed 2026-07-19 and must be re-verified if ratification happens
-  more than ~60 days later.
-
-Q-001, Q-002, and Q-009 are closed (see the answer log). Human
+No blocking question is currently open. Q-001, Q-002, and Q-009 are closed (see the answer log). Human
 fact-resolution APPLICATION is implemented since Phase 1B.4 (DEC-0016):
 an authorized approval over an immutable fact-resolution-decision
 artifact creates the losing claims' `contradicted` revisions, composed
@@ -80,6 +67,17 @@ active section in the same commit.
   access or credentials, external/model spend capped at USD 0 per run and per
   month. Closure is not provider approval: enabling any provider requires a
   new ratified decision meeting DEC-0009's nine requirements.
+- **Q-010 — Which DEC-0018 provider-enablement option does the Product
+  Owner ratify?** · 2026-07-19 · closed by the Product Owner's verbatim
+  ratification of **Option A** (recorded in DEC-0018's Ratification
+  section, pinned to packet commit bbca93a4): Anthropic API,
+  `claude-haiku-4-5-20251001` + `claude-sonnet-5`, synthetic data only,
+  ceilings $1/request $25/run $40/day $60/month, caching/Batch/tools/
+  storage/fallback/escalation disabled, mocked transport before any
+  paid smoke call, and a separately authenticated approval before
+  EXP-0001. Ratification authorizes the Phase 1C.1 IMPLEMENTATION phase
+  only; DEC-0009's zero-provider posture stays operationally active
+  until that phase's reviewed active-policy revision merges.
 - **Q-009 — Authoritative runtime human decisions (authenticated human-gate
   mechanism)** · 2026-07-19 · closed by DEC-0014 ratifying **Option A —
   offline Ed25519 approval evidence**: a committed trusted human-gate policy

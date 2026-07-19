@@ -1,14 +1,18 @@
 #!/usr/bin/env node
-// Deterministic provider-decision-packet validation (Phase 1C.0, DEC-0018).
+// Deterministic provider-decision-packet validation (Phase 1C.0/1C.0.1;
+// updated consciously at the DEC-0018 Option A ratification of 2026-07-19).
 //
-// Guards the governance state this phase must not disturb:
-//   1. DEC-0018 stays `proposed` with no approval evidence until the
-//      Product Owner ratifies it — a proposed decision described as
-//      ratified anywhere canonical is a defect.
+// Guards the governance state between ratification and the Phase 1C.1
+// implementation merge:
+//   1. DEC-0018 is RATIFIED (Option A) with recorded verbatim Product
+//      Owner approval evidence — regressing it to proposed, dropping the
+//      evidence, or mislabeling the index is a defect.
 //   2. The active gateway policy stays byte-identical to the DEC-0009
 //      posture (fake adapter, synthetic only, zero spend) and references
-//      a RATIFIED decision, never a proposed one.
-//   3. EXP-0001's Result section stays empty.
+//      a RATIFIED decision — ratification alone changes NO runtime state;
+//      only the Phase 1C.1 reviewed policy revision may update this pin.
+//   3. EXP-0001's Result section stays empty (its execution additionally
+//      requires a separate authenticated approval per the ratification).
 //   4. The packet documents estimates only, carries sourced pricing, and
 //      contains no credential-shaped values.
 //   5. Model IDs named in the recommended option also appear in the
@@ -28,24 +32,35 @@ const fail = (msg) => {
 };
 const read = (rel) => readFileSync(join(root, rel), "utf8");
 
-// ---- 1. DEC-0018 must be proposed, unapproved, and honest about it ----
+// ---- 1. DEC-0018 is ratified (Option A) with recorded evidence ----
 const dec18 = read("brain/decisions/DEC-0018-provider-enablement.md");
-if (!/^status: proposed$/m.test(dec18)) fail("DEC-0018 must carry `status: proposed`");
-if (/^status: ratified$/m.test(dec18)) fail("DEC-0018 must not be ratified in this phase");
-if (!/^approved_by: null$/m.test(dec18)) fail("DEC-0018 must carry `approved_by: null`");
-if (!/^approved_at: null$/m.test(dec18)) fail("DEC-0018 must carry `approved_at: null`");
-if (!dec18.includes("grants no authority")) {
-  fail("DEC-0018 must state explicitly that it grants no authority while proposed");
+if (!/^status: ratified$/m.test(dec18)) {
+  fail("DEC-0018 must carry `status: ratified` (Option A was ratified 2026-07-19)");
+}
+if (/^approved_by: null$/m.test(dec18) || /^approved_at: null$/m.test(dec18)) {
+  fail("ratified DEC-0018 must carry non-null approval evidence fields");
+}
+if (!dec18.includes("Ibrahim Mohamed") || !dec18.includes("self_review: true")) {
+  fail("DEC-0018 approval evidence must name the Product Owner with self_review: true (DEC-0008)");
+}
+if (!dec18.includes("ratify\n> DEC-0018 Option A") && !dec18.includes("ratify DEC-0018 Option A")) {
+  fail("DEC-0018 must record the verbatim Option A ratification statement");
+}
+if (!dec18.includes("bbca93a4ca0b9dbc7df8de5c9d799721b467e3c9")) {
+  fail("the ratification statement must stay pinned to the packet commit it named");
+}
+if (!dec18.includes("authorizes only the Phase 1C.1")) {
+  fail("DEC-0018 must record that ratification authorizes the Phase 1C.1 implementation phase only");
 }
 
-// The decision index must list DEC-0018 as proposed, never ratified.
+// The decision index must list DEC-0018 as ratified (Option A).
 const index = read("docs/DECISION_SYSTEM.md");
 const dec18Row = index
   .split("\n")
   .find((line) => line.startsWith("| DEC-0018"));
 if (!dec18Row) fail("docs/DECISION_SYSTEM.md must index DEC-0018");
-else if (!dec18Row.includes("proposed") || dec18Row.includes("ratified")) {
-  fail("the DEC-0018 index row must say proposed and never ratified");
+else if (!dec18Row.includes("ratified") || !dec18Row.includes("Option A")) {
+  fail("the DEC-0018 index row must say ratified with Option A");
 }
 
 // ---- 2. Active gateway policy is frozen at the DEC-0009 posture ----
@@ -179,10 +194,15 @@ const prohibited = [
     reason: "equating no-training with no-retention",
   },
   {
+    // Post-ratification form of the authority guard: DEC-0018 authorizes
+    // the implementation PHASE, never a live provider/spend state — no
+    // document may claim a provider is enabled or EXP-0001 ran until the
+    // Phase 1C.1 revision and its own gates land.
     pattern:
-      /\bDEC-0018\b[^.]{0,100}\b(grants|authorizes|enables)\b[^.]{0,80}\b(enablement|provider|adapter|authority|spend)\b/i,
-    reason: "describing proposed DEC-0018 as granting enablement authority",
-    negation: /grants? no|authorizes? (only )?noth|does not (grant|authorize|enable)|no authority|not (grant|authorize|enable)/i,
+      /\b(provider|Anthropic( API)?)\b[^.]{0,60}\b(is|are|now|has been) (now )?(enabled|live|active|connected)\b/i,
+    reason:
+      "claiming a provider is enabled before the Phase 1C.1 policy revision merges",
+    negation: /no provider is enabled|not (yet )?(enabled|live|active)|until|remains (operationally )?active|stays/i,
   },
 ];
 for (const [name, body] of packetDocs) {
