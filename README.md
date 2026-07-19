@@ -360,6 +360,26 @@ No provider SDK and no framework exist.
   replays return the stored result. Single-host/single-writer file
   atomicity only — no distributed-transaction claim. A rejected verdict
   consumes its nonce and mutates nothing.
+- **Safe operator CLI (Tier 0, Phase 1B.5, DEC-0017)** —
+  `node dist/src/cli/nabcor.js <command>` makes the whole deterministic
+  loop drivable by a human operator without touching internal APIs or
+  layouts, as a THIN orchestration layer over the canonical services (it
+  implements no truth, lineage, signing, verification, or resolution
+  logic). Commands: `status` (policy/provider/authority/gate/phase state,
+  public metadata only), `truth snapshot` / `truth analyze` /
+  `truth inspect`, `resolution prepare` / `resolution apply` /
+  `resolution inspect`, and `help`. Read-only commands and every
+  `--dry-run` mutate nothing; every mutation requires an explicit
+  `--artifacts-root` (no ambient defaults), explicit namespace, and a
+  `--confirm-digest` bound to the exact reviewed state (an operator-error
+  guard, never authentication); losers are always re-derived by the
+  preparation service; `resolution apply` accepts PUBLIC approval
+  evidence only, and no `nabcor` command reads a private key — signing
+  stays exclusively in the separate personally-invoked `sign-approval`
+  CLI, for which `resolution prepare` prints a template with a key-path
+  placeholder. Typed failures exit under a stable documented code map
+  with no stack traces; `--json` emits one stable object with no ANSI and
+  no claim/source content. Operator quick start below.
 - **Synthetic CLI example** — `node dist/src/cli/run-example.js --out <dir>` runs the
   full deterministic path on English-only synthetic fixtures. No network, no model
   calls, no client data.
@@ -382,6 +402,66 @@ gateway as a whole is **not** production-ready for model work. Gate roles are
 named (DEC-0008), but its four independent-review gates stay unapprovable
 until an independent reviewer is formally named and enrolled; quarantined
 content remains unreadable. EXP-0001 has not run and has no results.
+
+## Operator quick start (synthetic example)
+
+The full loop, with three strictly separated stages. Build first
+(`npm ci && npm run build`); every identifier below is synthetic.
+
+```bash
+# 0. Read-only state overview (never mutates)
+node dist/src/cli/nabcor.js status
+
+# 1. Learn the current namespace digest (dry run — zero files)
+node dist/src/cli/nabcor.js truth snapshot \
+  --artifacts-root /ops/store --workspace ws-demo --brand-ref brand-demo --dry-run
+
+# 2. Analyze structured truth (confirm-digest from step 1)
+node dist/src/cli/nabcor.js truth analyze \
+  --artifacts-root /ops/store --workspace ws-demo --brand-ref brand-demo \
+  --profile-ref tp-0001 --snapshot-id snap-0001 --analysis-id ta-0001 \
+  --confirm-digest sha256:<claim-set digest from step 1>
+
+# 3. Inspect contradictions, gaps, fingerprints, and the analysis digest
+node dist/src/cli/nabcor.js truth inspect \
+  --artifacts-root /ops/store --workspace ws-demo --brand-ref brand-demo --analysis-ref ta-0001
+
+# 4. Prepare the exact immutable decision (losers are DERIVED, never typed in)
+node dist/src/cli/nabcor.js resolution prepare \
+  --artifacts-root /ops/store --workspace ws-demo --brand-ref brand-demo \
+  --analysis-ref ta-0001 --fact-key identity.primary_name \
+  --contradiction-fingerprint <fingerprint printed by step 3> --winner claim-0001 \
+  --requester-id op-demo --rationale "matches the registration certificate" \
+  --decision-id frd-0001 --confirm-digest sha256:<analysis digest from step 3>
+
+# 5. The KEY OWNER personally signs the exact printed decision digest
+#    (nabcor never reads a private key; prepare prints this template):
+node dist/src/cli/sign-approval.js --private-key <PATH-TO-YOUR-PRIVATE-KEY> \
+  --artifacts-root /ops/store --workspace ws-demo --brand-ref brand-demo \
+  --target-type fact-resolution-decision --target-ref frd-0001 \
+  --gate fact-resolution-approval --verdict approved \
+  --reason "<YOUR-REASON>" --requester-id op-demo \
+  --evidence-out <PATH-OUTSIDE-THE-REPOSITORY>/evidence-frd-0001.json
+
+# 6. Apply the PUBLIC evidence (idempotent; safe to retry after a crash)
+node dist/src/cli/nabcor.js resolution apply \
+  --artifacts-root /ops/store --receipts-root /ops/receipts \
+  --workspace ws-demo --brand-ref brand-demo \
+  --evidence <PATH-OUTSIDE-THE-REPOSITORY>/evidence-frd-0001.json \
+  --confirm-digest sha256:<decision digest from step 4>
+
+# 7. Confirm completion, staleness rollover, and the fresh analysis
+node dist/src/cli/nabcor.js resolution inspect \
+  --artifacts-root /ops/store --workspace ws-demo --brand-ref brand-demo \
+  --decision-ref frd-0001 --evidence <...>/evidence-frd-0001.json --receipts-root /ops/receipts
+node dist/src/cli/nabcor.js truth inspect \
+  --artifacts-root /ops/store --workspace ws-demo --brand-ref brand-demo --analysis-ref ta-0001
+```
+
+The CLI performs no natural-language extraction, selects no winner
+automatically, enables no provider, releases no quarantine, publishes
+nothing, and cannot satisfy an independent-review gate. EXP-0001 remains
+unexecuted.
 
 ## Source-of-truth hierarchy
 

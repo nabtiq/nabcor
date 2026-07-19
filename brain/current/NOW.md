@@ -6,8 +6,9 @@
 
 ## Current phase
 
-Phase 1B.4 — authenticated fact-resolution application (DEC-0016) on top
-of the Phase 1B.3B real Product Owner key enrollment (DEC-0015), the
+Phase 1B.5 — safe operator CLI (DEC-0017) on top of the Phase 1B.4
+authenticated fact-resolution application (DEC-0016), the Phase 1B.3B
+real Product Owner key enrollment (DEC-0015), the
 Phase 1B.3A authenticated human-gate foundation (DEC-0014), the Phase
 1B.2.2 store-authoritative claim snapshots (DEC-0013), the Phase 1B.2.1
 resolution-safe claim lifecycle (DEC-0012), the Phase 1B.2 deterministic
@@ -18,22 +19,17 @@ complete.
 
 ## Current objective
 
-Deliver Phase 1B.4: close the deterministic contradiction-resolution loop
-(DEC-0016). A deterministic preparation boundary derives an immutable
-`fact-resolution-decision` artifact — the complete requested action, with
-exact winner/loser partition and digest-pinned analysis/snapshot/profile/
-participant state — from store references only; the Product Owner signs
-that exact artifact under `fact-resolution-approval`; and the application
-service verifies and consumes the approval once, creates deterministic
-`contradicted` successor revisions for every losing claim, rolls the
-namespace forward to a fresh snapshot and analysis, and persists an
-immutable `fact-resolution-application` record. Application is idempotent
-and crash-recoverable (deterministic identities, receipt-sourced
-timestamps, byte-exact resume) under a documented single-host/
-single-writer boundary. Contracts move 1.7.1 → 1.8.0. The four DEC-0008
-independent-review gates stay frozen. Model-backed work stays prohibited
-by the zero-provider policy (DEC-0009) — a policy boundary, not an open
-question.
+Deliver Phase 1B.5: make the deterministic truth and authenticated
+fact-resolution loop usable by a human operator through one thin, safe
+CLI (`node dist/src/cli/nabcor.js`) that orchestrates the canonical
+services without duplicating or weakening them (DEC-0017). Read-only
+commands and dry runs mutate nothing; every mutation requires explicit
+roots/namespace/references plus a digest-bound confirmation; losers are
+always re-derived; no `nabcor` command reads a private key (signing stays
+in the separate personally-invoked `sign-approval` CLI); application
+accepts public approval evidence only. No contract changes; no provider,
+model, network, publishing, quarantine, or independent-review capability;
+DEC-0009 unchanged.
 
 ## Ratified decisions
 
@@ -112,6 +108,13 @@ question.
   winner or any stored claim, rolls forward to a fresh snapshot and
   analysis, and is idempotent and crash-recoverable from the immutable
   receipt under a single-host/single-writer boundary; contracts 1.8.0.
+- DEC-0017 — safe operator CLI: one thin orchestration boundary
+  (`nabcor`) over the canonical services with zero duplicated domain
+  logic; read-only/dry-run commands mutate nothing; mutations require
+  explicit roots, namespace, references, and digest-bound confirmation
+  (operator-error guard, never authentication); losers always
+  re-derived; no private-key surface; application accepts public
+  evidence only; stable exit codes; no operator-receipt contract.
 
 ## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006 and Phase 1A.2 / DEC-0007)
 
@@ -329,6 +332,45 @@ question.
   recovery (retry at every write boundary, byte-exact resume, conflict
   refusal, idempotent completed replay).
 
+## Implemented (Phase 1B.5, DEC-0017)
+
+- Safe operator CLI (`src/cli/nabcor.ts`): `status` (policy, provider,
+  authority, gate, and phase state — public metadata only, never key
+  bytes), `truth snapshot`/`truth analyze`/`truth inspect`,
+  `resolution prepare`/`resolution apply`/`resolution inspect`, `help`.
+  A thin orchestration boundary over the canonical services; zero
+  duplicated truth/lineage/signing/verification/resolution logic.
+- Safety model: explicit `--artifacts-root` and namespace on every store
+  command (no environment or hidden defaults); `--dry-run` and all
+  read-only commands provably mutate nothing; every mutation requires a
+  `--confirm-digest` bound to the exact reviewed state (namespace
+  claim-set digest for snapshot/analyze, analysis content digest for
+  prepare, decision content digest for apply) — an operator-error guard,
+  never authentication; stable documented exit codes (0/2/3/4/5/6/7/8/9);
+  typed failures without stack traces; `--json` stable objects without
+  ANSI, claim/source content, or private material; credential-shaped
+  redaction on every output path.
+- Authentication separation: `resolution prepare` prints the exact
+  sign-approval command template with a private-key PLACEHOLDER; no
+  `nabcor` command has a private-key option or reads key material;
+  `resolution apply` verifies and consumes public evidence through the
+  existing trusted boundary and the crash-recoverable application
+  service (idempotent retry and completed-replay semantics surfaced
+  unchanged); `resolution inspect` classifies evidence state from
+  receipts and stored records only — unsigned metadata never reads as
+  authorization.
+- No operator-receipt contract (documented in DEC-0017): canonical
+  artifacts already carry the complete digest-bound audit surface, and a
+  second receipt concept adjacent to approval receipts invites
+  authorization confusion. Contracts remain at 1.8.0 unchanged.
+- CLI test suite plus a full subprocess end-to-end synthetic workflow
+  with an ephemeral key (never the real key): exit codes, JSON/human
+  output, dry-run zero-mutation proofs, confirmation mismatches,
+  cross-namespace and traversal refusals, prose-stays-uninterpreted,
+  rejected/expired/wrong-target/unenrolled evidence, interrupted-apply
+  resume, idempotent replay, fake-metadata non-authority, and
+  zero-private-material output scans.
+
 ## Blocked / not implemented
 
 - Provider adapters, real model calls, provider-backed extraction, and
@@ -352,7 +394,8 @@ question.
 
 1. Propose the next phase (proposal only): a provider-enablement decision
    meeting DEC-0009's requirements, or the first model-backed extraction
-   design gated on it — nothing begins without a ratified decision.
+   design gated on it — nothing begins without a ratified decision. The
+   operator CLI (DEC-0017) closed the last purely offline usability gap.
 2. Rotate the enrolled key by a new reviewed registry revision + decision
    before its 2027-07-19 expiry (or immediately on suspected compromise
    or private-key loss — RISK-KEY-01).
@@ -360,12 +403,11 @@ question.
 
 ## Definition of done for the current objective
 
-Phase 1B.4 merged with validation green; NOW, ROADMAP, RISKS,
-OPEN_QUESTIONS, and the decision index consistent with DEC-0008..DEC-0016;
-the fact-resolution preparation/signature/application/recovery suites
-green alongside the enrollment and adversarial human-gate suites; the
-real-key proof-of-possession smoke test performed by the Product Owner on
-synthetic data outside the repository; no private material anywhere in
-the repository; no claim anywhere of released quarantine, unfrozen
-independent-review gates, semantic detection, or applied REAL-client
-resolution; EXP-0001 still unexecuted and empty.
+Phase 1B.5 merged with validation green; NOW, ROADMAP, RISKS, and the
+decision index consistent with DEC-0008..DEC-0017; the CLI suites (unit,
+safety, leakage, and the synthetic subprocess end-to-end workflow with an
+ephemeral key) green alongside every pre-existing suite; no contract
+change; no private material anywhere in the repository; no claim
+anywhere of released quarantine, unfrozen independent-review gates,
+semantic detection, or applied REAL-client resolution; EXP-0001 still
+unexecuted and empty.

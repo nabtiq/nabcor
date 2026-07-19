@@ -98,6 +98,12 @@ limitations: >
   conflicts remain invisible upstream. The winner is not upgraded to
   verified — verification has its own provenance rules. Approvals are
   single-use: every application needs a fresh signed decision.
+operator_surface: >
+  The safe operator CLI (DEC-0017, src/cli/nabcor.ts) is the supported
+  human entry point: truth analyze/inspect, resolution
+  prepare/apply/inspect. It is a thin orchestration boundary — mutations
+  require digest-bound confirmation, losers stay service-derived, and
+  signing remains the separate personally-invoked sign-approval CLI.
 evaluation_method: >
   Deterministic runtime suites (test/fact-resolution-*.test.ts):
   preparation partition/fingerprint/staleness/fork/tamper cases, signature

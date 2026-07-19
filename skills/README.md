@@ -21,7 +21,10 @@ speculative specs):
   structured-truth analysis (Phase 1B.2, DEC-0011).
 - `resolve-fact-contradiction.skill.yaml` — Tier-0 authenticated
   fact-resolution decision preparation and crash-recoverable application
-  (Phase 1B.4, DEC-0016).
+  (Phase 1B.4, DEC-0016). Since Phase 1B.5 (DEC-0017) the whole loop is
+  operable through the safe operator CLI (`node dist/src/cli/nabcor.js`),
+  a thin orchestration boundary that adds no capability and no authority
+  beyond these services.
 
 Their model-assisted extensions (catalog Tiers 1–2) remain unimplemented and
 **prohibited by the ratified zero-provider policy** (DEC-0009; Q-001 and

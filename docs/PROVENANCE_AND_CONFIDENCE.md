@@ -159,7 +159,10 @@ crash-recoverable (deterministic identities, receipt-sourced timestamps,
 byte-exact resume) under a single-host/single-writer boundary. A
 schema-valid decision or approval artifact remains non-evidence that a
 human acted — only verified, consumed evidence over the exact decision
-authorizes anything.
+authorizes anything. Since Phase 1B.5 (DEC-0017) the loop is operable
+end-to-end through the safe operator CLI (`nabcor`), a thin orchestration
+boundary that re-derives everything from the store and adds no authority
+surface of its own.
 Publication-critical facts (names, contact, domains) with open contradictions
 **block** publication surfaces (G4/G5).
 

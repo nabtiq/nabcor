@@ -84,6 +84,13 @@ successor revisions (winner and predecessors never mutated), and rolls
 the namespace forward to a fresh snapshot and analysis in which the
 resolved contradiction is closed — idempotent retries, byte-exact
 resume, fail-closed conflicts, single-host/single-writer boundary.
+The Phase 1B.5 increment (DEC-0017) made that loop operable by a human:
+one thin, safe operator CLI (`nabcor`) orchestrates status, snapshot,
+analysis, inspection, decision preparation, public-evidence application,
+and completion inspection over the canonical services — read-only and
+dry-run commands mutate nothing, every mutation is digest-confirmed,
+losers are always re-derived, signing stays in the separate
+personally-invoked CLI, and no contract changed.
 This is deterministic
 infrastructure only —
 not Phase 1 completion: no provider-backed or natural-language extraction
