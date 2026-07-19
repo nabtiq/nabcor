@@ -73,6 +73,28 @@ export class FileBudgetLedger {
     this.#ceilings = ceilings;
   }
 
+  /**
+   * Construct a ledger whose ceilings are DERIVED from the signed provider
+   * policy, so production wiring can never pass ceilings that diverge from the
+   * ratified candidate. Accepts the four USD ceilings as integer cents.
+   */
+  static forPolicy(
+    root: string,
+    policy: {
+      maxUsdPerRequestCents: number;
+      maxUsdPerRunCents: number;
+      maxUsdPerDayCents: number;
+      maxUsdPerMonthCents: number;
+    }
+  ): FileBudgetLedger {
+    return new FileBudgetLedger(root, {
+      perRequestCents: policy.maxUsdPerRequestCents,
+      perRunCents: policy.maxUsdPerRunCents,
+      perDayCents: policy.maxUsdPerDayCents,
+      perMonthCents: policy.maxUsdPerMonthCents,
+    });
+  }
+
   #entriesDir(): string {
     return join(this.#root, "entries");
   }
@@ -97,16 +119,20 @@ export class FileBudgetLedger {
     }
   }
 
-  #loadEntries(): LedgerEntry[] {
+  /**
+   * All entries, each tagged `corrupt` when the file could not be parsed. A
+   * corrupt entry is charged against EVERY scope (run/day/month) unconditionally
+   * — its true attribution is unknowable, so it must never release budget from
+   * any ceiling (the conservative direction; matches the stated invariant).
+   */
+  #loadEntries(): (LedgerEntry & { corrupt?: boolean })[] {
     if (!existsSync(this.#entriesDir())) return [];
-    const out: LedgerEntry[] = [];
+    const out: (LedgerEntry & { corrupt?: boolean })[] = [];
     for (const file of readdirSync(this.#entriesDir())) {
       if (!file.endsWith(".json")) continue;
       try {
         out.push(JSON.parse(readFileSync(join(this.#entriesDir(), file), "utf8")) as LedgerEntry);
       } catch {
-        // An unreadable entry cannot be un-charged: treat it as a full
-        // per-request reservation so corruption never releases budget.
         out.push({
           reservation_id: file.replace(/\.json$/, ""),
           run_id: "unknown",
@@ -115,6 +141,7 @@ export class FileBudgetLedger {
           reserved_cents: this.#ceilings.perRequestCents,
           day: "unknown",
           month: "unknown",
+          corrupt: true,
         });
       }
     }
@@ -130,9 +157,11 @@ export class FileBudgetLedger {
     let monthSpent = 0;
     for (const entry of this.#loadEntries()) {
       const charged = this.#chargedCents(entry);
-      if (entry.run_id === runId) runSpent += charged;
-      if (entry.day === day) daySpent += charged;
-      if (entry.month === month) monthSpent += charged;
+      // A corrupt entry counts against every scope so corruption never
+      // releases budget from any ceiling.
+      if (entry.corrupt || entry.run_id === runId) runSpent += charged;
+      if (entry.corrupt || entry.day === day) daySpent += charged;
+      if (entry.corrupt || entry.month === month) monthSpent += charged;
     }
     return {
       runCents: Math.max(this.#ceilings.perRunCents - runSpent, 0),
@@ -226,20 +255,28 @@ export class FileBudgetLedger {
       };
       const path = join(this.#entriesDir(), `${reservationId}.json`);
       if (existsSync(path)) {
-        // Recovery: an identical prior reservation for the same attempt is
-        // reused (idempotent); different content is a conflict.
-        try {
-          const prior = JSON.parse(readFileSync(path, "utf8")) as LedgerEntry;
-          if (JSON.stringify(prior) === JSON.stringify(entry)) {
-            return { ok: true, value: { reservationId, remaining: this.remaining(scope.runId, nowIso) } };
+        // A prior reservation with this exact (run, request, attempt) identity
+        // already exists. Reuse is legitimate ONLY as crash recovery — a
+        // reserve that persisted its entry but crashed before settling. Once a
+        // settlement exists the attempt COMPLETED, so a fresh reserve with the
+        // same identity is a replay/double-spend attempt, not recovery: refuse
+        // it as a conflict rather than handing back a zero-cost reused
+        // reservation (which would let a second real call spend uncounted).
+        const settled = existsSync(join(this.#settlementsDir(), `${reservationId}.json`));
+        if (!settled) {
+          try {
+            const prior = JSON.parse(readFileSync(path, "utf8")) as LedgerEntry;
+            if (JSON.stringify(prior) === JSON.stringify(entry)) {
+              return { ok: true, value: { reservationId, remaining: this.remaining(scope.runId, nowIso) } };
+            }
+          } catch {
+            // fall through to conflict
           }
-        } catch {
-          // fall through to conflict
         }
         return {
           ok: false,
           kind: "budget-ledger-conflict",
-          message: `a different reservation already exists for run '${scope.runId}' request '${scope.requestId}' attempt ${scope.attempt}`,
+          message: `a reservation already exists for run '${scope.runId}' request '${scope.requestId}' attempt ${scope.attempt}${settled ? " and is already settled; reusing a completed reservation is refused" : " with different content"}`,
         };
       }
       const tmp = `${path}.tmp-${randomUUID()}`;

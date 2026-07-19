@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Evidence-aware AI Creative Operating System — deterministic truth kernel (Phase 1A), offline provider-neutral gateway kernel (Phase 1B.1), and deterministic structured-truth analysis (Phase 1B.2). Zero providers, zero model calls (DEC-0009).",
+  "description": "Evidence-aware AI Creative Operating System — deterministic truth kernel (Phase 1A), provider-neutral gateway kernel (Phase 1B.1), deterministic structured-truth analysis (Phase 1B.2), authenticated human gates (Phase 1B.3-1B.5), and the configured-but-live-disabled Anthropic provider implementation (Phase 1C.1, DEC-0018/DEC-0019). One provider configured, live invocation disabled; zero model calls, zero spend.",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"

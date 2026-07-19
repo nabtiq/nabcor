@@ -316,8 +316,9 @@ function cmdStatus(args: ParsedArgs): void {
       smoke_call_completed: operationalState["smoke_call_completed"],
       exp_0001_executed: operationalState["exp_0001_executed"],
     },
-    provider_state:
-      "Anthropic implementation configured (DEC-0018 Option A / DEC-0019); live invocation DISABLED pending secret provisioning and a separately authenticated smoke-call approval — no credential exists in NABCor, no provider call or spend has occurred, synthetic data only, EXP-0001 unexecuted",
+    // Derived from the committed operational-state document so this line can
+    // never drift from the machine-enforced state (RISK-LIVE-01).
+    provider_state: `Anthropic implementation configured (${String(operationalState["decision_ref"])}); state ${String(operationalState["operational_state"])} — live invocation ${operationalState["live_invocation_enabled"] === true ? "ENABLED" : "DISABLED"}, credential ${operationalState["credential_provisioned"] === true ? "provisioned" : "not provisioned (no credential exists in NABCor)"}, console cap ${operationalState["console_spend_cap_configured"] === true ? "configured" : "not configured by this repository"}, smoke call ${operationalState["smoke_call_completed"] === true ? "completed" : "not completed"}, EXP-0001 ${operationalState["exp_0001_executed"] === true ? "executed" : "unexecuted"}; synthetic data only, no provider call or spend has occurred`,
     human_gate_policy: {
       policy_id: String(policy["policy_id"]),
       policy_version: policy["policy_version"],

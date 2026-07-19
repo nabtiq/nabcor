@@ -33,8 +33,9 @@ const fail = (msg) => {
 };
 const readJson = (rel) => JSON.parse(readFileSync(join(root, rel), "utf8"));
 
-// Canonical JSON — mirrored from src/kernel/canonical-json.ts (the two must
-// change together).
+// Canonical JSON — mirrored from src/kernel/canonical-json.ts and
+// contracts/validate.mjs (all three must change together; a divergence here
+// would silently weaken the signature/digest chain check).
 const canonicalJson = (v) =>
   Array.isArray(v)
     ? `[${v.map(canonicalJson).join(",")}]`
@@ -156,6 +157,10 @@ if (evidence && receipt) {
     }
   }
 
+  // The evidence's own expires_at is deliberately NOT re-checked here: the
+  // committed receipt proves the approval was already verified and consumed
+  // exactly once (single-use), so its post-consumption validity is settled
+  // regardless of the original TTL.
   // ---- 4. Consumption receipt (replay protection, consumed exactly once) ----
   const receiptScope = {
     brand_ref: payload.brand_ref,

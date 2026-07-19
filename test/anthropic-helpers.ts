@@ -26,9 +26,9 @@ import { contractsDir, registry, tempDir, validAssumption } from "./helpers.js";
 
 export const TEST_CLOCK = "2026-07-19T12:00:00Z";
 
-/** The committed CONFIGURED_BUT_LIVE_DISABLED policy trio. */
+/** The committed CONFIGURED_BUT_LIVE_DISABLED policy trio (clock inside the signed window). */
 export function committedProviderPolicy(): ProviderPolicy {
-  const loaded = loadProviderPolicy(contractsDir, registry());
+  const loaded = loadProviderPolicy(contractsDir, registry(), () => TEST_CLOCK);
   if (!loaded.ok) throw new Error(`test setup: committed provider policy must load: ${JSON.stringify(loaded)}`);
   return loaded.value;
 }

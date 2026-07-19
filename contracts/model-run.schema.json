@@ -255,7 +255,8 @@
         "string",
         "null"
       ],
-      "description": "provider-reported request identifier (request-id header) where available; never a NABCor artifact ID"
+      "pattern": "^[A-Za-z0-9_.-]{1,128}$",
+      "description": "provider-reported request identifier (request-id header) where available, bounded to a safe shape so an untrusted header can never inject arbitrary content into a record; never a NABCor artifact ID"
     },
     "requested_model": {
       "type": [

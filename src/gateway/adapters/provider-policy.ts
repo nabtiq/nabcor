@@ -58,9 +58,16 @@ function loadJson(path: string, label: string): Result<unknown> {
 /**
  * Load and cross-verify the committed provider-policy trio from the contracts
  * directory. Returns a typed failure (never a partial policy) on any invalid
- * document or broken digest binding.
+ * document, broken digest binding, or a candidate outside its signed validity
+ * window (the window is load-bearing — the schema pins it to Haiku 4.5's
+ * retirement floor, and running past it requires a re-ratified candidate).
+ * The clock is injected so the window check is deterministic under test.
  */
-export function loadProviderPolicy(contractsDir: string, registry: ContractRegistry): Result<ProviderPolicy> {
+export function loadProviderPolicy(
+  contractsDir: string,
+  registry: ContractRegistry,
+  clock: () => string = () => new Date().toISOString()
+): Result<ProviderPolicy> {
   const candidateRaw = loadJson(join(contractsDir, "provider-policy-candidate.active.json"), "provider-policy candidate");
   if (!candidateRaw.ok) return candidateRaw as Result<ProviderPolicy>;
   const gatewayRaw = loadJson(join(contractsDir, "gateway-policy.active.json"), "active gateway policy");
@@ -87,6 +94,28 @@ export function loadProviderPolicy(contractsDir: string, registry: ContractRegis
     return err({
       kind: "provider-policy-invalid",
       message: `provider operational state failed contract validation: ${describeFailure(operationalState.error)}`,
+    });
+  }
+
+  // The candidate's signed validity window is enforced fail-closed: a
+  // candidate that has not yet begun, or has expired, cannot back a live call
+  // even though its digest binding still verifies.
+  const nowMs = Date.parse(clock());
+  if (Number.isNaN(nowMs)) {
+    return err({ kind: "provider-policy-invalid", message: "injected clock returned an unparseable date-time" });
+  }
+  const validFromMs = Date.parse(String(candidate.value["valid_from"]));
+  const validUntilMs = Date.parse(String(candidate.value["valid_until"]));
+  if (nowMs < validFromMs) {
+    return err({
+      kind: "provider-policy-invalid",
+      message: `the signed provider-policy candidate is not yet valid (valid_from ${String(candidate.value["valid_from"])})`,
+    });
+  }
+  if (nowMs >= validUntilMs) {
+    return err({
+      kind: "provider-policy-invalid",
+      message: `the signed provider-policy candidate expired at ${String(candidate.value["valid_until"])}; a re-ratified candidate is required before any further provider work`,
     });
   }
 

@@ -59,14 +59,33 @@ test("CI/default configuration cannot instantiate a live call: the live gate fai
     outputSchemaFor: () => ({ type: "object" }),
     validateOutput: (contract, artifact) => registry().validate(contract, artifact),
   });
-  const result = await adapter.invoke(invocation());
+  const ledger = new FileBudgetLedger(tempDir("live-disabled-ledger-check"), {
+    perRequestCents: 100,
+    perRunCents: 2500,
+    perDayCents: 4000,
+    perMonthCents: 6000,
+  });
+  const adapter2 = new AnthropicAdapter({
+    policy: committedProviderPolicy(),
+    transport: new MockTransport([successResponse()]),
+    secretResolver: okSecret("sk-ant-synthetic-live-disabled-proof-2"),
+    ledger,
+    liveAuthorization: noLiveCallAuthorization,
+    clock: () => TEST_CLOCK,
+    sleep: () => Promise.resolve(),
+    scenarioPrompts: new Map([["assumption-basic", "synthetic prompt"]]),
+    outputSchemaFor: () => ({ type: "object" }),
+    validateOutput: (contract, artifact) => registry().validate(contract, artifact),
+  });
+  const result = await adapter2.invoke(invocation());
   assert.equal(result.outcome.ok, false);
   if (!result.outcome.ok) assert.equal(result.outcome.error.kind, "live-invocation-disabled");
-  assert.equal(adapter.secretResolutionCount, 0, "no secret lookup behind the disabled live gate");
-  assert.equal(transport.requests.length, 0, "no transport behind the disabled live gate");
-  // The budget ledger was never touched either.
-  const remaining = adapter; // counters above are the proof; ledger untouched by construction
-  assert.ok(remaining);
+  assert.equal(adapter2.secretResolutionCount, 0, "no secret lookup behind the disabled live gate");
+  // The budget ledger was never touched: every scope remains at its full ceiling.
+  const remaining = ledger.remaining("run_anth_0001", TEST_CLOCK);
+  assert.equal(remaining.runCents, 2500);
+  assert.equal(remaining.dayCents, 4000);
+  assert.equal(remaining.monthCents, 6000);
 });
 
 test("a tampered committed candidate breaks the policy binding and the adapter refuses to construct a policy", () => {
@@ -148,6 +167,20 @@ test("the non-macOS keychain resolver path fails closed without spawning anythin
     assert.match(result.message, /failing closed|only supported on macOS/);
     assert.ok(!/sk-ant|BEGIN/.test(result.message));
   }
+});
+
+test("the signed candidate validity window is enforced fail-closed: a clock past valid_until refuses to load the policy", () => {
+  const expired = loadProviderPolicy(contractsDir, registry(), () => "2026-10-16T00:00:00Z");
+  assert.equal(expired.ok, false, "an expired candidate must not load");
+  if (!expired.ok) {
+    assert.equal(expired.error.kind, "provider-policy-invalid");
+    assert.match(expired.error.message, /expired/);
+  }
+  const notYet = loadProviderPolicy(contractsDir, registry(), () => "2026-07-18T00:00:00Z");
+  assert.equal(notYet.ok, false, "a not-yet-valid candidate must not load");
+  if (!notYet.ok) assert.match(notYet.error.message, /not yet valid/);
+  const inWindow = loadProviderPolicy(contractsDir, registry(), () => "2026-08-01T00:00:00Z");
+  assert.ok(inWindow.ok, "a clock inside the window loads normally");
 });
 
 test("EXP-0001 remains defined but unexecuted (empty result proof)", () => {

@@ -282,8 +282,9 @@ export class AnthropicAdapter implements GatewayAdapter {
       if (!transported.ok) {
         // Timeout / network / oversized: usage unknowable — settle at the
         // full reservation (conservative; threat T16) and classify.
-        const settled = this.#deps.ledger.settle(reservationId, "unknown");
-        if (settled.ok) chargedCentsTotal += settled.value.chargedCents;
+        const charge = this.#chargeOrAbort(reservationId, "unknown", accounting, chargedCentsTotal, invocation.runId);
+        if ("abort" in charge) return charge.abort;
+        chargedCentsTotal += charge.chargedCents;
         const kind =
           transported.failure.kind === "transport-timeout"
             ? ("provider-timeout" as const)
@@ -301,7 +302,7 @@ export class AnthropicAdapter implements GatewayAdapter {
       }
 
       const response = transported.response;
-      accounting.providerRequestId = response.requestId ?? accounting.providerRequestId;
+      accounting.providerRequestId = safeRequestId(response.requestId) ?? accounting.providerRequestId;
 
       if (response.status !== 200) {
         // Clean HTTP error envelope: the provider generated nothing; the
@@ -328,8 +329,9 @@ export class AnthropicAdapter implements GatewayAdapter {
         // The response arrived but is untrustworthy; usage may exist —
         // settle conservatively at the full reservation, never retry a
         // protocol violation.
-        const settled = this.#deps.ledger.settle(reservationId, "unknown");
-        if (settled.ok) chargedCentsTotal += settled.value.chargedCents;
+        const charge = this.#chargeOrAbort(reservationId, "unknown", accounting, chargedCentsTotal, invocation.runId);
+        if ("abort" in charge) return charge.abort;
+        chargedCentsTotal += charge.chargedCents;
         lastFailure = err(parsed.error);
         this.#finishActual(accounting, chargedCentsTotal, invocation.runId);
         return { outcome: lastFailure, accounting };
@@ -343,8 +345,9 @@ export class AnthropicAdapter implements GatewayAdapter {
         parsed.value.inputTokens > invocation.maxInputTokens ||
         parsed.value.outputTokens > invocation.maxOutputTokens
       ) {
-        const settledOver = this.#deps.ledger.settle(reservationId, "unknown");
-        if (settledOver.ok) chargedCentsTotal += settledOver.value.chargedCents;
+        const chargeOver = this.#chargeOrAbort(reservationId, "unknown", accounting, chargedCentsTotal, invocation.runId);
+        if ("abort" in chargeOver) return chargeOver.abort;
+        chargedCentsTotal += chargeOver.chargedCents;
         lastFailure = err({
           kind: "provider-protocol-violation",
           message: `provider-reported usage (${parsed.value.inputTokens} in / ${parsed.value.outputTokens} out) exceeds the declared request maxima (${invocation.maxInputTokens} in / ${invocation.maxOutputTokens} out)`,
@@ -360,8 +363,9 @@ export class AnthropicAdapter implements GatewayAdapter {
       accounting.cachedTokens = 0;
       accounting.cacheCreationTokens = 0;
       const actualCents = costCents(model, parsed.value.inputTokens, parsed.value.outputTokens);
-      const settled = this.#deps.ledger.settle(reservationId, actualCents);
-      if (settled.ok) chargedCentsTotal += settled.value.chargedCents;
+      const charge = this.#chargeOrAbort(reservationId, actualCents, accounting, chargedCentsTotal, invocation.runId);
+      if ("abort" in charge) return charge.abort;
+      chargedCentsTotal += charge.chargedCents;
 
       const validated = this.#deps.validateOutput(invocation.outputContract, parsed.value.artifact);
       if (!validated.ok) {
@@ -391,6 +395,31 @@ export class AnthropicAdapter implements GatewayAdapter {
     return { outcome: err(failure), accounting };
   }
 
+  /**
+   * Settle a charging reservation. A settlement CONFLICT (an existing
+   * settlement with different content — an accounting-integrity violation
+   * that the single-writer boundary should make unreachable) is never
+   * swallowed: it fails the invocation closed rather than silently
+   * under-counting spend.
+   */
+  #chargeOrAbort(
+    reservationId: string,
+    actual: number | "unknown",
+    accounting: ProviderAccounting,
+    chargedBefore: number,
+    runId: string
+  ): { chargedCents: number } | { abort: AdapterResult } {
+    const settled = this.#deps.ledger.settle(reservationId, actual);
+    if (settled.ok) return { chargedCents: settled.value.chargedCents };
+    this.#finishActual(accounting, chargedBefore, runId);
+    return {
+      abort: {
+        outcome: err({ kind: "budget-ledger-conflict", message: settled.message }),
+        accounting,
+      },
+    };
+  }
+
   #applyRemaining(accounting: ProviderAccounting, runId: string): void {
     const remaining = this.#deps.ledger.remaining(runId, this.#deps.clock());
     accounting.budgetRemainingUsd = {
@@ -408,11 +437,32 @@ export class AnthropicAdapter implements GatewayAdapter {
 
 const round2 = (v: number): number => Math.round(v * 100) / 100;
 
+// Untrusted provider-response fields (the request-id header, and body
+// fragments like model/stop_reason/block-type) must never flow unbounded into
+// a typed failure message or a persisted record. A well-formed provider
+// request id matches this shape; anything else is dropped to null so it can
+// neither be recorded nor interpolated. Every other response-derived string is
+// truncated to a short bound before it appears in a message.
+const REQUEST_ID_SHAPE = /^[A-Za-z0-9_.-]{1,128}$/;
+const MAX_ECHOED_FIELD_CHARS = 80;
+
+/** A sanitized provider request id, or null when absent/malformed. */
+export function safeRequestId(requestId: string | null): string | null {
+  return requestId !== null && REQUEST_ID_SHAPE.test(requestId) ? requestId : null;
+}
+
+/** Bound and single-line an untrusted response-derived string for safe interpolation. */
+function clampField(value: unknown): string {
+  const s = typeof value === "string" ? value : String(value);
+  const oneLine = s.replace(/[\r\n\t]+/g, " ");
+  return oneLine.length > MAX_ECHOED_FIELD_CHARS ? `${oneLine.slice(0, MAX_ECHOED_FIELD_CHARS)}...` : oneLine;
+}
+
 function classifyHttpFailure(response: TransportResponse): {
   retryable: boolean;
   failure: Parameters<typeof err>[0];
 } {
-  const requestId = response.requestId ?? "unreported";
+  const requestId = safeRequestId(response.requestId) ?? "unreported";
   if (response.status === 429) {
     return {
       retryable: true,
@@ -458,7 +508,7 @@ function parseSuccessResponse(
   if (!response.contentType.startsWith("application/json")) {
     return err({
       kind: "provider-protocol-violation",
-      message: `response content-type '${response.contentType}' is not application/json`,
+      message: `response content-type '${clampField(response.contentType)}' is not application/json`,
     });
   }
   let parsed: unknown;
@@ -481,13 +531,13 @@ function parseSuccessResponse(
   if (returnedModel !== requestedModel) {
     return err({
       kind: "provider-protocol-violation",
-      message: `response model '${String(returnedModel)}' does not equal the requested allowed model '${requestedModel}' (threat T09); the response is rejected`,
+      message: `response model '${clampField(returnedModel)}' does not equal the requested allowed model '${requestedModel}' (threat T09); the response is rejected`,
     });
   }
   if (message["stop_reason"] !== "end_turn") {
     return err({
       kind: "provider-protocol-violation",
-      message: `response stop_reason '${String(message["stop_reason"])}' is not end_turn; truncated or refused output is rejected, never partially persisted`,
+      message: `response stop_reason '${clampField(message["stop_reason"])}' is not end_turn; truncated or refused output is rejected, never partially persisted`,
     });
   }
   const usage = message["usage"];
@@ -528,7 +578,7 @@ function parseSuccessResponse(
   if (block["type"] !== "text" || typeof block["text"] !== "string") {
     return err({
       kind: "provider-protocol-violation",
-      message: `unexpected content block type '${String(block["type"])}'; only the structured-output text block is accepted`,
+      message: `unexpected content block type '${clampField(block["type"])}'; only the structured-output text block is accepted`,
     });
   }
   let artifact: unknown;

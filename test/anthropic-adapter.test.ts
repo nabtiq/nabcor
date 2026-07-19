@@ -5,8 +5,12 @@
 // test-constructed mock policies that the committed documents provably
 // cannot produce (see anthropic-live-disabled.test.ts).
 import assert from "node:assert/strict";
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
-import { costCents } from "../src/gateway/adapters/anthropic.js";
+import { costCents, safeRequestId } from "../src/gateway/adapters/anthropic.js";
+import { FileBudgetLedger } from "../src/gateway/adapters/budget-ledger.js";
+import { tempDir } from "./helpers.js";
 import {
   MockTransport,
   adapterEnv,
@@ -496,6 +500,110 @@ test("secret resolution failure messages carry no length, prefix, suffix, hash, 
 // ---------------------------------------------------------------------------
 // Escalation: zero, structurally
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Budget-integrity regressions (adversarial review R1/R2)
+// ---------------------------------------------------------------------------
+
+test("R1: a settled reservation cannot be reused — a same-identity replay is a conflict, never a free reservation", () => {
+  const ledger = new FileBudgetLedger(tempDir("ledger-r1"), {
+    perRequestCents: 100,
+    perRunCents: 2500,
+    perDayCents: 4000,
+    perMonthCents: 6000,
+  });
+  const scope = { runId: "run_r1", requestId: "req_r1", attempt: 1, maxCents: 50 };
+  const first = ledger.reserve(scope, "2026-07-19T12:00:00Z");
+  assert.ok(first.ok);
+  if (!first.ok) return;
+  // Crash recovery BEFORE settlement: an identical re-reserve is idempotent.
+  const recovered = ledger.reserve(scope, "2026-07-19T12:00:00Z");
+  assert.ok(recovered.ok, "an unsettled identical reservation is legitimate crash recovery");
+  // Now settle it — the attempt has completed.
+  assert.ok(ledger.settle(first.value.reservationId, 40).ok);
+  // A fresh reserve with the SAME identity is now a double-spend attempt.
+  const replay = ledger.reserve(scope, "2026-07-19T12:00:00Z");
+  assert.equal(replay.ok, false, "reusing a completed (settled) reservation must be refused");
+  if (!replay.ok) assert.equal(replay.kind, "budget-ledger-conflict");
+  // The completed charge stays counted: remaining reflects the 40-cent spend.
+  assert.equal(ledger.remaining("run_r1", "2026-07-19T12:00:00Z").runCents, 2500 - 40);
+});
+
+test("R2: a corrupt ledger entry is charged against every scope — corruption never releases budget", () => {
+  const root = tempDir("ledger-r2");
+  const ledger = new FileBudgetLedger(root, {
+    perRequestCents: 100,
+    perRunCents: 2500,
+    perDayCents: 4000,
+    perMonthCents: 6000,
+  });
+  // A reservation exists for one run/day/month.
+  const reserved = ledger.reserve(
+    { runId: "run_r2", requestId: "req_r2", attempt: 1, maxCents: 60 },
+    "2026-07-19T12:00:00Z"
+  );
+  assert.ok(reserved.ok);
+  if (!reserved.ok) return;
+  assert.ok(ledger.settle(reserved.value.reservationId, 60).ok);
+  // Corrupt the ENTRY file (the settlement survives with charged=60). Before
+  // the fix, an "unknown"-attributed entry matched no scope and released the
+  // charge; now it counts against every scope.
+  writeFileSync(join(root, "entries", `${reserved.value.reservationId}.json`), "{ corrupt not json", "utf8");
+  const remaining = ledger.remaining("run_other", "2026-09-15T12:00:00Z");
+  assert.equal(remaining.runCents, 2500 - 60, "the real settled charge hits the run ceiling of an unrelated run");
+  assert.equal(remaining.dayCents, 4000 - 60, "and the day ceiling of an unrelated day");
+  assert.equal(remaining.monthCents, 6000 - 60, "and the month ceiling of an unrelated month");
+
+  // With BOTH the entry and its settlement unreadable, the conservative
+  // per-request fallback (the full ceiling) is charged against every scope.
+  writeFileSync(join(root, "settlements", `${reserved.value.reservationId}.json`), "{ also corrupt", "utf8");
+  const fallback = ledger.remaining("run_other", "2026-09-15T12:00:00Z");
+  assert.equal(fallback.runCents, 2500 - 100, "unknowable charge falls back to the full per-request ceiling");
+  assert.equal(fallback.monthCents, 6000 - 100);
+});
+
+test("R1: a settlement conflict aborts the invocation instead of silently under-counting spend", async () => {
+  const { mkdirSync, writeFileSync: write } = await import("node:fs");
+  const root = tempDir("ledger-r1-abort");
+  const ledger = new FileBudgetLedger(root, {
+    perRequestCents: 100,
+    perRunCents: 2500,
+    perDayCents: 4000,
+    perMonthCents: 6000,
+  });
+  // Pre-seed a CONFLICTING settlement for the exact reservation id the adapter
+  // will compute (res + sha256(runId\nrequestId\nattempt)[:32]), so its
+  // success-path settle collides with different content.
+  const reservationId = "resa2cc4cc0c54e5f569eedea31e1cff144";
+  mkdirSync(join(root, "settlements"), { recursive: true });
+  write(
+    join(root, "settlements", `${reservationId}.json`),
+    JSON.stringify({ reservation_id: reservationId, charged_cents: 99, usage_known: true }, null, 2) + "\n",
+    "utf8"
+  );
+  const env = adapterEnv({ ledger, responses: [successResponse()] });
+  const result = await env.adapter.invoke(invocation());
+  assert.equal(result.outcome.ok, false, "a settlement conflict must fail the invocation closed");
+  if (!result.outcome.ok) assert.equal(result.outcome.error.kind, "budget-ledger-conflict");
+});
+
+test("R4: malformed or oversized provider request ids are sanitized to null before recording or interpolation", () => {
+  assert.equal(safeRequestId("req_synthetic_0001"), "req_synthetic_0001");
+  assert.equal(safeRequestId(null), null);
+  assert.equal(safeRequestId("has spaces"), null);
+  assert.equal(safeRequestId("has\nnewline"), null);
+  assert.equal(safeRequestId("x".repeat(200)), null, "an oversized request id is rejected");
+});
+
+test("R4: an injected request-id header never reaches the accounting record", async () => {
+  const env = adapterEnv({ responses: [successResponse({ requestId: "x".repeat(300) + "\nINJECTED" })] });
+  const result = await env.adapter.invoke(invocation());
+  assert.ok(result.outcome.ok, JSON.stringify(result.outcome));
+  assert.ok(result.accounting);
+  if (result.accounting) {
+    assert.equal(result.accounting.providerRequestId, null, "a malformed request id is dropped, never recorded");
+  }
+});
 
 test("the retry after a transient failure re-sends the identical model — no automatic escalation exists", async () => {
   const env = adapterEnv({ responses: [httpError(529), successResponse()] });

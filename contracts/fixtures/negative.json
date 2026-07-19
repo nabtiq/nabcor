@@ -712,72 +712,146 @@
     }
   },
   {
-    "id": "N26-gateway-policy-real-provider-adapter",
+    "id": "N26-gateway-policy-fake-only-adapters",
     "schema": "gateway-policy.schema.json",
     "expect_fail_at": "schema",
-    "description": "a policy allowlisting a real-provider adapter is schema-invalid: DEC-0009 pins allowed_adapters to exactly ['fake']; enabling a provider requires a superseding decision and a new contract version",
+    "description": "a fake-only adapter allowlist is schema-invalid under the DEC-0018 migration: allowed_adapters is pinned to exactly ['anthropic','fake'] (the legacy DEC-0009 zero-provider shape no longer validates)",
     "data": {
       "schema_version": "1.9.0",
-      "policy_id": "gateway-policy-n26",
-      "decision_ref": "DEC-0009",
-      "allowed_adapters": [
-        "anthropic"
-      ],
-      "allowed_data_classes": [
-        "synthetic"
-      ],
-      "external_network_allowed": false,
-      "real_client_data_allowed": false,
-      "api_credentials_permitted": false,
-      "max_external_spend_usd_per_run": 0,
-      "max_external_spend_usd_per_month": 0,
-      "required_execution_tier": 0
-    }
-  },
-  {
-    "id": "N27-gateway-policy-nonzero-spend",
-    "schema": "gateway-policy.schema.json",
-    "expect_fail_at": "schema",
-    "description": "a policy with a nonzero per-run spend ceiling is schema-invalid (DEC-0009: zero external/model spend)",
-    "data": {
-      "schema_version": "1.9.0",
-      "policy_id": "gateway-policy-n27",
-      "decision_ref": "DEC-0009",
+      "policy_id": "gateway-policy-0002",
+      "decision_ref": "DEC-0018",
       "allowed_adapters": [
         "fake"
       ],
       "allowed_data_classes": [
         "synthetic"
       ],
-      "external_network_allowed": false,
-      "real_client_data_allowed": false,
-      "api_credentials_permitted": false,
-      "max_external_spend_usd_per_run": 1,
-      "max_external_spend_usd_per_month": 0,
-      "required_execution_tier": 0
-    }
-  },
-  {
-    "id": "N28-gateway-policy-network-enabled",
-    "schema": "gateway-policy.schema.json",
-    "expect_fail_at": "schema",
-    "description": "a policy enabling external network access is schema-invalid (DEC-0009: the gateway has no network path)",
-    "data": {
-      "schema_version": "1.9.0",
-      "policy_id": "gateway-policy-n28",
-      "decision_ref": "DEC-0009",
-      "allowed_adapters": [
-        "fake"
+      "allowed_execution_tiers": [
+        0,
+        1,
+        2
       ],
-      "allowed_data_classes": [
-        "synthetic"
+      "model_allowlist": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2
+        }
       ],
       "external_network_allowed": true,
       "real_client_data_allowed": false,
-      "api_credentials_permitted": false,
-      "max_external_spend_usd_per_run": 0,
-      "max_external_spend_usd_per_month": 0,
-      "required_execution_tier": 0
+      "api_credentials_permitted": true,
+      "max_external_spend_usd_per_request": 1,
+      "max_external_spend_usd_per_run": 25,
+      "max_external_spend_usd_per_day": 40,
+      "max_external_spend_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "provider_enablement_evidence_ref": "apev-0185ba8e5a86202d",
+      "provider_enablement_receipt_ref": "rdabf718125365b1cc3c1da4a53532bc0ddcaaefc10359a3a65019fa097a95dff"
+    }
+  },
+  {
+    "id": "N27-gateway-policy-raised-run-ceiling",
+    "schema": "gateway-policy.schema.json",
+    "expect_fail_at": "schema",
+    "description": "a per-run USD ceiling other than the ratified 25 is schema-invalid (const-pinned by DEC-0018)",
+    "data": {
+      "schema_version": "1.9.0",
+      "policy_id": "gateway-policy-0002",
+      "decision_ref": "DEC-0018",
+      "allowed_adapters": [
+        "anthropic",
+        "fake"
+      ],
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "allowed_execution_tiers": [
+        0,
+        1,
+        2
+      ],
+      "model_allowlist": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2
+        }
+      ],
+      "external_network_allowed": true,
+      "real_client_data_allowed": false,
+      "api_credentials_permitted": true,
+      "max_external_spend_usd_per_request": 1,
+      "max_external_spend_usd_per_run": 100,
+      "max_external_spend_usd_per_day": 40,
+      "max_external_spend_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "provider_enablement_evidence_ref": "apev-0185ba8e5a86202d",
+      "provider_enablement_receipt_ref": "rdabf718125365b1cc3c1da4a53532bc0ddcaaefc10359a3a65019fa097a95dff"
+    }
+  },
+  {
+    "id": "N28-gateway-policy-network-disabled",
+    "schema": "gateway-policy.schema.json",
+    "expect_fail_at": "schema",
+    "description": "disabling the adapter network capability is now schema-invalid: external_network_allowed is const true (network capability is confined to the adapter transport; the DEC-0009 const false is superseded)",
+    "data": {
+      "schema_version": "1.9.0",
+      "policy_id": "gateway-policy-0002",
+      "decision_ref": "DEC-0018",
+      "allowed_adapters": [
+        "anthropic",
+        "fake"
+      ],
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "allowed_execution_tiers": [
+        0,
+        1,
+        2
+      ],
+      "model_allowlist": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2
+        }
+      ],
+      "external_network_allowed": false,
+      "real_client_data_allowed": false,
+      "api_credentials_permitted": true,
+      "max_external_spend_usd_per_request": 1,
+      "max_external_spend_usd_per_run": 25,
+      "max_external_spend_usd_per_day": 40,
+      "max_external_spend_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "provider_enablement_evidence_ref": "apev-0185ba8e5a86202d",
+      "provider_enablement_receipt_ref": "rdabf718125365b1cc3c1da4a53532bc0ddcaaefc10359a3a65019fa097a95dff"
     }
   },
   {
@@ -5106,6 +5180,315 @@
       "output_contract": "assumption",
       "data_classification": "synthetic",
       "retention_status": "ZERO_DATA_RETENTION",
+      "live_authorization_ref": null
+    }
+  },
+  {
+    "id": "N130-ppc-memory-enabled",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "enabling provider-side memory/state is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-neg",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": true,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:0748577c59fdd5de89a036795b5f46cf9d0fcd7d18d357500daadaabcbdf0a77"
+    }
+  },
+  {
+    "id": "N131-ppc-files-enabled",
+    "schema": "provider-policy-candidate.schema.json",
+    "expect_fail_at": "schema",
+    "description": "enabling the Files API is schema-invalid",
+    "data": {
+      "schema_version": "1.9.0",
+      "artifact_id": "ppc-fixture-neg",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-19T19:30:28Z",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "allowed_models": [
+        {
+          "model_id": "claude-haiku-4-5-20251001",
+          "tier": 1,
+          "input_usd_per_mtok": 1,
+          "output_usd_per_mtok": 5
+        },
+        {
+          "model_id": "claude-sonnet-5",
+          "tier": 2,
+          "input_usd_per_mtok": 3,
+          "output_usd_per_mtok": 15
+        }
+      ],
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "allowed_data_classes": [
+        "synthetic"
+      ],
+      "retention_posture": "STANDARD_UP_TO_30_DAYS",
+      "retention_statement": "Standard Anthropic API retention accepted for synthetic data only: inputs and outputs are automatically deleted from the provider backend within 30 days, with documented exceptions (trust-and-safety flags up to 2 years, legal holds). No ZDR agreement exists; no request-state storage is used; this is a retention posture, not a zero-retention claim.",
+      "training_posture": "NO_TRAINING_ON_API_CONTENT_BY_DEFAULT",
+      "max_usd_per_request": 1,
+      "max_usd_per_run": 25,
+      "max_usd_per_day": 40,
+      "max_usd_per_month": 60,
+      "max_input_tokens_per_request": 200000,
+      "max_output_tokens_per_request": 32000,
+      "max_attempts_per_request": 2,
+      "max_escalations": 0,
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": true,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "live_invocation_enabled": false,
+      "exp_0001_execution_enabled": false,
+      "keychain_service": "nabcor-anthropic-api-key",
+      "keychain_account": "nabcor",
+      "valid_from": "2026-07-19T00:00:00Z",
+      "valid_until": "2026-10-15T00:00:00Z",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019"
+      ],
+      "candidate_digest": "sha256:ded77427044e4026ff59cf05139000517ab38dedf172e22a5dadcbd10b7c3153"
+    }
+  },
+  {
+    "id": "N132-pos-console-cap-configured",
+    "schema": "provider-operational-state.schema.json",
+    "expect_fail_at": "schema",
+    "description": "claiming the console spend cap is configured is schema-invalid in this contract version",
+    "data": {
+      "schema_version": "1.9.0",
+      "state_id": "pos-anthropic-0001",
+      "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "live_invocation_enabled": false,
+      "credential_provisioned": false,
+      "console_spend_cap_configured": true,
+      "smoke_call_completed": false,
+      "exp_0001_executed": false,
+      "live_call_authorization_ref": null,
+      "decision_ref": "DEC-0019",
+      "updated_at": "2026-07-19T19:30:28Z"
+    }
+  },
+  {
+    "id": "N133-pos-smoke-call-completed",
+    "schema": "provider-operational-state.schema.json",
+    "expect_fail_at": "schema",
+    "description": "claiming the smoke call completed is schema-invalid in this contract version",
+    "data": {
+      "schema_version": "1.9.0",
+      "state_id": "pos-anthropic-0001",
+      "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "live_invocation_enabled": false,
+      "credential_provisioned": false,
+      "console_spend_cap_configured": false,
+      "smoke_call_completed": true,
+      "exp_0001_executed": false,
+      "live_call_authorization_ref": null,
+      "decision_ref": "DEC-0019",
+      "updated_at": "2026-07-19T19:30:28Z"
+    }
+  },
+  {
+    "id": "N134-pos-exp0001-executed",
+    "schema": "provider-operational-state.schema.json",
+    "expect_fail_at": "schema",
+    "description": "claiming EXP-0001 executed is schema-invalid in this contract version",
+    "data": {
+      "schema_version": "1.9.0",
+      "state_id": "pos-anthropic-0001",
+      "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "live_invocation_enabled": false,
+      "credential_provisioned": false,
+      "console_spend_cap_configured": false,
+      "smoke_call_completed": false,
+      "exp_0001_executed": true,
+      "live_call_authorization_ref": null,
+      "decision_ref": "DEC-0019",
+      "updated_at": "2026-07-19T19:30:28Z"
+    }
+  },
+  {
+    "id": "N135-pos-live-auth-ref-nonnull",
+    "schema": "provider-operational-state.schema.json",
+    "expect_fail_at": "schema",
+    "description": "a non-null live-call authorization reference is schema-invalid in this contract version",
+    "data": {
+      "schema_version": "1.9.0",
+      "state_id": "pos-anthropic-0001",
+      "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "live_invocation_enabled": false,
+      "credential_provisioned": false,
+      "console_spend_cap_configured": false,
+      "smoke_call_completed": false,
+      "exp_0001_executed": false,
+      "live_call_authorization_ref": "rdeadbeef",
+      "decision_ref": "DEC-0019",
+      "updated_at": "2026-07-19T19:30:28Z"
+    }
+  },
+  {
+    "id": "N136-pos-unknown-field",
+    "schema": "provider-operational-state.schema.json",
+    "expect_fail_at": "schema",
+    "description": "an unknown field on the operational state is rejected (strict closure)",
+    "data": {
+      "schema_version": "1.9.0",
+      "state_id": "pos-anthropic-0001",
+      "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "live_invocation_enabled": false,
+      "credential_provisioned": false,
+      "console_spend_cap_configured": false,
+      "smoke_call_completed": false,
+      "exp_0001_executed": false,
+      "live_call_authorization_ref": null,
+      "decision_ref": "DEC-0019",
+      "updated_at": "2026-07-19T19:30:28Z",
+      "override": "x"
+    }
+  },
+  {
+    "id": "N137-model-run-oversized-request-id",
+    "schema": "model-run.schema.json",
+    "expect_fail_at": "schema",
+    "description": "a provider_request_id with unbounded/injected content is schema-invalid (R4 hardening: an untrusted header cannot inject content into a record)",
+    "data": {
+      "schema_version": "1.9.0",
+      "run_id": "run_prov_0001",
+      "session_id": "sess_p",
+      "project_id": "proj_p",
+      "workspace_id": "ws_test",
+      "brand_id": "brand_test",
+      "workflow_id": "wf_p",
+      "skill_id": "gateway-anthropic-test",
+      "attribution_confidence": "confirmed",
+      "artifact_ids_in": [
+        "src_p_0001"
+      ],
+      "artifact_ids_out": [
+        "asm_p_0001"
+      ],
+      "context_manifest_ref": "cm_run_prov_0001",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5-20251001",
+      "model_tier": 1,
+      "prompt_version": null,
+      "started_at": "2026-07-19T12:00:00Z",
+      "latency_ms": null,
+      "input_tokens": 1200,
+      "output_tokens": 800,
+      "cached_tokens": 0,
+      "cache_creation_tokens": 0,
+      "reasoning_tokens": null,
+      "cost": {
+        "mode": "api",
+        "usd": 0.01,
+        "allocation": "measured"
+      },
+      "tool_calls": 1,
+      "retry_count": 0,
+      "failure_type": null,
+      "media": null,
+      "human_review": "none",
+      "accepted": null,
+      "rejected_reason": null,
+      "superseded_by": null,
+      "provider_request_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\ninjected line",
+      "requested_model": "claude-haiku-4-5-20251001",
+      "returned_model": "claude-haiku-4-5-20251001",
+      "attempt": 1,
+      "reserved_usd": 0.36,
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "budget_remaining_usd": {
+        "run": 24.99,
+        "day": 39.99,
+        "month": 59.99
+      },
+      "output_contract": "assumption",
+      "data_classification": "synthetic",
+      "retention_status": "STANDARD_UP_TO_30_DAYS",
       "live_authorization_ref": null
     }
   }

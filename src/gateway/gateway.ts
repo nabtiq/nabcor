@@ -394,9 +394,12 @@ export class OfflineGateway implements ModelGateway {
       outcome = adapterResult.outcome;
       accounting = adapterResult.accounting;
     } catch (e) {
+      // Only the exception's class name crosses the boundary — a raw message
+      // from an injected dependency could carry arbitrary or sensitive content.
+      const errorName = e instanceof Error ? e.name : "unknown";
       return this.#reject(id, startedAt, manifestId, 1, "tool_error", {
         kind: "adapter-failure",
-        message: `adapter '${id.adapterId}' threw instead of returning a typed result: ${String(e)}`,
+        message: `adapter '${id.adapterId}' threw instead of returning a typed result (${errorName})`,
       });
     }
     if (!outcome.ok) {
