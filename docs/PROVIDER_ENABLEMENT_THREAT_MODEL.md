@@ -176,10 +176,13 @@ leaving the boundary, unbounded spend); they gate enablement absolutely.
   control; a later breach or legal process exposes it.
 - **Preventive:** synthetic-only data class (nothing sensitive exists to
   retain in this phase); the ratified option records the provider's
-  documented retention posture with sources; zero/configurable retention
-  is pursued per the packet matrix before any real-data decision;
-  provider-side storage features (files, stored conversations, provider
-  memory) stay unused and disabled.
+  documented retention posture with sources — for Anthropic the
+  conservative operative default is automatic backend deletion within
+  30 days with listed exceptions (packet row 17, ledger C4);
+  zero/configurable retention is pursued per the packet matrix before
+  any real-data decision (taxonomy in T07a); provider-side storage
+  features (files, stored conversations, provider memory) stay unused
+  and disabled.
 - **Detective:** periodic re-verification of the provider's published
   retention policy (packet sources carry access dates; re-check at each
   phase boundary — RISK register entry).
@@ -191,6 +194,49 @@ leaving the boundary, unbounded spend); they gate enablement absolutely.
   requires contract-grade assurances (REQUIRES CONTRACT items in the
   packet).
 - **Owner:** PO.
+
+### T07a — Retention-taxonomy confusion and conditional-ZDR claims (HIGH) *(added by Phase 1C.0.1)*
+- **Asset:** the truthfulness of every retention claim NABCor makes;
+  the future real-client-data decision's evidence base.
+- **Attack/failure:** conflating distinct retention layers — DEFAULT
+  PROVIDER RETENTION (backend deletion windows), REQUEST-STATE STORAGE
+  (stored responses/interactions/conversations), ABUSE-MONITORING LOGS,
+  ZDR-APPROVED LOGGING BEHAVIOR (e.g., Gemini's sanitize-before-write),
+  FILES-API STORAGE, EXPLICIT CACHE STORAGE, IMPLICIT IN-MEMORY
+  CACHING, GROUNDING RETENTION, and PROVIDER-SIDE CONVERSATION STATE —
+  and then claiming a stronger posture than is configured (the exact
+  error class Phase 1C.0.1 corrected: "no ZDR offering" was false for
+  Gemini; "stateless" was readable as zero retention for Anthropic).
+- **Preventive:** the packet's corrected matrix rows 17/18/24 and the
+  correction ledger define the taxonomy; the packet validator fails on
+  the prohibited conflations (stateless=zero-retention,
+  no-training=no-retention, store=false=ZDR, Gemini-has-no-ZDR); every
+  future policy candidate must name which layer each retention claim
+  addresses.
+- **Detective:** validator sentinels in CI; re-verification rule at
+  ratification (RISK-DECAY-01).
+- **Response:** ledger entry + correction phase (this document is the
+  template).
+- **Residual:** CI cannot verify provider truth from the internet —
+  external facts require human re-verification.
+- **Gate — Gemini-specific, binding IF Gemini is ever the selected
+  provider:** the implementation must enforce, with tests, ALL of:
+  `store=false` on every request; no Google Search grounding; no Maps
+  grounding; no Files API use; no explicit `cached_content`; no Live
+  API session resumption; no tools; AND must report the literal status
+  `ZDR_NOT_VERIFIED` in status/run surfaces until a project ZDR
+  approval is EVIDENCED (approval artifact recorded) — configuring
+  `store=false` alone must never surface as a ZDR claim. Two of these
+  restrictions are DELIBERATE NABCor supersets of the official
+  conditions, not Google requirements: the official page names only
+  Search/Maps grounding (not all tools), and permits Files API use if
+  objects are manually deleted — NABCor prohibits tools and Files
+  outright as the simpler fail-safe posture.
+  **Anthropic-specific:** all surfaces describe normal API retention
+  conservatively as "up to 30 days (automatic backend deletion)" unless
+  a ZDR agreement is evidenced; "no request-state storage" is never
+  rendered as a retention claim.
+- **Owner:** impl builds the gates; PO owns any ZDR claim.
 
 ### T08 — Cache privacy (MEDIUM)
 - **Asset:** prompt-cache contents at the provider.

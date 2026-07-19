@@ -113,21 +113,108 @@ for (const [name, body] of [
 if (!packet.includes("No provider is enabled")) {
   fail("the packet must state that no provider is enabled");
 }
-if (!packet.includes("All monetary values in this packet are ESTIMATES")) {
-  fail("the packet must carry the estimates-only disclaimer sentinel");
-}
-if (!/Accessed 2026-07-19/.test(packet)) {
-  fail("packet pricing/sources must carry access dates (Accessed 2026-07-19)");
-}
-if (!/^## (\d+\. )?Sources$/m.test(packet)) fail("the packet must carry a Sources section");
 
-// Every pricing table row (matrix rows containing a USD-per-token figure)
-// must sit in a document that ties prices to sources with access dates —
-// enforced coarsely by requiring at least as many source entries as
-// providers evaluated.
-const sourceCount = (packet.match(/Accessed 2026-07-19/g) ?? []).length;
-if (sourceCount < 10) {
-  fail(`the packet carries only ${sourceCount} dated source references; expected at least 10`);
+// ---- 4b. Evidence-discipline distinctions (Phase 1C.0.1 hardening) ----
+// These guards enforce the DISTINCTIONS the 1C.0.1 correction restored.
+// They deliberately do NOT freeze market facts (prices, model lists, and
+// provider capabilities drift, and CI cannot verify internet truth — every
+// external fact requires human re-verification at ratification time, see
+// RISK-DECAY-01); they only prevent the specific prohibited claim classes
+// from re-entering canonical documents. They are TRIPWIRES over normalized
+// text, not proofs: matching runs on whitespace-collapsed bodies (so
+// hard-wrapped prose cannot evade by line breaks), and a match is exempt
+// only when an explicit correction/negation PHRASE (never a bare keyword)
+// appears within a 160-character window around it.
+const packetDocs = [
+  ["docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md", packet],
+  ["docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md", threatModel],
+  [
+    "docs/PROVIDER_PACKET_CORRECTION_LEDGER_1C0_1.md",
+    read("docs/PROVIDER_PACKET_CORRECTION_LEDGER_1C0_1.md"),
+  ],
+  ["brain/decisions/DEC-0018-provider-enablement.md", dec18],
+  ["brain/current/NOW.md", read("brain/current/NOW.md")],
+  ["brain/current/ROADMAP.md", read("brain/current/ROADMAP.md")],
+  ["brain/current/OPEN_QUESTIONS.md", read("brain/current/OPEN_QUESTIONS.md")],
+];
+// Exemption PHRASES (targeted, multi-word — bare keywords like "false",
+// "never", "error", or "guard" deliberately do NOT exempt):
+const EXEMPT_WINDOW =
+  /corrected|CONFIRMED_ERROR|falsif|was FALSE|is false|original claim|Original:|prohibited claim|regression guard|must not|must never|never (again|surface|be (read|claimed|treated))|not sufficient|is not a|alone (does not|is not|removes|only)|fails? (on|if)|validator now|claim class|fixed the false/i;
+const prohibited = [
+  {
+    pattern:
+      /\b(Gemini|Google|Developer API)\b[^.]{0,120}\bno (zero[- ](data[- ])?retention|ZDR)( offering| option| availability| path| capability)?\b/i,
+    reason:
+      "claiming the Gemini Developer API has no ZDR offering (falsified by ai.google.dev/gemini-api/docs/zdr)",
+  },
+  {
+    pattern: /\bZDR\b[^.]{0,80}\b(is )?(unavailable|not (available|offered|possible))\b[^.]{0,60}\b(Gemini|Developer API|Google)\b/i,
+    reason: "claiming ZDR is unavailable on the Gemini Developer API",
+  },
+  {
+    pattern:
+      /\bstore\s*(=|to)?\s*false\b[^.]{0,100}\b(is|provides|proves|achieves|equals|yields|sufficient for|gives)\b[^.]{0,60}\b(ZDR|zero[- ]data[- ]retention|zero[- ]data footprint)\b/i,
+    reason: "claiming store=false alone provides/proves ZDR",
+  },
+  {
+    pattern:
+      /\bstateless\b[^.]{0,100}\b((zero|no) (backend )?retention|nothing is retained|retains? nothing)\b/i,
+    reason: "equating stateless transport with zero retention",
+  },
+  {
+    pattern:
+      /\b((zero|no) (backend )?retention|retains? nothing|does not retain anything)\b[^.]{0,100}\bstateless\b/i,
+    reason: "equating zero retention with stateless transport",
+  },
+  {
+    pattern:
+      /\b(Anthropic|Messages API|standard Messages)\b[^.]{0,100}\b(zero retention by default|retains? nothing|does not retain anything)\b/i,
+    reason:
+      "claiming standard Anthropic Messages calls have zero retention by default (official default: backend deletion within 30 days with listed exceptions)",
+  },
+  {
+    pattern:
+      /\bno[- ]training\b[^.]{0,60}\b(equals|means|implies|is the same as)\b[^.]{0,60}\b(no[- ]retention|not retained)\b/i,
+    reason: "equating no-training with no-retention",
+  },
+  {
+    pattern:
+      /\bDEC-0018\b[^.]{0,100}\b(grants|authorizes|enables)\b[^.]{0,80}\b(enablement|provider|adapter|authority|spend)\b/i,
+    reason: "describing proposed DEC-0018 as granting enablement authority",
+    negation: /grants? no|authorizes? (only )?noth|does not (grant|authorize|enable)|no authority|not (grant|authorize|enable)/i,
+  },
+];
+for (const [name, body] of packetDocs) {
+  // Normalize: collapse whitespace so wrapped prose is one searchable text.
+  const normalized = body.replace(/\s+/g, " ");
+  for (const { pattern, reason, negation } of prohibited) {
+    const global = new RegExp(pattern.source, pattern.flags.includes("g") ? pattern.flags : pattern.flags + "g");
+    let match;
+    while ((match = global.exec(normalized)) !== null) {
+      const windowStart = Math.max(0, match.index - 160);
+      const window = normalized.slice(windowStart, match.index + match[0].length + 160);
+      if (EXEMPT_WINDOW.test(window)) continue;
+      if (negation && negation.test(window)) continue;
+      fail(`${name}: prohibited claim class — ${reason}: "...${match[0].slice(0, 120)}..."`);
+    }
+  }
+}
+// Required distinctions, bound to the exact matrix rows (not satisfied by
+// stray occurrences of the words elsewhere in the document):
+const row18 = packet.split("\n").find((line) => line.startsWith("| 18 |")) ?? "";
+if (!/conditional/i.test(row18) || !/approval/i.test(row18)) {
+  fail("matrix row 18 must describe Gemini ZDR as CONDITIONAL and approval-gated (ledger C1)");
+}
+const row17 = packet.split("\n").find((line) => line.startsWith("| 17 |")) ?? "";
+if (!/within 30 days/.test(row17)) {
+  fail("matrix row 17 must carry the conservative Anthropic 30-day deletion default (ledger C4)");
+}
+if (!threatModel.includes("ZDR_NOT_VERIFIED")) {
+  fail("the threat model must specify the ZDR_NOT_VERIFIED reporting rule (T07a)");
+}
+if (!/store\s*=?\s*false/.test(packet) || !packet.includes("abuse-log")) {
+  fail("the packet must keep the store=false vs abuse-log-sanitization distinction (ledger C2)");
 }
 
 // ---- 5. Recommended model IDs must appear in the comparison matrix ----

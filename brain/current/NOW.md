@@ -6,7 +6,8 @@
 
 ## Current phase
 
-Phase 1C.0 — provider-enablement decision packet (DEC-0018, PROPOSED)
+Phase 1C.0.1 — evidence correction of the provider-enablement decision
+packet (DEC-0018 remains PROPOSED), on top of Phase 1C.0
 on top of the complete Phase 1B offline foundation: the Phase 1B.5 safe
 operator CLI (DEC-0017), the Phase 1B.4 authenticated fact-resolution
 application (DEC-0016), the Phase 1B.3B real Product Owner key
@@ -392,6 +393,22 @@ network path, or spend exists; EXP-0001 remains unexecuted. The Phase
   emergency-disable path E1.
 - brain/decisions/DEC-0018-provider-enablement.md: PROPOSED, grants no
   authority, approved_by null; Q-010 opened.
+- Phase 1C.0.1 correction (docs/PROVIDER_PACKET_CORRECTION_LEDGER_1C0_1.md):
+  the merged claim "Gemini Developer API: no zero-retention offering" was
+  FALSE — the official ZDR page (ai.google.dev/gemini-api/docs/zdr,
+  updated 2026-05-28) documents a conditional, project-approval-gated
+  ZDR with a self-serve restriction bundle; Anthropic retention is now
+  stated conservatively (automatic backend deletion within 30 days with
+  listed exceptions; "no request-state storage" is never a retention
+  claim). All three providers were re-verified live on 2026-07-19 and
+  the comparison RECOMPUTED via an explicit weighted model with
+  sensitivity analysis (packet §5b): recommendation unchanged (Option A,
+  Anthropic, 4.22 vs 3.92 vs 3.25) — except the cost-dominant and
+  lifecycle-dominant sensitivity cases, which flip to OpenAI and are
+  published, not hidden. The validator now
+  fails on the prohibited claim classes (Gemini-has-no-ZDR,
+  store=false-equals-ZDR, stateless-equals-zero-retention,
+  no-training-equals-no-retention).
 - scripts/validate-provider-packet.mjs (in `npm run validate` and CI):
   DEC-0018 must stay proposed/unapproved; the active gateway policy is
   sha256-pinned to its DEC-0009 bytes and must reference a ratified

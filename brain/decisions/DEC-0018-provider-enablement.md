@@ -123,3 +123,42 @@ Ratifying C changes nothing and leaves Phase 1 exit evidence blocked.
 
 supersedes: null
 superseded_by: null
+
+## Correction note (appended 2026-07-19, Phase 1C.0.1 — original text above is unchanged)
+
+Independent review after PR #15 found that the packet's claim "Gemini
+Developer API: no zero-retention offering" was FALSE: the official page
+https://ai.google.dev/gemini-api/docs/zdr (last updated 2026-05-28 UTC)
+documents a CONDITIONAL ZDR — project-approval-gated abuse-log
+sanitization plus a self-serve restriction bundle (`store=false`, no
+Search/Maps grounding, no retained Files, no explicit caching, no Live
+session resumption; implicit in-RAM caching explicitly ZDR-compatible).
+A second wording problem was corrected: Anthropic's "stateless-by-
+default" transport must not be read as zero backend retention — the
+conservative official default is automatic backend deletion within 30
+days with listed exceptions, and Anthropic ZDR requires a negotiated
+agreement. Where this record's text above says "stateless-by-default
+transport", read "no request-state storage (a state-semantics
+property); backend deletion within 30 days by default"; and the
+"Unresolved questions" bullet on retention-documentation
+reconciliation is RESOLVED conservatively by ledger C4 (the docs page
+defers to the commercial policy) rather than remaining UNKNOWN.
+
+The comparison was RECOMPUTED from re-verified evidence (all three
+providers re-fetched 2026-07-19) via an explicit weighted model with
+sensitivity analysis (packet §5b; full correction record in
+docs/PROVIDER_PACKET_CORRECTION_LEDGER_1C0_1.md). Outcome: the
+recommendation is UNCHANGED — Option A (Anthropic) leads the baseline
+(4.22 vs OpenAI 3.92 vs Google 3.25) and three of five sensitivity
+cases; the COST-dominant (OpenAI 3.95) and LIFECYCLE-dominant (OpenAI
+4.30) cases flip to OpenAI, both published explicitly — a Product
+Owner who weighs price or model-lifetime stability dominant should
+choose Option B, and the packet states plainly that the baseline
+margin rests on its uncertainty-penalty rule.
+Adjacent re-verification deltas: OpenAI's budget hard stop upgraded to
+INFERRED from official 429 wording (help-center confirmation still
+unreachable); OpenAI's Chat Completions `store` default and org
+ID-verification requirement downgraded to UNKNOWN; Google's corrected
+conditional ZDR is recorded as a material asset for the FUTURE
+real-client-data decision. This note changes no status: this record
+remains proposed, grants no authority, and Q-010 remains open.
