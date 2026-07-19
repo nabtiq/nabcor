@@ -6,12 +6,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { verifyAndConsumeApproval } from "../src/authority/verify-approval.js";
 import { applyFactResolution } from "../src/resolve/apply-resolution.js";
+import { contradictionFingerprint } from "../src/resolve/resolution-ids.js";
 import { ephemeralAuthority } from "./authority-helpers.js";
 import { BRAND, WS, registry } from "./helpers.js";
 import {
   DECISION_ID,
+  FACT_KEY,
   contentDigest,
   decisionEvidence,
+  factClaim,
   prepareDecision,
   resolutionScenario,
   tamperStoredArtifact,
@@ -229,6 +232,124 @@ test("a rejected verdict consumes the approval but mutates no claim", () => {
   const replayed = applyFactResolution(evidence, scenario.deps);
   expectFailure(replayed, "resolution-rejected");
   assert.equal(claimStateOf(scenario), before);
+});
+
+test("a signed decision recording an extra loser outside the real contradiction fails closed, consuming nothing", () => {
+  const scenario = resolutionScenario({
+    claims: [
+      factClaim("claim_r_win", "Alpha Brand"),
+      factClaim("claim_r_lose", "Beta Brand"),
+      factClaim("claim_r_d", "Unrelated Value", {
+        artifact_id: "claim_r_d",
+        fact_key: "identity.legal_name",
+      }),
+    ],
+  });
+  const prepared = prepareDecision(scenario);
+  assert.ok(prepared.ok);
+  // Hand-craft a contract-valid decision whose RECORDED contradiction
+  // injects the unrelated effective claim as a participant and loser, with
+  // a fingerprint recomputed over the fabricated refs so the semantic
+  // layer passes — only the analysis binding can catch it.
+  const forgedRefs = ["claim_r_d", "claim_r_lose", "claim_r_win"];
+  const forgedValues = ["Alpha Brand", "Beta Brand", "Unrelated Value"];
+  const dGot = scenario.store.get(WS, BRAND, "claim", "claim_r_d");
+  assert.ok(dGot.ok);
+  const loseGot = scenario.store.get(WS, BRAND, "claim", "claim_r_lose");
+  assert.ok(loseGot.ok);
+  const forged = {
+    ...prepared.value.decision,
+    artifact_id: "frd_r_forged_extra",
+    contradiction_fingerprint: contradictionFingerprint(WS, BRAND, FACT_KEY, forgedRefs, forgedValues),
+    contradiction: {
+      claim_refs: forgedRefs,
+      distinct_values: forgedValues,
+      description: "fabricated contradiction with an injected participant",
+      blocking_publication: true,
+    },
+    losing_claims: [
+      { claim_ref: "claim_r_d", content_digest: contentDigest(dGot.value) },
+      { claim_ref: "claim_r_lose", content_digest: contentDigest(loseGot.value) },
+    ],
+  };
+  const put = scenario.store.put(WS, BRAND, "fact-resolution-decision", forged);
+  assert.ok(put.ok, JSON.stringify(put));
+  const evidence = decisionEvidence(scenario, {
+    decision: forged,
+    decisionDigest: contentDigest(forged),
+  });
+  const applied = applyFactResolution(evidence, scenario.deps);
+  expectFailure(applied, "resolution-conflict", /injected or omitted participants/);
+  // Nothing was consumed and nothing was written: the injected claim has no
+  // successor, and the same nonce still verifies later.
+  const claims = scenario.store.list(WS, BRAND, "claim");
+  assert.ok(claims.ok);
+  assert.equal(claims.value.length, 3);
+});
+
+test("a signed decision omitting a real participant fails closed", () => {
+  const scenario = resolutionScenario({
+    claims: [
+      factClaim("claim_r_a", "Alpha Brand"),
+      factClaim("claim_r_b", "Alpha Brand"),
+      factClaim("claim_r_c", "Beta Brand"),
+    ],
+  });
+  const prepared = prepareDecision(scenario, { winningClaimRef: "claim_r_a" });
+  assert.ok(prepared.ok);
+  // The real contradiction covers all three eligible claims; forge one that
+  // silently drops claim_r_b (whose value agrees with the winner).
+  const forgedRefs = ["claim_r_a", "claim_r_c"];
+  const forgedValues = ["Alpha Brand", "Beta Brand"];
+  const cGot = scenario.store.get(WS, BRAND, "claim", "claim_r_c");
+  assert.ok(cGot.ok);
+  const forged = {
+    ...prepared.value.decision,
+    artifact_id: "frd_r_forged_omit",
+    contradiction_fingerprint: contradictionFingerprint(WS, BRAND, FACT_KEY, forgedRefs, forgedValues),
+    contradiction: {
+      claim_refs: forgedRefs,
+      distinct_values: forgedValues,
+      description: "fabricated contradiction omitting a real participant",
+      blocking_publication: true,
+    },
+    winning_claim_ref: "claim_r_a",
+    losing_claims: [{ claim_ref: "claim_r_c", content_digest: contentDigest(cGot.value) }],
+  };
+  const put = scenario.store.put(WS, BRAND, "fact-resolution-decision", forged);
+  assert.ok(put.ok, JSON.stringify(put));
+  const evidence = decisionEvidence(scenario, {
+    decision: forged,
+    decisionDigest: contentDigest(forged),
+  });
+  const applied = applyFactResolution(evidence, scenario.deps);
+  expectFailure(applied, "resolution-conflict", /injected or omitted participants/);
+});
+
+test("a completed replay requires a verifying signature, not just payload knowledge", () => {
+  const scenario = resolutionScenario();
+  const prepared = prepareDecision(scenario);
+  assert.ok(prepared.ok);
+  const evidence = decisionEvidence(scenario, prepared.value);
+  const applied = applyFactResolution(evidence, scenario.deps);
+  assert.ok(applied.ok, JSON.stringify(applied));
+  // Same payload (digest matches), corrupted signature: schema-valid but
+  // cryptographically dead — the replay path must refuse it.
+  const signature = (evidence as { signature: { signature_b64: string } }).signature;
+  const corrupted = {
+    ...evidence,
+    signature: {
+      algorithm: "ed25519",
+      signature_b64:
+        (signature.signature_b64.startsWith("A") ? "B" : "A") + signature.signature_b64.slice(1),
+    },
+  };
+  const replayed = applyFactResolution(corrupted, scenario.deps);
+  expectFailure(replayed, "resolution-conflict", /signature does not verify/);
+  // The genuine evidence still replays idempotently.
+  const genuine = applyFactResolution(evidence, scenario.deps);
+  assert.ok(genuine.ok);
+  assert.equal(genuine.value.replayed, true);
 });
 
 test("a consumed approval cannot be reused for a different decision", () => {

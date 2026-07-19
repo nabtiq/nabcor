@@ -115,9 +115,17 @@ contracts changed meaning for the authenticated fact-resolution application
   never persist a result. Recovery semantics: an already-consumed approval
   resumes ONLY the same operation — the immutable receipt must match the
   presented evidence's payload digest, key, policy/registry binding, gate,
-  verdict, namespace, and the recomputed decision digest, and every
-  existing derived artifact must match its expected deterministic content
-  digest exactly. Single-host/single-writer file atomicity only; no
+  verdict, namespace, and the recomputed decision digest; the presented
+  signature must verify against the enrolled key (this also holds for
+  completed replays — payload knowledge without a verifying signature
+  replays nothing); and every existing derived artifact must match its
+  expected deterministic content digest exactly. Application additionally
+  re-binds the decision's recorded contradiction to its digest-pinned
+  analysis by fingerprint in every mode (a signed decision recording
+  injected or omitted participants fails closed before consumption), and a
+  pre-write slot guard refuses to create any successor when a
+  non-participant claim has entered the resolved fact slot after signing.
+  Single-host/single-writer file atomicity only; no
   distributed-transaction claim is made.
 - `approval-evidence` and `approval-receipt` changed meaning minimally:
   the `target_artifact_type` enum gains `fact-resolution-decision` so a

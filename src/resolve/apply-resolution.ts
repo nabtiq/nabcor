@@ -55,8 +55,10 @@ import {
   afterAnalysisIdFor,
   afterSnapshotIdFor,
   applicationIdFor,
+  contradictionFingerprint,
   successorIdFor,
 } from "./resolution-ids.js";
+import { projectActiveClaims } from "../understand/project-active-claims.js";
 
 /** The application service uses exactly the verifier's dependency surface. */
 export type FactResolutionDeps = HumanGateVerifierDeps;
@@ -202,8 +204,24 @@ export function applyFactResolution(
   );
   const applicationId = applicationIdFor(view.digest, receiptId);
 
+  // 3b. The decision's RECORDED contradiction must be the pinned analysis's
+  //     contradiction. The contract's semantic layer proves the fingerprint
+  //     matches the recorded contradiction and that winner + losers
+  //     partition it exactly; this check binds that recorded contradiction
+  //     to the immutable analysis the decision pins, so a hand-crafted
+  //     signed decision cannot smuggle an extra loser in or omit a real
+  //     participant. The analysis artifact is immutable, so this holds in
+  //     fresh, recovery, and replay modes alike.
+  const bindingChecked = verifyContradictionBinding(deps, view);
+  if (!bindingChecked.ok) return bindingChecked;
+  const signatureB64 = String(
+    (validated.value["signature"] as Record<string, unknown>)["signature_b64"]
+  );
+
   // 4. Completed replay: the stored application result is returned as-is
-  //    once it provably belongs to this same evidence.
+  //    once it provably belongs to this same evidence — including a receipt
+  //    binding and signature re-verification, so unsigned knowledge of the
+  //    payload alone replays nothing.
   const completed = deps.artifactStore.get(workspace, brandRef, APPLICATION_TYPE, applicationId);
   if (completed.ok) {
     if (completed.value["payload_digest"] !== payloadDigest) {
@@ -212,6 +230,18 @@ export function applyFactResolution(
         message: `application '${applicationId}' exists but records a different signed payload; the presented evidence does not belong to this operation`,
       });
     }
+    const completedReceipt = deps.receiptStore.get(workspace, brandRef, receiptId);
+    if (!completedReceipt.ok) return completedReceipt;
+    const replayBound = verifyReceiptBinding(
+      deps,
+      completedReceipt.value,
+      payload,
+      payloadDigest,
+      signatureB64,
+      view,
+      evidenceId
+    );
+    if (!replayBound.ok) return replayBound;
     return ok({ application: completed.value, replayed: true });
   }
   if (completed.error.kind !== "artifact-not-found") return completed;
@@ -255,9 +285,6 @@ export function applyFactResolution(
     //     operation: the receipt must bind to this evidence, this decision,
     //     this namespace, and the active trust configuration.
     receipt = existingReceipt.value;
-    const signatureB64 = String(
-      (validated.value["signature"] as Record<string, unknown>)["signature_b64"]
-    );
     const bound = verifyReceiptBinding(
       deps,
       receipt,
@@ -312,6 +339,33 @@ export function applyFactResolution(
   const expectedSuccessors = new Map(
     view.losingClaims.map((l) => [l.claim_ref, successorIdFor(applicationId, l.claim_ref)])
   );
+
+  // 6a'. Slot-interference guard: every EFFECTIVE claim currently carrying
+  //      the resolved fact slot must be a signed participant (the winner or
+  //      a not-yet-superseded loser). A claim that entered the slot after
+  //      the decision was signed is not covered by the authorization —
+  //      failing here, BEFORE any successor write, keeps the partial state
+  //      empty instead of leaving contradicted losers without a completion
+  //      record. The winner itself is deliberately NOT required to still be
+  //      a lineage head: refusing a legitimately superseded winner would
+  //      permanently wedge a consumed approval, and the fresh analysis
+  //      records the true post-resolution state either way.
+  const projected = projectActiveClaims(
+    { workspace, brandRef, claims: captured.value.claims },
+    deps.contracts
+  );
+  if (!projected.ok) return projected;
+  const participants = new Set([view.winningClaimRef, ...expectedSuccessors.keys()]);
+  for (const effectiveRef of projected.value.effectiveClaimRefs) {
+    const claim = projected.value.claimById.get(effectiveRef)!;
+    if (claim["fact_key"] === view.factKey && !participants.has(effectiveRef)) {
+      return err({
+        kind: "resolution-conflict",
+        message: `claim '${effectiveRef}' supplies fact slot '${view.factKey}' but is not a participant of signed decision '${view.artifactId}'; the slot changed after signing — re-analyze, re-prepare, and re-sign`,
+      });
+    }
+  }
+
   for (const loser of view.losingClaims) {
     const stored = deps.artifactStore.get(workspace, brandRef, "claim", loser.claim_ref);
     if (!stored.ok) return stored;
@@ -448,6 +502,52 @@ export function applyFactResolution(
   const stored = deps.artifactStore.get(workspace, brandRef, APPLICATION_TYPE, applicationId);
   if (!stored.ok) return stored;
   return ok({ application: stored.value, replayed: false });
+}
+
+/**
+ * Bind the decision's recorded contradiction to the immutable analysis it
+ * pins: the fingerprint re-derived from the analysis's own contradiction for
+ * the decision's fact slot must equal the decision's fingerprint (which the
+ * contract's semantic layer proves matches the recorded contradiction, whose
+ * participants winner + losers partition exactly). A signed decision whose
+ * recorded participants differ from the real analysis contradiction — an
+ * injected extra loser or an omitted real participant — dies here in every
+ * mode, before any consumption or write.
+ */
+function verifyContradictionBinding(deps: FactResolutionDeps, view: DecisionView): Result<null> {
+  const analysis = deps.artifactStore.get(view.workspace, view.brandRef, "truth-analysis", view.analysisRef);
+  if (!analysis.ok) return analysis;
+  if (contentDigest(analysis.value) !== view.analysisDigest) {
+    return err({
+      kind: "resolution-conflict",
+      message: `truth analysis '${view.analysisRef}' does not match the digest decision '${view.artifactId}' pinned`,
+    });
+  }
+  const contradiction = ((analysis.value["open_contradictions"] ?? []) as {
+    fact_key: string;
+    claim_refs: string[];
+    distinct_values: (string | number | boolean)[];
+  }[]).find((c) => c.fact_key === view.factKey);
+  if (!contradiction) {
+    return err({
+      kind: "resolution-conflict",
+      message: `truth analysis '${view.analysisRef}' holds no open contradiction for fact slot '${view.factKey}'; the decision does not describe a contradiction of its pinned analysis`,
+    });
+  }
+  const derived = contradictionFingerprint(
+    view.workspace,
+    view.brandRef,
+    view.factKey,
+    contradiction.claim_refs,
+    contradiction.distinct_values
+  );
+  if (derived !== view.fingerprint) {
+    return err({
+      kind: "resolution-conflict",
+      message: `decision '${view.artifactId}' records a contradiction that is not the '${view.factKey}' contradiction of its pinned analysis '${view.analysisRef}' (recorded fingerprint ${view.fingerprint}, derived ${derived}); injected or omitted participants fail closed`,
+    });
+  }
+  return ok(null);
 }
 
 /**

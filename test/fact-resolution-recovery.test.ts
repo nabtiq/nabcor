@@ -239,8 +239,34 @@ test("a foreign successor superseding a losing claim is a rejected fork", () => 
   assert.equal(applied.ok, false);
   assert.match(
     (applied as { ok: false; error: { message: string } }).error.message,
-    /does not belong to this application|fork/
+    /does not belong to this application|fork|not a participant of signed decision/
   );
+});
+
+test("a claim entering the resolved slot after consumption fails closed BEFORE any successor is written", () => {
+  const op = operation();
+  consume(op);
+  // A concurrent writer supplies a new distinct value for the same slot in
+  // the window after consumption: the slot guard must refuse before writing
+  // any contradicted successor, leaving the partial state empty.
+  const intruder = factClaim("claim_r_intruder", "Gamma Brand", {
+    artifact_id: "claim_r_intruder",
+  });
+  const put = op.scenario.store.put(WS, BRAND, "claim", intruder);
+  assert.ok(put.ok);
+  const applied = applyFactResolution(op.evidence, op.scenario.deps);
+  assert.equal(applied.ok, false);
+  assert.match(
+    (applied as { ok: false; error: { message: string } }).error.message,
+    /not a participant of signed decision/
+  );
+  const successor = op.scenario.store.get(
+    WS,
+    BRAND,
+    "claim",
+    successorIdFor(op.applicationId, "claim_r_lose")
+  );
+  assert.equal(successor.ok, false, "no successor may be written under slot interference");
 });
 
 test("recovery refuses evidence whose receipt belongs to a different operation", () => {
