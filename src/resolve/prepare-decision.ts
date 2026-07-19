@@ -78,10 +78,21 @@ interface AnalysisContradiction {
   status: string;
 }
 
+export interface DecisionPreparationOptions {
+  /**
+   * When false, run every derivation and validation but persist nothing —
+   * the returned decision is a preview whose digest will differ from a
+   * later persisted decision only through its injected creation timestamp.
+   * Defaults to true (persist immutably).
+   */
+  persist?: boolean;
+}
+
 export function prepareFactResolutionDecision(
   input: DecisionPreparationInput,
   store: FileArtifactStore,
-  registry: ContractRegistry
+  registry: ContractRegistry,
+  options: DecisionPreparationOptions = {}
 ): Result<PreparedDecision> {
   // 0. Reference-only boundary: precomputed contradiction/loser/digest inputs
   //    are rejected at runtime, not merely absent from the type (DEC-0013
@@ -294,6 +305,9 @@ export function prepareFactResolutionDecision(
   };
   const validated = registry.validate("fact-resolution-decision", artifact);
   if (!validated.ok) return validated;
+  if (options.persist === false) {
+    return ok({ decision: validated.value, decisionDigest: contentDigest(validated.value) });
+  }
   const put = store.put(input.workspace, input.brandRef, "fact-resolution-decision", validated.value);
   if (!put.ok) return put;
 
