@@ -102,9 +102,11 @@ retry_rules: none — deterministic code either succeeds or returns a typed
 human_approval: none inside detection; contradiction resolution and
   inference confirmation are human gates downstream (INV-HUM-001(3)) —
   resolution produces a decision record, never an analyzer output.
-  Authoritative resolution (creating the losing claim's contradicted
-  revision) remains unimplemented pending the authenticated human-gate
-  mechanism (Q-009): a shape-valid decision or approval artifact is not
+  Authoritative resolution is implemented as the authenticated
+  fact-resolution loop (DEC-0016, resolve-fact-contradiction.skill.yaml):
+  a signed immutable fact-resolution-decision artifact, verified and
+  consumed once, deterministically creates the losing claims' contradicted
+  revisions. A shape-valid decision or approval artifact is still not
   evidence that a human acted (DEC-0012)
 token_budget: {output: 0, max_tool_calls: 0, max_iterations: 1}  # Tier 0: zero model tokens
 caching: not applicable (no model calls; deterministic output for identical input)

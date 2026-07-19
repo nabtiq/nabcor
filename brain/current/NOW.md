@@ -6,28 +6,34 @@
 
 ## Current phase
 
-Phase 1B.3B — real Product Owner Ed25519 key enrollment (DEC-0015) on top
-of the Phase 1B.3A authenticated human-gate foundation (DEC-0014), the
-Phase 1B.2.2 store-authoritative claim snapshots (DEC-0013), the Phase
-1B.2.1 resolution-safe claim lifecycle (DEC-0012), the Phase 1B.2
-deterministic structured-truth analysis, the Phase 1B.1 offline gateway
-kernel, and the Phase 1A truth kernel. The clean foundation baseline
-(`0.1.0`) remains the historical boundary (`FOUNDATION_BASELINE.md`).
-Phase 1 is not complete.
+Phase 1B.4 — authenticated fact-resolution application (DEC-0016) on top
+of the Phase 1B.3B real Product Owner key enrollment (DEC-0015), the
+Phase 1B.3A authenticated human-gate foundation (DEC-0014), the Phase
+1B.2.2 store-authoritative claim snapshots (DEC-0013), the Phase 1B.2.1
+resolution-safe claim lifecycle (DEC-0012), the Phase 1B.2 deterministic
+structured-truth analysis, the Phase 1B.1 offline gateway kernel, and the
+Phase 1A truth kernel. The clean foundation baseline (`0.1.0`) remains
+the historical boundary (`FOUNDATION_BASELINE.md`). Phase 1 is not
+complete.
 
 ## Current objective
 
-Deliver Phase 1B.3B: enroll the confirmed real Product Owner public key
-(registry v2, least-privilege `product-owner` role only), pin it from
-human-gate policy v2, correct the policy-schema `decision_ref` defect
-(contracts 1.7.0 → 1.7.1), and provide the safe offline signing CLI —
-WITHOUT applying any business action. Ordinary `fact-resolution-approval`
-becomes operationally available; the four DEC-0008 independent-review
-gates stay frozen. The follow-on objective is the fact-resolution
-application step that composes an authorized approval with claim-revision
-creation and DEC-0013 snapshot staleness. Model-backed work stays
-prohibited by the zero-provider policy (DEC-0009) — a policy boundary, not
-an open question.
+Deliver Phase 1B.4: close the deterministic contradiction-resolution loop
+(DEC-0016). A deterministic preparation boundary derives an immutable
+`fact-resolution-decision` artifact — the complete requested action, with
+exact winner/loser partition and digest-pinned analysis/snapshot/profile/
+participant state — from store references only; the Product Owner signs
+that exact artifact under `fact-resolution-approval`; and the application
+service verifies and consumes the approval once, creates deterministic
+`contradicted` successor revisions for every losing claim, rolls the
+namespace forward to a fresh snapshot and analysis, and persists an
+immutable `fact-resolution-application` record. Application is idempotent
+and crash-recoverable (deterministic identities, receipt-sourced
+timestamps, byte-exact resume) under a documented single-host/
+single-writer boundary. Contracts move 1.7.1 → 1.8.0. The four DEC-0008
+independent-review gates stay frozen. Model-backed work stays prohibited
+by the zero-provider policy (DEC-0009) — a policy boundary, not an open
+question.
 
 ## Ratified decisions
 
@@ -98,6 +104,14 @@ an open question.
   independent-review gates stay frozen; the policy-schema `decision_ref`
   const defect is corrected (contracts 1.7.0 → 1.7.1); the offline signing
   CLI (`src/cli/sign-approval.ts`) is the safe operator signing boundary.
+- DEC-0016 — authenticated fact-resolution application: the signed target
+  is an immutable fact-resolution-decision artifact carrying the complete
+  requested action (exact winner/loser partition, digest-pinned
+  analysis/snapshot/profile/participant state); application creates
+  deterministic `contradicted` successor revisions, never mutates the
+  winner or any stored claim, rolls forward to a fresh snapshot and
+  analysis, and is idempotent and crash-recoverable from the immutable
+  receipt under a single-host/single-writer boundary; contracts 1.8.0.
 
 ## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006 and Phase 1A.2 / DEC-0007)
 
@@ -274,13 +288,49 @@ an open question.
   configuration; all four independent-review gates still structurally
   unsatisfiable.
 
+## Implemented (Phase 1B.4, DEC-0016)
+
+- Contracts 1.7.1 → 1.8.0 (synchronized): new `fact-resolution-decision`
+  (the immutable signed authorization target: workspace/brand, digest-
+  pinned analysis/snapshot/profile references, aggregate claim-set digest,
+  fact_key, deterministic contradiction fingerprint
+  `contradiction-fingerprint-sha256-1.0.0`, the recorded contradiction,
+  exactly one winner + every other participant as a digest-pinned loser,
+  rationale, requester) and `fact-resolution-application` (the immutable
+  exactly-once record with deterministic identities under
+  `fact-resolution-id-sha256-1.0.0`); the approval-evidence/receipt target
+  enums gain `fact-resolution-decision`; semantic layers recompute the
+  fingerprint, the exact partition, and every derived identity.
+- Deterministic decision preparation (`src/resolve/prepare-decision.ts`):
+  reference-only input (caller-supplied contradictions/losers/digests are
+  rejected at runtime), store-authoritative revalidation (snapshot
+  binding, namespace currency, projection agreement, open-contradiction
+  and fingerprint match, single-cardinality slot, winner-participates),
+  derived losers, immutable persistence, and the stored artifact's
+  canonical content digest as the signing target.
+- Crash-recoverable application (`src/resolve/apply-resolution.ts`):
+  full preflight before consumption; DEC-0014 verification + atomic
+  single-use consumption; contradicted successor revisions that preserve
+  content and record `resolution_decision_ref` (predecessor and winner
+  stay byte-identical; the winner is never auto-verified); fresh snapshot
+  + analysis in which the resolved contradiction is closed and unrelated
+  contradictions/gaps are untouched; deterministic post-consumption
+  identities and receipt-sourced timestamps so retries resume byte-
+  exactly from every crash boundary; conflicting successors, foreign
+  forks, rotated trust configs, and cross-operation replays fail closed;
+  completed replays return the stored result; a rejected verdict consumes
+  its nonce and mutates nothing. Single-host/single-writer file atomicity
+  only — no distributed-transaction claim.
+- Test suites for preparation (partition/fingerprint/staleness/fork/
+  cross-brand/tamper), signature binding (target confusion, digest
+  substitution, post-signing tamper, gate/role/key/policy denials with
+  zero mutations), application effects (successor correctness, byte-
+  identity proofs, staleness rollover, downstream compilation), and
+  recovery (retry at every write boundary, byte-exact resume, conflict
+  refusal, idempotent completed replay).
+
 ## Blocked / not implemented
 
-- Human contradiction-resolution APPLICATION: the authenticated evidence
-  mechanism exists (DEC-0014), but creating the losing claim's
-  `contradicted` revision with `resolution_decision_ref` from an authorized
-  approval — composed with DEC-0013 snapshot staleness — remains
-  unimplemented follow-on work.
 - Provider adapters, real model calls, provider-backed extraction, and
   semantic contradiction detection: prohibited by the ratified zero-provider
   policy (DEC-0009, zero spend); enabling any provider requires a new
@@ -288,20 +338,21 @@ an open question.
 - Natural-language fact extraction (prose → structured claims) does not
   exist in any form; the deterministic analyzer only consumes fact metadata
   made explicit upstream.
-- Quarantine release: gate roles are named (DEC-0008), but release requires
-  both an independent reviewer (none formally named) and an authenticated gate
-  mechanism (not designed) — DEC-0007's fail-closed rule stands, and flagged
-  content stays fenced. The same independent-reviewer gap freezes client-facing
-  publishing, BLOCKING evaluation-gate changes, and real-client-data provider
-  approval.
+- Quarantine release: the authenticated gate mechanism now exists
+  (DEC-0014), but release is a DEC-0008 independent-review gate and no
+  independent reviewer is formally named or enrolled — the gate is
+  structurally unsatisfiable, DEC-0007's fail-closed rule stands, and
+  flagged content stays fenced. The same independent-reviewer gap freezes
+  client-facing publishing, BLOCKING evaluation-gate changes, and
+  real-client-data provider approval.
 - Territories, direction, channel specs, evaluation skills: later phases.
 - EXP-0001 has not run; its Result section is empty.
 
 ## Immediate next actions
 
-1. Design the fact-resolution application step (authorized approval →
-   losing claim's `contradicted` revision, composed with DEC-0013
-   snapshot staleness) as the next phase proposal.
+1. Propose the next phase (proposal only): a provider-enablement decision
+   meeting DEC-0009's requirements, or the first model-backed extraction
+   design gated on it — nothing begins without a ratified decision.
 2. Rotate the enrolled key by a new reviewed registry revision + decision
    before its 2027-07-19 expiry (or immediately on suspected compromise
    or private-key loss — RISK-KEY-01).
@@ -309,10 +360,12 @@ an open question.
 
 ## Definition of done for the current objective
 
-Phase 1B.3B merged with validation green; NOW, ROADMAP, RISKS,
-OPEN_QUESTIONS, and the decision index consistent with DEC-0008..DEC-0015;
-the enrollment and signing-CLI suites green alongside the adversarial
-human-gate suite; exactly one least-privilege authority enrolled with no
-private material anywhere in the repository; no claim anywhere of applied
-fact resolution, released quarantine, unfrozen independent-review gates,
-or semantic detection; EXP-0001 still unexecuted and empty.
+Phase 1B.4 merged with validation green; NOW, ROADMAP, RISKS,
+OPEN_QUESTIONS, and the decision index consistent with DEC-0008..DEC-0016;
+the fact-resolution preparation/signature/application/recovery suites
+green alongside the enrollment and adversarial human-gate suites; the
+real-key proof-of-possession smoke test performed by the Product Owner on
+synthetic data outside the repository; no private material anywhere in
+the repository; no claim anywhere of released quarantine, unfrozen
+independent-review gates, semantic detection, or applied REAL-client
+resolution; EXP-0001 still unexecuted and empty.

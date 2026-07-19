@@ -8,11 +8,11 @@ Unknowns stay visible until evidence or a ratified decision resolves them.
 
 No blocking question is currently open. Q-001, Q-002, and Q-009 are closed
 (see the answer log). Provider-backed work is gated by the DEC-0009
-provider-enablement requirements, and human fact-resolution APPLICATION
-(creating the losing claim's `contradicted` revision from an authorized
-approval, composed with DEC-0013 snapshot staleness) is unimplemented
-follow-on work under DEC-0014's revisit triggers — a defined next phase,
-not an open architecture question.
+provider-enablement requirements. Human fact-resolution APPLICATION is
+implemented since Phase 1B.4 (DEC-0016): an authorized approval over an
+immutable fact-resolution-decision artifact creates the losing claims'
+`contradicted` revisions, composed with DEC-0013 snapshot staleness, with
+crash-recoverable exactly-once semantics.
 
 ## Experiment-owned questions
 
@@ -84,5 +84,10 @@ active section in the same commit.
   `fact-resolution-approval` is operationally available. A valid signature
   is never sufficient without policy authorization and nonce consumption;
   legacy envelope approvals stay non-authoritative; the four DEC-0008
-  independent-review gates stay frozen (no independent reviewer is named);
-  fact-resolution APPLICATION remains unimplemented.
+  independent-review gates stay frozen (no independent reviewer is named).
+  **Status update (2026-07-19, DEC-0016):** fact-resolution APPLICATION is
+  implemented — an authorized approval over the exact immutable
+  fact-resolution-decision artifact deterministically creates the losing
+  claims' `contradicted` revisions and a fresh snapshot/analysis, with
+  idempotent crash recovery; no other business action applies from any
+  approval.
