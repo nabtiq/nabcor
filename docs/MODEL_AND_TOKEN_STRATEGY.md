@@ -111,6 +111,13 @@ Preference proposed for Phase 1: **API-billed keys, not subscription sessions**,
 cost is measured rather than estimated (BC-001's true allocation is unknowable).
 This preference feeds the future provider-enablement decision DEC-0009 point 9
 requires; Q-002 itself is closed as "no provider approved".
+**Status (Phase 1C.0):** that decision now exists as PROPOSED DEC-0018 —
+three options with official-source evidence, a reproducible EXP-0001
+cost model, threat model, secret design, and gate design
+(docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md,
+docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md). It grants no authority until
+the Product Owner ratifies one option (Q-010); the API-billed preference
+above is honored by all enablement options.
 
 ## 7. Initial first-vertical-slice budget (hypothesis, stated assumptions)
 

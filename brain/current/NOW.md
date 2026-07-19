@@ -6,9 +6,11 @@
 
 ## Current phase
 
-Phase 1B.5 — safe operator CLI (DEC-0017) on top of the Phase 1B.4
-authenticated fact-resolution application (DEC-0016), the Phase 1B.3B
-real Product Owner key enrollment (DEC-0015), the
+Phase 1C.0 — provider-enablement decision packet (DEC-0018, PROPOSED)
+on top of the complete Phase 1B offline foundation: the Phase 1B.5 safe
+operator CLI (DEC-0017), the Phase 1B.4 authenticated fact-resolution
+application (DEC-0016), the Phase 1B.3B real Product Owner key
+enrollment (DEC-0015), the
 Phase 1B.3A authenticated human-gate foundation (DEC-0014), the Phase
 1B.2.2 store-authoritative claim snapshots (DEC-0013), the Phase 1B.2.1
 resolution-safe claim lifecycle (DEC-0012), the Phase 1B.2 deterministic
@@ -19,17 +21,19 @@ complete.
 
 ## Current objective
 
-Deliver Phase 1B.5: make the deterministic truth and authenticated
-fact-resolution loop usable by a human operator through one thin, safe
-CLI (`node dist/src/cli/nabcor.js`) that orchestrates the canonical
-services without duplicating or weakening them (DEC-0017). Read-only
-commands and dry runs mutate nothing; every mutation requires explicit
-roots/namespace/references plus a digest-bound confirmation; losers are
-always re-derived; no `nabcor` command reads a private key (signing stays
-in the separate personally-invoked `sign-approval` CLI); application
-accepts public approval evidence only. No contract changes; no provider,
-model, network, publishing, quarantine, or independent-review capability;
-DEC-0009 unchanged.
+Phase 1C.0 delivered the evidence base for the first provider-enablement
+decision WITHOUT enabling anything: official-source research on three
+first-party candidates (Anthropic API, OpenAI API, Google Gemini
+Developer API; all sources accessed 2026-07-19), a 29-row comparison
+matrix with per-fact verification tags, a reproducible EXP-0001 cost
+model with six scenarios and conservative ceilings, a 24-threat model
+with an emergency-disable path, secret-management and approval-gate
+designs, and PROPOSED DEC-0018 with three mutually exclusive options.
+The Product Owner must ratify exactly one option (Q-010). DEC-0009
+remains active; the active gateway policy is byte-guarded against drift
+(scripts/validate-provider-packet.mjs); no provider, credential,
+network path, or spend exists; EXP-0001 remains unexecuted. The Phase
+1B offline foundation is complete; Phase 1 is NOT complete.
 
 ## Ratified decisions
 
@@ -371,6 +375,29 @@ DEC-0009 unchanged.
   resume, idempotent replay, fake-metadata non-authority, and
   zero-private-material output scans.
 
+## Delivered (Phase 1C.0, DEC-0018 proposed)
+
+- docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md: candidates, matrix
+  (VERIFIED/INFERRED/UNKNOWN/REQUIRES-CONTRACT tagging, consumer vs API
+  products never conflated, "not trained on" never equated with "not
+  retained"), cost model (estimates only), ceilings, secret design
+  (macOS Keychain / CI-without-provider-keys / future managed service),
+  gate design incl. the future provider-enablement-approval signed
+  target, three options, recommendation (Option A: Anthropic API,
+  `claude-haiku-4-5-20251001` + `claude-sonnet-5`, synthetic only), and
+  the copyable ratification statement.
+- docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md: 24 threats with controls,
+  residual risks, implementation gates, owners, and the layered
+  emergency-disable path E1.
+- brain/decisions/DEC-0018-provider-enablement.md: PROPOSED, grants no
+  authority, approved_by null; Q-010 opened.
+- scripts/validate-provider-packet.mjs (in `npm run validate` and CI):
+  DEC-0018 must stay proposed/unapproved; the active gateway policy is
+  sha256-pinned to its DEC-0009 bytes and must reference a ratified
+  decision; EXP-0001's Result stays empty; the packet stays free of
+  credential-shaped values, carries dated sources, estimates-only cost
+  language, and matrix-backed model IDs.
+
 ## Blocked / not implemented
 
 - Provider adapters, real model calls, provider-backed extraction, and
@@ -392,22 +419,22 @@ DEC-0009 unchanged.
 
 ## Immediate next actions
 
-1. Propose the next phase (proposal only): a provider-enablement decision
-   meeting DEC-0009's requirements, or the first model-backed extraction
-   design gated on it — nothing begins without a ratified decision. The
-   operator CLI (DEC-0017) closed the last purely offline usability gap.
-2. Rotate the enrolled key by a new reviewed registry revision + decision
+1. Product Owner: ratify one DEC-0018 option (Q-010) using the
+   statement in the decision packet — nothing proceeds until then.
+2. If ratified A or B: the provider-adapter implementation phase
+   (policy-contract migration, signed candidate digest binding, secret
+   provisioning, threat-model gates) as its own delivered phase.
+3. Rotate the enrolled key by a new reviewed registry revision + decision
    before its 2027-07-19 expiry (or immediately on suspected compromise
    or private-key loss — RISK-KEY-01).
-3. Keep `npm run validate` green on every change.
+4. Keep `npm run validate` green on every change.
 
 ## Definition of done for the current objective
 
-Phase 1B.5 merged with validation green; NOW, ROADMAP, RISKS, and the
-decision index consistent with DEC-0008..DEC-0017; the CLI suites (unit,
-safety, leakage, and the synthetic subprocess end-to-end workflow with an
-ephemeral key) green alongside every pre-existing suite; no contract
-change; no private material anywhere in the repository; no claim
-anywhere of released quarantine, unfrozen independent-review gates,
-semantic detection, or applied REAL-client resolution; EXP-0001 still
-unexecuted and empty.
+Phase 1C.0 merged with validation green; DEC-0018 indexed as PROPOSED
+with Q-010 open; the packet and threat model complete with dated
+official sources; the active gateway policy byte-identical to its
+DEC-0009 state (CI-guarded); no provider, adapter, SDK, credential,
+network runtime path, or spend introduced; NOW, ROADMAP, RISKS,
+OPEN_QUESTIONS, and the decision index consistent with
+DEC-0008..DEC-0018; EXP-0001 still unexecuted and empty.

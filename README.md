@@ -15,7 +15,14 @@ fact-resolution application (DEC-0016: signed immutable decision
 artifacts, deterministic crash-recoverable application, contracts 1.8.0 —
 the deterministic contradiction-resolution loop is closed). No
 provider-backed extraction, no model calls, and no full vertical slice
-exist yet; Phase 1 is not complete.
+exist yet; Phase 1 is not complete. Phase 1C.0 produced the
+provider-enablement decision packet
+([`docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md`](docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md),
+[`docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md`](docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md))
+and PROPOSED DEC-0018 — three options awaiting Product Owner
+ratification (Q-010). **No provider is enabled**; DEC-0009 remains the
+active policy, CI-guarded against drift, and EXP-0001 remains
+unexecuted.
 
 ## What NABCor is
 
