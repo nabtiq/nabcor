@@ -225,7 +225,8 @@ an open question.
   immediately (DEC-0013 append-only clarification).
 - Authenticated human-gate foundation (`src/authority/`, contracts
   1.6.0 → 1.7.0): trusted committed human-gate policy + versioned
-  public-key authority registry (empty — zero enrolled authorities),
+  public-key authority registry (then empty — zero enrolled authorities;
+  registry v2 enrolled the first real authority under DEC-0015),
   domain-separated canonical signed payload (`approval-payload-sha256-1.0.0`)
   covering identity/role/gate/target-digest/verdict/self_review/requester/
   nonce/validity/key/policy, offline Ed25519 verification with Node.js

@@ -49,10 +49,11 @@ evidence: signed canonical payloads verified against the committed trusted
 policy and authority registry with atomic single-use nonce consumption
 (`src/authority/`). A schema-valid decision or approval artifact still
 proves shape, not that a human acted, and no skill may treat unsigned
-metadata as authentication evidence (DEC-0012). Three limits bound the
-mechanism today: the active registry has zero enrolled authorities (no
-runtime approval can verify until a real Product Owner key is enrolled by
-a reviewed registry revision); a verified approval is evidence, not an
+metadata as authentication evidence (DEC-0012). The mechanism is
+operationally available for ordinary fact-resolution approval — DEC-0015
+(Phase 1B.3B) enrolled the real Product Owner public key as the single
+least-privilege `product-owner` authority in registry v2, pinned by policy
+v2. Two limits still bound it: a verified approval is evidence, not an
 action (creating the losing claim's `contradicted` revision remains
 unimplemented); and a valid signature is never sufficient without policy
 authorization and nonce consumption.
