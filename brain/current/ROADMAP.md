@@ -90,7 +90,13 @@ analysis, inspection, decision preparation, public-evidence application,
 and completion inspection over the canonical services — read-only and
 dry-run commands mutate nothing, every mutation is digest-confirmed,
 losers are always re-derived, signing stays in the separate
-personally-invoked CLI, and no contract changed.
+personally-invoked CLI, and no contract changed. Phase 1B (the offline
+foundation) is COMPLETE. The Phase 1C.0 increment produced the
+provider-enablement decision packet: official-source research on three
+candidates, cost and threat models, secret and gate designs, and
+PROPOSED DEC-0018 with three options awaiting Product Owner
+ratification (Q-010) — no provider enabled, active policy unchanged and
+CI-guarded, EXP-0001 still unexecuted.
 This is deterministic
 infrastructure only —
 not Phase 1 completion: no provider-backed or natural-language extraction

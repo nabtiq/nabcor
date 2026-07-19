@@ -6,13 +6,25 @@ Unknowns stay visible until evidence or a ratified decision resolves them.
 
 ## Blocking before Phase 1
 
-No blocking question is currently open. Q-001, Q-002, and Q-009 are closed
-(see the answer log). Provider-backed work is gated by the DEC-0009
-provider-enablement requirements. Human fact-resolution APPLICATION is
-implemented since Phase 1B.4 (DEC-0016): an authorized approval over an
-immutable fact-resolution-decision artifact creates the losing claims'
-`contradicted` revisions, composed with DEC-0013 snapshot staleness, with
-crash-recoverable exactly-once semantics.
+- **Q-010 — Which DEC-0018 provider-enablement option does the Product
+  Owner ratify?** Phase 1C.0 prepared the evidence base: three mutually
+  exclusive options (A — recommended narrow Anthropic enablement with
+  `claude-haiku-4-5-20251001` + `claude-sonnet-5`, synthetic only,
+  conservative ceilings; B — cheapest OpenAI configuration with added
+  storage/cap risks; C — preserve DEC-0009) in
+  docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md with the ratification
+  statement the Product Owner can copy. Until ratified, DEC-0018 grants
+  no authority, DEC-0009 stays active, no provider is enabled, and
+  EXP-0001 (Phase 1's exit evidence) stays blocked. Sources were
+  accessed 2026-07-19 and must be re-verified if ratification happens
+  more than ~60 days later.
+
+Q-001, Q-002, and Q-009 are closed (see the answer log). Human
+fact-resolution APPLICATION is implemented since Phase 1B.4 (DEC-0016):
+an authorized approval over an immutable fact-resolution-decision
+artifact creates the losing claims' `contradicted` revisions, composed
+with DEC-0013 snapshot staleness, with crash-recoverable exactly-once
+semantics.
 
 ## Experiment-owned questions
 

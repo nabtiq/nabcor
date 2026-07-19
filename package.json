@@ -9,7 +9,8 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "validate": "npm run validate:contracts && npm run validate:brain && npm run validate:repository && npm run validate:language && npm run typecheck && npm run test:runtime",
+    "validate": "npm run validate:contracts && npm run validate:brain && npm run validate:repository && npm run validate:packet && npm run validate:language && npm run typecheck && npm run test:runtime",
+    "validate:packet": "node scripts/validate-provider-packet.mjs",
     "validate:contracts": "node contracts/validate.mjs",
     "validate:brain": "node scripts/validate-brain.mjs",
     "validate:repository": "node scripts/validate-repository.mjs",
