@@ -71,9 +71,20 @@ policy-schema `decision_ref` const defect is corrected (contracts
 produces derived-identity evidence with fail-closed key-path handling.
 Ordinary `fact-resolution-approval` is now operationally available;
 legacy approval metadata stays non-authoritative, the four DEC-0008
-independent-review gates stay frozen, the private key never entered Git,
-CI, or agent context, and applying a fact resolution from an authorized
-approval remains unimplemented follow-on work. This is deterministic
+independent-review gates stay frozen, and the private key never entered
+Git, CI, or agent context. The Phase 1B.4 increment (DEC-0016) closed the
+deterministic contradiction-resolution loop: an immutable
+`fact-resolution-decision` artifact carries the complete requested action
+(one open contradiction, exactly one winner, every other participant as a
+digest-pinned loser, digest-pinned analysis/snapshot/profile/namespace
+state — contracts 1.7.1 → 1.8.0), the Product Owner signs that exact
+artifact, and the crash-recoverable application service verifies and
+consumes the approval once, creates deterministic `contradicted`
+successor revisions (winner and predecessors never mutated), and rolls
+the namespace forward to a fresh snapshot and analysis in which the
+resolved contradiction is closed — idempotent retries, byte-exact
+resume, fail-closed conflicts, single-host/single-writer boundary.
+This is deterministic
 infrastructure only —
 not Phase 1 completion: no provider-backed or natural-language extraction
 exists, no semantic contradiction detection exists, EXP-0001 has not run

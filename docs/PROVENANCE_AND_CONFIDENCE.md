@@ -97,9 +97,13 @@ array, the analysis artifact is digest-bound to exactly the claims it
 loaded, and compilation reconciles that snapshot against the live store,
 failing closed on any claim that appeared, disappeared, or changed since
 analysis (stale analysis requires re-analysis). Applying a contradiction
-resolution (creating the losing claim's `contradicted` revision) requires
-the authenticated human-gate mechanism (Q-009), which does not yet exist:
-a shape-valid approval object proves shape, not that a human acted.
+resolution (creating the losing claim's `contradicted` revision) is
+implemented as the authenticated fact-resolution application (DEC-0016):
+it executes only from a signed, verified, single-use-consumed approval
+over the exact immutable fact-resolution-decision artifact, and the
+successor revision records `resolution_decision_ref` while the
+predecessor stays byte-identical. A shape-valid approval object still
+proves shape, not that a human acted.
 
 ## 5. Confidence rules
 
@@ -137,15 +141,25 @@ Contradicted claims are inactive as current truth (DEC-0012): analysis runs
 over the effective lineage heads only, so a resolved conflict stays closed
 on re-analysis while the loser remains visible in the analysis's inactive
 listing. Applying a resolution — actually creating that `contradicted`
-revision from a decision — is not yet implemented. The authenticated
-human-gate mechanism it requires now exists (DEC-0014 closed Q-009: signed
-Ed25519 approval evidence verified against the trusted policy and
-registry, with atomic single-use nonce consumption) and the real Product
-Owner key is enrolled (DEC-0015: registry v2 pinned by policy v2, so
-ordinary fact-resolution approval can verify), but the application step
-itself — composing an authorized approval with claim-revision creation and
-DEC-0013 snapshot staleness — is deferred follow-on work. A schema-valid decision or
-approval artifact remains non-evidence that a human acted.
+revision — is implemented since Phase 1B.4 (DEC-0016) as the
+authenticated fact-resolution loop: a deterministic preparation boundary
+derives an immutable `fact-resolution-decision` artifact (the COMPLETE
+requested action — one open contradiction, exactly one winner, every
+other participant as a digest-pinned loser, and digests of the exact
+analysis, snapshot, profile, and namespace state) from store references
+only; the Product Owner signs that exact artifact under the
+`fact-resolution-approval` gate (DEC-0014 mechanism, DEC-0015 key); and
+the application service verifies and consumes the approval once, creates
+a deterministic `contradicted` successor for every losing claim (the
+winner is never mutated or auto-verified), captures a fresh snapshot,
+re-runs the analyzer, and persists an immutable
+`fact-resolution-application` record. The pre-resolution snapshot and
+analysis become stale by construction; application is idempotent and
+crash-recoverable (deterministic identities, receipt-sourced timestamps,
+byte-exact resume) under a single-host/single-writer boundary. A
+schema-valid decision or approval artifact remains non-evidence that a
+human acted — only verified, consumed evidence over the exact decision
+authorizes anything.
 Publication-critical facts (names, contact, domains) with open contradictions
 **block** publication surfaces (G4/G5).
 

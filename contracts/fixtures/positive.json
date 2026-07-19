@@ -4,7 +4,7 @@
     "schema": "decision.schema.json",
     "description": "ratified decision carrying the required ratification approval passes schema + semantic",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "artifact_id": "DEC-9997-pos",
       "brand_ref": null,
       "created_at": "2026-07-17T12:00:00Z",
@@ -41,7 +41,7 @@
     "schema": "website-spec.schema.json",
     "description": "factual slot with empty claim_refs but an explicit unresolved_fact_note (confirm-slot pattern) passes — schema pressure must not encourage fabrication",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "artifact_id": "wspec_p02",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -83,7 +83,7 @@
     "schema": "model-run.schema.json",
     "description": "subscription-billed run with usd null and allocation none passes (cost modes never conflated)",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "run_id": "run_p03",
       "session_id": "s",
       "project_id": "p",
@@ -112,7 +112,7 @@
     "schema": "source.schema.json",
     "description": "captured prompt source with content-addressed reference, digest, byte size, media type, and clear safety state (DEC-0006)",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "artifact_id": "src_p04",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -143,7 +143,7 @@
     "schema": "source.schema.json",
     "description": "injection-flagged captured content correctly held in the quarantine namespace passes schema and semantic layers (INV-SEC-002)",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "artifact_id": "src_p05",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -175,7 +175,7 @@
     "schema": "claim.schema.json",
     "description": "canonical code-point fragment reference in correct order passes both layers (DEC-0006/DEC-0007)",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "artifact_id": "claim_p06",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -195,7 +195,7 @@
     "schema": "source.schema.json",
     "description": "image source with explicitly unresolved (null) visual_classification passes — the honest state for an unclassified visual (INV-FACT-003)",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "artifact_id": "src_p07",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -222,7 +222,7 @@
     "schema": "model-run.schema.json",
     "description": "Tier-0 offline Fake Adapter run record: provider 'offline', zero tokens in all four classes, cost {mode: free-tier, usd: 0, allocation: none} — truthful zero-spend accounting, excluded from model-quality evidence (DEC-0009/DEC-0010)",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "run_id": "run_p08",
       "session_id": "sess_p08",
       "project_id": "SLICE-001",
@@ -269,7 +269,7 @@
     "schema": "gateway-request.schema.json",
     "description": "provider-neutral gateway request with inline contract-validated token budget, context items with load reasons, and a deterministic scenario id (DEC-0010)",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "request_id": "req_p09",
       "run_id": "run_p09",
       "session_id": "sess_p09",
@@ -291,7 +291,7 @@
         }
       ],
       "token_budget": {
-        "schema_version": "1.7.1",
+        "schema_version": "1.8.0",
         "budget_id": "budget_p09",
         "scope": "skill",
         "scope_ref": "gateway-selftest",
@@ -313,7 +313,7 @@
     "schema": "claim.schema.json",
     "description": "an inference may carry structured fact metadata and remains an unconfirmed inference (a normalized value never upgrades verification status, DEC-0011)",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "agent",
@@ -336,7 +336,7 @@
     "schema": "truth-profile.schema.json",
     "description": "minimal single-slot truth profile with sorted unique fact keys",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "artifact_id": "tp_p11",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -361,7 +361,7 @@
     "schema": "truth-analysis.schema.json",
     "description": "truth analysis with an unverified gap citing effective unconfirmed claims, deterministic ordering, and explicit unstructured listing",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "artifact_id": "ta_p12",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -409,7 +409,7 @@
     "schema": "truth-analysis.schema.json",
     "description": "truth analysis after a resolution: a superseded historical revision and a contradicted inactive head are recorded for audit, effective truth carries no contradiction (DEC-0012)",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "artifact_id": "ta_p13",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -449,7 +449,7 @@
     "schema": "human-gate-policy.schema.json",
     "description": "the committed active human-gate policy shape: Ed25519, single-use nonces, default deny, DEC-0008 independent-review gates pinned true, no independent reviewer named",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "policy_id": "hgp-nabcor-1",
       "policy_version": 1,
       "decision_ref": "DEC-0014",
@@ -501,7 +501,7 @@
     "schema": "authority-registry.schema.json",
     "description": "a valid first-revision registry with zero enrolled authorities — the honest committed state before any real key enrollment; no runtime approval can verify against it",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "registry_id": "areg-empty",
       "registry_version": 1,
       "supersedes_registry_version": null,
@@ -515,7 +515,7 @@
     "schema": "approval-evidence.schema.json",
     "description": "shape-valid signed approval evidence for ordinary fact resolution with authenticated self_review=true (requester equals approver) and a consistent domain-separated payload digest; contract validity alone grants no authority",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -553,7 +553,7 @@
     "schema": "approval-receipt.schema.json",
     "description": "an immutable consumption receipt whose receipt_id matches the deterministic recomputation over {key_id, nonce, policy_ref}",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "receipt_id": "r1e9dd9ae6661f3b19549cac8e1365c4b840b2a9cc81ba53a93838cd0ba3edecb",
       "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
       "evidence_ref": "apev_0001",
@@ -580,7 +580,7 @@
     "schema": "human-gate-policy.schema.json",
     "description": "a policy revision (policy_version 2) ratified by a new decision record and pinning registry version 2; regression for the 1.7.0 defect where decision_ref was pinned const DEC-0014, making the documented revision procedure schema-invalid",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "policy_id": "hgp-nabcor-1",
       "policy_version": 2,
       "decision_ref": "DEC-0015",
@@ -632,7 +632,7 @@
     "schema": "authority-registry.schema.json",
     "description": "registry version 2 with explicit lineage from version 1 and exactly one enrolled least-privilege Product Owner authority; the key_id/SPKI binding is real and recomputed by the semantic layer (public, non-secret material only)",
     "data": {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "registry_id": "areg-nabcor",
       "registry_version": 2,
       "supersedes_registry_version": 1,
@@ -653,6 +653,104 @@
           "status": "active"
         }
       ]
+    }
+  },
+  {
+    "id": "P20-fact-resolution-decision-three-claims",
+    "schema": "fact-resolution-decision.schema.json",
+    "description": "a three-claim contradiction resolved to one winner and two losers: exact partition, real recomputed fingerprint, sorted unique references, digest-pinned analysis/snapshot/profile/participants",
+    "data": {
+      "schema_version": "1.8.0",
+      "artifact_id": "frd_fx_0001",
+      "brand_ref": "brand_fx",
+      "workspace": "ws_fx",
+      "created_at": "2026-07-19T12:00:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "fingerprint_algorithm": "contradiction-fingerprint-sha256-1.0.0",
+      "truth_analysis_ref": "ta_fx_0001",
+      "truth_analysis_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "claim_snapshot_ref": "snap_fx_0001",
+      "claim_snapshot_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "claim_set_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "truth_profile_ref": "tp_fx_0001",
+      "truth_profile_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "fact_key": "identity.primary_name",
+      "contradiction_fingerprint": "cf18ea30ed49b7eb4478ee5eb39b64c3b11470b75b613b72ac4dcefe47e8dbe46",
+      "contradiction": {
+        "claim_refs": [
+          "claim_a",
+          "claim_b",
+          "claim_c"
+        ],
+        "distinct_values": [
+          "Name One",
+          "Name Three",
+          "Name Two"
+        ],
+        "description": "single-cardinality fact slot 'identity.primary_name' carries 3 distinct normalized values across 3 eligible claims; resolution requires a human decision",
+        "blocking_publication": true
+      },
+      "winning_claim_ref": "claim_a",
+      "winning_claim_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "losing_claims": [
+        {
+          "claim_ref": "claim_b",
+          "content_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+        },
+        {
+          "claim_ref": "claim_c",
+          "content_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+        }
+      ],
+      "rationale": "The winning claim matches the registration certificate; both losing values come from outdated material.",
+      "requester_id": "fixture-owner"
+    }
+  },
+  {
+    "id": "P21-fact-resolution-application-applied",
+    "schema": "fact-resolution-application.schema.json",
+    "description": "a completed application record: deterministic application/successor/after-artifact identities recomputed by the semantic layer, approval binding (evidence, payload digest, receipt, key, policy, registry), and receipt-sourced consumed_at",
+    "data": {
+      "schema_version": "1.8.0",
+      "artifact_id": "fra82bcbadd9527fafaabafd73b41fecfed005fcfb7441331444b872252fd13caa5",
+      "brand_ref": "brand_fx",
+      "workspace": "ws_fx",
+      "created_at": "2026-07-19T12:05:00Z",
+      "creator_type": "deterministic",
+      "lifecycle_status": "generated",
+      "application_algorithm": "fact-resolution-id-sha256-1.0.0",
+      "decision_ref": "frd_fx_0001",
+      "decision_digest": "sha256:54baea67a419f5ab12f90db6aefbe970a132a9722a4a8fc23d8aebb30babc187",
+      "evidence_ref": "apev_fx_0001",
+      "payload_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+      "receipt_ref": "r0000000000000000000000000000000000000000000000000000000000000001",
+      "key_id": "k9999999999999999999999999999999999999999999999999999999999999999",
+      "policy_ref": "hgp-nabcor-1",
+      "policy_version": 2,
+      "registry_ref": "areg-nabcor",
+      "registry_version": 2,
+      "fact_key": "identity.primary_name",
+      "contradiction_fingerprint": "cf18ea30ed49b7eb4478ee5eb39b64c3b11470b75b613b72ac4dcefe47e8dbe46",
+      "before_snapshot_ref": "snap_fx_0001",
+      "before_analysis_ref": "ta_fx_0001",
+      "created_losing_revisions": [
+        {
+          "losing_claim_ref": "claim_b",
+          "successor_claim_ref": "crsdc43493d31ad2395b70395162b2d7cd4d8eb3f7a79edb91b20d303fa12ec0db1",
+          "successor_content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "losing_claim_ref": "claim_c",
+          "successor_claim_ref": "crs2b8226e8aa33680bb4fa1687b519dacba92d5f632b7768be624f80868439c205",
+          "successor_content_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ],
+      "after_snapshot_ref": "fsn142d3023335c303b3df09d11f858276ba00b46ca8cf3bd678021acbfabb9c290",
+      "after_analysis_ref": "fan540ae9e7ab94e6b75ed3b5da9c7d34eadb2b3ddce0013e028bc37be766c7efd9",
+      "after_claim_set_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "status": "applied",
+      "consumed_at": "2026-07-19T12:05:00Z"
     }
   }
 ]

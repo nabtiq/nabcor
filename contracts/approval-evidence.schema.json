@@ -77,7 +77,8 @@
             "brand-context",
             "claim-snapshot",
             "truth-profile",
-            "truth-analysis"
+            "truth-analysis",
+            "fact-resolution-decision"
           ]
         },
         "target_artifact_ref": {
@@ -185,7 +186,7 @@
   "additionalProperties": false,
   "examples": [
     {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",

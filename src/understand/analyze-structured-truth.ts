@@ -231,7 +231,7 @@ export function analyzeStructuredTruth(
   //    snapshot reference and digest bind the analysis to the exact claims
   //    loaded (DEC-0013).
   const artifact: Record<string, unknown> = {
-    schema_version: "1.7.1",
+    schema_version: "1.8.0",
     artifact_id: input.artifactId,
     brand_ref: input.brandRef,
     created_at: input.createdAt,

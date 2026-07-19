@@ -69,6 +69,30 @@ const receiptIdFor = (keyId, nonce, policyRef, workspace, brandRef) =>
       "utf8"
     )
     .digest("hex")}`;
+// Authenticated fact-resolution (DEC-0016) — mirrored from
+// src/resolve/resolution-ids.ts (the two must change together).
+const contradictionFingerprint = (workspace, brandRef, factKey, claimRefs, distinctValues) =>
+  `c${createHash("sha256")
+    .update(
+      canonicalJson({
+        brand_ref: brandRef,
+        claim_refs: claimRefs,
+        distinct_values: distinctValues,
+        fact_key: factKey,
+        workspace,
+      }),
+      "utf8"
+    )
+    .digest("hex")}`;
+const resolutionHash = (o) => createHash("sha256").update(canonicalJson(o), "utf8").digest("hex");
+const applicationIdFor = (decisionDigest, receiptRef) =>
+  `fra${resolutionHash({ decision_digest: decisionDigest, receipt_ref: receiptRef })}`;
+const successorIdFor = (applicationRef, losingClaimRef) =>
+  `crs${resolutionHash({ application_ref: applicationRef, losing_claim_ref: losingClaimRef })}`;
+const afterSnapshotIdFor = (applicationRef) =>
+  `fsn${resolutionHash({ application_ref: applicationRef, role: "after-snapshot" })}`;
+const afterAnalysisIdFor = (applicationRef) =>
+  `fan${resolutionHash({ application_ref: applicationRef, role: "after-analysis" })}`;
 // The four DEC-0008 gates that require a formally named independent reviewer.
 const INDEPENDENT_REVIEW_GATES = [
   "quarantine-release",
@@ -258,6 +282,106 @@ const SEMANTIC = {
           : [
               `claim_set_digest '${d.claim_set_digest}' does not match the recomputed aggregate '${recomputed}' over the listed claim digests`,
             ];
+      },
+    },
+  ],
+  "fact-resolution-decision.schema.json": [
+    {
+      invariant: "DEC-0016 fingerprint-consistency",
+      check: (d) => {
+        const c = d.contradiction ?? {};
+        const recomputed = contradictionFingerprint(
+          d.workspace,
+          d.brand_ref,
+          d.fact_key,
+          c.claim_refs ?? [],
+          c.distinct_values ?? []
+        );
+        return d.contradiction_fingerprint === recomputed
+          ? []
+          : [
+              `contradiction_fingerprint '${d.contradiction_fingerprint}' does not match the recomputation '${recomputed}' over {brand_ref, claim_refs, distinct_values, fact_key, workspace}`,
+            ];
+      },
+    },
+    {
+      invariant: "DEC-0016 exact-partition",
+      check: (d) => {
+        const out = [];
+        const participants = (d.contradiction ?? {}).claim_refs ?? [];
+        const losers = (d.losing_claims ?? []).map((l) => l.claim_ref);
+        const winner = d.winning_claim_ref;
+        if (!participants.includes(winner))
+          out.push(`winning_claim_ref '${winner}' is not a participant of the recorded contradiction`);
+        if (losers.includes(winner))
+          out.push(`winning_claim_ref '${winner}' also appears as a losing claim; winner and losers must be disjoint`);
+        const loserSet = new Set(losers);
+        if (loserSet.size !== losers.length) out.push("losing_claims contains duplicate claim references");
+        for (const l of losers)
+          if (!participants.includes(l))
+            out.push(`losing claim '${l}' is not a participant of the recorded contradiction`);
+        for (const p of participants)
+          if (p !== winner && !loserSet.has(p))
+            out.push(`participant '${p}' is neither the winner nor a losing claim; partial resolution is prohibited`);
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0016 sorted-unique-references",
+      check: (d) => {
+        const out = [];
+        const sortedAsc = (arr, label) => {
+          for (let i = 1; i < arr.length; i++)
+            if (!(arr[i] > arr[i - 1]))
+              out.push(`${label} not strictly sorted: '${arr[i]}' follows '${arr[i - 1]}'`);
+        };
+        sortedAsc((d.contradiction ?? {}).claim_refs ?? [], "contradiction.claim_refs");
+        sortedAsc((d.losing_claims ?? []).map((l) => l.claim_ref), "losing_claims claim_refs");
+        return out;
+      },
+    },
+  ],
+  "fact-resolution-application.schema.json": [
+    {
+      invariant: "DEC-0016 application-id-consistency",
+      check: (d) => {
+        const recomputed = applicationIdFor(d.decision_digest, d.receipt_ref);
+        return d.artifact_id === recomputed
+          ? []
+          : [
+              `artifact_id '${d.artifact_id}' does not match the recomputation '${recomputed}' over {decision_digest, receipt_ref}`,
+            ];
+      },
+    },
+    {
+      invariant: "DEC-0016 derived-id-consistency",
+      check: (d) => {
+        const out = [];
+        for (const r of d.created_losing_revisions ?? []) {
+          const recomputed = successorIdFor(d.artifact_id, r.losing_claim_ref);
+          if (r.successor_claim_ref !== recomputed)
+            out.push(
+              `successor_claim_ref '${r.successor_claim_ref}' for losing claim '${r.losing_claim_ref}' does not match the recomputation '${recomputed}'`
+            );
+        }
+        const fsn = afterSnapshotIdFor(d.artifact_id);
+        if (d.after_snapshot_ref !== fsn)
+          out.push(`after_snapshot_ref '${d.after_snapshot_ref}' does not match the recomputation '${fsn}'`);
+        const fan = afterAnalysisIdFor(d.artifact_id);
+        if (d.after_analysis_ref !== fan)
+          out.push(`after_analysis_ref '${d.after_analysis_ref}' does not match the recomputation '${fan}'`);
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0016 sorted-unique-losing-revisions",
+      check: (d) => {
+        const out = [];
+        const refs = (d.created_losing_revisions ?? []).map((r) => r.losing_claim_ref);
+        for (let i = 1; i < refs.length; i++)
+          if (!(refs[i] > refs[i - 1]))
+            out.push(`created_losing_revisions not strictly sorted by losing_claim_ref: '${refs[i]}' follows '${refs[i - 1]}'`);
+        return out;
       },
     },
   ],

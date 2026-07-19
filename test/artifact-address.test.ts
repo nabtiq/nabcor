@@ -46,7 +46,7 @@ test("the address check applies to every supported artifact type, not only claim
   const root = tempDir("addr-types");
   const store = new FileArtifactStore(root, registry());
   const profile = {
-    schema_version: "1.7.1",
+    schema_version: "1.8.0",
     artifact_id: "tp_t_0001",
     brand_ref: BRAND,
     created_at: NOW,
@@ -98,7 +98,7 @@ test("an artifact carrying an internal workspace field must name its workspace n
   const root = tempDir("addr-workspace");
   const store = new FileArtifactStore(root, registry());
   const snapshot = {
-    schema_version: "1.7.1",
+    schema_version: "1.8.0",
     artifact_id: "snap_ws_0001",
     brand_ref: BRAND,
     workspace: "ws_FOREIGN",
@@ -135,7 +135,7 @@ test("operational record reads refuse a record whose identity field differs from
   const root = tempDir("addr-record");
   const recordStore = new FileRunRecordStore(root, registry());
   const manifest = {
-    schema_version: "1.7.1",
+    schema_version: "1.8.0",
     manifest_id: "cm_t_0001",
     run_ref: "run_t_0001",
     skill_id: "address-integrity-test",

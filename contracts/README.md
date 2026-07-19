@@ -10,6 +10,10 @@ Authority rank 4 (below decisions, above current state) — see `AGENTS.md`.
   `approval`, `localized_text`, `rights`) referenced by artifact schemas via `allOf`.
 - Truth layer: `source`, `claim`, `assumption`, `claim-snapshot`,
   `truth-profile`, `truth-analysis`.
+- Fact-resolution layer (DEC-0016): `fact-resolution-decision` (the
+  immutable signed authorization target carrying the complete requested
+  action), `fact-resolution-application` (the immutable record that one
+  signed decision was applied exactly once).
 - Decision layer: `decision`.
 - Creative layer: `brand-context`, `creative-brief`, `creative-territory`,
   `creative-direction`, `brand-dna`, `visual-world`, `design-system`.
@@ -70,11 +74,76 @@ instead of invented claim refs — see fixture `P02`).
 
 ## Versioning
 
-Artifact `schema_version` for all contracts: **1.7.1** (was 1.7.0). The version is
+Artifact `schema_version` for all contracts: **1.8.0** (was 1.7.1). The version is
 globally synchronized across all contracts; examples, fixtures, and
 runtime-generated artifacts carry it consistently.
 
-**Migration implications (1.7.0 → 1.7.1):** one genuine schema defect was
+**Migration implications (1.7.1 → 1.8.0):** two contracts were added and two
+contracts changed meaning for the authenticated fact-resolution application
+(DEC-0016, Phase 1B.4); no other contract changed meaning:
+
+- `fact-resolution-decision` (new): the immutable authorization target for
+  one human fact resolution — the COMPLETE requested action. It pins the
+  workspace/brand, the exact truth-analysis/claim-snapshot/truth-profile
+  references with canonical content digests, the snapshot's aggregate
+  claim-set digest (binding the entire canonical namespace state, so
+  lineage-head changes are detectable), the `fact_key`, a deterministic
+  contradiction fingerprint (`contradiction-fingerprint-sha256-1.0.0`:
+  'c' + sha256 hex over the canonical JSON of
+  `{brand_ref, claim_refs, distinct_values, fact_key, workspace}`), the
+  recorded contradiction, exactly one winner and every other participant
+  as a loser (each digest-pinned), the rationale, and the requester.
+  Semantic layer: `fingerprint-consistency` (recomputed),
+  `exact-partition` (winner + losers partition the contradiction exactly —
+  no omission, injection, duplication, or overlap; partial resolution is
+  prohibited), and `sorted-unique-references`. The Product Owner signs
+  this artifact's exact store address and recomputed content digest under
+  the existing `fact-resolution-approval` gate; signing a truth analysis,
+  a bare fact key, or winner/loser IDs is not a valid authorization.
+- `fact-resolution-application` (new): the immutable record that one
+  signed decision was applied exactly once. Every identity is
+  deterministic (`fact-resolution-id-sha256-1.0.0`; semantic layer
+  recomputes): `artifact_id` = 'fra' + sha256 over
+  `{decision_digest, receipt_ref}`, each losing successor = 'crs' + sha256
+  over `{application_ref, losing_claim_ref}`, and the after-snapshot /
+  after-analysis = 'fsn'/'fan' + sha256 over `{application_ref, role}`.
+  All post-consumption timestamps equal the receipt's `consumed_at`, so a
+  crash-recovery retry recomputes byte-identical artifacts, resumes only
+  missing writes, refuses conflicting content (typed failures), and a
+  replay after completion returns the stored record without creating
+  anything. `status` is pinned to `applied`: failed or partial attempts
+  never persist a result. Recovery semantics: an already-consumed approval
+  resumes ONLY the same operation — the immutable receipt must match the
+  presented evidence's payload digest, key, policy/registry binding, gate,
+  verdict, namespace, and the recomputed decision digest; the presented
+  signature must verify against the enrolled key (this also holds for
+  completed replays — payload knowledge without a verifying signature
+  replays nothing); and every existing derived artifact must match its
+  expected deterministic content digest exactly. Application additionally
+  re-binds the decision's recorded contradiction to its digest-pinned
+  analysis by fingerprint in every mode (a signed decision recording
+  injected or omitted participants fails closed before consumption), and a
+  pre-write slot guard refuses to create any successor when a
+  non-participant claim has entered the resolved fact slot after signing.
+  Single-host/single-writer file atomicity only; no
+  distributed-transaction claim is made.
+- `approval-evidence` and `approval-receipt` changed meaning minimally:
+  the `target_artifact_type` enum gains `fact-resolution-decision` so a
+  decision artifact can be the signed approval target. No other field
+  changed.
+- No real production artifacts existed at 1.7.1, so no real-artifact
+  migration was performed — examples, fixtures, the committed active
+  human-gate documents, and synthetic runtime fixtures were re-issued at
+  1.8.0 in the same change. The active policy keeps `policy_version` 2 and
+  the active registry keeps `registry_version` 2: only their
+  `schema_version` label changed under the synchronized re-issue, no
+  pinned semantic content — a semantic change would require a new revision
+  plus a decision record. (The synthetic runtime fixtures were found still
+  carrying 1.7.0 — a labeling inconsistency from the previous re-issue,
+  corrected here; the version field is pattern-validated, so no gate had
+  failed on it.)
+
+**Historical — migration implications (1.7.0 → 1.7.1):** one genuine schema defect was
 corrected during the Phase 1B.3B Product Owner key enrollment (DEC-0015);
 no other contract changed meaning:
 
@@ -353,7 +422,10 @@ Two distinguishable layers, both required green (non-zero exit otherwise):
   unique-key-ids, key-id-binds-spki-ed25519, validity-window-ordered,
   revocation-metadata-consistency, registry-lineage,
   payload-digest-consistency, expires-after-issued,
-  self-review-consistency, and receipt-id-consistency (DEC-0008/DEC-0014).
+  self-review-consistency, and receipt-id-consistency (DEC-0008/DEC-0014) ·
+  fingerprint-consistency, exact-partition, sorted-unique-references,
+  application-id-consistency, derived-id-consistency, and
+  sorted-unique-losing-revisions (DEC-0016).
   Negative fixtures with
   `expect_fail_at: "semantic"` must pass the schema layer and fail here.
 

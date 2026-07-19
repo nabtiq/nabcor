@@ -1,0 +1,106 @@
+# Skill specification — template per docs/AGENT_AND_SKILL_ARCHITECTURE.md §4.
+# Phase 1B.4 (DEC-0016) implements this deterministic Tier-0 capability:
+# the authenticated fact-resolution loop that turns one open truth-analysis
+# contradiction into an applied, auditable, exactly-once resolution. It is
+# two deterministic services around one human signature — it contains no
+# model call, selects no winner itself, and applies nothing without
+# verified, consumed approval evidence over the exact decision artifact.
+skill_id: resolve-fact-contradiction
+domain: UNDERSTAND
+purpose: >
+  Close one open contradiction by an authenticated human decision.
+  Preparation (src/resolve/prepare-decision.ts) derives an immutable
+  fact-resolution-decision artifact — the COMPLETE requested action: one
+  currently open contradiction from one validated truth analysis, exactly
+  one winning claim, every other participant as a digest-pinned losing
+  claim (exact partition), plus content digests of the exact analysis,
+  snapshot, profile, and namespace state — from Artifact Store references
+  only. The Product Owner signs that exact artifact (sign-approval CLI,
+  fact-resolution-approval gate). Application
+  (src/resolve/apply-resolution.ts) verifies and atomically consumes the
+  evidence (DEC-0014/DEC-0015), creates a deterministic contradicted
+  successor revision for every losing claim, captures a fresh snapshot,
+  re-runs the deterministic analyzer, and persists an immutable
+  fact-resolution-application record.
+input_contract: >
+  Preparation: DecisionPreparationInput (workspace/brand, truth-analysis
+  reference, fact_key, expected contradiction fingerprint, winning claim
+  reference, rationale, requester, injected clock) — caller-supplied
+  contradiction arrays, loser lists, and digests are rejected at runtime.
+  Application: approval-evidence.schema.json evidence whose signed target
+  is the exact stored fact-resolution-decision artifact.
+output_contract: >
+  fact-resolution-decision.schema.json (preparation) and
+  fact-resolution-application.schema.json plus the created claim
+  revisions, fresh claim-snapshot, and fresh truth-analysis (application).
+required_context: [workspace, brand_ref, canonical Artifact Store, trusted policy + registry, receipt store]
+tools: []          # no OCR, no parsing, no fetching, no network
+model_calls: none  # Tier 0 — deterministic code end to end
+gateway: not used
+fake_adapter: not used
+model_capability: tier-0 (deterministic; no model-assisted extension exists or is authorized)
+deterministic_validations:
+  - preparation re-derives everything from the store: analysis-snapshot
+    digest binding, namespace currency (aggregate claim-set digest),
+    declared-vs-derived lineage projection agreement, open-contradiction
+    existence, fingerprint match (contradiction-fingerprint-sha256-1.0.0),
+    single-cardinality slot, winner-participates; losers are derived as
+    every remaining participant exactly once — partial resolution is
+    unrepresentable
+  - the contract's semantic layer recomputes the fingerprint, the exact
+    winner/loser partition, and sorted-unique references on every
+    validation of a decision artifact
+  - application runs every safe deterministic preflight BEFORE consuming
+    the approval; a denial, stale decision, forked lineage, or planted
+    artifact consumes nothing and writes nothing
+  - authorization is DEC-0014 verification plus atomic single-use nonce
+    consumption; only verdict approved applies; a rejected verdict
+    consumes its nonce and mutates nothing
+  - successors preserve the losing claim's content and provenance, set
+    verification_status contradicted, record resolution_decision_ref, and
+    supersede the losing head; the predecessor and the winner stay
+    byte-identical (the winner is never auto-verified)
+  - all post-consumption identities derive from the decision digest and
+    receipt (fact-resolution-id-sha256-1.0.0) with receipt-sourced
+    timestamps: retries resume byte-exactly, conflicting artifacts fail
+    closed, completed replays return the stored result
+  - the fresh analysis must no longer contain the resolved contradiction;
+    unrelated contradictions and gaps are untouched
+failure_modes:
+  - stale decision or analysis after namespace change (typed
+    stale-analysis — re-analyze, re-prepare, re-sign)
+  - signature-target confusion, digest substitution, wrong gate/role/key/
+    policy, expiry, replay (typed approval-unauthorized /
+    approval-replay / invalid-input / independent-review-frozen)
+  - authentic human rejection (typed resolution-rejected — recorded,
+    nothing applied)
+  - conflicting successor, foreign fork, cross-operation recovery,
+    rotated trust configuration (typed resolution-conflict)
+retry_rules: >
+  Retrying the identical operation after a crash is safe and REQUIRED to
+  finish a consumed approval: recovery resumes only missing deterministic
+  writes. Retrying with changed input cannot change an outcome; a
+  fail-closed conflict needs a fresh decision and signature after the
+  conflict is resolved.
+human_approval: >
+  Mandatory and cryptographic: the Product Owner signs the exact decision
+  artifact under fact-resolution-approval (DEC-0014 mechanism, DEC-0015
+  enrolled key, self_review disclosed per DEC-0008). This is the ONLY
+  business action any approval applies; independent-review gates stay
+  frozen and cannot be satisfied by a self-signature.
+token_budget: {output: 0, max_tool_calls: 0, max_iterations: 1}  # Tier 0: zero model tokens
+caching: not applicable (no model calls; deterministic output for identical input)
+limitations: >
+  Single-host/single-writer boundary: atomicity is file-level linkSync
+  semantics; a concurrent writer forces fail-closed states, never wrong
+  results, and no distributed atomicity is claimed. Resolution operates on
+  structured-fact contradictions only (DEC-0011 scope); semantic prose
+  conflicts remain invisible upstream. The winner is not upgraded to
+  verified — verification has its own provenance rules. Approvals are
+  single-use: every application needs a fresh signed decision.
+evaluation_method: >
+  Deterministic runtime suites (test/fact-resolution-*.test.ts):
+  preparation partition/fingerprint/staleness/fork/tamper cases, signature
+  binding and authorization denials with zero-mutation proofs, application
+  lineage effects with byte-identity proofs, and crash-recovery retries at
+  every write boundary with byte-exact resume and idempotent replay.

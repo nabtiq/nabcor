@@ -19,6 +19,9 @@ speculative specs):
   (Phase 1A, DEC-0005; truth-analysis input per Phase 1B.2, DEC-0011).
 - `analyze-structured-truth.skill.yaml` — Tier-0 deterministic
   structured-truth analysis (Phase 1B.2, DEC-0011).
+- `resolve-fact-contradiction.skill.yaml` — Tier-0 authenticated
+  fact-resolution decision preparation and crash-recoverable application
+  (Phase 1B.4, DEC-0016).
 
 Their model-assisted extensions (catalog Tiers 1–2) remain unimplemented and
 **prohibited by the ratified zero-provider policy** (DEC-0009; Q-001 and
@@ -42,21 +45,22 @@ namespace into a digest-bound claim snapshot, caller-supplied claim arrays
 are rejected at runtime, and compilation reconciles the snapshot against
 the live store — stale analyses fail closed and require re-analysis.
 
-Authoritative human contradiction resolution is NOT implemented as an
-applied action. The authenticated human-gate MECHANISM now exists —
-DEC-0014 (Phase 1B.3A) closed Q-009 with offline Ed25519 approval
-evidence: signed canonical payloads verified against the committed trusted
-policy and authority registry with atomic single-use nonce consumption
-(`src/authority/`). A schema-valid decision or approval artifact still
-proves shape, not that a human acted, and no skill may treat unsigned
-metadata as authentication evidence (DEC-0012). The mechanism is
-operationally available for ordinary fact-resolution approval — DEC-0015
-(Phase 1B.3B) enrolled the real Product Owner public key as the single
-least-privilege `product-owner` authority in registry v2, pinned by policy
-v2. Two limits still bound it: a verified approval is evidence, not an
-action (creating the losing claim's `contradicted` revision remains
-unimplemented); and a valid signature is never sufficient without policy
-authorization and nonce consumption.
+Authoritative human contradiction resolution IS implemented as an applied
+action since Phase 1B.4 (DEC-0016), on top of the authenticated
+human-gate mechanism — DEC-0014 (Phase 1B.3A) closed Q-009 with offline
+Ed25519 approval evidence verified against the committed trusted policy
+and authority registry with atomic single-use nonce consumption
+(`src/authority/`), and DEC-0015 (Phase 1B.3B) enrolled the real Product
+Owner public key (registry v2, pinned by policy v2). The signed
+authorization target is the immutable fact-resolution-decision artifact
+carrying the complete requested action; application (`src/resolve/`)
+creates deterministic `contradicted` successor revisions and a fresh
+snapshot/analysis, idempotently and crash-recoverably. A schema-valid
+decision or approval artifact still proves shape, not that a human acted,
+and no skill may treat unsigned metadata as authentication evidence
+(DEC-0012); a valid signature is never sufficient without policy
+authorization and nonce consumption; and fact resolution is the ONLY
+business action any approval applies — everything else stays frozen.
 
 Quarantine release remains fail-closed: it is a DEC-0008 independent-review
 gate, frozen in the active human-gate policy (`independent_reviewer_named:

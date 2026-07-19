@@ -60,7 +60,7 @@
   },
   "examples": [
     {
-      "schema_version": "1.7.1",
+      "schema_version": "1.8.0",
       "policy_id": "gateway-policy-0001",
       "decision_ref": "DEC-0009",
       "allowed_adapters": ["fake"],

@@ -153,16 +153,55 @@ immutable per version; a revision creates a new version linked by supersession
 - Detection today is the deterministic Tier-0 structured layer only
   (DEC-0011): explicit fact slots compared exactly, status fixed to `open`.
   Semantic detection over prose remains prohibited (DEC-0009).
-- **Authoritative resolution is unimplemented as an applied action.** The
-  authenticated human-gate mechanism now exists (DEC-0014 closed Q-009:
-  offline Ed25519 approval evidence, policy-authorized and
-  replay-consumed) and is operationally available for ordinary
-  fact-resolution approval (DEC-0015: the real Product Owner key is
-  enrolled in registry v2, pinned by policy v2). Applying a resolution —
-  creating the losing claim's `contradicted` revision from an authorized
-  approval — remains unimplemented follow-on work. A shape-valid Decision
-  artifact is still not evidence that a human acted, and no runtime path
-  may treat it as such (DEC-0012).
+- **Authoritative resolution is implemented as the authenticated
+  fact-resolution loop (DEC-0016, Phase 1B.4).** The signed authorization
+  target is an immutable Fact-Resolution Decision (below) carrying the
+  complete requested action; the application service verifies and consumes
+  the Product Owner's approval evidence (DEC-0014 mechanism, DEC-0015
+  key), creates a deterministic `contradicted` successor for every losing
+  claim, never mutates the winner, and rolls the namespace forward to a
+  fresh snapshot and analysis. A shape-valid Decision artifact is still
+  not evidence that a human acted, and no runtime path may treat it as
+  such (DEC-0012) — only verified, consumed approval evidence over the
+  exact decision artifact authorizes application.
+
+### Fact-Resolution Decision
+- **Purpose:** the immutable authorization target for one human fact
+  resolution (DEC-0016): the COMPLETE requested action — one currently
+  open contradiction from one validated truth analysis, exactly one
+  winning claim, every other participant as a losing claim (exact
+  partition; partial resolution is unrepresentable), with content digests
+  pinning the exact analysis, snapshot, profile, participants, and
+  namespace state the human decided on. Prepared deterministically from
+  store references only (`src/resolve/prepare-decision.ts`); the Product
+  Owner signs this artifact's exact address and recomputed content digest
+  under the `fact-resolution-approval` gate.
+- **Required:** envelope, `brand_ref`, `workspace`, fingerprint algorithm,
+  analysis/snapshot/profile refs + digests, aggregate claim-set digest,
+  `fact_key`, deterministic contradiction fingerprint
+  (`contradiction-fingerprint-sha256-1.0.0`), the recorded contradiction,
+  winner ref + digest, sorted losing claims with digests, rationale,
+  requester.
+- **Class:** canonical (it is what gets signed). Contract:
+  `contracts/fact-resolution-decision.schema.json`.
+
+### Fact-Resolution Application
+- **Purpose:** the immutable record that one signed decision was applied
+  exactly once (DEC-0016): binds the consumed approval (evidence, payload
+  digest, receipt, key, policy, registry), the before-state, the created
+  losing-claim revisions, and the fresh after-state. All identities are
+  deterministic (`fact-resolution-id-sha256-1.0.0`) and all timestamps
+  come from the receipt's `consumed_at`, so application is idempotent and
+  crash-recoverable: retries resume byte-exactly, conflicts fail closed,
+  and completed replays return this record. Single-host/single-writer
+  file atomicity only.
+- **Required:** envelope, namespace, algorithm, decision ref + digest,
+  approval binding, before/after snapshot and analysis refs, created
+  losing revisions, after claim-set digest, `status: "applied"`,
+  `consumed_at`.
+- **Class:** canonical audit record. Contract:
+  `contracts/fact-resolution-application.schema.json`. Implementation:
+  `src/resolve/apply-resolution.ts`.
 
 ### Claim Snapshot
 - **Purpose:** the store-authoritative record of the COMPLETE canonical

@@ -9,11 +9,13 @@ kernel (DEC-0004/DEC-0005), the Phase 1B.1 offline gateway kernel
 analysis (DEC-0011), the Phase 1B.2.1 resolution-safe claim lifecycle
 correction (DEC-0012), the Phase 1B.2.2 store-authoritative claim
 snapshots (DEC-0013), the Phase 1B.3A offline Ed25519 authenticated
-human-gate foundation (DEC-0014), and the Phase 1B.3B real Product Owner
-key enrollment (DEC-0015: registry v2 + policy v2, contracts 1.7.1,
-ordinary fact-resolution approval operationally available). No
-provider-backed extraction, no model calls, no applied human contradiction
-resolution, and no full vertical slice exist yet; Phase 1 is not complete.
+human-gate foundation (DEC-0014), the Phase 1B.3B real Product Owner
+key enrollment (DEC-0015), and the Phase 1B.4 authenticated
+fact-resolution application (DEC-0016: signed immutable decision
+artifacts, deterministic crash-recoverable application, contracts 1.8.0 —
+the deterministic contradiction-resolution loop is closed). No
+provider-backed extraction, no model calls, and no full vertical slice
+exist yet; Phase 1 is not complete.
 
 ## What NABCor is
 
@@ -302,10 +304,11 @@ No provider SDK and no framework exist.
   differs from its canonical filename (typed `artifact-address-mismatch`).
   An offline operator CLI (`node dist/src/cli/keygen.js`) prepares key
   enrollment (owner-only private key outside the repository, public
-  registry-entry candidate). Authenticated approval applies no business
-  action: fact-resolution application, quarantine release, and publishing
-  remain unimplemented, and the four DEC-0008 independent-review gates stay
-  frozen — a Product Owner self-signature can never satisfy one.
+  registry-entry candidate). At this phase, authenticated approval applied
+  no business action; quarantine release and publishing remain
+  unimplemented today, fact-resolution application landed later under
+  DEC-0016 (Phase 1B.4), and the four DEC-0008 independent-review gates
+  stay frozen — a Product Owner self-signature can never satisfy one.
 - **Real Product Owner key enrollment (Phase 1B.3B, DEC-0015)** — the
   committed active authority registry (v2) enrolls exactly ONE real
   authority: the Product Owner's ceremony-generated, fingerprint-confirmed
@@ -328,20 +331,49 @@ No provider SDK and no framework exist.
   genuine contract defect (1.7.0 → 1.7.1): the policy schema pinned
   `decision_ref` const `DEC-0014`, which made the documented
   policy-revision procedure itself schema-invalid.
+- **Authenticated fact-resolution application (Tier 0, Phase 1B.4,
+  DEC-0016)** — the closed deterministic contradiction-resolution loop:
+  open truth-analysis contradiction → immutable `fact-resolution-decision`
+  artifact → Product Owner signature over that exact decision →
+  verification and single-use consumption → deterministic `contradicted`
+  successor revision for every losing claim → fresh authoritative snapshot
+  and analysis → immutable `fact-resolution-application` result. The
+  preparation boundary (`src/resolve/prepare-decision.ts`) accepts
+  references only and re-derives the contradiction, losers, and every
+  digest from the Artifact Store: the produced decision pins the exact
+  analysis, snapshot, profile, and participant digests plus the aggregate
+  claim-set digest, and winner + losers must partition the contradiction
+  exactly (partial resolution is unrepresentable). The signature target is
+  the decision artifact itself — signing a truth analysis, a bare fact
+  key, or winner/loser IDs authorizes nothing. Application
+  (`src/resolve/apply-resolution.ts`) runs every safe preflight before
+  consuming the approval, creates immutable successor revisions (content
+  preserved; `verification_status: contradicted`;
+  `resolution_decision_ref` recorded; predecessor and winner byte-
+  identical — the winner is never auto-verified), and re-derives a fresh
+  snapshot and analysis in which the resolved contradiction is closed and
+  the old analysis is stale by construction. All post-consumption
+  identities derive from the decision digest and receipt
+  (`fact-resolution-id-sha256-1.0.0`) with receipt-sourced timestamps, so
+  application is idempotent and crash-recoverable: retries resume
+  byte-exactly, conflicting or forked state fails closed, and completed
+  replays return the stored result. Single-host/single-writer file
+  atomicity only — no distributed-transaction claim. A rejected verdict
+  consumes its nonce and mutates nothing.
 - **Synthetic CLI example** — `node dist/src/cli/run-example.js --out <dir>` runs the
   full deterministic path on English-only synthetic fixtures. No network, no model
   calls, no client data.
 
 What does **not** exist yet: model calls of any kind, provider adapters,
 provider-backed extraction, natural-language fact extraction, semantic
-contradiction detection, APPLIED human contradiction resolution, creative
-territories, channel specs, or the full vertical slice. Q-009 is closed by
-DEC-0014 (offline Ed25519 approval evidence) and the mechanism is now
-operationally ACTIVE for ordinary fact-resolution approval (DEC-0015: one
-real Product Owner key enrolled, registry v2 pinned by policy v2) — but
-even a verified approval applies no business action: creating a losing
-claim's `contradicted` revision from an authorized resolution remains
-unimplemented follow-on work. Q-002 is closed as **"no provider approved"** (DEC-0009):
+contradiction detection, creative territories, channel specs, or the full
+vertical slice. Q-009 is closed by DEC-0014 (offline Ed25519 approval
+evidence), activated by DEC-0015 (one real Product Owner key enrolled,
+registry v2 pinned by policy v2), and since Phase 1B.4 (DEC-0016) a
+verified approval over a fact-resolution-decision artifact DOES apply one
+business action: the deterministic fact-resolution application. Nothing
+else applies from an approval — quarantine release, publishing, and every
+independent-review action stay frozen. Q-002 is closed as **"no provider approved"** (DEC-0009):
 model-backed work is prohibited by ratified policy — with external/model spend
 capped at zero — rather than blocked on an open question, and enabling any
 provider requires a new ratified decision meeting DEC-0009's requirements.

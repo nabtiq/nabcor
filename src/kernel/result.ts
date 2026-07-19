@@ -52,6 +52,12 @@ export type KernelFailure =
   // Authenticated human-gate evidence (DEC-0014). Verification failures are
   // typed and closed; they never carry key material or signed payload bodies.
   | { kind: "authority-config-invalid"; message: string }
+  // Authenticated fact resolution (DEC-0016). A rejection is an authentic,
+  // consumed human decision that applies nothing; a conflict is a state the
+  // deterministic application refuses to write over (foreign consumed
+  // approval, conflicting successor, forked lineage, planted artifact).
+  | { kind: "resolution-rejected"; decisionRef: string; message: string }
+  | { kind: "resolution-conflict"; message: string }
   | { kind: "approval-unauthorized"; reason: ApprovalDenialReason; message: string }
   | { kind: "approval-replay"; receiptId: string; message: string }
   | { kind: "independent-review-frozen"; gate: string; message: string }
