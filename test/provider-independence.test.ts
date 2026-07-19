@@ -64,15 +64,24 @@ test("the transport module pins the production endpoint and accepts no caller UR
     body.includes('"https://api.anthropic.com/v1/messages"'),
     "the production endpoint must be a pinned module constant"
   );
-  // Exactly one URL literal exists in the runtime, and it lives here.
+  // Exactly one URL literal exists in the runtime, and it lives here. The
+  // allowlist compares the exact HOST of each literal (never a substring
+  // match — that is the incomplete-URL-sanitization antipattern, since
+  // `nabcor.nabtiq.com.evil.example` or `evil.example/json-schema.org` would
+  // slip through a `.includes()` check). Doc/schema-namespace hosts are
+  // non-reachable identifiers, not endpoints.
+  const DOC_HOSTS = new Set(["nabcor.nabtiq.com", "json-schema.org"]);
   const files = tsFilesUnder(join(repoRoot, "src"));
-  const urlPattern = /https:\/\/[a-z0-9.-]+\//g;
+  const urlPattern = /https:\/\/([a-z0-9.-]+)\//g;
   for (const file of files) {
     const rel = relative(repoRoot, file);
     if (rel === TRANSPORT_MODULE) continue;
-    const matches = readFileSync(file, "utf8").match(urlPattern) ?? [];
-    const nonDoc = matches.filter((m) => !m.includes("nabcor.nabtiq.com") && !m.includes("json-schema.org"));
-    assert.deepEqual(nonDoc, [], `${rel} contains a provider-reachable URL literal: ${nonDoc.join(", ")}`);
+    const body = readFileSync(file, "utf8");
+    const reachable: string[] = [];
+    for (const match of body.matchAll(urlPattern)) {
+      if (!DOC_HOSTS.has(match[1]!)) reachable.push(match[0]);
+    }
+    assert.deepEqual(reachable, [], `${rel} contains a provider-reachable URL literal: ${reachable.join(", ")}`);
   }
   // The transport request shape has no URL or header-map field.
   const transportInterface = readFileSync(join(repoRoot, "src", "gateway", "adapters", "transport.ts"), "utf8");
