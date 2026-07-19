@@ -23,10 +23,12 @@ approval, and no Product Owner approval is asserted here.
 ## Context
 
 DEC-0009 closed Q-002 as "no provider approved" and required that any
-enablement decision satisfy nine requirements: named provider and
-models, permitted data classes, retention/training rules, regulatory
-constraints, secret management, spend ceilings, human gates,
-observability/failure controls, and pre-EXP-0001 evidence. Phase 1B
+enablement decision satisfy nine requirements: the provider, the
+allowed models, the permitted data classifications, the retention
+policy, the training policy, geographic/regulatory constraints, the
+secret-management mechanism, per-run and monthly spend ceilings, and
+the human approval gates. The packet's §1 answers all nine and adds
+observability/failure controls and pre-EXP-0001 evidence on top. Phase 1B
 completed the offline foundation (DEC-0010..DEC-0017); EXP-0001 — Phase
 1's exit evidence — is the only remaining blocked step, and it requires
 a real model. Phase 1C.0 produced the evidence base this decision needs:
@@ -38,9 +40,11 @@ a real model. Phase 1C.0 produced the evidence base this decision needs:
   REQUIRES-CONTRACT tags, a reproducible EXP-0001 cost model with six
   scenarios and proposed ceilings, secret-management design, and gate
   design.
-- **Threat model:** docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md — 24
-  threats with preventive/detective/response controls, implementation
-  gates, and the layered emergency-disable path E1.
+- **Threat model:** docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md — 21
+  threat entries covering all 24 required threat categories, each with
+  preventive/detective/response controls, residual risk, an
+  implementation gate, and an owner, plus the layered emergency-disable
+  path E1.
 
 ## The three options (full text in the packet §10)
 
@@ -49,9 +53,10 @@ a real model. Phase 1C.0 produced the evidence base this decision needs:
    data only; ceilings $1.00/request, $25/run, $40/day, $60/month with
    the provider-console hard cap at $60; caching, Batch, tools, and all
    provider-side storage OFF; no fallback; bounded EXP-0001-only scope.
-2. **Option B — cheapest capable configuration:** OpenAI API with
-   `gpt-5.4-nano-2026-03-17` and `gpt-5.6-terra` (~5x cheaper expected
-   case) at the price of a storage-by-default API surface requiring
+2. **Option B — cheaper configuration:** OpenAI API with
+   `gpt-5.4-nano-2026-03-17` and `gpt-5.6-terra` (≈$3.50 vs ≈$5.80
+   expected case — about 1.7x cheaper) at the price of a
+   storage-by-default API surface requiring
    `store:false` on every call, an unverifiable hard-spend-cap
    semantic, and several governance pages unreachable during research.
 3. **Option C — preserve DEC-0009:** fake adapter only, zero spend;
@@ -85,8 +90,8 @@ Option B.
 
 ## Evidence and assumptions
 
-Evidence: the packet's §12 source list (43 official pages, all accessed
-2026-07-19, each tied to the matrix rows it supports); the repository
+Evidence: the packet's §12 source list (every entry an official page
+accessed 2026-07-19, tied to the matrix rows it supports); the repository
 workload plan (EXP-0001, MODEL_AND_TOKEN_STRATEGY, token-budget
 contract) behind the cost model. Assumptions: cost-model workload
 assumptions are stated in packet §6.1 and are ESTIMATES — nothing in

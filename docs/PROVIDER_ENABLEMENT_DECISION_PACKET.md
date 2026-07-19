@@ -137,7 +137,7 @@ CONTRACT. Sources by number in §12. Prices USD per million tokens.
 | 24 | Provider-side storage/memory controls | Standard Messages stateless; Files/Batch/code-exec/Skills/MCP all opt-in per request [V, A8/A13] | NOT stateless by default: `store:false` required per request; Conversation objects persist until deleted [V, O8/O14] | NOT stateless by default: Interactions `store=true` default (55 days); Files auto-delete 48h; legacy generateContent statelessness recipe [V, G14/G19] |
 | 25 | Spend-cap controls | HARD self-serve monthly caps (Start tier $500 ceiling; self-set lower limit; usage pauses at cap) + per-workspace spend limits [V, A5] | Spend ALERTS + tier monthly usage limits; whether the self-set budget hard-stops is UNKNOWN (console page login-gated; official docs describe alerts) [V alerts / U hard-stop, O11] | HARD tier caps ("service is paused ... until the next billing cycle"; Tier 1 $250) + $10/10-min rate cap [V, G12] |
 | 26 | Deprecation/version-pinning risk | Low-medium: pinned snapshots, 60-day floor, published tentative retirement dates [V, A9] | Low: 6-month GA notice, dated snapshots [V, O15] | Medium-high: annual shutdowns, Pro tier currently preview-only, 2.5 family dies mid-experiment-window 2026-10-16 [V, G16] |
-| 27 | Expected EXP-0001 cost (expected case, §6) | ≈ $4.85 | ≈ $1.15 | ≈ $2.10 |
+| 27 | Expected EXP-0001 cost (expected case, §6) | ≈ $5.80 | ≈ $3.50 | ≈ $2.40 |
 | 28 | Unresolved legal/contract questions | Retention-doc reconciliation (row 17); subprocessor list content; SSO [RC]; ZDR [RC] | Hard-cap semantics; subprocessor content (403); enterprise-privacy page (403); org ID-verification requirement for 5.6 tier [I]; BAA/ZDR [RC] | Developer-API audit scope [U]; abuse-retention duration [U]; zero retention needs Vertex/GEAP + approval [RC] |
 | 29 | Overall fit for NABCor first enablement | STRONG: hard caps + stateless default + guaranteed schema on cheap tier + no-training default + pinned IDs + raw-HTTPS (zero new deps) all VERIFIED self-serve | MIXED: best price and deprecation notice, but storage-by-default, unverifiable hard cap, and several 403-blocked governance pages | MIXED: hard caps and cheap tiers, but schema adherence not guaranteed, stateful default, unproven Developer-API audit scope, fastest model churn |
 
@@ -192,10 +192,17 @@ run_cost = sum over models + retry_reserve
 
 Tool calls: none (tools are omitted entirely; 0 overhead tokens [V, A2]).
 Taxes/fees: provider list prices exclude taxes; whether VAT/GST applies
-depends on the billing country and is UNKNOWN — ceilings below leave
->= 25% headroom partly for this. Currency: USD. Rounding: per-request
-costs round UP to the cent; scenario totals round UP to the nearest
-$0.10.
+depends on the billing country and is UNKNOWN. Headroom against it is
+uneven by design: the daily ($40) and monthly ($60) ceilings carry
+roughly 25-60% headroom over their driving scenarios, while the $25 run
+ceiling sits only ~2% above the hard-ceiling scenario — if a ~20% tax
+applies, a genuine hard-ceiling run would breach it and must either
+split across days or trigger a ceiling re-ratification; that is the
+conservative failure mode, chosen deliberately. Currency: USD.
+Rounding: enforcement rounds per-request costs UP to the cent and
+scenario totals UP to the nearest $0.10; displayed intermediate values
+in §6.3 use standard cent rounding for readability (totals remain
+round-up).
 
 ### 6.3 Scenarios (Anthropic candidates; Haiku=$1/$5, Sonnet post-intro=$3/$15)
 
@@ -208,10 +215,14 @@ $0.10.
 | One structured-output validation failure | Expected + one wasted full-case output (75k*1.3 at $15) + bounded re-issue (same size) | + $1.46 wasted + $2.05 reissue | **≈ $9.40** |
 | One bounded escalation | Expected + one case's tokens moved Haiku→Sonnet (80k in, 60k out, x1.3 delta) | + in 80k*(1.3*$3-$1) + out 60k*(1.3*$15-$5) = $0.23 + $0.87 | **≈ $6.90** |
 
-Cross-checks (expected-case arithmetic on the same token assumptions):
-OpenAI `gpt-5.4-nano`+`gpt-5.6-terra` ≈ $1.15; Google
-`gemini-3.1-flash-lite`+`gemini-3.5-flash` ≈ $2.10. Price alone would
-favor OpenAI; §10 explains why the recommendation does not.
+Cross-checks (expected-case arithmetic on the same token assumptions —
+560k in / 420k out, 60/40 split, no tokenizer inflation applied to
+non-Anthropic models because their tokenizer ratios for this workload
+are unknown): OpenAI `gpt-5.4-nano`+`gpt-5.6-terra`: 0.336M*$0.20 +
+0.252M*$1.25 + 0.224M*$2.50 + 0.168M*$15 = $3.47 → **≈ $3.50**; Google
+`gemini-3.1-flash-lite`+`gemini-3.5-flash`: $0.47 + $1.85 = $2.31 →
+**≈ $2.40**. Price alone would favor Google or OpenAI's small tier; §10
+explains why the recommendation weighs the control surface higher.
 
 ### 6.4 Proposed ceilings (initial provider phase, synthetic EXP-0001 only)
 
@@ -224,15 +235,17 @@ favor OpenAI; §10 explains why the recommendation does not.
 | Max input tokens per request | 200,000 | Haiku's full window; Sonnet requests stay within it by policy |
 | Max output tokens per request | 32,000 | half of Haiku's 64k max output; forces bounded chunks |
 | Max attempts per request | 2 (one retry) | threat T14 |
+| (interaction rule) | pre-invocation cost metering governs: a request whose projected cost exceeds the $1.00 cap must be chunked even when it fits both token maxima (200k in + 32k out on Sonnet projects to ≈$1.40) | §1.9 metering; keeps the USD cap authoritative |
 | Max escalations per run | 7 (one per case), each consuming the case's escalation reserve exactly once | MODEL_AND_TOKEN_STRATEGY §2 rule |
 | Emergency-disable threshold | any day > $40, any reconciliation divergence > 20%, or any leakage-scan failure | threat model E1 |
 
 ## 7. Threat model
 
-See docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md — 24 threats (T01-T21 plus
-sub-cases) each with asset, attack, preventive control, detective
-control, response, residual risk, implementation gate, and owner, plus
-the layered emergency-disable path E1 (provider-console key revocation →
+See docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md — 21 threat entries
+(T01-T21) covering all 24 required threat categories (T06, T16, and T19
+each cover two adjacent categories), each with asset, attack, preventive
+control, detective control, response, residual risk, implementation
+gate, and owner, plus the layered emergency-disable path E1 (provider-console key revocation →
 local secret removal → policy-revision revert → console spend cap). The
 recommendation below is conditional on every HIGH-threat implementation
 gate being test-proven in the implementation phase before the first paid
@@ -280,7 +293,9 @@ nothing here reinterprets it.
 **Future signed target: `provider-enablement-approval`** (designed, not
 implemented). A new immutable artifact type, `provider-policy-candidate`,
 would carry: provider id · exact model-ID allowlist · allowed data
-classes · all six ceiling values from §6.4 · retention posture (the
+classes · every §6.4 control value (the four USD ceilings, both token
+limits, the attempt cap, the escalation cap, and the emergency-disable
+threshold) · retention posture (the
 documented provider defaults being accepted) · caching/batch stance ·
 validity window for the enablement. The Product Owner signs THAT
 artifact's exact canonical digest under a new `provider-enablement-
@@ -315,8 +330,10 @@ phase work under the ratified option.
   keeping the DEC-0006 dependency boundary intact. No contract, sales
   contact, or identity-verification process is needed for this scope.
 - **Costs:** expected EXP-0001 ≈ $5.80, ceiling $25/run, $60/month
-  (estimates, §6). Mid-priced: ~5x OpenAI's expected-case estimate
-  (≈$1.15) — the premium buys the verified control surface above.
+  (estimates, §6). Mid-priced: ~1.7x OpenAI's expected-case estimate
+  (≈$3.50) and ~2.4x Google's (≈$2.40) — an absolute premium of
+  roughly $2.30 per expected run, buying the verified control surface
+  above.
 - **Risks:** Haiku 4.5's tentative retirement floor is 2026-10-15
   [V, A9] — EXP-0001 should run before October or re-ratify the model
   list; retention-doc reconciliation UNKNOWN (row 17) — acceptable for
@@ -347,8 +364,9 @@ phase work under the ratified option.
 - **Provider/models:** OpenAI API with `gpt-5.4-nano-2026-03-17`
   (extraction) and `gpt-5.6-terra` (generation), Responses API with
   `store: false` mandated at the adapter layer on every call.
-- **Advantage:** lowest cost (expected EXP-0001 ≈ $1.15, ~5x cheaper);
-  the industry's longest GA deprecation notice (>=6 months [V, O15]);
+- **Advantage:** lower cost (expected EXP-0001 ≈ $3.50, ~40% cheaper
+  than Option A; the all-small-tier floor is lower still); the
+  industry's longest GA deprecation notice (>=6 months [V, O15]);
   strict structured outputs also guaranteed [V, O5].
 - **Added risks vs A:** storage-by-default on the recommended API — one
   missed `store:false` persists content 30 days provider-side (a
@@ -362,9 +380,10 @@ phase work under the ratified option.
   Anthropic's docs answered publicly.
 - **Reversibility:** high (same key-revocation logic).
 - **Work enabled / still prohibited:** as Option A.
-- **Policy changes:** as Option A with provider/model/ceiling values
-  swapped, PLUS a mandatory adapter-enforced `store:false` invariant
-  with a leakage test, and a verified answer on hard spend caps before
+- **Policy changes:** as Option A with provider and model IDs swapped
+  (the §6.4 dollar ceilings are provider-neutral and stay identical),
+  PLUS a mandatory adapter-enforced `store:false` invariant with a
+  leakage test, and a verified answer on hard spend caps before the
   first paid request.
 
 ### Option C — Preserve DEC-0009 (status quo)
@@ -391,24 +410,30 @@ evidence rather than cheapest tokens, the decisive properties are the
 ones that fail closed: verified hard spend caps, stateless-by-default
 transport, guaranteed schema adherence on the cheap tier, and zero new
 runtime dependencies. Anthropic is the only candidate where every one of
-those is VERIFIED as public self-serve capability today. The ~$4.65
+those is VERIFIED as public self-serve capability today. The ~$2.30
 expected-case premium over Option B is small in absolute terms against
 EXP-0001's $25 run ceiling; Option B remains documented and viable if
-the Product Owner weighs price or deprecation-notice length higher.
+the Product Owner weighs price or deprecation-notice length higher. No
+dedicated Google option exists because on this evidence it is strictly
+dominated for THIS workload: structured output is not semantically
+guaranteed (row 4), the GA Pro successor is preview-only, and its model
+churn is the fastest of the three (rows 3, 26) — its prices and hard
+tier caps are otherwise competitive and it remains a documented
+candidate for future decisions.
 
-### Product Owner ratification statement (copy one, replace only the option letter)
+### Product Owner ratification statement (copy verbatim; the option letter is the only edit)
 
 > I, Ibrahim Mohamed (@ibra2000sd), Product Owner of NABCor, ratify
 > DEC-0018 Option ___ as written in
-> docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md at commit <SHA>, with
-> self_review: true under DEC-0008. This ratification authorizes the
-> provider-enablement IMPLEMENTATION phase only, under every safety
-> posture, ceiling, gate, and exclusion recorded in the packet and in
-> DEC-0018; it does not itself enable a provider, execute EXP-0001,
-> permit real client data, or unfreeze any independent-review gate.
-
-(Choosing C: replace the second sentence with "This preserves DEC-0009
-unchanged; no provider work is authorized.")
+> docs/PROVIDER_ENABLEMENT_DECISION_PACKET.md at the Phase 1C.0 merge
+> commit of the nabtiq/nabcor repository, with self_review: true under
+> DEC-0008. This ratification authorizes only the work the selected
+> option enables, under every safety posture, ceiling, gate, and
+> exclusion recorded in the packet and in DEC-0018: for Options A or B,
+> the provider-enablement IMPLEMENTATION phase only; for Option C, the
+> unchanged preservation of DEC-0009 with no provider work authorized.
+> It does not itself enable a provider, execute EXP-0001, permit real
+> client data, or unfreeze any independent-review gate.
 
 ## 11. What must be true before EXP-0001 runs (evidence checklist)
 

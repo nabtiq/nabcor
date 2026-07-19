@@ -36,8 +36,11 @@ leaving the boundary, unbounded spend); they gate enablement absolutely.
   process as an environment variable at spawn time only; never accepted
   as a command-line argument; never written to any artifact, manifest,
   model-run record, or log (existing rule: model-run records carry
-  identifiers and token counts only); repository-wide credential-shaped
-  scanning stays blocking in the test suite.
+  identifiers and token counts only). Scanning today: the repository-
+  wide PEM-armor scan (no exemptions) plus provider-key-shape patterns
+  on the packet documents are blocking; extending the provider-key-shape
+  patterns repository-wide is part of this threat's implementation gate,
+  not a present-tense claim.
 - **Detective:** the existing no-exemption key/armor scan extended with
   provider key prefixes; provider console usage dashboard reviewed
   against local run records; anomaly = any spend without a matching
@@ -76,9 +79,12 @@ leaving the boundary, unbounded spend); they gate enablement absolutely.
 - **Attack/failure:** an operator, agent, or malicious process points
   the gateway at a modified policy file, an environment override, or a
   foreign trusted-config directory to bypass DEC-0009/DEC-0018 limits.
-- **Preventive:** the gateway loads the committed active policy from the
-  repository's fixed path exactly as today (DEC-0010); policy content is
-  CI-validated; no environment variable selects policy content; the
+- **Preventive:** the gateway loads the active policy from a
+  caller-fixed path (today the operator CLI pins the repository's
+  committed path; the gateway itself takes the path at construction);
+  policy content is CI-validated; no environment variable selects
+  policy content; the implementation phase must additionally refuse
+  non-repository policy sources outside test binaries; the
   provider adapter refuses to construct when the active policy pins the
   fake adapter (i.e., enabling requires the ratified policy revision to
   be committed and merged, not a local flag). Any test seam that loads
@@ -361,6 +367,8 @@ leaving the boundary, unbounded spend); they gate enablement absolutely.
 - **Response:** provider support; experiments pause (nothing else in
   NABCor depends on the provider).
 - **Residual:** schedule risk only.
+- **Gate:** none required before enablement (LOW severity; the response
+  path needs no build).
 - **Owner:** PO.
 
 ### T18 — Billing anomaly (MEDIUM)
@@ -374,6 +382,9 @@ leaving the boundary, unbounded spend); they gate enablement absolutely.
 - **Response:** halt (E1), dispute with provider evidence, learning.
 - **Residual:** small unexplained divergences (token-counting
   differences); tolerance documented in the cost model.
+- **Gate:** the reconciliation procedure (records vs usage export)
+  documented and drilled once on the initial smoke call before
+  EXP-0001.
 - **Owner:** PO.
 
 ## 5. Supply-chain and boundary threats

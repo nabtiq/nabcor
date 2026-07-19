@@ -386,7 +386,8 @@ network path, or spend exists; EXP-0001 remains unexecuted. The Phase
   target, three options, recommendation (Option A: Anthropic API,
   `claude-haiku-4-5-20251001` + `claude-sonnet-5`, synthetic only), and
   the copyable ratification statement.
-- docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md: 24 threats with controls,
+- docs/PROVIDER_ENABLEMENT_THREAT_MODEL.md: 21 threat entries covering
+  all 24 required threat categories, with controls,
   residual risks, implementation gates, owners, and the layered
   emergency-disable path E1.
 - brain/decisions/DEC-0018-provider-enablement.md: PROPOSED, grants no

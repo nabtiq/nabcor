@@ -74,9 +74,17 @@ if (!/^status: ratified$/m.test(referencedDecision)) {
 }
 
 // ---- 3. EXP-0001 must remain unexecuted ----
+// Emptiness, not marker presence: the Result section must contain the
+// empty marker and NOTHING else (results appended after a retained marker
+// would otherwise pass).
 const exp1 = read("brain/experiments/EXP-0001-prompt-to-brand-context.md");
-if (!exp1.includes("*(empty — filled from runs; no fictitious results)*")) {
-  fail("EXP-0001's Result section must remain the empty marker in this phase");
+const resultSection = exp1.split(/^## Result$/m)[1];
+if (resultSection === undefined) {
+  fail("EXP-0001 must carry a Result section");
+} else if (resultSection.trim() !== "*(empty — filled from runs; no fictitious results)*") {
+  fail(
+    "EXP-0001's Result section must contain exactly the empty marker and nothing else in this phase"
+  );
 }
 
 // ---- 4. Packet hygiene ----
@@ -123,18 +131,22 @@ if (sourceCount < 10) {
 }
 
 // ---- 5. Recommended model IDs must appear in the comparison matrix ----
-const recommendation = packet.split("## Option A")[1]?.split("## Option B")[0] ?? "";
-const modelIds = [...recommendation.matchAll(/`([a-z0-9][a-z0-9.\-]+[0-9])`/g)]
+// Backticked identifiers in Option A that look like model IDs (contain a
+// dash and a digit anywhere, any ending) must appear in the §5 matrix
+// section itself — a recommendation-only model string has no evidence row.
+const recommendation = packet.split("### Option A")[1]?.split("### Option B")[0] ?? "";
+const matrixSection = packet.split("## 5. Comparison matrix")[1]?.split("## 6.")[0] ?? "";
+if (matrixSection.length === 0) fail("the packet must carry the §5 comparison matrix");
+const modelIds = [...recommendation.matchAll(/`([a-z][a-z0-9.\-]+)`/g)]
   .map((m) => m[1])
-  .filter((id) => /-/.test(id));
+  .filter((id) => /-/.test(id) && /[0-9]/.test(id));
 if (modelIds.length === 0) {
   fail("Option A must name at least one exact model ID in backticks");
 }
 for (const id of new Set(modelIds)) {
-  const occurrences = packet.split(id).length - 1;
-  if (occurrences < 2) {
+  if (!matrixSection.includes(id)) {
     fail(
-      `model ID '${id}' appears only in the recommendation; it must also appear in the comparison matrix with its evidence`
+      `model ID '${id}' appears in the recommendation but not in the §5 comparison matrix; every recommended ID needs its evidence row`
     );
   }
 }
