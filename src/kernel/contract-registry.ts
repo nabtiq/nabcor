@@ -17,6 +17,13 @@ const Ajv = AjvModule.default;
 const addFormats = addFormatsModule.default;
 import { createHash, createPublicKey } from "node:crypto";
 import { approvalPayloadDigest, receiptIdFor } from "../authority/approval-payload.js";
+import {
+  afterAnalysisIdFor,
+  afterSnapshotIdFor,
+  applicationIdFor,
+  contradictionFingerprint,
+  successorIdFor,
+} from "../resolve/resolution-ids.js";
 import { claimSetDigest } from "./canonical-json.js";
 import { type Result, type ValidationIssue, err, ok } from "./result.js";
 import { parseSourceRef } from "./source-ref.js";
@@ -32,6 +39,8 @@ export const SUPPORTED_ARTIFACT_TYPES = [
   "claim-snapshot",
   "truth-profile",
   "truth-analysis",
+  "fact-resolution-decision",
+  "fact-resolution-application",
 ] as const;
 export type SupportedArtifactType = (typeof SUPPORTED_ARTIFACT_TYPES)[number];
 
@@ -345,6 +354,127 @@ const SEMANTIC_CHECKS: Record<string, SemanticCheck[]> = {
           : [
               `claim_set_digest '${String(d["claim_set_digest"])}' does not match the recomputed aggregate '${recomputed}' over the listed claim digests`,
             ];
+      },
+    },
+  ],
+  "fact-resolution-decision": [
+    {
+      invariant: "DEC-0016 fingerprint-consistency",
+      check: (d) => {
+        const c = (d["contradiction"] ?? {}) as Record<string, unknown>;
+        const recomputed = contradictionFingerprint(
+          String(d["workspace"]),
+          String(d["brand_ref"]),
+          String(d["fact_key"]),
+          (c["claim_refs"] ?? []) as string[],
+          (c["distinct_values"] ?? []) as (string | number | boolean)[]
+        );
+        return d["contradiction_fingerprint"] === recomputed
+          ? []
+          : [
+              `contradiction_fingerprint '${String(d["contradiction_fingerprint"])}' does not match the recomputation '${recomputed}' over {brand_ref, claim_refs, distinct_values, fact_key, workspace}`,
+            ];
+      },
+    },
+    {
+      invariant: "DEC-0016 exact-partition",
+      check: (d) => {
+        const out: string[] = [];
+        const participants = (((d["contradiction"] ?? {}) as Record<string, unknown>)["claim_refs"] ??
+          []) as string[];
+        const losers = ((d["losing_claims"] ?? []) as { claim_ref: string }[]).map((l) => l.claim_ref);
+        const winner = String(d["winning_claim_ref"]);
+        if (!participants.includes(winner))
+          out.push(`winning_claim_ref '${winner}' is not a participant of the recorded contradiction`);
+        if (losers.includes(winner))
+          out.push(
+            `winning_claim_ref '${winner}' also appears as a losing claim; winner and losers must be disjoint`
+          );
+        const loserSet = new Set(losers);
+        if (loserSet.size !== losers.length) out.push("losing_claims contains duplicate claim references");
+        for (const l of losers)
+          if (!participants.includes(l))
+            out.push(`losing claim '${l}' is not a participant of the recorded contradiction`);
+        for (const p of participants)
+          if (p !== winner && !loserSet.has(p))
+            out.push(
+              `participant '${p}' is neither the winner nor a losing claim; partial resolution is prohibited`
+            );
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0016 sorted-unique-references",
+      check: (d) => {
+        const out: string[] = [];
+        const sortedAsc = (arr: string[], label: string): void => {
+          for (let i = 1; i < arr.length; i++) {
+            if (!(arr[i]! > arr[i - 1]!))
+              out.push(`${label} not strictly sorted: '${arr[i]}' follows '${arr[i - 1]}'`);
+          }
+        };
+        sortedAsc(
+          (((d["contradiction"] ?? {}) as Record<string, unknown>)["claim_refs"] ?? []) as string[],
+          "contradiction.claim_refs"
+        );
+        sortedAsc(
+          ((d["losing_claims"] ?? []) as { claim_ref: string }[]).map((l) => l.claim_ref),
+          "losing_claims claim_refs"
+        );
+        return out;
+      },
+    },
+  ],
+  "fact-resolution-application": [
+    {
+      invariant: "DEC-0016 application-id-consistency",
+      check: (d) => {
+        const recomputed = applicationIdFor(String(d["decision_digest"]), String(d["receipt_ref"]));
+        return d["artifact_id"] === recomputed
+          ? []
+          : [
+              `artifact_id '${String(d["artifact_id"])}' does not match the recomputation '${recomputed}' over {decision_digest, receipt_ref}`,
+            ];
+      },
+    },
+    {
+      invariant: "DEC-0016 derived-id-consistency",
+      check: (d) => {
+        const out: string[] = [];
+        const applicationRef = String(d["artifact_id"]);
+        for (const r of (d["created_losing_revisions"] ?? []) as {
+          losing_claim_ref: string;
+          successor_claim_ref: string;
+        }[]) {
+          const recomputed = successorIdFor(applicationRef, r.losing_claim_ref);
+          if (r.successor_claim_ref !== recomputed)
+            out.push(
+              `successor_claim_ref '${r.successor_claim_ref}' for losing claim '${r.losing_claim_ref}' does not match the recomputation '${recomputed}'`
+            );
+        }
+        const fsn = afterSnapshotIdFor(applicationRef);
+        if (d["after_snapshot_ref"] !== fsn)
+          out.push(`after_snapshot_ref '${String(d["after_snapshot_ref"])}' does not match the recomputation '${fsn}'`);
+        const fan = afterAnalysisIdFor(applicationRef);
+        if (d["after_analysis_ref"] !== fan)
+          out.push(`after_analysis_ref '${String(d["after_analysis_ref"])}' does not match the recomputation '${fan}'`);
+        return out;
+      },
+    },
+    {
+      invariant: "DEC-0016 sorted-unique-losing-revisions",
+      check: (d) => {
+        const out: string[] = [];
+        const refs = ((d["created_losing_revisions"] ?? []) as { losing_claim_ref: string }[]).map(
+          (r) => r.losing_claim_ref
+        );
+        for (let i = 1; i < refs.length; i++) {
+          if (!(refs[i]! > refs[i - 1]!))
+            out.push(
+              `created_losing_revisions not strictly sorted by losing_claim_ref: '${refs[i]}' follows '${refs[i - 1]}'`
+            );
+        }
+        return out;
       },
     },
   ],
