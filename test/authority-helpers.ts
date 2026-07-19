@@ -65,7 +65,7 @@ export function registryDoc(
   overrides: Record<string, unknown> = {}
 ): Record<string, unknown> {
   return {
-    schema_version: "1.7.0",
+    schema_version: "1.7.1",
     registry_id: REGISTRY_ID,
     registry_version: 1,
     supersedes_registry_version: null,
@@ -78,7 +78,7 @@ export function registryDoc(
 
 export function policyDoc(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schema_version: "1.7.0",
+    schema_version: "1.7.1",
     policy_id: POLICY_ID,
     policy_version: 1,
     decision_ref: "DEC-0014",
@@ -232,7 +232,7 @@ export function signedEvidence(
   const payload = approvalPayload(scenario, payloadOverrides);
   const signatureB64 = signApprovalPayload(payload, (signer ?? scenario.auth).privateKeyPem);
   return {
-    schema_version: "1.7.0",
+    schema_version: "1.7.1",
     evidence_id: "apev_t_0001",
     payload,
     payload_digest: approvalPayloadDigest(payload),
