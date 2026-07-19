@@ -100,8 +100,8 @@ CI-guarded, EXP-0001 still unexecuted. The Phase 1C.0.1 correction
 re-verified all three providers, fixed the false Gemini no-ZDR claim
 and the ambiguous Anthropic retention framing (correction ledger), and
 recomputed the comparison with explicit weights and sensitivity
-analysis — recommendation unchanged except the published cost-dominant
-case, which favors OpenAI.
+analysis — recommendation unchanged except the published cost-dominant and
+lifecycle-dominant cases, which favor OpenAI.
 This is deterministic
 infrastructure only —
 not Phase 1 completion: no provider-backed or natural-language extraction

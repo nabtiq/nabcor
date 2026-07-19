@@ -189,14 +189,38 @@ re-verification touched it).
   uplift; org ID-verification article still 403 (UNKNOWN).
 - **Corrected claim:** budget enforcement upgraded to
   INFERRED-from-official (429-on-budget wording; help-center
-  confirmation unreachable); Chat Completions `store` default
-  downgraded to UNKNOWN (the Responses default-storage claim stands
-  verbatim); pricing scoped to Standard/short-context.
+  confirmation unreachable); pricing scoped to Standard/short-context.
+  **Review addendum (same phase):** the first draft of this entry
+  downgraded the Chat Completions storage default to UNKNOWN — itself
+  an over-correction. The adversarial review located the live official
+  migrate guide stating "Chat completions are stored by default for
+  new accounts", while the data-controls table says application-state
+  retention "None, see below for exceptions". The honest state is
+  CONFLICTING official pages, treated conservatively as
+  stored-by-default unless `store:false`; recorded as such in rows
+  17/24/28.
 - **Impact:** "spend hard-stop reliability" scores OpenAI 3/5 (4 − 1
   uncertainty) instead of a raw UNKNOWN; rows 24/25/28 rewritten;
   Option B risk wording updated.
 - **Regression guard:** none needed (no prohibited-claim class); the
   human re-verification rule (§8 note) covers fact drift.
+
+## C9 — Google "$10/10-min spend-rate limit" withdrawn *(added after adversarial review)*
+
+- **Original:** matrix row 25 carried "Tier 1 ... $10/10-min rate cap
+  [V, G12]" from the Phase 1C.0 research.
+- **Classification:** **CONFIRMED_ERROR** (stale or misread): the
+  Phase 1C.0.1 re-verification and an independent adversarial re-fetch
+  of the live billing page both found tier caps and the ~10-minute
+  billing-latency overrun caveat, but NO per-10-minute spend-rate
+  limit (the page's "$10" figure is the minimum prepay purchase).
+- **Corrected claim:** row 25 keeps the verified hard tier caps and
+  the overrun caveat and explicitly withdraws the spend-rate-limit
+  claim.
+- **Impact:** none on scores (the hard-stop cell already rested on the
+  pause-at-cap wording, not the rate limit).
+- **Regression guard:** none automatable; covered by the human
+  re-verification rule.
 
 ## C8 — Downstream recommendation language
 

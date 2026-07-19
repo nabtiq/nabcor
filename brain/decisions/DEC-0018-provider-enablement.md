@@ -139,16 +139,22 @@ conservative official default is automatic backend deletion within 30
 days with listed exceptions, and Anthropic ZDR requires a negotiated
 agreement. Where this record's text above says "stateless-by-default
 transport", read "no request-state storage (a state-semantics
-property); backend deletion within 30 days by default".
+property); backend deletion within 30 days by default"; and the
+"Unresolved questions" bullet on retention-documentation
+reconciliation is RESOLVED conservatively by ledger C4 (the docs page
+defers to the commercial policy) rather than remaining UNKNOWN.
 
 The comparison was RECOMPUTED from re-verified evidence (all three
 providers re-fetched 2026-07-19) via an explicit weighted model with
 sensitivity analysis (packet §5b; full correction record in
 docs/PROVIDER_PACKET_CORRECTION_LEDGER_1C0_1.md). Outcome: the
 recommendation is UNCHANGED — Option A (Anthropic) leads the baseline
-(4.22 vs OpenAI 3.92 vs Google 3.25) and three of four sensitivity
-cases; the COST-dominant case flips to OpenAI (3.95), published
-explicitly — a price-dominant ratification should choose Option B.
+(4.22 vs OpenAI 3.92 vs Google 3.25) and three of five sensitivity
+cases; the COST-dominant (OpenAI 3.95) and LIFECYCLE-dominant (OpenAI
+4.30) cases flip to OpenAI, both published explicitly — a Product
+Owner who weighs price or model-lifetime stability dominant should
+choose Option B, and the packet states plainly that the baseline
+margin rests on its uncertainty-penalty rule.
 Adjacent re-verification deltas: OpenAI's budget hard stop upgraded to
 INFERRED from official 429 wording (help-center confirmation still
 unreachable); OpenAI's Chat Completions `store` default and org

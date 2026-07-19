@@ -226,7 +226,12 @@ leaving the boundary, unbounded spend); they gate enablement absolutely.
   API session resumption; no tools; AND must report the literal status
   `ZDR_NOT_VERIFIED` in status/run surfaces until a project ZDR
   approval is EVIDENCED (approval artifact recorded) — configuring
-  `store=false` alone must never surface as a ZDR claim.
+  `store=false` alone must never surface as a ZDR claim. Two of these
+  restrictions are DELIBERATE NABCor supersets of the official
+  conditions, not Google requirements: the official page names only
+  Search/Maps grounding (not all tools), and permits Files API use if
+  objects are manually deleted — NABCor prohibits tools and Files
+  outright as the simpler fail-safe posture.
   **Anthropic-specific:** all surfaces describe normal API retention
   conservatively as "up to 30 days (automatic backend deletion)" unless
   a ZDR agreement is evidenced; "no request-state storage" is never

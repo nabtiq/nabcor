@@ -403,8 +403,9 @@ network path, or spend exists; EXP-0001 remains unexecuted. The Phase
   claim). All three providers were re-verified live on 2026-07-19 and
   the comparison RECOMPUTED via an explicit weighted model with
   sensitivity analysis (packet §5b): recommendation unchanged (Option A,
-  Anthropic, 4.22 vs 3.92 vs 3.25) — except the cost-dominant case,
-  which flips to OpenAI and is published, not hidden. The validator now
+  Anthropic, 4.22 vs 3.92 vs 3.25) — except the cost-dominant and
+  lifecycle-dominant sensitivity cases, which flip to OpenAI and are
+  published, not hidden. The validator now
   fails on the prohibited claim classes (Gemini-has-no-ZDR,
   store=false-equals-ZDR, stateless-equals-zero-retention,
   no-training-equals-no-retention).
