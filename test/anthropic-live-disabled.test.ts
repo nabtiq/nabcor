@@ -1,8 +1,12 @@
-// Structural CONFIGURED_BUT_LIVE_DISABLED proofs (DEC-0019). These tests
-// prove properties of the COMMITTED default configuration — not of mocks:
-// from the repository's own documents, no live provider call can be
+// Structural general-live-disabled proofs (DEC-0019, DEC-0020). These tests
+// prove properties of the COMMITTED configuration — not of mocks: from the
+// repository's own documents, no GENERAL live provider call can be
 // instantiated, live gates fail closed in order, and the mock/test seams
-// cannot silently switch to production.
+// cannot silently switch to production. This holds across the operational
+// state machine: after the Phase 1C.2 smoke ceremony the committed state is
+// SMOKE_VERIFIED_EXP_DISABLED, yet general live invocation and EXP-0001
+// execution remain false — the smoke call ran on a single consumed
+// authorization, never a standing flag.
 import assert from "node:assert/strict";
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -24,12 +28,15 @@ import {
 } from "./anthropic-helpers.js";
 import { contractsDir, registry, repoRoot, tempDir } from "./helpers.js";
 
-test("the committed policy trio loads with live invocation disabled and the candidate digest bound", () => {
+test("the committed policy trio keeps general live invocation disabled with the candidate digest bound", () => {
   const policy = committedProviderPolicy();
-  assert.equal(policy.liveInvocationEnabled, false, "live invocation must be disabled from committed documents");
-  assert.equal(policy.operationalState["operational_state"], "CONFIGURED_BUT_LIVE_DISABLED");
-  assert.equal(policy.operationalState["credential_provisioned"], false);
-  assert.equal(policy.operationalState["console_spend_cap_configured"], false);
+  assert.equal(policy.liveInvocationEnabled, false, "general live invocation must be disabled from committed documents");
+  // Post Phase 1C.2: the committed state has advanced through the machine, but
+  // the two security invariants hold in every state.
+  assert.equal(policy.operationalState["operational_state"], "SMOKE_VERIFIED_EXP_DISABLED");
+  assert.equal(policy.operationalState["credential_provisioned"], true);
+  assert.equal(policy.operationalState["console_spend_cap_configured"], true);
+  assert.equal(policy.operationalState["smoke_call_completed"], true);
   assert.equal(policy.operationalState["exp_0001_executed"], false);
   assert.equal(policy.candidateContentDigest, contentDigest(policy.candidate));
   assert.deepEqual(

@@ -232,8 +232,18 @@ test("the operational-state machine forbids skipping to SMOKE_VERIFIED without t
   const base = JSON.parse(
     readFileSync(join(process.cwd(), "contracts", "provider-operational-state.active.json"), "utf8")
   ) as Record<string, unknown>;
-  // A SMOKE_VERIFIED state with the CONFIGURED flags (all false/null) is semantic-invalid.
-  const bad = { ...base, operational_state: "SMOKE_VERIFIED_EXP_DISABLED" };
+  // A SMOKE_VERIFIED state with the CONFIGURED flags (all false/null) is
+  // semantic-invalid, regardless of the committed base state.
+  const bad = {
+    ...base,
+    operational_state: "SMOKE_VERIFIED_EXP_DISABLED",
+    credential_provisioned: false,
+    console_spend_cap_configured: false,
+    smoke_call_completed: false,
+    live_call_request_ref: null,
+    live_call_receipt_ref: null,
+    reconciliation_ref: null,
+  };
   const result = registry().validate("provider-operational-state", bad);
   assert.equal(result.ok, false, "cannot claim SMOKE_VERIFIED while the flags say CONFIGURED");
 });

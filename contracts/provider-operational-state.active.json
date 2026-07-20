@@ -1,19 +1,19 @@
 {
   "schema_version": "1.10.0",
   "state_id": "pos-anthropic-0001",
-  "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
+  "operational_state": "SMOKE_VERIFIED_EXP_DISABLED",
   "provider": "anthropic",
   "adapter_id": "anthropic",
   "provider_policy_candidate_ref": "ppc-anthropic-0001",
   "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
   "live_invocation_enabled": false,
-  "credential_provisioned": false,
-  "console_spend_cap_configured": false,
-  "smoke_call_completed": false,
+  "credential_provisioned": true,
+  "console_spend_cap_configured": true,
+  "smoke_call_completed": true,
   "exp_0001_executed": false,
-  "live_call_request_ref": null,
-  "live_call_receipt_ref": null,
-  "reconciliation_ref": null,
-  "decision_ref": "DEC-0019",
-  "updated_at": "2026-07-19T19:30:28Z"
+  "live_call_request_ref": "lpcr-anthropic-smoke-0001",
+  "live_call_receipt_ref": "r7e9c36c81f43a595ee5976a185a24cb98ebe2c8c5a63881a411b74edf7c41a7b",
+  "reconciliation_ref": "prr-anthropic-smoke-0001",
+  "decision_ref": "DEC-0020",
+  "updated_at": "2026-07-20T00:30:00Z"
 }
