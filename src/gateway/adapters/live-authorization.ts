@@ -86,7 +86,7 @@ export class ApprovalLiveCallAuthorization implements LiveCallAuthorization {
     if (payload["target_artifact_digest"] !== this.#expectedTargetDigest) {
       return err({
         kind: "live-call-authorization-invalid",
-        message: "presented live-call evidence does not bind the active signed provider-policy candidate",
+        message: "presented live-call evidence does not bind the expected live-call request content digest",
       });
     }
     const nowMs = Date.parse(this.#deps.clock());

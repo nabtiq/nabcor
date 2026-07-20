@@ -301,12 +301,19 @@ test("--json emits exactly one parseable object for success and failure, with th
 // ---------------------------------------------------------------------------
 // Status
 // ---------------------------------------------------------------------------
-test("status reports the configured-but-live-disabled provider posture, public authority metadata, and frozen gates — without key bytes", () => {
+test("status reports the smoke-verified, general-live-disabled provider posture, public authority metadata, and frozen gates — without key bytes", () => {
   const human = run(["status"]);
   assert.equal(human.status, 0);
+  // Post Phase 1C.2 the committed state is SMOKE_VERIFIED_EXP_DISABLED: general
+  // live invocation stays disabled and EXP-0001 stays unexecuted, but the
+  // credential is provisioned, the console cap configured, and the one smoke
+  // call completed.
   assert.match(human.stdout, /live invocation DISABLED/);
-  assert.match(human.stdout, /no credential exists in NABCor/);
-  assert.match(human.stdout, /CONFIGURED_BUT_LIVE_DISABLED/);
+  assert.match(human.stdout, /credential provisioned/);
+  assert.match(human.stdout, /console cap configured/);
+  assert.match(human.stdout, /smoke call completed/);
+  assert.match(human.stdout, /SMOKE_VERIFIED_EXP_DISABLED/);
+  assert.doesNotMatch(human.stdout, /ENABLED/);
   assert.match(human.stdout, /adapters \["anthropic","fake"\]/);
   assert.match(human.stdout, /data classes \["synthetic"\]/);
   assert.match(human.stdout, /EXP-0001 executed false/);
