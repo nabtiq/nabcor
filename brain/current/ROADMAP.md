@@ -114,17 +114,28 @@ chain; the raw-HTTPS Anthropic adapter behind the provider-neutral
 gateway (pinned endpoint, narrow injected transport, fail-closed live
 gates in test-proven order); conservative pre-invocation budget
 enforcement; and the macOS-Keychain secret boundary with no provisioned
-credential. Live invocation, the paid smoke call, and EXP-0001 each stay
-behind separate future authorizations; no provider or network call has
-occurred and no money has been spent.
-This is still not Phase 1 completion: no live provider-backed or
+credential. The Phase 1C.2 increment (DEC-0020) then made EXACTLY ONE
+real Anthropic request: contracts 1.10.0 add the immutable
+live-provider-call-request signing target, the provider-smoke-result and
+provider-reconciliation-record evidence contracts, the trivial
+provider-smoke-echo output contract, and turn provider-operational-state
+into a fail-closed state machine. The Product Owner provisioned the
+Keychain credential and the USD 60 console cap, signed the one-shot
+request's exact content digest, and NABCor executed a single succeeded
+Haiku request (one transport call, 240 in / 15 out, USD 0.01 settled,
+structured output validated), reconciled it against the console review
+(with a documented per-request precision limitation), and advanced the
+operational state to SMOKE_VERIFIED_EXP_DISABLED. General live invocation
+and EXP-0001 execution stay false in every state; the smoke authorization
+is consumed and non-replayable.
+This is still not Phase 1 completion: no GENERAL live provider-backed or
 natural-language extraction exists, no semantic contradiction detection
-exists, EXP-0001 has not run and has no results, and no measured model
-costs exist. The remaining path to EXP-0001 is operational — the key
-ceremony, Keychain provisioning, console cap, a consciously migrated
-operational-state contract, and the separately signed smoke-call and
-EXP-0001 approvals (gate roles are named in DEC-0008, but quarantine
-release still requires an independent reviewer).
+exists, EXP-0001 has not run and has no results, and no measured
+EXP-0001 model costs exist. The remaining path to EXP-0001 is a
+separately signed EXP-0001 execution approval and the conscious decision
+that governs how live invocation runs for the experiment (the smoke
+ceremony verified transport and accounting but did NOT open general live
+invocation; quarantine release still requires an independent reviewer).
 
 **Exit evidence (still required):** EXP-0001 passes on synthetic/adversarial fixtures;
 seeded fabrication and prompt injection are blocked in the model-backed path; run and

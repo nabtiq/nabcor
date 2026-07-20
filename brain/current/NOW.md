@@ -6,13 +6,28 @@
 
 ## Current phase
 
-Phase 1C.1 delivered (DEC-0019): the ratified DEC-0018 Option A
-enablement is implemented as **CONFIGURED_BUT_LIVE_DISABLED**. The
-Anthropic raw-HTTPS adapter, the signed provider-policy candidate, the
-migrated contracts (1.9.0), the budget ledger, and the secret boundary
-all exist and are test-proven with mocked transport only — and live
-invocation remains disabled: no credential exists in NABCor, no provider
-call or spend has occurred, and EXP-0001 is unexecuted. This sits on top
+Phase 1C.2 delivered (DEC-0020): NABCor has made **exactly one** real
+Anthropic request. The single Product Owner-signed
+live-provider-call-request was executed once against the live Messages
+API — status succeeded, one transport call, returned model equal to
+requested (`claude-haiku-4-5-20251001`), 240 input / 15 output tokens,
+USD 0.01 settled (a cent-granular ceiling over the computed 0.000315),
+structured output validated — then reconciled against the Product Owner's
+Anthropic Console review (one request visible, model Haiku 4.5, USD 60
+hard cap active). The operational state advanced
+`CONFIGURED_BUT_LIVE_DISABLED → SMOKE_CALL_AUTHORIZED →
+SMOKE_VERIFIED_EXP_DISABLED` (contracts 1.10.0). General
+`live_invocation_enabled` and `exp_0001_executed` stay false in every
+state: the call ran on a single consumed authorization, never a standing
+flag, and the nonce is now consumed (a replay drill confirmed a second
+attempt fails closed with zero transport calls and zero cost). EXP-0001
+is still unexecuted and separately gated.
+
+Phase 1C.1 (DEC-0019) delivered the foundation this builds on:
+the ratified DEC-0018 Option A enablement as
+**CONFIGURED_BUT_LIVE_DISABLED** — the Anthropic raw-HTTPS adapter, the
+signed provider-policy candidate, the migrated contracts, the budget
+ledger, and the secret boundary, test-proven with mocked transport. This sits on top
 of the complete Phase 1B offline foundation: the Phase 1B.5 safe
 operator CLI (DEC-0017), the Phase 1B.4 authenticated fact-resolution
 application (DEC-0016), the Phase 1B.3B real Product Owner key
@@ -26,18 +41,19 @@ clean foundation baseline (`0.1.0`) remains the historical boundary
 
 ## Current objective
 
-Reach EXP-0001 execution through the remaining OPERATIONAL ceremonies —
-none of which is code: (1) the personal Anthropic account/API-key
-ceremony and macOS Keychain provisioning under the policy-bound
-identifiers (`nabcor-anthropic-api-key` / `nabcor`); (2) the
-provider-console USD 60 hard monthly cap; (3) a separately signed
-minimal smoke-call approval at the `live-provider-call-approval` gate
-plus the reconciliation drill; (4) a separately signed EXP-0001
-execution approval. Until those complete and a future phase consciously
-migrates the operational-state contract, every live gate stays
-fail-closed: the committed provider-operational-state pins live
-invocation, credential provisioning, the console cap, the smoke call,
-and EXP-0001 execution all false as schema constants. Q-010 is closed.
+The smoke-verification ceremonies (1)–(3) are now COMPLETE: the personal
+Anthropic account/API-key ceremony and macOS Keychain provisioning under
+the policy-bound identifiers (`nabcor-anthropic-api-key` / `nabcor`); the
+provider-console USD 60 hard monthly cap (active, auto-reload off); and
+the separately signed smoke-call approval at the
+`live-provider-call-approval` gate plus the reconciliation drill. One
+ceremony remains before EXP-0001: (4) a separately signed EXP-0001
+execution approval, plus a conscious future phase that decides how live
+invocation runs for the experiment. Until that completes, general live
+invocation stays fail-closed — the committed provider-operational-state
+(now `SMOKE_VERIFIED_EXP_DISABLED`) pins general `live_invocation_enabled`
+and `exp_0001_executed` false as schema constants in every state, and the
+single smoke authorization is consumed and non-replayable. Q-010 is closed.
 
 ## Ratified decisions
 
@@ -141,6 +157,20 @@ and EXP-0001 execution all false as schema constants. Q-010 is closed.
   credential; mock-only tests and CI; live invocation, the smoke call,
   and EXP-0001 each behind separate future authenticated approvals;
   contracts 1.9.0.
+- DEC-0020 — Anthropic smoke verification (Phase 1C.2): authorizes
+  EXACTLY ONE minimal real Anthropic request — synthetic input,
+  `claude-haiku-4-5-20251001` only, one attempt, zero escalation, USD
+  0.25 ceremony ceiling under the standing USD 1.00 per-request ceiling —
+  bound to an immutable Product Owner-signed live-provider-call-request
+  consumed exactly once; success requires local validation AND
+  provider-side reconciliation; failure/ambiguity requires a fresh
+  authorization with no retry; the operational-state machine
+  (CONFIGURED_BUT_LIVE_DISABLED -> SMOKE_CALL_AUTHORIZED ->
+  SMOKE_VERIFIED_EXP_DISABLED) keeps general live invocation and EXP-0001
+  execution false in every state; no general provider access opened;
+  contracts 1.10.0. Executed and reconciled: one succeeded Haiku request,
+  USD 0.01 settled, reconciled true with a documented console
+  precision limitation.
 
 ## Implemented (Phase 1A, corrected by Phase 1A.1 / DEC-0006 and Phase 1A.2 / DEC-0007)
 
@@ -484,14 +514,58 @@ and EXP-0001 execution all false as schema constants. Q-010 is closed.
   lookups / zero transport behind every failed gate), live-disabled
   structural proofs, leakage scans, and gateway integration records.
 
+## Implemented (Phase 1C.2, DEC-0020)
+
+- Contracts 1.10.0 (synchronized): new strict `live-provider-call-request`
+  (the immutable one-shot signing target with a self-consistent
+  `request_digest` binding the active signed candidate and gateway policy,
+  the model, the synthetic fixture, the USD 0.25 ceiling, one attempt,
+  retry/escalation/all optional surfaces disabled, and
+  `exp_0001_authorized` false), `provider-smoke-result` (sanitized run
+  evidence), `provider-reconciliation-record` (local-vs-provider
+  reconciliation), and `provider-smoke-echo` (a trivial
+  constrained-decoding output contract). `provider-operational-state`
+  became a fail-closed state machine; general `live_invocation_enabled`
+  and `exp_0001_executed` stay schema-const false in every state. The
+  signed candidate stays byte-frozen at its 1.9.0 signed content.
+- One-shot smoke service (`src/smoke/smoke-call.ts`): a deliberately
+  separate path with NO retry loop, attempt == 1, permitted only by a
+  single consumed `live-provider-call-approval` (never a standing flag),
+  fixed fail-closed gate order (request validation and digest binding ->
+  authorization check -> budget reservation -> atomic single-use
+  consumption -> credential resolution -> ONE bounded transport call ->
+  response/output-contract validation), full redaction, and a truthful
+  sanitized result on every outcome.
+- Operator CLIs: `prepare-smoke-request` builds and persists the
+  immutable request (fixing every ratified/disabled value; no operator
+  input can widen the authorization) and prints the content digest that
+  becomes the signing target; `run-smoke-call` is the only entry point
+  that reaches the production transport with a real credential, refuses a
+  fixture whose digest is not bound in the signed request, asserts at most
+  one transport call, contract-validates the result, and writes it outside
+  the repository — printing only identifiers, counts, and USD.
+- Executed and reconciled: the Product Owner personally signed the exact
+  request content digest under `live-provider-call-approval`; NABCor made
+  one real Haiku request (succeeded, one transport call, 240 in / 15 out,
+  USD 0.01 settled, structured output validated); a live replay drill
+  confirmed the consumed nonce refuses a second attempt with zero
+  transport calls and zero cost; and the reconciliation record
+  (`reconciled: true`) records the Product Owner's console review with an
+  explicit precision limitation (the console did not surface per-request
+  cost). The operational state advanced to `SMOKE_VERIFIED_EXP_DISABLED`.
+  Public sanitized evidence is committed under `operational/phase-1c2-smoke/`;
+  the signed approval evidence, its consumption receipt, and the Keychain
+  credential stay outside the repository.
+
 ## Blocked / not implemented
 
-- Live provider invocation, the paid smoke call, and any provider spend:
-  disabled fail-closed (DEC-0019). The committed operational state pins
-  live invocation off as a schema constant; no credential exists in
-  NABCor; the remaining path is operational (key ceremony, Keychain
-  provisioning, console cap, separately signed smoke-call approval), not
-  code.
+- General live provider invocation and any further provider spend:
+  disabled fail-closed. The single smoke authorization is consumed and
+  non-replayable; general `live_invocation_enabled` stays a schema
+  constant false in every operational state (now
+  `SMOKE_VERIFIED_EXP_DISABLED`). Any further live work requires a new
+  decision and a fresh separately signed authorization — it is not opened
+  by the completed smoke ceremony.
 - Natural-language fact extraction (prose → structured claims) does not
   exist in any form; the deterministic analyzer only consumes fact metadata
   made explicit upstream.
@@ -507,32 +581,28 @@ and EXP-0001 execution all false as schema constants. Q-010 is closed.
 
 ## Immediate next actions
 
-1. Run the personal operational ceremonies, in order and each under its
-   own authorization: the Anthropic account/API-key ceremony with macOS
-   Keychain provisioning (`security add-generic-password -s
-   nabcor-anthropic-api-key -a nabcor -w <KEY-ENTERED-INTERACTIVELY>`,
-   run personally, never by an agent); the provider-console USD 60 hard
-   monthly cap; then a future phase that consciously migrates the
-   operational-state contract, executes one separately signed minimal
-   smoke call, and completes the reconciliation drill.
-2. After a green smoke-call reconciliation, prepare the separately
-   signed EXP-0001 execution approval and run EXP-0001 before Haiku
-   4.5's tentative retirement floor (2026-10-15; the candidate validity
-   window ends there too — RISK-DECAY-01).
-3. Rotate the enrolled key by a new reviewed registry revision + decision
+1. Prepare the separately signed EXP-0001 execution approval and the
+   conscious decision that governs how live invocation runs for the
+   experiment (the smoke ceremony verified transport/accounting but did
+   NOT open general live invocation). Run EXP-0001 before Haiku 4.5's
+   tentative retirement floor (2026-10-15; the candidate validity window
+   ends there too — RISK-DECAY-01).
+2. Rotate the enrolled key by a new reviewed registry revision + decision
    before its 2027-07-19 expiry (or immediately on suspected compromise
-   or private-key loss — RISK-KEY-01).
-4. Keep `npm run validate` green on every change.
+   or private-key loss — RISK-KEY-01). The newly provisioned Anthropic
+   credential is now a standing secret tracked by RISK-SECRET-01.
+3. Keep `npm run validate` green on every change.
 
 ## Definition of done for the current objective
 
-The smoke-call phase (not this one) is done when: the operational-state
-contract is consciously migrated under a new decision; the credential is
+Phase 1C.2 (the smoke-verification phase) is DONE: the credential was
 provisioned personally into the policy-bound Keychain identifiers; the
-console cap is verified configured; exactly one minimal paid smoke call
-runs under a consumed `live-provider-call-approval`; the run record
-reconciles against the provider usage export within tolerance; and
-`npm run validate` stays green. Phase 1C.1 itself is done: contracts
+console USD 60 hard cap is verified configured; exactly one minimal paid
+smoke call ran under a consumed `live-provider-call-approval`; the run
+record reconciled against the Product Owner's console review (with a
+documented per-request precision limitation, never a silent match); the
+operational state advanced to `SMOKE_VERIFIED_EXP_DISABLED`; and
+`npm run validate` stays green. Phase 1C.1 remains done: contracts
 1.9.0, the signed chain CI-verified, the adapter and enforcement layers
-merged test-proven, live invocation still disabled, no credential, no
-spend, EXP-0001 empty.
+merged test-proven, general live invocation still disabled, EXP-0001
+empty.
