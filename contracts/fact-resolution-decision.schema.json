@@ -178,7 +178,7 @@
   ],
   "examples": [
     {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "frd_0001",
       "brand_ref": "brand_example",
       "workspace": "ws_example",

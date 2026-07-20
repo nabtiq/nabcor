@@ -76,9 +76,16 @@ active section in the same commit.
   only; DEC-0009's zero-provider posture stays operationally active
   until that phase's reviewed active-policy revision merges. (Phase
   1C.1/DEC-0019 later implemented that phase: the deferred
-  which-provider question is fully answered, and the runtime state is
-  CONFIGURED_BUT_LIVE_DISABLED — live invocation, the smoke call, and
-  EXP-0001 each still need their own separately signed authorizations.)
+  which-provider question is fully answered, and the runtime state was
+  CONFIGURED_BUT_LIVE_DISABLED. Phase 1C.2/DEC-0020 then completed the
+  smoke call: exactly one reconciled Haiku request ran under a single
+  consumed authorization, the state advanced to SMOKE_VERIFIED_EXP_DISABLED,
+  and the provider-console reconciliation surfaced a documented per-request
+  precision limitation — the console does not expose per-request cost, so
+  cost equality is recorded as an accepted limitation, not a silent match,
+  and NABCor's cent-granular ledger books sub-cent charges as USD 0.01. What
+  remains is EXP-0001's own separately signed execution approval; general
+  live invocation stays disabled.)
 - **Q-009 — Authoritative runtime human decisions (authenticated human-gate
   mechanism)** · 2026-07-19 · closed by DEC-0014 ratifying **Option A —
   offline Ed25519 approval evidence**: a committed trusted human-gate policy

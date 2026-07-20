@@ -4,7 +4,7 @@
     "schema": "decision.schema.json",
     "description": "ratified decision carrying the required ratification approval passes schema + semantic",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "DEC-9997-pos",
       "brand_ref": null,
       "created_at": "2026-07-17T12:00:00Z",
@@ -41,7 +41,7 @@
     "schema": "website-spec.schema.json",
     "description": "factual slot with empty claim_refs but an explicit unresolved_fact_note (confirm-slot pattern) passes — schema pressure must not encourage fabrication",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "wspec_p02",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -83,7 +83,7 @@
     "schema": "model-run.schema.json",
     "description": "subscription-billed run with usd null and allocation none passes (cost modes never conflated)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "run_id": "run_p03",
       "session_id": "s",
       "project_id": "p",
@@ -112,7 +112,7 @@
     "schema": "source.schema.json",
     "description": "captured prompt source with content-addressed reference, digest, byte size, media type, and clear safety state (DEC-0006)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "src_p04",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -143,7 +143,7 @@
     "schema": "source.schema.json",
     "description": "injection-flagged captured content correctly held in the quarantine namespace passes schema and semantic layers (INV-SEC-002)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "src_p05",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -175,7 +175,7 @@
     "schema": "claim.schema.json",
     "description": "canonical code-point fragment reference in correct order passes both layers (DEC-0006/DEC-0007)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "claim_p06",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -195,7 +195,7 @@
     "schema": "source.schema.json",
     "description": "image source with explicitly unresolved (null) visual_classification passes — the honest state for an unclassified visual (INV-FACT-003)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "src_p07",
       "brand_ref": "b",
       "created_at": "2026-07-17T12:00:00Z",
@@ -222,7 +222,7 @@
     "schema": "model-run.schema.json",
     "description": "Tier-0 offline Fake Adapter run record: provider 'offline', zero tokens in all four classes, cost {mode: free-tier, usd: 0, allocation: none} — truthful zero-spend accounting, excluded from model-quality evidence (DEC-0009/DEC-0010)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "run_id": "run_p08",
       "session_id": "sess_p08",
       "project_id": "SLICE-001",
@@ -269,7 +269,7 @@
     "schema": "gateway-request.schema.json",
     "description": "provider-neutral gateway request with inline contract-validated token budget, context items with load reasons, and a deterministic scenario id (DEC-0010)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "request_id": "req_p09",
       "run_id": "run_p09",
       "session_id": "sess_p09",
@@ -291,7 +291,7 @@
         }
       ],
       "token_budget": {
-        "schema_version": "1.9.0",
+        "schema_version": "1.10.0",
         "budget_id": "budget_p09",
         "scope": "skill",
         "scope_ref": "gateway-selftest",
@@ -313,7 +313,7 @@
     "schema": "claim.schema.json",
     "description": "an inference may carry structured fact metadata and remains an unconfirmed inference (a normalized value never upgrades verification status, DEC-0011)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
       "creator_type": "agent",
@@ -336,7 +336,7 @@
     "schema": "truth-profile.schema.json",
     "description": "minimal single-slot truth profile with sorted unique fact keys",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "tp_p11",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -361,7 +361,7 @@
     "schema": "truth-analysis.schema.json",
     "description": "truth analysis with an unverified gap citing effective unconfirmed claims, deterministic ordering, and explicit unstructured listing",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "ta_p12",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -409,7 +409,7 @@
     "schema": "truth-analysis.schema.json",
     "description": "truth analysis after a resolution: a superseded historical revision and a contradicted inactive head are recorded for audit, effective truth carries no contradiction (DEC-0012)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "ta_p13",
       "brand_ref": "brand_example",
       "created_at": "2026-07-18T12:00:00Z",
@@ -449,7 +449,7 @@
     "schema": "human-gate-policy.schema.json",
     "description": "the committed active human-gate policy shape: Ed25519, single-use nonces, default deny, DEC-0008 independent-review gates pinned true, no independent reviewer named",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "policy_id": "hgp-nabcor-1",
       "policy_version": 1,
       "decision_ref": "DEC-0014",
@@ -501,7 +501,7 @@
     "schema": "authority-registry.schema.json",
     "description": "a valid first-revision registry with zero enrolled authorities — the honest committed state before any real key enrollment; no runtime approval can verify against it",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "registry_id": "areg-empty",
       "registry_version": 1,
       "supersedes_registry_version": null,
@@ -515,7 +515,7 @@
     "schema": "approval-evidence.schema.json",
     "description": "shape-valid signed approval evidence for ordinary fact resolution with authenticated self_review=true (requester equals approver) and a consistent domain-separated payload digest; contract validity alone grants no authority",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "evidence_id": "apev_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -553,7 +553,7 @@
     "schema": "approval-receipt.schema.json",
     "description": "an immutable consumption receipt whose receipt_id matches the deterministic recomputation over {key_id, nonce, policy_ref}",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "receipt_id": "r1e9dd9ae6661f3b19549cac8e1365c4b840b2a9cc81ba53a93838cd0ba3edecb",
       "receipt_algorithm": "approval-receipt-id-sha256-1.0.0",
       "evidence_ref": "apev_0001",
@@ -580,7 +580,7 @@
     "schema": "human-gate-policy.schema.json",
     "description": "a policy revision (policy_version 2) ratified by a new decision record and pinning registry version 2; regression for the 1.7.0 defect where decision_ref was pinned const DEC-0014, making the documented revision procedure schema-invalid",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "policy_id": "hgp-nabcor-1",
       "policy_version": 2,
       "decision_ref": "DEC-0015",
@@ -632,7 +632,7 @@
     "schema": "authority-registry.schema.json",
     "description": "registry version 2 with explicit lineage from version 1 and exactly one enrolled least-privilege Product Owner authority; the key_id/SPKI binding is real and recomputed by the semantic layer (public, non-secret material only)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "registry_id": "areg-nabcor",
       "registry_version": 2,
       "supersedes_registry_version": 1,
@@ -660,7 +660,7 @@
     "schema": "fact-resolution-decision.schema.json",
     "description": "a three-claim contradiction resolved to one winner and two losers: exact partition, real recomputed fingerprint, sorted unique references, digest-pinned analysis/snapshot/profile/participants",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "frd_fx_0001",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -712,7 +712,7 @@
     "schema": "fact-resolution-application.schema.json",
     "description": "a completed application record: deterministic application/successor/after-artifact identities recomputed by the semantic layer, approval binding (evidence, payload digest, receipt, key, policy, registry), and receipt-sourced consumed_at",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "fra82bcbadd9527fafaabafd73b41fecfed005fcfb7441331444b872252fd13caa5",
       "brand_ref": "brand_fx",
       "workspace": "ws_fx",
@@ -758,7 +758,7 @@
     "schema": "provider-policy-candidate.schema.json",
     "description": "the exact ratified DEC-0018 Option A candidate with a recomputable self-integrity digest passes schema + semantic",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "artifact_id": "ppc-fixture-0001",
       "workspace": "ws_governance",
       "brand_ref": "brand_nabcor",
@@ -814,7 +814,7 @@
         "DEC-0018",
         "DEC-0019"
       ],
-      "candidate_digest": "sha256:c96b0b9076ac2a920e92efecc54ce7b16a2a12029bcf2d4e47c18e1ac0edccdc"
+      "candidate_digest": "sha256:c1a6aa8f883f5c6e0c5fec1f10d3378cbe8e9deaed60ef1824fbd84eaad9d26f"
     }
   },
   {
@@ -822,19 +822,21 @@
     "schema": "provider-operational-state.schema.json",
     "description": "the CONFIGURED_BUT_LIVE_DISABLED operational state with every live flag pinned false",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "state_id": "pos-fixture-0001",
       "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
       "provider": "anthropic",
       "adapter_id": "anthropic",
       "provider_policy_candidate_ref": "ppc-fixture-0001",
-      "provider_policy_candidate_digest": "sha256:f188b4a01be5cc68d45822ec7bceb07ec27a13e5a2f699b576a9630262d35a12",
+      "provider_policy_candidate_digest": "sha256:297e64fb03dafcaec1d410a627f0ccd3c79601a7027472e3d9636ac9aecbd45b",
       "live_invocation_enabled": false,
       "credential_provisioned": false,
       "console_spend_cap_configured": false,
       "smoke_call_completed": false,
       "exp_0001_executed": false,
-      "live_call_authorization_ref": null,
+      "live_call_request_ref": null,
+      "live_call_receipt_ref": null,
+      "reconciliation_ref": null,
       "decision_ref": "DEC-0019",
       "updated_at": "2026-07-19T21:00:00Z"
     }
@@ -844,7 +846,7 @@
     "schema": "approval-evidence.schema.json",
     "description": "signed approval evidence targeting a provider-policy-candidate under the provider-enablement-approval gate (shape + digest consistency only; authorization requires the runtime verifier)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "evidence_id": "apev_ppc_0001",
       "payload": {
         "payload_type": "nabcor-human-gate-approval",
@@ -882,7 +884,7 @@
     "schema": "model-run.schema.json",
     "description": "a provider model-run record with truthful reservation/settlement accounting, pinned pricing version, retention status, and zero cache tokens (caching disabled)",
     "data": {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "run_id": "run_prov_0001",
       "session_id": "sess_p",
       "project_id": "proj_p",
@@ -937,6 +939,211 @@
       "data_classification": "synthetic",
       "retention_status": "STANDARD_UP_TO_30_DAYS",
       "live_authorization_ref": null
+    }
+  },
+  {
+    "id": "P26-live-provider-call-request-valid",
+    "schema": "live-provider-call-request.schema.json",
+    "description": "a complete one-shot Haiku smoke request with a recomputable request digest passes schema + semantic",
+    "data": {
+      "schema_version": "1.10.0",
+      "artifact_id": "lpcr-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-20T00:00:00Z",
+      "provider": "anthropic",
+      "model_id": "claude-haiku-4-5-20251001",
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "gateway_policy_id": "gateway-policy-0002",
+      "gateway_policy_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "data_classification": "synthetic",
+      "synthetic_fixture_refs": [
+        {
+          "fixture_id": "smoke-prompt-0001",
+          "content_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+        }
+      ],
+      "expected_output_contract": "provider-smoke-echo",
+      "max_input_tokens": 200,
+      "max_output_tokens": 64,
+      "max_usd": 0.25,
+      "max_attempts": 1,
+      "retry_enabled": false,
+      "max_escalations": 0,
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "anthropic_api_version": "2023-06-01",
+      "caching_enabled": false,
+      "batch_enabled": false,
+      "tools_enabled": false,
+      "provider_storage_enabled": false,
+      "provider_memory_enabled": false,
+      "files_api_enabled": false,
+      "fallback_providers_enabled": false,
+      "automatic_escalation_enabled": false,
+      "streaming_enabled": false,
+      "exp_0001_authorized": false,
+      "valid_from": "2026-07-20T00:00:00Z",
+      "valid_until": "2026-07-20T02:00:00Z",
+      "purpose": "Synthetic Haiku smoke request (DEC-0020).",
+      "decision_refs": [
+        "DEC-0018",
+        "DEC-0019",
+        "DEC-0020"
+      ],
+      "request_digest": "sha256:50f794ae90a6fac622936e444380c05a67f2f89e34b23fdb6754640fa6055329"
+    }
+  },
+  {
+    "id": "P27-provider-smoke-result-succeeded",
+    "schema": "provider-smoke-result.schema.json",
+    "description": "a succeeded sanitized smoke result with a consumed receipt and validated output digest",
+    "data": {
+      "schema_version": "1.10.0",
+      "artifact_id": "psr-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-20T00:05:00Z",
+      "live_call_request_ref": "lpcr-fixture-0001",
+      "live_call_request_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "live_call_receipt_ref": "raaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provider": "anthropic",
+      "requested_model": "claude-haiku-4-5-20251001",
+      "returned_model": "claude-haiku-4-5-20251001",
+      "provider_request_id": "req_smoke_0001",
+      "attempt": 1,
+      "retry_count": 0,
+      "status": "succeeded",
+      "failure_reason": null,
+      "input_tokens": 40,
+      "output_tokens": 5,
+      "cached_tokens": 0,
+      "cache_creation_tokens": 0,
+      "reserved_usd": 0.01,
+      "settled_usd": 0.01,
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "retention_status": "STANDARD_UP_TO_30_DAYS",
+      "output_contract": "provider-smoke-echo",
+      "output_artifact_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "started_at": "2026-07-20T00:05:00Z"
+    }
+  },
+  {
+    "id": "P28-provider-smoke-result-failed-preconsume",
+    "schema": "provider-smoke-result.schema.json",
+    "description": "a failed smoke result before consumption carries a null receipt, null output digest, and a typed reason",
+    "data": {
+      "schema_version": "1.10.0",
+      "artifact_id": "psr-fixture-0002",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-20T00:05:00Z",
+      "live_call_request_ref": "lpcr-fixture-0001",
+      "live_call_request_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "live_call_receipt_ref": null,
+      "provider": "anthropic",
+      "requested_model": "claude-haiku-4-5-20251001",
+      "returned_model": null,
+      "provider_request_id": null,
+      "attempt": 1,
+      "retry_count": 0,
+      "status": "failed",
+      "failure_reason": "authorization-invalid",
+      "input_tokens": null,
+      "output_tokens": null,
+      "cached_tokens": 0,
+      "cache_creation_tokens": 0,
+      "reserved_usd": 0,
+      "settled_usd": 0,
+      "pricing_version": "anthropic-official-2026-07-19-post-intro",
+      "retention_status": "STANDARD_UP_TO_30_DAYS",
+      "output_contract": "provider-smoke-echo",
+      "output_artifact_digest": null,
+      "started_at": "2026-07-20T00:05:00Z"
+    }
+  },
+  {
+    "id": "P29-provider-reconciliation-reconciled",
+    "schema": "provider-reconciliation-record.schema.json",
+    "description": "a reconciled record: one request observed, model match, within tolerance, cap active",
+    "data": {
+      "schema_version": "1.10.0",
+      "artifact_id": "prr-fixture-0001",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-20T00:30:00Z",
+      "smoke_result_ref": "psr-fixture-0001",
+      "smoke_result_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "requests_observed": 1,
+      "returned_model_matches": true,
+      "local_input_tokens": 40,
+      "local_output_tokens": 5,
+      "local_settled_usd": 0.01,
+      "provider_input_tokens": 40,
+      "provider_output_tokens": 5,
+      "provider_usd": 0.01,
+      "usd_within_tolerance": true,
+      "precision_limitation": false,
+      "hard_cap_usd": 60,
+      "hard_cap_active": true,
+      "reconciled": true,
+      "product_owner_confirmation": "Console shows exactly one Haiku request in the UTC window; cap remains USD 60 active.",
+      "notes": "Synthetic smoke reconciliation.",
+      "decision_ref": "DEC-0020"
+    }
+  },
+  {
+    "id": "P30-provider-reconciliation-limitation",
+    "schema": "provider-reconciliation-record.schema.json",
+    "description": "a reconciled record where the console lacks per-request cost precision (documented, not silently matched)",
+    "data": {
+      "schema_version": "1.10.0",
+      "artifact_id": "prr-fixture-0002",
+      "workspace": "ws_governance",
+      "brand_ref": "brand_nabcor",
+      "created_at": "2026-07-20T00:30:00Z",
+      "smoke_result_ref": "psr-fixture-0001",
+      "smoke_result_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "requests_observed": 1,
+      "returned_model_matches": true,
+      "local_input_tokens": 40,
+      "local_output_tokens": 5,
+      "local_settled_usd": 0.01,
+      "provider_input_tokens": 40,
+      "provider_output_tokens": 5,
+      "provider_usd": null,
+      "usd_within_tolerance": true,
+      "precision_limitation": true,
+      "hard_cap_usd": 60,
+      "hard_cap_active": true,
+      "reconciled": true,
+      "product_owner_confirmation": "One request visible; console shows daily usage only, no per-request USD.",
+      "notes": "Per-request cost precision unavailable; documented.",
+      "decision_ref": "DEC-0020"
+    }
+  },
+  {
+    "id": "P31-provider-operational-state-smoke-verified",
+    "schema": "provider-operational-state.schema.json",
+    "description": "the terminal SMOKE_VERIFIED_EXP_DISABLED state with credential/cap/smoke true and live/exp false",
+    "data": {
+      "schema_version": "1.10.0",
+      "state_id": "pos-fixture-verified",
+      "operational_state": "SMOKE_VERIFIED_EXP_DISABLED",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "provider_policy_candidate_ref": "ppc-anthropic-0001",
+      "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+      "live_invocation_enabled": false,
+      "credential_provisioned": true,
+      "console_spend_cap_configured": true,
+      "smoke_call_completed": true,
+      "exp_0001_executed": false,
+      "live_call_request_ref": "lpcr-anthropic-smoke-0001",
+      "live_call_receipt_ref": "rbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "reconciliation_ref": "prr-anthropic-0001",
+      "decision_ref": "DEC-0020",
+      "updated_at": "2026-07-20T00:35:00Z"
     }
   }
 ]

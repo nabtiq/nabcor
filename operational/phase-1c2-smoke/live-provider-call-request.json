@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.10.0",
+  "artifact_id": "lpcr-anthropic-smoke-0001",
+  "workspace": "ws_governance",
+  "brand_ref": "brand_nabcor",
+  "created_at": "2026-07-20T00:15:54Z",
+  "provider": "anthropic",
+  "model_id": "claude-haiku-4-5-20251001",
+  "provider_policy_candidate_ref": "ppc-anthropic-0001",
+  "provider_policy_candidate_digest": "sha256:6df3adc948ffd77a5d72bbcfda260c9302e733b971c60bb27c3ef5bc4f938be3",
+  "gateway_policy_id": "gateway-policy-0002",
+  "gateway_policy_digest": "sha256:796645ade26fb94587fba2e52a3def0cd0f910bace7c32e04198b7d163dad789",
+  "data_classification": "synthetic",
+  "synthetic_fixture_refs": [
+    {
+      "fixture_id": "smoke-prompt-0001",
+      "content_digest": "sha256:6f04dfa077c5f89dc9039d4a2f871b37aaeab40a0f69a304b6e08d9440cd4b8a"
+    }
+  ],
+  "expected_output_contract": "provider-smoke-echo",
+  "max_input_tokens": 512,
+  "max_output_tokens": 64,
+  "max_usd": 0.25,
+  "max_attempts": 1,
+  "retry_enabled": false,
+  "max_escalations": 0,
+  "api_endpoint": "https://api.anthropic.com/v1/messages",
+  "anthropic_api_version": "2023-06-01",
+  "caching_enabled": false,
+  "batch_enabled": false,
+  "tools_enabled": false,
+  "provider_storage_enabled": false,
+  "provider_memory_enabled": false,
+  "files_api_enabled": false,
+  "fallback_providers_enabled": false,
+  "automatic_escalation_enabled": false,
+  "streaming_enabled": false,
+  "exp_0001_authorized": false,
+  "valid_from": "2026-07-20T00:15:54Z",
+  "valid_until": "2026-07-21T00:15:54Z",
+  "purpose": "One synthetic Anthropic Haiku connectivity smoke request; no real data; DEC-0020 Phase 1C.2.",
+  "decision_refs": [
+    "DEC-0018",
+    "DEC-0019",
+    "DEC-0020"
+  ],
+  "request_digest": "sha256:a30c5f20177ff9630049cf203cf83d09fa55b3646538e3dbb53e15f1660da3bf"
+}

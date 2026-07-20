@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://nabcor.nabtiq.com/contracts/provider-operational-state.schema.json",
   "title": "Provider operational state",
-  "description": "The committed, CI-validated active readiness document for the configured provider (DEC-0019). It makes the CONFIGURED_BUT_LIVE_DISABLED state machine-enforceable: every live-relevant flag is pinned false as a schema constant in this phase, so no committed document, configuration edit, or runtime flag can enable a live provider call — enabling live invocation requires a future conscious contract migration (new schema version, new decision record, secret-provisioning ceremony, and a separately signed smoke-call approval), never a document edit. The runtime Anthropic adapter loads this document through a fixed path and fails closed unless live_invocation_enabled is true, which is schema-impossible here. The document is digest-bound to the signed provider-policy-candidate so a substituted candidate breaks the binding.",
+  "description": "The committed, CI-validated readiness document for the configured provider (DEC-0019, extended into a fail-closed state machine by DEC-0020). operational_state moves through exactly CONFIGURED_BUT_LIVE_DISABLED -> SMOKE_CALL_AUTHORIZED -> SMOKE_VERIFIED_EXP_DISABLED, and per-state semantic rules pin the credential/console-cap/smoke flags to their permitted values in each state. Two invariants are schema constants that hold in EVERY state and cannot be relaxed by any document edit: general live_invocation_enabled is false (the smoke call runs through a single consumed live-provider-call authorization, never a standing live flag), and exp_0001_executed is false (EXP-0001 requires its own separate later signed approval). The document is digest-bound to the signed provider-policy-candidate so a substituted candidate breaks the binding; the runtime smoke path fails closed unless a valid unconsumed live-provider-call authorization and this state machine both permit exactly one attempt.",
   "type": "object",
   "required": [
     "schema_version",
@@ -17,7 +17,9 @@
     "console_spend_cap_configured",
     "smoke_call_completed",
     "exp_0001_executed",
-    "live_call_authorization_ref",
+    "live_call_request_ref",
+    "live_call_receipt_ref",
+    "reconciliation_ref",
     "decision_ref",
     "updated_at"
   ],
@@ -31,8 +33,12 @@
       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
     },
     "operational_state": {
-      "const": "CONFIGURED_BUT_LIVE_DISABLED",
-      "description": "the adapter, contracts, and signed policy exist and are active; no credential is provisioned, no live or paid call has occurred, and live invocation fails closed"
+      "enum": [
+        "CONFIGURED_BUT_LIVE_DISABLED",
+        "SMOKE_CALL_AUTHORIZED",
+        "SMOKE_VERIFIED_EXP_DISABLED"
+      ],
+      "description": "the fail-closed provider readiness state; the semantic layer enforces the flags permitted in each state and forbids skipping or reversing states"
     },
     "provider": {
       "const": "anthropic"
@@ -51,25 +57,38 @@
     },
     "live_invocation_enabled": {
       "const": false,
-      "description": "pinned false: live provider invocation is disabled in this contract version; a true value is schema-invalid"
+      "description": "pinned false in EVERY state: general/standing live provider invocation is never enabled; the one smoke call runs through a single consumed live-provider-call authorization, not this flag"
     },
     "credential_provisioned": {
-      "const": false,
-      "description": "pinned false: no real Anthropic credential exists in NABCor; provisioning is a later personal ceremony"
+      "type": "boolean",
+      "description": "true only after the Product Owner personally provisions the Keychain credential; false in CONFIGURED_BUT_LIVE_DISABLED (semantic layer)"
     },
     "console_spend_cap_configured": {
-      "const": false,
-      "description": "pinned false: the provider-console USD 60 hard cap belongs to the later operational ceremony and is NOT claimed configured"
+      "type": "boolean",
+      "description": "true only after the Product Owner confirms the provider-console USD 60 hard monthly cap; false in CONFIGURED_BUT_LIVE_DISABLED (semantic layer)"
     },
     "smoke_call_completed": {
-      "const": false
+      "type": "boolean",
+      "description": "true only in SMOKE_VERIFIED_EXP_DISABLED, after a validated invocation AND successful reconciliation (semantic layer)"
     },
     "exp_0001_executed": {
-      "const": false
+      "const": false,
+      "description": "pinned false in EVERY state: EXP-0001 execution requires its own separate later signed approval"
     },
-    "live_call_authorization_ref": {
-      "const": null,
-      "description": "pinned null: no live-call authorization exists; a future smoke-call phase records its consumed approval evidence reference here under a migrated contract"
+    "live_call_request_ref": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+      "description": "artifact_id of the signed live-provider-call-request; null before authorization"
+    },
+    "live_call_receipt_ref": {
+      "type": ["string", "null"],
+      "pattern": "^r[0-9a-f]{64}$",
+      "description": "consumption receipt id of the single-use live-call authorization; null until the smoke call has consumed it exactly once"
+    },
+    "reconciliation_ref": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+      "description": "provider-reconciliation-record id; null until reconciliation succeeds"
     },
     "decision_ref": {
       "type": "string",
@@ -82,7 +101,7 @@
   },
   "examples": [
     {
-      "schema_version": "1.9.0",
+      "schema_version": "1.10.0",
       "state_id": "pos-anthropic-0001",
       "operational_state": "CONFIGURED_BUT_LIVE_DISABLED",
       "provider": "anthropic",
@@ -94,9 +113,30 @@
       "console_spend_cap_configured": false,
       "smoke_call_completed": false,
       "exp_0001_executed": false,
-      "live_call_authorization_ref": null,
+      "live_call_request_ref": null,
+      "live_call_receipt_ref": null,
+      "reconciliation_ref": null,
       "decision_ref": "DEC-0019",
       "updated_at": "2026-07-19T21:00:00Z"
+    },
+    {
+      "schema_version": "1.10.0",
+      "state_id": "pos-anthropic-0002",
+      "operational_state": "SMOKE_VERIFIED_EXP_DISABLED",
+      "provider": "anthropic",
+      "adapter_id": "anthropic",
+      "provider_policy_candidate_ref": "ppc-example-0001",
+      "provider_policy_candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "live_invocation_enabled": false,
+      "credential_provisioned": true,
+      "console_spend_cap_configured": true,
+      "smoke_call_completed": true,
+      "exp_0001_executed": false,
+      "live_call_request_ref": "lpcr-example-0001",
+      "live_call_receipt_ref": "raaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "reconciliation_ref": "prr-example-0001",
+      "decision_ref": "DEC-0020",
+      "updated_at": "2026-07-20T00:00:00Z"
     }
   ],
   "additionalProperties": false

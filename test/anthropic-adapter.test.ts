@@ -243,8 +243,8 @@ test("a truncated (max_tokens) response is rejected rather than partially persis
 test("contract-invalid structured output gets exactly one bounded retry with a fresh reservation, then fails without any partial artifact", async () => {
   const env = adapterEnv({
     responses: [
-      successResponse({ artifact: { schema_version: "1.9.0", artifact_id: "asm_broken" } }),
-      successResponse({ artifact: { schema_version: "1.9.0", artifact_id: "asm_broken" } }),
+      successResponse({ artifact: { schema_version: "1.10.0", artifact_id: "asm_broken" } }),
+      successResponse({ artifact: { schema_version: "1.10.0", artifact_id: "asm_broken" } }),
     ],
   });
   const result = await env.adapter.invoke(invocation());
@@ -263,7 +263,7 @@ test("contract-invalid structured output gets exactly one bounded retry with a f
 test("a contract-invalid first attempt followed by a valid second attempt succeeds", async () => {
   const env = adapterEnv({
     responses: [
-      successResponse({ artifact: { schema_version: "1.9.0", artifact_id: "asm_broken" } }),
+      successResponse({ artifact: { schema_version: "1.10.0", artifact_id: "asm_broken" } }),
       successResponse(),
     ],
   });

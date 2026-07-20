@@ -103,6 +103,13 @@ const candidateSelfDigest = (d) => {
 };
 const contentDigestOf = (d) =>
   `sha256:${createHash("sha256").update(canonicalJson(d), "utf8").digest("hex")}`;
+// Live-provider-call request self-integrity (DEC-0020) — mirrored from
+// src/kernel/contract-registry.ts: request_digest is sha256 over the canonical
+// JSON of the request WITHOUT the request_digest field.
+const requestSelfDigest = (d) => {
+  const { request_digest, ...rest } = d;
+  return `sha256:${createHash("sha256").update(canonicalJson(rest), "utf8").digest("hex")}`;
+};
 // The four DEC-0008 gates that require a formally named independent reviewer.
 const INDEPENDENT_REVIEW_GATES = [
   "quarantine-release",
@@ -111,7 +118,118 @@ const INDEPENDENT_REVIEW_GATES = [
   "real-client-data-provider-approval",
 ];
 
+// Per-state flag rules for the provider-operational-state machine (DEC-0020).
+// Mirrored in src/kernel/contract-registry.ts.
+const operationalStateRules = (d) => {
+  const out = [];
+  const s = d.operational_state;
+  const expect = (field, want) => {
+    if (d[field] !== want) out.push(`state ${s} requires ${field}=${JSON.stringify(want)}, found ${JSON.stringify(d[field])}`);
+  };
+  if (s === "CONFIGURED_BUT_LIVE_DISABLED") {
+    expect("credential_provisioned", false);
+    expect("console_spend_cap_configured", false);
+    expect("smoke_call_completed", false);
+    expect("live_call_request_ref", null);
+    expect("live_call_receipt_ref", null);
+    expect("reconciliation_ref", null);
+  } else if (s === "SMOKE_CALL_AUTHORIZED") {
+    expect("credential_provisioned", true);
+    expect("console_spend_cap_configured", true);
+    expect("smoke_call_completed", false);
+    if (d.live_call_request_ref === null) out.push("state SMOKE_CALL_AUTHORIZED requires a non-null live_call_request_ref");
+    expect("live_call_receipt_ref", null);
+    expect("reconciliation_ref", null);
+  } else if (s === "SMOKE_VERIFIED_EXP_DISABLED") {
+    expect("credential_provisioned", true);
+    expect("console_spend_cap_configured", true);
+    expect("smoke_call_completed", true);
+    if (d.live_call_request_ref === null) out.push("state SMOKE_VERIFIED_EXP_DISABLED requires a non-null live_call_request_ref");
+    if (d.live_call_receipt_ref === null) out.push("state SMOKE_VERIFIED_EXP_DISABLED requires a consumed live_call_receipt_ref");
+    if (d.reconciliation_ref === null) out.push("state SMOKE_VERIFIED_EXP_DISABLED requires a reconciliation_ref");
+  }
+  return out;
+};
+
 const SEMANTIC = {
+  "live-provider-call-request.schema.json": [
+    {
+      invariant: "DEC-0020 request-digest-consistency",
+      check: (d) => {
+        const recomputed = requestSelfDigest(d);
+        return d.request_digest === recomputed
+          ? []
+          : [`request_digest '${d.request_digest}' does not match the recomputed canonical digest '${recomputed}'`];
+      },
+    },
+    {
+      invariant: "DEC-0020 validity-window-ordered",
+      check: (d) =>
+        Date.parse(d.valid_until) > Date.parse(d.valid_from)
+          ? []
+          : [`valid_until '${d.valid_until}' must be after valid_from '${d.valid_from}'`],
+    },
+    {
+      invariant: "DEC-0020 sorted-unique-fixtures",
+      check: (d) => {
+        const out = [];
+        const ids = (d.synthetic_fixture_refs ?? []).map((f) => f.fixture_id);
+        for (let i = 1; i < ids.length; i++)
+          if (!(ids[i] > ids[i - 1]))
+            out.push(`synthetic_fixture_refs not strictly sorted by fixture_id: '${ids[i]}' follows '${ids[i - 1]}'`);
+        return out;
+      },
+    },
+  ],
+  "provider-operational-state.schema.json": [
+    { invariant: "DEC-0020 operational-state-machine", check: operationalStateRules },
+  ],
+  "provider-smoke-result.schema.json": [
+    {
+      invariant: "DEC-0020 status-failure-consistency",
+      check: (d) => {
+        const out = [];
+        if (d.status === "succeeded") {
+          if (d.failure_reason !== null) out.push("a succeeded smoke result must carry failure_reason null");
+          if (d.returned_model !== d.requested_model)
+            out.push("a succeeded smoke result must have returned_model equal to requested_model");
+          if (d.output_artifact_digest === null)
+            out.push("a succeeded smoke result must carry the validated output_artifact_digest");
+          if (d.live_call_receipt_ref === null)
+            out.push("a succeeded smoke result must carry the consumed live_call_receipt_ref");
+        } else if (d.status === "failed") {
+          if (d.failure_reason === null) out.push("a failed smoke result must carry a typed failure_reason");
+          if (d.output_artifact_digest !== null)
+            out.push("a failed smoke result must not carry an output artifact digest (no partial artifact)");
+        }
+        if (d.settled_usd > d.reserved_usd)
+          out.push("settled_usd must never exceed reserved_usd");
+        return out;
+      },
+    },
+  ],
+  "provider-reconciliation-record.schema.json": [
+    {
+      invariant: "DEC-0020 reconciled-consistency",
+      check: (d) => {
+        const out = [];
+        if (d.reconciled === true) {
+          if (d.requests_observed !== 1) out.push("reconciled requires exactly one observed request");
+          if (d.returned_model_matches !== true) out.push("reconciled requires the returned model to match");
+          if (d.hard_cap_active !== true) out.push("reconciled requires the USD 60 hard cap to remain active");
+          if (d.local_settled_usd > 0.25) out.push("reconciled requires the charge to be no greater than USD 0.25");
+          if (d.usd_within_tolerance !== true) out.push("reconciled requires usd_within_tolerance");
+          // Cost agreement: either a real provider figure within 0.01, or an
+          // explicitly documented per-request precision limitation.
+          if (d.provider_usd === null && d.precision_limitation !== true)
+            out.push("reconciled with no provider_usd requires precision_limitation=true (never a silent match)");
+          if (d.provider_usd !== null && Math.abs(d.local_settled_usd - d.provider_usd) > 0.01)
+            out.push("reconciled requires the local cost within USD 0.01 of the provider-visible cost");
+        }
+        return out;
+      },
+    },
+  ],
   "provider-policy-candidate.schema.json": [
     {
       invariant: "DEC-0019 candidate-digest-consistency",

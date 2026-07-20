@@ -67,7 +67,7 @@ export interface AnthropicAdapterDeps {
   validateOutput: (outputContract: string, artifact: unknown) => Result<Record<string, unknown>>;
 }
 
-interface ParsedSuccess {
+export interface ParsedSuccess {
   artifact: unknown;
   returnedModel: string;
   inputTokens: number;
@@ -501,7 +501,7 @@ function classifyHttpFailure(response: TransportResponse): {
   };
 }
 
-function parseSuccessResponse(
+export function parseSuccessResponse(
   response: TransportResponse,
   requestedModel: string
 ): Result<ParsedSuccess> {

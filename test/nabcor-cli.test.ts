@@ -170,7 +170,7 @@ function signingSetup(): SigningSetup {
     join(configDir, "authority-registry.active.json"),
     JSON.stringify(
       {
-        schema_version: "1.9.0",
+        schema_version: "1.10.0",
         registry_id: "areg-nabcor",
         registry_version: 2,
         supersedes_registry_version: 1,
@@ -301,12 +301,19 @@ test("--json emits exactly one parseable object for success and failure, with th
 // ---------------------------------------------------------------------------
 // Status
 // ---------------------------------------------------------------------------
-test("status reports the configured-but-live-disabled provider posture, public authority metadata, and frozen gates — without key bytes", () => {
+test("status reports the smoke-verified, general-live-disabled provider posture, public authority metadata, and frozen gates — without key bytes", () => {
   const human = run(["status"]);
   assert.equal(human.status, 0);
+  // Post Phase 1C.2 the committed state is SMOKE_VERIFIED_EXP_DISABLED: general
+  // live invocation stays disabled and EXP-0001 stays unexecuted, but the
+  // credential is provisioned, the console cap configured, and the one smoke
+  // call completed.
   assert.match(human.stdout, /live invocation DISABLED/);
-  assert.match(human.stdout, /no credential exists in NABCor/);
-  assert.match(human.stdout, /CONFIGURED_BUT_LIVE_DISABLED/);
+  assert.match(human.stdout, /credential provisioned/);
+  assert.match(human.stdout, /console cap configured/);
+  assert.match(human.stdout, /smoke call completed/);
+  assert.match(human.stdout, /SMOKE_VERIFIED_EXP_DISABLED/);
+  assert.doesNotMatch(human.stdout, /ENABLED/);
   assert.match(human.stdout, /adapters \["anthropic","fake"\]/);
   assert.match(human.stdout, /data classes \["synthetic"\]/);
   assert.match(human.stdout, /EXP-0001 executed false/);
@@ -393,7 +400,7 @@ test("analyze refuses cross-brand profiles and malformed stored profiles with re
   // A planted, contract-invalid profile fails closed at the store boundary.
   writeFileSync(
     join(s.storeRoot, WS, BRAND, "truth-profile", "tp-broken.json"),
-    JSON.stringify({ schema_version: "1.9.0", artifact_id: "tp-broken" }) + "\n",
+    JSON.stringify({ schema_version: "1.10.0", artifact_id: "tp-broken" }) + "\n",
     "utf8"
   );
   const malformed = run([
@@ -682,7 +689,7 @@ test("wrong-target, unenrolled-key, expired, and cross-namespace evidence all fa
     expires_at: new Date(Date.now() + 3_600_000).toISOString().replace(/\.\d{3}Z$/, "Z"),
   };
   const wrongTargetEvidence = {
-    schema_version: "1.9.0",
+    schema_version: "1.10.0",
     evidence_id: "apev-cli-wrongtarget",
     payload: payloadBase,
     payload_digest: approvalPayloadDigest(payloadBase),
@@ -705,7 +712,7 @@ test("wrong-target, unenrolled-key, expired, and cross-namespace evidence all fa
     expires_at: "2026-01-01T01:00:00Z",
   };
   const expiredEvidence = {
-    schema_version: "1.9.0",
+    schema_version: "1.10.0",
     evidence_id: "apev-cli-expired",
     payload: expiredPayload,
     payload_digest: approvalPayloadDigest(expiredPayload),
@@ -774,7 +781,7 @@ test("an interrupted application resumes through the CLI, and a same-nonce repla
   const foreignPayload = { ...payload, reason: "a different signed reason" };
   const pem = readFileSync(setup.privateKeyPath, "utf8");
   const foreignEvidence = {
-    schema_version: "1.9.0",
+    schema_version: "1.10.0",
     evidence_id: "apev-cli-foreign",
     payload: foreignPayload,
     payload_digest: approvalPayloadDigest(foreignPayload),

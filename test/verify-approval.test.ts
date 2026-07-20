@@ -357,7 +357,7 @@ test("an unsigned Decision artifact and legacy envelope approvals grant no autho
   const s = approvalScenario();
   // A ratified, schema-valid decision artifact is not approval evidence.
   const decision = {
-    schema_version: "1.9.0",
+    schema_version: "1.10.0",
     artifact_id: "DEC-9999-test",
     brand_ref: null,
     created_at: "2026-07-17T12:00:00Z",

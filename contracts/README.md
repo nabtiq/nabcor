@@ -89,9 +89,71 @@ instead of invented claim refs — see fixture `P02`).
 
 ## Versioning
 
-Artifact `schema_version` for all contracts: **1.9.0** (was 1.8.0). The version is
+Artifact `schema_version` for all contracts: **1.10.0** (was 1.9.0). The version is
 globally synchronized across all contracts; examples, fixtures, and
-runtime-generated artifacts carry it consistently.
+runtime-generated artifacts carry it consistently. **One documented exception:**
+the committed, Product Owner-SIGNED `provider-policy-candidate.active.json`
+stays at the `schema_version` it was signed at (1.9.0) because its canonical
+content digest backs the DEC-0019 Ed25519 signature and the whole policy chain;
+re-issuing it at a new version would invalidate that signature. Its
+`schema_version` field is pattern-validated, so the 1.9.0 instance remains valid
+under the 1.10.0 schema, and re-signing at a new version is a future ceremony.
+
+**Migration implications (1.9.0 → 1.10.0):** three contracts were added, one
+contract became a state machine, and two changed meaning minimally for the
+Anthropic smoke-verification ceremony (DEC-0020, Phase 1C.2); no other contract
+changed meaning:
+
+- `live-provider-call-request` (new): the immutable, signable authorization
+  target for EXACTLY ONE real provider request. It carries the complete
+  authorized action — namespace, the exact candidate and gateway-policy
+  references with digests, provider and Haiku model, synthetic fixture
+  references with content digests, expected output contract, the deliberately
+  small input/output token maxima, the USD 0.25 ceremony ceiling, one attempt
+  with retry and escalation disabled, the pinned endpoint and API version,
+  every disabled optional surface, a short validity window, the purpose, and a
+  self-consistent `request_digest`. Semantic layer: `request-digest-consistency`
+  (recomputed over the request without its digest field), `validity-window-ordered`,
+  and `sorted-unique-fixtures`. The Product Owner signs the stored artifact's
+  content digest under the `live-provider-call-approval` gate; the approval is
+  consumed exactly once.
+- `provider-smoke-result` (new): the sanitized, immutable record of the one real
+  request — identifiers, token counts, USD accounting, and validation outcome
+  only, never a prompt, body, header, or credential. It binds the signed
+  live-call request and its single-use consumption receipt. Semantic layer:
+  `status-failure-consistency` (a succeeded result has failure_reason null,
+  returned_model equal to requested, a consumed receipt, and an output artifact
+  digest; a failed result has a typed reason and no partial artifact;
+  settled_usd never exceeds reserved_usd).
+- `provider-reconciliation-record` (new): the local-vs-provider reconciliation.
+  Semantic layer: `reconciled-consistency` (`reconciled: true` requires exactly
+  one observed request, a model match, an active USD 60 hard cap, a charge
+  ≤ USD 0.25, cost within USD 0.01 of the provider-visible amount OR an
+  explicitly documented per-request precision limitation — never a silent match).
+- `provider-smoke-echo` (new): a trivial, constrained-decoding-compatible output
+  contract (object, `additionalProperties: false`, only a `const`
+  acknowledgement) — the structured output the smoke request asks the model to
+  return. It carries no truth authority.
+- `provider-operational-state` became a fail-closed STATE MACHINE:
+  `operational_state` moves through `CONFIGURED_BUT_LIVE_DISABLED` →
+  `SMOKE_CALL_AUTHORIZED` → `SMOKE_VERIFIED_EXP_DISABLED`, with a semantic layer
+  (`operational-state-machine`) pinning the credential/console-cap/smoke flags
+  and the request/receipt/reconciliation references to their permitted values in
+  each state. Two invariants remain schema constants in EVERY state: general
+  `live_invocation_enabled` is false (the smoke call runs through a single
+  consumed authorization, never a standing flag) and `exp_0001_executed` is
+  false. The former single `live_call_authorization_ref` field is replaced by
+  `live_call_request_ref` / `live_call_receipt_ref` / `reconciliation_ref`.
+- `approval-evidence` and `approval-receipt` changed meaning minimally: their
+  `target_artifact_type` enums gain `live-provider-call-request` (the
+  `live-provider-call-approval` gate already existed from DEC-0019). No other
+  field changed.
+- No real production artifacts existed at 1.9.0 for these types, so no
+  real-artifact migration was performed — examples, fixtures, and the committed
+  active operational-state document were re-issued at 1.10.0 in the same change
+  (the signed candidate excepted, above).
+
+**Historical — migration implications (1.8.0 → 1.9.0):** two contracts were added, the
 
 **Migration implications (1.8.0 → 1.9.0):** two contracts were added, the
 gateway policy changed meaning fundamentally, and three contracts changed

@@ -75,7 +75,7 @@ else if (!dec18Row.includes("ratified") || !dec18Row.includes("Option A")) {
 // in the same reviewed change, never a silent drift. The candidate/evidence/
 // receipt/decision chain itself is verified by scripts/validate-provider-chain.mjs.
 const EXPECTED_POLICY_SHA256 =
-  "2bac7a3eb13b255b8f14348bd44397696df0483e7bba6a3187a4e7f420525aa7";
+  "02b4ed937f327982ccaa9751757f012a3d5d81704045277c45f6df373898629e";
 const policyRaw = read("contracts/gateway-policy.active.json");
 const policySha = createHash("sha256").update(policyRaw, "utf8").digest("hex");
 if (policySha !== EXPECTED_POLICY_SHA256) {
@@ -94,26 +94,23 @@ const dec19 = read("brain/decisions/DEC-0019-anthropic-provider-implementation.m
 if (!/^status: ratified$/m.test(dec19)) {
   fail("DEC-0019 (the implementation decision) must be ratified");
 }
-// Live invocation stays disabled: the committed operational state must pin
-// every live-relevant flag false (the schema consts enforce this too; this
-// re-assertion keeps the proof visible even if the contract layer regresses).
+// State-INDEPENDENT invariants that hold in every provider operational state
+// (DEC-0019/DEC-0020): general live invocation is never enabled, and EXP-0001
+// is never executed. The per-state flag rules (which flags/refs are permitted
+// in CONFIGURED_BUT_LIVE_DISABLED vs SMOKE_CALL_AUTHORIZED vs
+// SMOKE_VERIFIED_EXP_DISABLED) are enforced by the contract semantic layer and
+// its fixtures; this guard re-asserts the two invariants that must hold no
+// matter which state the smoke ceremony has reached.
 const operationalState = JSON.parse(read("contracts/provider-operational-state.active.json"));
-if (operationalState.operational_state !== "CONFIGURED_BUT_LIVE_DISABLED") {
-  fail("the provider operational state must be CONFIGURED_BUT_LIVE_DISABLED in this phase");
+const VALID_STATES = ["CONFIGURED_BUT_LIVE_DISABLED", "SMOKE_CALL_AUTHORIZED", "SMOKE_VERIFIED_EXP_DISABLED"];
+if (!VALID_STATES.includes(operationalState.operational_state)) {
+  fail(`provider-operational-state.operational_state '${operationalState.operational_state}' is not a valid state`);
 }
-for (const flag of [
-  "live_invocation_enabled",
-  "credential_provisioned",
-  "console_spend_cap_configured",
-  "smoke_call_completed",
-  "exp_0001_executed",
-]) {
-  if (operationalState[flag] !== false) {
-    fail(`provider-operational-state.${flag} must be false (live invocation is disabled; no credential, cap, smoke call, or EXP-0001 execution exists)`);
-  }
+if (operationalState.live_invocation_enabled !== false) {
+  fail("provider-operational-state.live_invocation_enabled must be false in every state (general live invocation is never enabled)");
 }
-if (operationalState.live_call_authorization_ref !== null) {
-  fail("no live-call authorization may exist in this phase");
+if (operationalState.exp_0001_executed !== false) {
+  fail("provider-operational-state.exp_0001_executed must be false (EXP-0001 requires its own separate later signed approval)");
 }
 
 // ---- 3. EXP-0001 must remain unexecuted ----
